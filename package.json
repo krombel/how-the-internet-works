@@ -1,0 +1,25 @@
+{
+  "name": "how-the-internet-works",
+  "version": "0.0.0",
+  "description": "An explorable, zoomable explanation of how the internet works — from radio waves to peering.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@fontsource-variable/noto-sans-arabic": "^5.3.0",
+    "@fontsource-variable/nunito": "^5.3.0",
+    "d3-interpolate": "^3.0.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@types/d3-interpolate": "^3.0.4",
+    "svelte": "^5.57.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  },
+  "private": true
+}
