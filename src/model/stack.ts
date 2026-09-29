@@ -1,8 +1,8 @@
-// Envelope layers (issue #5): every layer is a content folder (layer.ts + Layer.svelte + locales), reused at every hop
-// where it applies. This computes, for a packet on one link, the stack of layers (the link's lower layers + the flow's
-// upper ones) and the context each layer component gets, so it can decide what to show: sealed or open for the
-// device that reads it next, addresses as rewritten by NATs so far, TTL, direction…
+// Envelope layers (issue #5): every layer is a content folder (layer.ts + locales), reused at every hop where it
+// applies. This is the context a layer dive gets for a packet on one link: who reads it next, addresses and ports as
+// rewritten by NATs so far, TTL, direction. The full per-field picture is the packet model (./packet.ts).
 import type { Level, Role } from '../define';
+import { clientAt, opensLayer, ttlAt } from './packet';
 import type { Hop, Link, Route } from './resolve';
 
 export interface LayerCtx {
@@ -22,53 +22,32 @@ export interface LayerCtx {
   /** IP addresses as they are on this link. */
   src: string;
   dst: string;
-  /** When `to` is a NAT: the client's address on its inside and outside. */
-  nat: { inside: string; outside: string } | null;
+  /** Ports as they are on this link (when the flow has them). */
+  sport?: number;
+  dport?: number;
+  /** When `to` is a NAT: the client's address and port on its inside and outside. */
+  nat: { inside: string; outside: string; insidePort?: number; outsidePort?: number } | null;
   ttl: number;
   level: Level;
 }
 
-export interface StackEntry { id: string; open: boolean }
-
-/** The client's address as seen on chain link `i` (after every NAT it has passed). */
-function clientAddrAt(r: Route, i: number): string {
-  let a = r.chain[0].addr ?? '';
-  for (let k = 1; k <= i && k < r.chain.length; k++) if (r.chain[k].natTo) a = r.chain[k].natTo!;
-  return a;
-}
-
-const forwards = (h: Hop) => h.role === 'router' || h.role === 'nat';
-
-export function layerCtx(r: Route, link: Link, flow: string, kind: string, dir: 'up' | 'down', level: Level): LayerCtx {
+export function layerCtx(r: Route, link: Link, flowId: string, kind: string, dir: 'up' | 'down', level: Level): LayerCtx {
+  const flow = r.activity.flows.find((f) => f.id === flowId) ?? r.activity.flows[0];
   const a = r.hops[link.from], b = r.hops[link.to];
   const from = dir === 'up' ? a : b, to = dir === 'up' ? b : a;
   const client = r.chain[0], server = r.chain[r.chain.length - 1];
   const i = Math.max(0, link.index);
-  const visible = clientAddrAt(r, i), srv = server.addr ?? '';
-  const passed = dir === 'up' ? r.chain.slice(1, i + 1) : r.chain.slice(i + 1, -1);
-  const nat = to.natTo ? { inside: clientAddrAt(r, to.index - 1), outside: to.natTo } : null;
+  const c = clientAt(r, i, flow), srv = server.addr ?? '', sp = flow.ports?.server;
+  const inside = to.natTo ? clientAt(r, to.index - 1, flow) : null;
+  const outside = to.natTo ? clientAt(r, to.index, flow) : null;
   return {
-    flow, kind, dir, link, from, to, role: to.role, client, server,
-    src: dir === 'up' ? visible : srv, dst: dir === 'up' ? srv : visible,
-    nat, ttl: 64 - passed.filter(forwards).length, level,
+    flow: flow.id, kind, dir, link, from, to, role: to.role, client, server,
+    src: dir === 'up' ? c.addr.text : srv, dst: dir === 'up' ? srv : c.addr.text,
+    sport: dir === 'up' ? c.port : sp, dport: dir === 'up' ? sp : c.port,
+    nat: inside && outside ? { inside: inside.addr.text, outside: outside.addr.text, insidePort: inside.port, outsidePort: outside.port } : null,
+    ttl: ttlAt(r, i, dir), level,
   };
 }
 
 /** Whether a device with this role opens (reads) a layer, or sees it sealed. */
-export function opens(r: Route, layer: string, role: Role): boolean {
-  const openAt = r.content.layers[layer]?.openAt;
-  return !openAt || openAt.includes(role);
-}
-
-/** Layers on a link, outermost first, each open or sealed for the device that reads it next. */
-export function stackOf(r: Route, link: Link, flowStack: string[], role: Role): StackEntry[] {
-  return [...link.stack, ...flowStack].map((id) => ({ id, open: opens(r, id, role) }));
-}
-
-/** A stable, made-up MAC address for an instance (locally administered range). */
-export function fakeMac(id: string): string {
-  let h = 2166136261;
-  for (const ch of id) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
-  const b = [0x02, (h >>> 24) & 255, (h >>> 16) & 255, (h >>> 8) & 255, h & 255, id.length * 37 & 255];
-  return b.map((x) => x.toString(16).padStart(2, '0')).join(':');
-}
+export const opens = (r: Route, layer: string, role: Role) => opensLayer(r.content.layers[layer], role);

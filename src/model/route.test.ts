@@ -4,7 +4,7 @@ import { morphScene, pathScene } from './layout';
 import { childrenOf, frameOf, layerPath, sceneRef, sideways, validPrefix } from './tree';
 import { formatHash, normaliseLoc, parseHash } from './location';
 import { content, type Content } from './registry';
-import { stackOf } from './stack';
+import { packetOn } from './packet';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
@@ -35,7 +35,12 @@ describe('resolveRoute', () => {
       expect(r.chain[0].role, what).toBe('endpoint');
       expect(r.chain.at(-1)!.role, what).toBe('endpoint');
       expect(r.links.length, what).toBe(r.chain.length - 1);
-      for (const l of r.links) for (const f of r.activity.flows) expect(stackOf(r, l, f.stack, 'endpoint').length, what).toBeGreaterThan(f.stack.length);
+      // every header field resolves to a value on every link, both ways
+      for (const l of r.links) for (const f of r.activity.flows) for (const dir of ['up', 'down'] as const) {
+        const layers = packetOn(r, f, l.index, dir);
+        expect(layers.length, what).toBeGreaterThan(f.stack.length);
+        for (const x of layers) for (const v of x.fields) expect(v.value.text || v.value.key, `${what} ${l.id} ${dir} ${x.id}.${v.id}`).toMatch(/^[^{}]+$/);
+      }
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {
           const ref = sceneRef(r, path, o);

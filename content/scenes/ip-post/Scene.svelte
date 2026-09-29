@@ -14,7 +14,6 @@
   const S = strings('scene.ip-post');
   const IP = strings('layer.ip');
   const LN = strings('layer');
-  const PORT = 51034;
   const UP = '#ffcf5d', DOWN = '#bd6b87', OLD = '#72b8a5', NEW = '#f28f5b';
 
   const ctx = $derived(subject.ctx);
@@ -39,8 +38,10 @@
   const me = $derived(nerd ? clientAddr : yours(ctx.client));
   const them = $derived(nerd ? serverAddr : IP('server'));
   const cgnat = $derived(!!ctx.nat && carrierNat(ctx.nat.inside));
+  const PORT = $derived(ctx.nat?.insidePort ?? 0);
+  const OUT = $derived(ctx.nat?.outsidePort ?? PORT);
   const inside = $derived(nerd ? `${ctx.nat?.inside}:${PORT}` : yours(ctx.client));
-  const outside = $derived(nerd ? `${ctx.nat?.outside}:${PORT}` : nameOf(ctx.to));
+  const outside = $derived(nerd ? `${ctx.nat?.outside}:${OUT}` : nameOf(ctx.to));
 
   // the job at this hop, 0..1 through the act (1 once done on this leg)
   const act = $derived(m.phase === 'act' ? m.p : m.phase === 'in' ? 0 : 1);
@@ -80,10 +81,10 @@
   const notes = $derived.by(() => {
     const a = ctx.nat?.inside ?? '';
     const others = cgnat
-      ? [[near(a, 0), PORT, PORT + 1], [near(a, 1), 49152, 49152], [near(a, 2), 60311, 60311]] as const
-      : [[near(a, 0), PORT, PORT + 1]] as const;
+      ? [[near(a, 0), PORT, OUT + 1], [near(a, 1), 49152, OUT + 2], [near(a, 2), 60311, OUT + 3]] as const
+      : [[near(a, 0), PORT, OUT + 1]] as const;
     return [
-      { you: true, name: S('you'), inside: `${a}:${PORT}`, port: PORT },
+      { you: true, name: S('you'), inside: `${a}:${PORT}`, port: OUT },
       ...others.map(([ip, p, o]) => ({ you: false, name: cgnat ? S('neighbour') : nameOf(other), inside: `${ip}:${p}`, port: o })),
     ];
   });

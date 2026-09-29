@@ -3,7 +3,7 @@ import { content } from './registry';
 import { loadAllPacks } from './strings';
 import { formatProblems, validate } from './validate';
 
-const files = Object.keys(import.meta.glob(['/content/*/*/Layer.svelte', '/content/*/*/Scene.svelte']));
+const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
 
 export async function validateAll() {
   const problems = validate({ content, packs: await loadAllPacks(), files });

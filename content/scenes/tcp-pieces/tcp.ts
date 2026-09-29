@@ -157,9 +157,3 @@ export function handshakeTicket(time: number): { key: 'hi' | 'yes' | 'great'; x:
 
 /** A speech ticket's width for its text. */
 export const ticketW = (text: string, size: number) => text.length * size * 0.56 + size * 1.4;
-
-export function outsidePort(addr: string): number {
-  let h = 0;
-  for (const ch of addr) h = (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0;
-  return 60000 + (h % 4200);
-}

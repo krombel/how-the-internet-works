@@ -109,7 +109,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
 }
 
 /** Links for the reader's level; in their own language if there are any (English nerd links stay), else English. */
-function learnMore(all: LearnMore[], lang = loc.lang, level = loc.level, max = 3): LearnMore[] {
+export function learnMore(all: LearnMore[], lang = loc.lang, level = loc.level, max = 3): LearnMore[] {
   const fit = all.filter((l) => l.level === 'both' || l.level === level);
   const own = fit.filter((l) => l.lang === lang);
   const en = lang === 'en' ? [] : fit.filter((l) => l.lang === 'en' && !(own.length && l.level !== 'nerd'));

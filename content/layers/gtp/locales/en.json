@@ -1,6 +1,4 @@
 {
-  "from": "From",
-  "to": "To",
   "name": {
     "kid": "Tunnel envelope",
     "nerd": "GTP-U tunnel (outer IP/UDP)"
@@ -8,5 +6,97 @@
   "note": {
     "kid": "The tower puts your parcel inside a bigger one addressed to the mobile core, so the network can find your phone wherever you walk.",
     "nerd": "The gNB wraps the phone’s own IP packet in IP/UDP/GTP-U (port 2152) to the UPF; the TEID identifies this phone’s session."
+  },
+  "line": "GTP-U, {osrc} → {odst}, TEID {teid}",
+  "field": {
+    "ovhl": {
+      "name": "Outer version, IHL",
+      "about": "The outer IPv4 header starts: version 4, 20 bytes."
+    },
+    "otos": {
+      "name": "Outer DSCP/ECN",
+      "about": "Traffic class of the tunnel packet."
+    },
+    "olen": {
+      "name": "Outer total length",
+      "about": "The tunnel packet, with your whole packet inside."
+    },
+    "oid": {
+      "name": "Outer identification",
+      "about": "For fragments; unused here."
+    },
+    "ofrag": {
+      "name": "Outer flags, offset",
+      "about": "Don’t fragment."
+    },
+    "ottl": {
+      "name": "Outer TTL",
+      "about": "Counts routers inside the operator’s network; your packet’s own TTL isn’t touched."
+    },
+    "oproto": {
+      "name": "Outer protocol",
+      "about": "17 = UDP."
+    },
+    "osum": {
+      "name": "Outer checksum",
+      "about": "Over the outer header."
+    },
+    "osrc": {
+      "name": {
+        "kid": "From",
+        "nerd": "Outer source"
+      },
+      "about": "One end of the tunnel."
+    },
+    "odst": {
+      "name": {
+        "kid": "To",
+        "nerd": "Outer destination"
+      },
+      "about": "The other end: the tower on the way down, the core (UPF) on the way up."
+    },
+    "usport": {
+      "name": "UDP source port",
+      "about": "2152, the GTP-U port."
+    },
+    "udport": {
+      "name": "UDP destination port",
+      "about": "2152 says a GTP-U header follows."
+    },
+    "ulen": {
+      "name": "UDP length",
+      "about": "UDP header and everything inside."
+    },
+    "usum": {
+      "name": "UDP checksum",
+      "about": "0: not used (the inner packet has its own)."
+    },
+    "flags": {
+      "name": "GTP flags",
+      "about": "Version 1, GTP (not GTP′), an extension header follows."
+    },
+    "type": {
+      "name": "Message type",
+      "about": "255 = G-PDU: a user packet inside."
+    },
+    "length": {
+      "name": "GTP length",
+      "about": "Bytes after the first 8 of the GTP header."
+    },
+    "teid": {
+      "name": {
+        "kid": "Ticket no.",
+        "nerd": "TEID"
+      },
+      "about": "Tunnel endpoint ID: which phone’s session this is. Each end picks the TEID it wants to receive."
+    },
+    "seqext": {
+      "name": "Sequence, N-PDU, next ext.",
+      "about": "Optional fields; 0x85 = a PDU session container follows."
+    },
+    "pdu": {
+      "name": "PDU session container",
+      "about": "Direction and QoS flow (QFI) of the packet, matching the radio side."
+    }
   }
 }

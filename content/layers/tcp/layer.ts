@@ -1,6 +1,21 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
+  code: { ipproto: '6 (TCP)' },
+  fields: [
+    // a NAT rewrites the source port (or the destination port on the way back); routers hash both (ECMP)
+    { id: 'sport', bits: 16, value: '{sport}', use: ['router', 'nat', 'endpoint'] },
+    { id: 'dport', bits: 16, value: '{dport}', use: ['router', 'nat', 'endpoint'] },
+    { id: 'seq', bits: 32, value: { up: '3920417111', down: '1120598433' }, use: ['endpoint'], kid: { up: '1', down: '42' } },
+    { id: 'ack', bits: 32, value: { up: '1120598433', down: '3920417491' }, use: ['endpoint'] },
+    { id: 'offset', bits: 4, value: '5 (20 bytes)' },
+    { id: 'reserved', bits: 3, value: '0' },
+    { id: 'flags', bits: 9, value: { up: 'PSH, ACK', down: 'ACK' }, use: ['endpoint'] },
+    { id: 'window', bits: 16, value: { up: '2048', down: '501' }, use: ['endpoint'] },
+    // covers the addresses and ports too, so a NAT has to fix it
+    { id: 'checksum', bits: 16, value: '{sum}', use: ['nat', 'endpoint'] },
+    { id: 'urgent', bits: 16, value: '0' },
+  ],
   openAt: ['endpoint'],
   dive: 'tcp-pieces',
   learnMore: [

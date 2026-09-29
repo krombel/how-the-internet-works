@@ -9,6 +9,8 @@ export default defineActivity({
     {
       id: 'video',
       stack: ['ip', 'tcp', 'tls', 'http'],
+      // an HTTPS connection from a random high port on the phone
+      ports: { client: 51034, server: 443 },
       packets: [
         { kind: 'request', dir: 'up', pace: 1.2, colour: '#ffcf5d' },
         { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, offset: 0.4, colour: '#bf6f8f' },

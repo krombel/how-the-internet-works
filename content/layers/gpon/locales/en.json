@@ -1,7 +1,4 @@
 {
-  "colour": "Colour of light",
-  "up": "going up the street",
-  "down": "coming home",
   "name": {
     "kid": "Light envelope",
     "nerd": "GPON frame (GEM)"
@@ -9,5 +6,27 @@
   "note": {
     "kid": "Everyone on your street shares the same fibre, so each house only opens envelopes with its own number.",
     "nerd": "Downstream is broadcast to every ONT on the splitter and AES-encrypted per GEM port; upstream uses time slots."
+  },
+  "line": "GPON Encapsulation Method, Port-ID {port}, length {pli}",
+  "field": {
+    "pli": {
+      "name": "Payload length",
+      "about": "Bytes of payload in this GEM frame."
+    },
+    "port": {
+      "name": {
+        "kid": "House no.",
+        "nerd": "GEM Port-ID"
+      },
+      "about": "Everyone on the splitter hears every frame going down; each ONT only keeps its own Port-IDs."
+    },
+    "pti": {
+      "name": "Payload type",
+      "about": "User data, and whether this is the last fragment."
+    },
+    "hec": {
+      "name": "Header error control",
+      "about": "Protects the GEM header itself."
+    }
   }
 }

@@ -1,17 +1,21 @@
 <script lang="ts">
-  // Top bar: breadcrumb, "What can I explore?", style switcher (only when more than one theme is installed), language,
-  // kid/nerd, sound.
+  // Top bar: breadcrumb, "What can I explore?", pause, style switcher (only when more than one theme is installed),
+  // language, kid/nerd, sound.
   import { languages } from '../model/strings';
   import { go } from '../router';
   import { loc, setLevel, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr } from '../state.svelte';
   import Icon from './Icon.svelte';
 
-  let { crumbs, small, wide, explore, canExplore, ontoggle }: {
+  let { crumbs, small, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
     crumbs: { title: string; path: string[] }[]; small: boolean;
     /** Room for the long "What can I explore?" label. */
     wide: boolean;
     /** "What can I explore?" is on / there's anything to explore in this scene. */
     explore: boolean; canExplore: boolean; ontoggle: () => void;
+    /** Traffic is frozen; pausing is offered (path scenes only). */
+    paused: boolean; onpause?: () => void;
+    /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
+    quiet: boolean;
   } = $props();
   let open = $state<'style' | null>(null);
   const toggle = (p: 'style') => (open = open === p ? null : p);
@@ -20,7 +24,7 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && open && ((open = null), e.stopPropagation())} />
 <nav class="chrome" data-ui>
-  <div class="crumbs card">
+  <div class="crumbs card" class:hide={quiet} aria-hidden={quiet}>
     {#each crumbs as c, i}
       {#if i}<span class="sep" aria-hidden="true">›</span>{/if}
       {#if i < crumbs.length - 1}
@@ -34,6 +38,11 @@
         <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
       </button>
     </div>
+    {#if onpause}
+      <div class="card">
+        <button class="btn icon-btn" aria-pressed={paused} title={tr(paused ? 'ui.play' : 'ui.pause')} onclick={onpause}><Icon name={paused ? 'play' : 'pause'} /></button>
+      </div>
+    {/if}
     {#if THEME_IDS.length > 1}
       <button class="card btn" aria-haspopup="true" aria-expanded={open === 'style'} onclick={() => toggle('style')} title={tr('ui.style')}>
         <span class="swatch" style:background={themeSwatches[settings.style]}></span>

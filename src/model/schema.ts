@@ -38,9 +38,35 @@ export const technology = z.strictObject({
   learnMore: learnMoreList,
 });
 
+/** A field value: a template with {facts} (see FACTS in packet.ts), the same both ways or one per direction. An empty
+ *  value leaves the field out in that direction. */
+const fieldValue = z.union([z.string(), z.strictObject({ up: z.string(), down: z.string() })]);
+export const field = z.strictObject({
+  /** Its string key: layer.<layer>.field.<id>.name / .about. */
+  id,
+  /** Size on the wire (for the header diagram and lengths). Omit for text or variable-size fields. */
+  bits: z.number().int().positive().optional(),
+  value: fieldValue,
+  /** Roles that act on it when the packet reaches them (true: every hop that receives this layer). */
+  use: z.union([z.literal(true), z.array(role)]).optional(),
+  /** Shown to kids (when it matters at the hop): true, or a kid-friendly value. Addresses show as names for kids. */
+  kid: z.union([z.literal(true), fieldValue]).optional(),
+  learnMore: learnMoreList,
+});
+
 export const layer = z.strictObject({
-  /** Roles that open (read) this layer; everyone else sees it sealed. Default: everyone. */
+  /** Roles that open (read) this layer; everyone else leaves it closed. Default: everyone. */
   openAt: z.array(role).optional(),
+  /** Its payload (the layers inside) is encrypted for anyone who doesn't open this layer. */
+  seals: z.literal(true).optional(),
+  /** A tunnel: its own addresses are the hops where it starts and ends, and the link frames around it end there. */
+  tunnel: z.literal(true).optional(),
+  /** How outer layers name this one ({inner.<code>}), e.g. { ethertype: '0x0800 (IPv4)', ipproto: '6 (TCP)' }. */
+  code: z.record(id, z.string()).optional(),
+  /** Header fields, in wire order. */
+  fields: z.array(field).min(1),
+  /** Bytes of anything not described by bits (a text header, a body), per direction. */
+  bytes: z.strictObject({ up: z.number().int().min(0), down: z.number().int().min(0) }).optional(),
   /** The "look inside" scene for this layer, at any hop that reads it (a scene with `explains: 'layer'`). */
   dive: id.optional(),
   learnMore: learnMoreList,
@@ -82,8 +108,8 @@ export const hop = z.strictObject({
   role: role.optional(),
   /** Its address as seen by the next hop (IPv4 documentation ranges, please). */
   addr: z.string().optional(),
-  /** NAT: the address it rewrites the client's source address to. */
-  natTo: z.string().optional(),
+  /** NAT: the address it rewrites the client's source address to, with ":port" when it also rewrites the port. */
+  natTo: z.string().regex(/^[^:]+(:\d{1,5})?$/, 'use "address" or "address:port"').optional(),
 });
 export const link = z.strictObject({
   /** Technology id. */
@@ -123,6 +149,8 @@ export const flow = z.strictObject({
   id,
   /** Upper layers, outermost first (the technology of each link adds the lower ones). */
   stack: z.array(id).min(1),
+  /** Transport ports ({sport}/{dport} in header fields): the client's (NATs may rewrite it) and the server's. */
+  ports: z.strictObject({ client: z.number().int().min(1).max(65535), server: z.number().int().min(1).max(65535) }).optional(),
   packets: z.array(packet).min(1),
 });
 /** A place is where the device is (home, street, airplane…): the access segment from the device to where it joins the

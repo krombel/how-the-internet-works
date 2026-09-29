@@ -1,7 +1,4 @@
 {
-  "colour": "Lysets farve",
-  "up": "op ad gaden",
-  "down": "på vej hjem",
   "name": {
     "kid": "Lys-kuvert",
     "nerd": "GPON-ramme (GEM)"
@@ -9,5 +6,27 @@
   "note": {
     "kid": "Alle på din vej deler den samme fiber, så hvert hus åbner kun kuverter med sit eget nummer.",
     "nerd": "Nedstrøms sendes til alle ONT’er på splitteren, AES-krypteret pr. GEM-port; opstrøms bruger tidsluker."
+  },
+  "line": "GPON Encapsulation Method, port-ID {port}, længde {pli}",
+  "field": {
+    "pli": {
+      "name": "Længde",
+      "about": "Bytes indhold i GEM-rammen."
+    },
+    "port": {
+      "name": {
+        "kid": "Hus nr.",
+        "nerd": "GEM-port-ID"
+      },
+      "about": "Alle på splitteren hører hver ramme på vej ned; hver ONT beholder kun sine egne port-ID’er."
+    },
+    "pti": {
+      "name": "Indholdstype",
+      "about": "Brugerdata, og om det er det sidste fragment."
+    },
+    "hec": {
+      "name": "Header error control",
+      "about": "Beskytter selve GEM-headeren."
+    }
   }
 }

@@ -10,6 +10,7 @@
   --btn: rgba(255, 255, 255, 0.06); --btn-on: var(--accent); --btn-on-ink: var(--accent-ink); --btn-radius: 999px;
   --env-bg: rgba(255, 255, 255, 0.05); --env-edge: var(--card-edge); --env-radius: 14px; --env-sealed: rgba(255, 255, 255, 0.1);
   --env-name: var(--accent); --link: var(--accent);
+  --env-used: rgba(62, 240, 255, 0.16); --env-change: #ffb35c;
   --lbl-weight: 700; --lbl-halo: rgba(0, 0, 0, 0.55); --lbl-halo-w: 0.18em;
   color-scheme: dark;
 }
@@ -45,6 +46,7 @@ button { cursor: pointer; }
 .crumbs { display: flex; align-items: center; gap: 2px; padding: 3px 6px; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 16px; min-height: 46px; }
 .crumbs .btn { background: none; color: var(--muted); font-size: inherit; font-weight: inherit; font-family: inherit; }
 .crumbs .here { padding: 6px 10px; }
+.crumbs.hide { visibility: hidden; }
 .crumbs .sep { color: var(--muted); opacity: 0.6; display: inline-block; }
 [dir='rtl'] .crumbs .sep { transform: scaleX(-1); }
 .controls { margin-inline-start: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -64,6 +66,7 @@ button { cursor: pointer; }
 .caption { position: fixed; z-index: 10; inset: auto 0 0 0; margin: 0 auto max(10px, env(safe-area-inset-bottom)); max-width: 760px;
   width: calc(100% - 20px); padding: 12px 18px 12px; pointer-events: none; transition: opacity 0.35s ease, transform 0.35s ease; }
 .caption.hide { opacity: 0; transform: translateY(14px); }
+.caption.hide > * { pointer-events: none; }
 .caption > * { pointer-events: auto; }
 .caption h2 { margin: 0 0 3px; font-family: var(--heading-font); font-weight: var(--heading-weight); text-transform: var(--heading-transform);
   letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--accent); }
@@ -83,6 +86,7 @@ button { cursor: pointer; }
 @media (max-width: 520px), (max-height: 500px) { .caption .verb-name span { display: none; } .caption .doors { gap: 4px 10px; } }
 .door-dive { --door-ink: var(--door-dive, var(--accent)); }
 .door-expand { --door-ink: var(--door-open, var(--accent)); }
+.door-catch { --door-ink: var(--door-catch, var(--accent)); }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
@@ -118,24 +122,53 @@ button { cursor: pointer; }
 .land .step { top: 50%; margin-top: -29px; }
 .port .step { bottom: calc(var(--cap-h, 150px) + 16px); }
 
-/* ---------------- peek (follow a packet) */
-.peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(380px, calc(100% - 24px)); max-height: calc(100% - 96px);
-  overflow: auto; padding: 14px 14px 12px; }
-.port .peek { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); inset-inline: 10px; width: auto; max-height: 52%; }
-.peek header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+/* ---------------- peek (a caught packet at one hop) */
+.peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 96px);
+  display: flex; flex-direction: column; padding: 12px 14px 12px; }
+.peek.wide { width: min(560px, calc(100% - 24px)); }
+.port .peek { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); inset-inline: 10px; width: auto; max-height: 58%; }
+.port .peek .dive-hint { display: none; }
+.peek-body { overflow: auto; min-height: 0; margin-inline: -4px; padding-inline: 4px; }
+.peek header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.peek header .chip { min-height: 34px; padding: 4px 12px; font-size: 13px; }
+.peek header .chip.on { background: var(--btn-on); color: var(--btn-on-ink); }
+.hopnav { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.hopnav p { flex: 1; margin: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.15; text-align: center; }
+.hopnav strong { font-family: var(--heading-font); font-size: 16px; }
+.hopnav small { color: var(--muted); font-weight: 700; font-size: 12px; }
+.hopnav .btn:disabled { opacity: 0.35; cursor: default; }
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; padding: 0; font-size: 12px; font-weight: 800; }
+.chips li { padding: 1px 9px; border-radius: 99px; border: 2px solid var(--env-edge); background: var(--env-bg); }
+.chips .chip-off { border-style: dashed; opacity: 0.8; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.chips .chip-on { background: var(--env-used); }
+.chips .chip-edit { border-color: var(--env-change); color: var(--env-change); }
+.off-label { margin: 4px 0 0; font-size: 12px; font-weight: 800; color: var(--muted); }
+.off-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.off-row .env { flex: 1 1 12em; border-style: dashed; opacity: 0.75; }
 .peek h2 { margin: 0; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 18px; color: var(--accent);
   text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
-.peek .where { font-size: 13px; color: var(--muted); font-weight: 700; margin: 0 0 8px; }
+.peek .where { font-size: 13px; line-height: 1.35; color: var(--muted); font-weight: 700; margin: 0 0 8px; }
 .env { border: 2px solid var(--env-edge); background: var(--env-bg); border-radius: var(--env-radius); padding: 7px 9px 8px; margin-top: 6px;
   animation: env-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; animation-delay: calc(var(--d) * 70ms); }
 .env.sealed { background: var(--env-sealed); border-style: dashed; }
-.env-head { display: flex; align-items: center; gap: 6px; }
+.env.added { box-shadow: 0 0 0 3px var(--env-used); }
+.env-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.env-tag { font-size: 11px; font-weight: 800; color: var(--muted); border: 1.5px solid currentColor; border-radius: 99px; padding: 0 7px; line-height: 1.4; }
+.env-tag.on { color: var(--env-name); }
 .env-name { font-weight: 800; font-size: 14px; color: var(--env-name); }
 .env-lock { width: 16px; height: 16px; fill: var(--muted); stroke: var(--muted); stroke-width: 1.8; }
 .env-fields { margin: 4px 0 0; display: grid; gap: 1px; font-size: 12.5px; }
-.env-fields div { display: flex; gap: 8px; }
-.env-fields dt { color: var(--muted); font-weight: 700; min-width: 4.5em; }
-.env-fields dd { margin: 0; font-family: var(--mono-font); }
+.env-fields div { display: flex; gap: 8px; border-radius: 6px; padding: 0 4px; margin-inline: -4px; }
+.env-fields dt { color: var(--muted); font-weight: 700; min-width: 5.5em; flex: none; }
+.env-fields dd { margin: 0; font-family: var(--mono-font); overflow-wrap: anywhere; }
+.env-fields small { color: var(--muted); font-family: var(--ui-font); font-weight: 700; }
+.env-fields .used, .tree-fields .used { background: var(--env-used); }
+.bitbox.used { background: linear-gradient(var(--env-used), var(--env-used)), var(--card); }
+.env-fields .used dt { color: var(--ink); }
+.env-fields .changed dd, .tree-fields .changed dd:not(.about) { color: var(--env-change); font-weight: 800; }
+.env-fields s, .tree-fields s { opacity: 0.6; font-weight: 400; }
+.env-fields .to, .tree-fields .to { margin-inline: 0.35em; }
+.bitbox.changed { box-shadow: inset 0 0 0 2px var(--env-change); }
 .env-note, .env-sealed { margin: 4px 0 0; font-size: 12.5px; line-height: 1.35; }
 .env-sealed { color: var(--muted); font-style: italic; }
 @keyframes env-in { from { opacity: 0; transform: scale(0.94) translateY(6px); } }
@@ -146,6 +179,30 @@ button { cursor: pointer; }
 .env-dive circle + circle, .env-dive path { fill: none; stroke: var(--accent-ink, #fff); stroke-width: 2.2; stroke-linecap: round; }
 .env-go:hover .env-dive, .env-go:focus-visible .env-dive { transform: scale(1.15); }
 .peek .dive-hint { margin-top: -4px; font-weight: 600; }
+/* the detail view: a protocol tree, each layer unfolding into its header diagram and fields */
+.tree { display: grid; gap: 6px; }
+.tree-layer { border: 2px solid var(--env-edge); border-radius: 12px; background: var(--env-bg); padding: 4px 8px; }
+.tree-layer.sealed, .tree-layer.off { border-style: dashed; }
+.tree-layer.sealed { background: var(--env-sealed); }
+.tree-layer.off { opacity: 0.75; }
+.tree-layer.added { box-shadow: 0 0 0 3px var(--env-used); }
+.tree-layer summary { cursor: pointer; font-family: var(--mono-font); font-size: 12px; font-weight: 700; padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
+.tree-layer summary::before { content: '▸'; color: var(--muted); }
+.tree-layer[open] summary::before { content: '▾'; }
+.tree-layer summary::-webkit-details-marker { display: none; }
+.tree-line { flex: 1; overflow-wrap: anywhere; }
+.tree-note { margin: 2px 0 6px; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+.diagram { display: grid; grid-template-columns: repeat(32, 1fr); gap: 1px; margin: 4px 1px 8px; }
+.bitbox { background: var(--card); outline: 1px solid var(--env-edge); font-size: 9.5px; font-weight: 700; line-height: 1.15; padding: 3px 2px; min-height: 22px; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-fields { margin: 0; display: grid; gap: 2px; font-size: 12.5px; }
+.tree-fields div { display: grid; grid-template-columns: minmax(7em, 38%) 1fr; gap: 0 10px; border-radius: 6px; padding: 2px 4px; }
+.tree-fields dt { font-weight: 800; }
+.tree-fields dt small { color: var(--muted); font-weight: 700; }
+.tree-fields dd { margin: 0; font-family: var(--mono-font); overflow-wrap: anywhere; }
+.tree-fields dd.about { grid-column: 1 / -1; font-family: var(--ui-font); color: var(--muted); font-size: 12px; line-height: 1.3; }
+.tree-more { margin: 6px 0 2px; font-size: 12.5px; }
+.tree-more a { color: var(--link); font-weight: 800; }
 /* the tapped envelope growing into its dive (positioned every frame by App.svelte) */
 .env.grow { position: fixed; left: 0; top: 0; z-index: 12; margin: 0; box-sizing: border-box; display: flex; align-items: center;
   justify-content: center; pointer-events: none; animation: none; will-change: transform, width, height; }

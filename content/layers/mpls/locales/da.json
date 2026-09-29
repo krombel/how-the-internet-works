@@ -1,5 +1,4 @@
 {
-  "label": "Label",
   "name": {
     "kid": "Ekspres-mærkat",
     "nerd": "MPLS-label"
@@ -7,5 +6,27 @@
   "note": {
     "kid": "Inde i det store net siger et hurtigt mærkat, hvilken motorvej den skal tage, så ingen behøver læse adressen.",
     "nerd": "Label-switches gennem kernen; labelen skiftes i hver LSR og fjernes før kanten."
+  },
+  "line": "MultiProtocol Label Switching, label: {label}, TTL: {ttl}",
+  "field": {
+    "label": {
+      "name": {
+        "kid": "Motorvej nr.",
+        "nerd": "Label"
+      },
+      "about": "Valgt af den næste router til denne vej: den switcher på labelen uden at læse IP-adressen."
+    },
+    "tc": {
+      "name": "Trafikklasse",
+      "about": "Prioritet inde i kernen."
+    },
+    "s": {
+      "name": "Bunden af stakken",
+      "about": "1 = den sidste label; en IP-pakke følger."
+    },
+    "ttl": {
+      "name": "TTL",
+      "about": "Kopieret fra IP-headeren og talt ned ligesom den."
+    }
   }
 }

@@ -1,16 +1,60 @@
 {
-  "ports": "Porte",
-  "seq": "Seq",
-  "piece": "Stykke nr.",
   "name": {
     "kid": "Nummereret stykke",
     "nerd": "TCP-segment"
+  },
+  "note": {
+    "kid": "Videoen er skåret i nummererede stykker, så intet bliver væk eller blandet sammen.",
+    "nerd": "En pålidelig, ordnet strøm af bytes mellem to porte: sekvensnumre, kvitteringer, gensending, flow- og trængselsstyring."
   },
   "sealed": {
     "kid": "Forseglet. Kun {yours} og serveren åbner den: de tjekker, at ingen stykker mangler.",
     "nerd": "Undersøges ikke undervejs: ende-til-ende mellem de to ender (rækkefølge, gensending, trængselsstyring)."
   },
-  "peek": {
-    "nerd": "NAT’en kigger på portnumrene (og kan omskrive afsenderporten), men resten forbliver forseglet."
+  "line": "Transmission Control Protocol, afs.-port: {sport}, modt.-port: {dport}, seq: {seq}, ack: {ack}",
+  "field": {
+    "sport": {
+      "name": "Afsenderport",
+      "about": "Hvilken samtale hos afsenderen. En carrier-grade NAT skriver den om, så mange kunder kan dele én adresse."
+    },
+    "dport": {
+      "name": "Modtagerport",
+      "about": "Hvilken tjeneste hos modtageren: 443 = HTTPS."
+    },
+    "seq": {
+      "name": {
+        "kid": "Stykke nr.",
+        "nerd": "Sekvensnummer"
+      },
+      "about": "Hvor dataene hører til i strømmen af bytes, så modtageren kan lægge stykkerne i rækkefølge."
+    },
+    "ack": {
+      "name": "Kvittering (ack)",
+      "about": "Den næste byte afsenderen venter fra den anden side: alt før den er kommet frem."
+    },
+    "offset": {
+      "name": "Data-offset",
+      "about": "Headerlængde i 32-bit-ord."
+    },
+    "reserved": {
+      "name": "Reserveret",
+      "about": "Altid 0."
+    },
+    "flags": {
+      "name": "Flag",
+      "about": "SYN, ACK, PSH, FIN, RST…: hvad segmentet gør i samtalen."
+    },
+    "window": {
+      "name": "Vindue",
+      "about": "Hvor meget mere afsenderen kan tage imod lige nu (flow control)."
+    },
+    "checksum": {
+      "name": "Checksum",
+      "about": "Dækker også adresser og porte, så en NAT skal rette den, når den skriver dem om."
+    },
+    "urgent": {
+      "name": "Urgent-pointer",
+      "about": "Bruges stort set ikke."
+    }
   }
 }

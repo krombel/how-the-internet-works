@@ -137,6 +137,18 @@ export function layerPath(r: Route, hop: string, layer: string): string[] | null
   return null;
 }
 
+/** The path scene that draws chain hop `hop` (the current one if it does), e.g. to show a caught packet there. */
+export function hopScenePath(r: Route, hop: number, o: Orient, current: string[]): string[] | null {
+  const draws = (ref: SceneRef | null) => ref?.kind === 'path' && pathScene(r, ref.group, o).nodes.some((n) => n.kind === 'hop' && n.hop.index === hop);
+  if (draws(sceneRef(r, current, o))) return current;
+  const queue = [ROOT_REF];
+  for (const ref of queue) {
+    if (draws(ref)) return ref.path;
+    for (const c of childrenOf(r, ref, o)) if (c.kind === 'expand') queue.push({ ...ROOT_REF, path: [...ref.path, c.step], group: c.step });
+  }
+  return null;
+}
+
 /** Walking sideways: along a path scene's stops, between the link dives of the parent, or up and down the layers of
  *  one hop (+1 = the next stop / dive, or the layer above). `i` is where we are, `min` the lowest index allowed. */
 export interface Sideways { kind: 'stop' | 'dive' | 'layer'; steps: string[]; i: number; min: number }

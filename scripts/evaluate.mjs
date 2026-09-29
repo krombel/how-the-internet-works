@@ -1,6 +1,7 @@
 // App evaluation: screenshots (desktop + portrait phone) of the key places, dives, layer dives, languages and
-// follow + peek, bytes loaded, and frame timings (idle, zoom flights, a 3-level dive, follow, the place morph, opening
-// a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
+// a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame timings (idle, zoom flights, a
+// 3-level dive, catching and stepping a packet, the place morph, opening a layer dive from the peek and stepping up the
+// stack) at 1× and 6× CPU throttle.
 // Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf] [--style=id]
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
 import { chromium } from 'playwright';
@@ -98,9 +99,11 @@ for (const style of STYLES) {
       await settle(p);
       r.deepIdle = await sample(p, cdp, 1500);
       await go({ path: [] }); await settle(p);
-      await p.evaluate(() => window.__app.follow('video'));
-      await p.waitForTimeout(600);
-      r.follow = await sample(p, cdp, 2000);
+      // catch a packet (traffic pauses), then step it two hops on
+      r.catchStep = await sample(p, cdp, 2400, async () => {
+        await p.evaluate(() => window.__app.catch('video'));
+        for (const _ of [1, 2]) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
+      });
       await p.keyboard.press('Escape');
       await settle(p);
       // the place morph: the house slides away, the street slides in
@@ -112,7 +115,7 @@ for (const style of STYLES) {
       r.nrIdle = await sample(p, cdp, 1500);
       // a layer dive: tap IP in the peek (the envelope grows into the dive), idle there, step up the stack
       await go({ places: ['home'], path: [], stop: null }); await settle(p);
-      await p.evaluate(() => window.__app.follow('video'));
+      await p.evaluate(() => window.__app.catch('video'));
       await p.waitForTimeout(600);
       r.openLayer = await sample(p, cdp, 1600, () => p.evaluate(() => window.__app.openLayer('ip')));
       await settle(p);
@@ -153,9 +156,12 @@ for (const style of STYLES) {
     shots.push({ view: 'phone', where: 'street/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-street-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', lang: 'ar', name: 'home-ar-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'home/watch-video', follow: true, grow: 'ip', name: 'grow-desktop' });
-    shots.push({ view: 'desktop', where: 'home/watch-video', follow: true, name: 'peek-desktop' });
-    shots.push({ view: 'phone', where: 'street/watch-video', follow: true, name: 'peek-street-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', grow: 'ip', name: 'grow-desktop' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', name: 'peek-desktop' });
+    shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', name: 'peek-street-phone' });
+    // the caught request one hop on from the home router, in nerd mode, and its detail tree
+    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', catch: 'request', steps: 1, name: 'peek-nerd-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=nerd', lang: 'da', catch: 'request', detail: true, name: 'peek-tree-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', picker: true, name: 'picker-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video', picker: true, name: 'picker-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', morph: true, name: 'morph-desktop' });
@@ -163,11 +169,12 @@ for (const style of STYLES) {
       const { ctx, p } = await open(s.view, url(style, s.lang ?? 'en', s.where, s.q ?? ''));
       await settle(p);
       // a fixed clock so packets sit in the same spots across runs
-      // (not for follow shots: jumping the clock can hand follow() a packet that is about to arrive)
-      if (!s.follow) await p.evaluate(() => window.__app.setClock(5.2));
-      if (s.follow) {
-        await p.evaluate(() => window.__app.follow('video'));
-        await p.waitForTimeout(2600);
+      await p.evaluate(() => window.__app.setClock(5.2));
+      if (s.catch) {
+        await p.evaluate((k) => window.__app.catch(k), s.catch);
+        for (let i = 0; i < (s.steps ?? 0); i++) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
+        if (s.detail) await p.click('.peek header .chip');
+        await p.waitForTimeout(1500);
         if (s.grow) {
           // mid-flight into a layer dive: the peek's envelope on its way to becoming the dive's panel
           await p.evaluate((l) => window.__app.openLayer(l), s.grow);

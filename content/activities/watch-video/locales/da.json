@@ -7,8 +7,8 @@
     "video": "Video"
   },
   "peek": {
-    "request": "Du følger en forespørgsel",
-    "video": "Du følger et stykke video"
+    "request": "Fanget: en forespørgsel",
+    "video": "Fanget: et stykke video"
   },
   "stop": {
     "phone": {

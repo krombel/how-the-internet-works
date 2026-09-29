@@ -1,6 +1,4 @@
 {
-  "to": "Til",
-  "band": "Bånd",
   "name": {
     "kid": "Radio-kuvert",
     "nerd": "Wi-Fi-ramme (802.11)"
@@ -8,5 +6,54 @@
   "note": {
     "kid": "Sendes gennem luften. Kun adgangspunktet og {yours} lytter efter den.",
     "nerd": "Adgangspunktet kvitterer for hver ramme og sender tabte rammer igen. Indholdet er krypteret (WPA3)."
+  },
+  "line": "IEEE 802.11 QoS-data, RA: {addr1}, TA: {addr2}",
+  "field": {
+    "fc": {
+      "name": "Frame control",
+      "about": "Type (QoS-data) og retning: til eller fra det kablede net (DS)."
+    },
+    "duration": {
+      "name": "Varighed",
+      "about": "Hvor længe luften er booket til rammen og dens kvittering."
+    },
+    "addr1": {
+      "name": {
+        "kid": "Til",
+        "nerd": "Modtager (adr. 1)"
+      },
+      "about": "Hvem i luften der skal tage imod rammen."
+    },
+    "addr2": {
+      "name": {
+        "kid": "Fra",
+        "nerd": "Sender (adr. 2)"
+      },
+      "about": "Hvem der sendte den gennem luften."
+    },
+    "addr3": {
+      "name": "Adr. 3",
+      "about": "Den fjerne ende på kabelsiden: adgangspunktet kopierer den ind i den Ethernet-ramme, den bridger til."
+    },
+    "seq": {
+      "name": "Sekvenskontrol",
+      "about": "Opdager dubletter, når en ramme sendes igen."
+    },
+    "qos": {
+      "name": "QoS-kontrol",
+      "about": "Trafikklasse (WMM): video får en hurtigere kø."
+    },
+    "ccmp": {
+      "name": "CCMP-header",
+      "about": "Pakkenummer til WPA3-krypteringen af alt indeni."
+    },
+    "snap": {
+      "name": "LLC/SNAP",
+      "about": "Siger, hvad der er indeni, ligesom en EtherType."
+    },
+    "fcs": {
+      "name": "Frame check sequence",
+      "about": "En CRC over rammen: en beskadiget sendes igen."
+    }
   }
 }

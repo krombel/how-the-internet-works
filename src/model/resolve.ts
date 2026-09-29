@@ -15,7 +15,9 @@ export interface Hop {
   group: string | null;
   role: Role;
   addr?: string;
+  /** NAT: the client's outside address, and its outside port if the NAT rewrites the port too. */
   natTo?: string;
+  natPort?: number;
   source: Source;
   /** Index of the place slot it came from (null for fixed segments and groups). */
   slot: number | null;
@@ -96,7 +98,11 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   const chain: Hop[] = [], links: Link[] = [], hops: Record<string, Hop> = {};
   const mkHop = (h: HopDef, source: Source, slot: number | null, index: number): Hop => {
     const node = c.nodes[h.node ?? h.at];
-    return { id: h.at, node, group: h.in ?? null, role: h.role ?? node.role ?? 'router', addr: h.addr, natTo: h.natTo, source, slot, index };
+    const [natTo, port] = h.natTo?.split(':') ?? [];
+    return {
+      id: h.at, node, group: h.in ?? null, role: h.role ?? node.role ?? 'router', addr: h.addr, natTo, natPort: port ? Number(port) : undefined,
+      source, slot, index,
+    };
   };
   const mkLink = (l: LinkDef, from: string, to: string, source: Source, slot: number | null, index: number, aside = false): Link => {
     const tech = c.technologies[l.link];

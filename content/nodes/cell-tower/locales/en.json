@@ -2,5 +2,15 @@
   "name": "Cell tower",
   "kid": "A mast with clever antennas. It talks to all the phones nearby by radio and sends their parcels on through a glass thread.",
   "nerd": "A 5G base station (gNB): massive-MIMO antenna panels, the radio scheduler, and a fibre backhaul that tunnels user traffic (GTP-U) to the mobile core.",
-  "tag": "gNB · n78 · 3.5 GHz"
+  "tag": "gNB · n78 · 3.5 GHz",
+  "peek": {
+    "up": {
+      "kid": "The tower takes your parcel off the radio and puts it in a tunnel envelope addressed to the mobile core.",
+      "nerd": "The gNB ends the radio link (NR) and tunnels the packet in GTP-U to the UPF; the TEID names this phone’s session."
+    },
+    "down": {
+      "kid": "The tower unpacks the tunnel envelope and sends your parcel to your phone by radio.",
+      "nerd": "The gNB ends the GTP-U tunnel (the TEID says which phone) and schedules the packet on the radio (NR)."
+    }
+  }
 }

@@ -6,5 +6,46 @@
   "note": {
     "kid": "It gets a coloured tag so the operator knows which street and which house it came from.",
     "nerd": "Double-tagged (Q-in-Q): an S-VLAN per cabinet, a C-VLAN per customer, towards the BNG."
+  },
+  "line": "802.1ad Q-in-Q, S-VLAN {svid}, C-VLAN {cvid}",
+  "field": {
+    "spcp": {
+      "name": "S-PCP",
+      "about": "Priority of the outer tag."
+    },
+    "sdei": {
+      "name": "S-DEI",
+      "about": "May be dropped first when busy."
+    },
+    "svid": {
+      "name": {
+        "kid": "Street no.",
+        "nerd": "S-VLAN ID"
+      },
+      "about": "The outer tag: which street cabinet it came through."
+    },
+    "ctpid": {
+      "name": "C-TPID",
+      "about": "Says an inner (customer) tag follows."
+    },
+    "cpcp": {
+      "name": "C-PCP",
+      "about": "Priority of the inner tag."
+    },
+    "cdei": {
+      "name": "C-DEI",
+      "about": "May be dropped first when busy."
+    },
+    "cvid": {
+      "name": {
+        "kid": "House no.",
+        "nerd": "C-VLAN ID"
+      },
+      "about": "The inner tag: which customer line. The BNG knows your subscription by it."
+    },
+    "type": {
+      "name": "EtherType",
+      "about": "What is inside the tags."
+    }
   }
 }

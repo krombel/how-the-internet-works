@@ -6,24 +6,72 @@
     "kid": "Adresselabel",
     "nerd": "IP-pakke (IPv4)"
   },
-  "nat": {
-    "kid": "{name} bytter afsenderadressen ud med sin egen udadvendte adresse og husker, hvem der spurgte.",
-    "nerd": "NAT: afsender {inside}:51034 omskrives til {outside}:51034 og gemmes i forbindelsestabellen."
+  "note": {
+    "kid": "Adresselabelen: hvem den er fra, og hvem den er til. Hver router på vejen læser den.",
+    "nerd": "Best-effort-levering mellem to vilkårlige adresser på internettet: routere sender den videre ud fra modtageradressen, hop for hop."
   },
-  "unnat": {
-    "kid": "{name} slår op, hvem der bad om den, og skifter adressen tilbage til {yours}.",
-    "nerd": "NAT retur: modtager {outside} omskrives tilbage til {inside} via forbindelsestabellen."
-  },
-  "bridge": {
-    "kid": "{name} læser ikke adressen. Den giver bare pakken videre.",
-    "nerd": "{name} router ikke: den bytter rammen ud med den næste og rører ikke IP-pakken."
-  },
-  "read": {
-    "kid": "Denne boks læser adressen og vælger den bedste vej videre.",
-    "nerd": "Routet: longest-prefix match i FIB’en, TTL − 1 og en ny ramme til næste hop."
-  },
-  "arrived": {
-    "kid": "Fremme! Det er den rigtige adresse.",
-    "nerd": "Modtager nået: indholdet gives videre op til TCP."
+  "line": "Internet Protocol version 4, afs.: {src}, modt.: {dst}",
+  "field": {
+    "version": {
+      "name": "Version",
+      "about": "Hvilken IP det er: 4 (IPv6-pakker siger 6)."
+    },
+    "ihl": {
+      "name": "Headerlængde",
+      "about": "I 32-bit-ord; 5 betyder ingen options."
+    },
+    "dscp": {
+      "name": "DSCP",
+      "about": "Trafikklasse, til net der prioriterer noget trafik."
+    },
+    "ecn": {
+      "name": "ECN",
+      "about": "Lader en travl router mærke pakken i stedet for at smide den væk."
+    },
+    "length": {
+      "name": "Samlet længde",
+      "about": "Bytes i pakken, header og det hele."
+    },
+    "id": {
+      "name": "Identifikation",
+      "about": "Binder fragmenter sammen, hvis pakken nogensinde deles."
+    },
+    "flags": {
+      "name": "Flag",
+      "about": "DF: fragmentér ikke. For stor til et link? Smid den væk og sig det (path MTU discovery)."
+    },
+    "frag": {
+      "name": "Fragment-offset",
+      "about": "Hvor fragmentet hører til; 0 når den ikke er delt."
+    },
+    "ttl": {
+      "name": {
+        "kid": "Skridt tilbage",
+        "nerd": "Time to live (TTL)"
+      },
+      "about": "Hver router trækker én fra og smider pakken væk ved 0, så en routing-løkke ikke kan beholde den for evigt."
+    },
+    "proto": {
+      "name": "Protokol",
+      "about": "Hvad der er indeni: 6 = TCP. Routere hasher den med adresser og porte (5-tuplen) for at vælge én af flere lige gode veje (ECMP)."
+    },
+    "checksum": {
+      "name": "Header-checksum",
+      "about": "Tjekkes af hver router og skrives om, fordi TTL’en ændrede sig."
+    },
+    "src": {
+      "name": {
+        "kid": "Fra",
+        "nerd": "Afsenderadresse"
+      },
+      "about": "Hvem der sendte den, set herfra: en NAT skriver den om til sin egen udadvendte adresse."
+    },
+    "dst": {
+      "name": {
+        "kid": "Til",
+        "nerd": "Modtageradresse"
+      },
+      "about": "Hvor den skal hen: routere slår den op i deres forwarding-tabel (longest prefix match)."
+    }
   }
 }

@@ -1,4 +1,4 @@
-// The one module Svelte content (node art, dive scenes, layers, place backdrops, themes) imports, as `$core/api`.
+// The one module Svelte content (node art, dive scenes, place backdrops, themes) imports, as `$core/api`.
 // Keeping content on this surface is what lets the engine change underneath it. (Data files use `$core/define`.)
 export type { Level, Orient } from './define';
 export type { Pt } from './engine/geometry';
@@ -7,7 +7,7 @@ export type { LayerSubject, LinkSubject } from './render/ctx';
 export type * from './render/theme-types';
 
 export { pts, textBox } from './engine/svg';
-export { fakeMac } from './model/stack';
+export { fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';
 export { fill, nameOf, view, yours } from './state.svelte';
 
@@ -15,7 +15,6 @@ export { default as Depth } from './render/Depth.svelte';
 export { default as Node } from './render/Node.svelte';
 export { default as TagAt } from './render/TagAt.svelte';
 export { default as Text } from './render/Text.svelte';
-export { default as Envelope } from './ui/Envelope.svelte';
 
 import { trl } from './state.svelte';
 import type { Level } from './define';

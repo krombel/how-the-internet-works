@@ -1,6 +1,4 @@
 {
-  "to": "For",
-  "slot": "Slot",
   "name": {
     "kid": "5G radio envelope",
     "nerd": "5G NR frame (PDCP · RLC · MAC)"
@@ -8,5 +6,31 @@
   "note": {
     "kid": "Sent through the air in your phone’s own seats. The tower checks every piece arrived and asks again if one got lost.",
     "nerd": "Sent on the resource blocks the gNB granted this phone; HARQ resends lost blocks and PDCP encrypts the payload."
+  },
+  "line": "5G NR user plane, C-RNTI {rnti}, QFI {qfi}",
+  "field": {
+    "rnti": {
+      "name": {
+        "kid": "Phone no.",
+        "nerd": "C-RNTI"
+      },
+      "about": "The tower’s short name for this phone in this cell (it scrambles the scheduling, not a header byte)."
+    },
+    "lcid": {
+      "name": "Logical channel",
+      "about": "MAC subheader: which channel (a data bearer here)."
+    },
+    "rlcsn": {
+      "name": "RLC sequence number",
+      "about": "Puts segments in order and asks again for lost ones (ARQ)."
+    },
+    "pdcpsn": {
+      "name": "PDCP sequence number",
+      "about": "Numbers packets for the radio encryption and for handovers."
+    },
+    "qfi": {
+      "name": "QoS flow (SDAP)",
+      "about": "Which QoS flow the packet belongs to; the same number rides in the GTP tunnel."
+    }
   }
 }

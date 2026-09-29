@@ -66,7 +66,7 @@ export default definePlace({
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
     { link: 'ethernet' },                                    // an existing technology: its stack, look and colour
-    { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7' },
+    { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'gpon' },                                        // its dive (the fibre scene in GPON mode) comes along
     { at: 'cabinet', in: 'internet' },                       // `in`: shown when the internet is unfolded
     …
@@ -104,7 +104,7 @@ export default definePlace({
 }
 ```
 
-That is all. The picker now offers "At the desk" in every activity. Follow and peek show an Ethernet frame on
+That is all. The picker now offers "At the desk" in every activity. Catching a packet shows an Ethernet frame on
 the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/home-cabinet` flies three levels down.
 
 ## Add a node
@@ -132,18 +132,45 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 ## Add a layer (issue #5)
 
 `content/layers/<id>/`:
-- `layer.ts`: `defineLayer({ openAt?: ['endpoint', …], dive?: '<scene>', learnMore })`. `openAt` lists the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else sees it sealed. The default is everyone. `dive` points at a layer dive scene (see below): its envelope in the peek panel then gets a magnifier that flies into it.
-- `Layer.svelte`: gets `{ ctx, open, depth, children }` and renders an `<Envelope>` from `$core/api` with `name`, `fields`, `note` and `sealed`, then `{@render children?.()}` for the layers inside. `ctx` is the `LayerCtx`:
-  - the link, and the `from`/`to` hops
-  - the reader's `role`
-  - `client` and `server`
-  - `src`/`dst` as seen on this link, and `nat`
-  - `ttl`, `dir` and `level`
-
-  Use it to say the right thing per hop (see `layers/ip/Layer.svelte`).
-- Strings: `name` (can be levelled) plus whatever keys the component reads via `strings('layer.<id>')`.
+- `layer.ts`: `defineLayer({ fields, openAt?, seals?, tunnel?, code?, bytes?, dive?, learnMore })`.
+  - `fields`: its header, in wire order (see below).
+  - `openAt`: the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else leaves it closed. The default
+    is everyone.
+  - `seals: true`: what's inside is encrypted for every hop that doesn't open this layer (TLS).
+  - `tunnel: true`: its addresses are the ends of the run of links that carry it, and the link frames around it end
+    there too (GTP‑U: cell tower ↔ mobile core).
+  - `code`: how outer layers name this one, e.g. `{ ethertype: '0x0800 (IPv4)', ipproto: '6 (TCP)' }`.
+  - `bytes`: size not described by `bits` (a text header, a body), `{ up, down }`.
+  - `dive`: a layer dive scene (see below): its envelope in the peek gets a magnifier that flies into it.
+- Strings: `name` and `note` (levelled), `line` (the one-line summary in the detail tree, with `{fieldId}` values),
+  `sealed` (optional, levelled: what kids read on it where it's closed), and per field
+  `field.<id>.name` (levelled) and `field.<id>.about`.
 
 Then reference it from a technology `stack`, a link override, or a flow `stack`.
+
+### Add a header field
+
+A field is `{ id, bits?, value, use?, kid? }`:
+- `bits`: its size on the wire. Give every field `bits` and the detail view draws the header diagram.
+- `value`: a template. Plain text is the same on every hop (`'4'`, `'010 (DF)'`); `{ up, down }` differs by direction;
+  facts fill in per link: `{src}` `{dst}` `{sport}` `{dport}` `{ttl}` `{mac.src}` `{mac.dst}` `{mac.tx}` `{mac.rx}`
+  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{inner.<code>}` (see
+  [architecture](architecture.md#the-packet-model-modelpacketts)). `'@ask'` shows the string `value.ask` instead. An
+  empty value leaves the field out in that direction.
+- `use`: the roles that act on it when the packet arrives (`['router', 'nat']` for TTL), or `true` for every hop that
+  receives the layer. Used fields are highlighted; kids see only used, changed or new fields.
+- `kid`: show it to kids: `true` (addresses become names like "your phone") or a kid value.
+
+```ts
+{ id: 'ttl', bits: 8, value: '{ttl}', use: ['router', 'nat'], kid: true },
+```
+
+```json
+"field": { "ttl": { "name": { "kid": "Steps left", "nerd": "Time to live" }, "about": "Each router takes one off; at 0 the packet is dropped." } }
+```
+
+Nothing is written per hop: values change because the route changes (a NAT's `natTo: 'addr:port'`, a router's TTL, a
+bridge passing a frame on, a tunnel starting). The validator names unknown facts, codes and missing strings.
 
 ## Add a dive scene
 
@@ -174,7 +201,7 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
 - `scene.ts`: `defineScene({ explains: 'layer', learnMore })`.
 - `Scene.svelte`: gets `{ subject }`, a `LayerSubject` (`import type { LayerSubject } from '$core/api'`):
   - `subject.layer`: the layer id; `subject.open`: whether this hop reads it (else it is sealed here);
-  - `subject.ctx`: the hop's `LayerCtx`, as in `Layer.svelte`: `to` (this hop, with its `role`), `link` (the link
+  - `subject.ctx`: the hop's `LayerCtx`: `to` (this hop, with its `role`), `link` (the link
     it arrived on), `client`/`server`, `src`/`dst`, `nat`, `ttl`, `dir`, `flow` and `level`;
   - `subject.route`: the whole route (`chain`, `links`, `asides`, `activity`), to build what the hop knows from it
     (the IP dive derives a router's signposts from the next and previous hops).
@@ -229,7 +256,7 @@ defineActivity({
 
 Strings:
 - `title` and `kid`/`nerd`: keep them device-neutral ("You ask for a video"), since any place can start it
-- `peek.<kind>` ("Following a piece of video")
+- `peek.<kind>` ("Caught: a piece of video")
 - `stop.*`
 
 ## Add a language

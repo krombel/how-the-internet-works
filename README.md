@@ -17,7 +17,7 @@ You pick **where you are** (at home on Wi‑Fi, on the street on 5G, at the desk
 to a CDN server:
 - **Zoom into** the internet to unfold its hops. The home route passes the fibre cabinet, the backhaul and the BNG; the street route passes the mobile core.
 - **Look inside** the links: Wi‑Fi waves, light in a glass thread (with GPON's two colours on the access fibre), and 5G beams with their time × frequency seats. This goes up to three levels deep.
-- **Follow a packet** and peek at its envelopes, which change at every hop (NAT at the home router, a GTP tunnel and carrier-grade NAT on 5G).
+- **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field for nerds and a protocol tree for details.
 - **Switch place**: the scene morphs and the packets re-route.
 
 It comes in kid and nerd levels, in English and Danish, with Arabic as a right-to-left test. Learn-more links point onwards.

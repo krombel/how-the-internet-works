@@ -1,5 +1,4 @@
 {
-  "label": "Label",
   "name": {
     "kid": "Express sticker",
     "nerd": "MPLS label"
@@ -7,5 +6,27 @@
   "note": {
     "kid": "Inside the big network a quick sticker says which motorway to take, so nobody has to read the address.",
     "nerd": "Label-switched through the core; the label is swapped at every LSR and popped before the edge."
+  },
+  "line": "MultiProtocol Label Switching, Label: {label}, TTL: {ttl}",
+  "field": {
+    "label": {
+      "name": {
+        "kid": "Motorway no.",
+        "nerd": "Label"
+      },
+      "about": "Chosen by the next router for this path: it switches on the label without reading the IP address."
+    },
+    "tc": {
+      "name": "Traffic class",
+      "about": "Priority inside the core."
+    },
+    "s": {
+      "name": "Bottom of stack",
+      "about": "1 = the last label; an IP packet follows."
+    },
+    "ttl": {
+      "name": "TTL",
+      "about": "Copied from the IP header and counted down like it."
+    }
   }
 }
