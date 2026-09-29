@@ -3,7 +3,6 @@
   "kid": "The mobile network makes a private tunnel between the tower and the mobile core. Your parcel keeps the same phone address while the big tunnel envelope changes around it.",
   "nerd": "GTP-U carries the UE IP packet through the operator network. The gNB and UPF/PGW use outer IP plus UDP/2152 with a TEID, as specified by 3GPP TS 29.281.",
   "label": {
-    "newTower": "Next tower",
     "sameAddress": "Same address!",
     "walk": "you can walk",
     "toCore": "To mobile core",

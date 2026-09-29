@@ -35,9 +35,7 @@
     "wait5": "mangler 5!"
   },
   "label": {
-    "queue": "Stykker",
     "window": "4 ad gangen",
-    "shelf": "Hylde",
     "gap": "hul ved 5",
     "handshake": "3 hej-sedler",
     "hello": "hej",
@@ -45,14 +43,10 @@
     "resend": "send 5 igen",
     "done": "alt på række",
     "ready": "alt i orden — klar til appen!",
-    "sealed": "forseglet",
-    "port": "kun port",
-    "again": "igen!"
+    "port": "kun port"
   },
   "tag": {
     "syn": "SYN seq=1000",
-    "synAck": "SYN-ACK seq=7000 ack=1001",
-    "ack": "ACK ack=7001",
     "window": "vindue=4",
     "dupAck": "dup ACK=5",
     "fast": "3 dup ACKs → #5",
