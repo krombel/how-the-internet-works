@@ -120,6 +120,40 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers of the same hop in stack order (▲/▼, a vertical flick, the arrow keys).
    - **Into a layer dive from the peek:** the tapped envelope's rect is noted, the follow ends and the normal fly zoom starts; a DOM clone of the envelope is moved each frame from its peek rect to the dive panel's current on-screen rect, landing on it as the panel fades in (none with `prefers-reduced-motion`).
 6. **Packets** (`engine/packets.ts`). Each flow's packets run along every link of the scene at a per-link pace. Tapping one follows it, and the peek panel shows its layers at the current hop.
+7. **Doors** (`model/doors.ts`, below). What a path scene lets you open, drawn by the theme's `Hint`, hit-tested in `App.svelte` and listed in the caption.
+
+### Doors: what you can open (issue #19)
+
+Everything a reader can open from a path scene is a **door**, with one verb each, used the same way in the scene, the
+caption and the strings (`door.*`):
+
+| Verb | Kind | On | Opens | Mark (Storybook) |
+|---|---|---|---|---|
+| **Look inside** | `dive` | a link with a dive | the link's dive scene | teal round lens with a magnifier, pulsing |
+| **Open up** | `expand` | a group node (`kind: network`) | its own path scene | orange pill with a door and the label, always shown; a breathing dashed ring round the group |
+| **Change** | `swap` | the start device (root only) | the place / activity picker | berry rounded square with arrows |
+
+*Catch* is kept free for packets (issue #17 turns catching into pause and step).
+
+- `doorsOf(pathScene, root)` lists them (the swap first, then in route order). They are exactly the scene tree's
+  dive and group children (a test checks this for every place × activity), so a door can't point nowhere.
+- `layoutDoors` places the badges: a mark at the door's spot; labelled (always for *Open up*, for every door while
+  "What can I explore?" is on, and for the one pointed at) a pill that runs on from the mark. While lit, pills that
+  would cover each other are nudged apart. The same layout is used to draw and to hit-test, so a badge is always where
+  its tap target is. A tap right on a badge beats a packet passing under it.
+- **Hover and focus.** With a mouse, the door under the pointer glows and shows its label (and the cursor becomes a
+  pointer over anything tappable). Pointing at or focusing a caption chip lights its badge in the scene the same way.
+- **"What can I explore?"** (the ✨ button in the chrome) lights every door of the current scene with its label for
+  six seconds, or until tapped again, a tap on the scene or a scene change. If some are off screen (zoomed in on a
+  stop), it steps back to the whole scene first. It's disabled where a scene has no doors (dives).
+- **Caption chips.** The caption lists the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a
+  stop, only that stop's own). They are real buttons, so they are the keyboard and screen-reader way in (the scene
+  SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
+- **The cutaway.** A group node shows the path inside it through its outline: `render/Cutaway.svelte` draws the
+  group's own path scene (roads, stop silhouettes and its packets, faintly) exactly where that scene opens when you
+  zoom in, so opening it grows what was already there. The node art exports `hollow` (its outline path) and the
+  theme's `Device` draws the `inside` snippet clipped to it.
+- **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 
 ### The place morph
 
@@ -182,8 +216,10 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 | Validation | `model/validate.ts` | runs every schema and cross-reference; dev + tests only |
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
-`Device` (places the node art, adds a face and a focus ring, and a fallback body), `Link` (by `look`), `Packet`, `Hint`
-(`dive`, `expand`, `swap`), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
+`Device` (places the node art, adds a face and a focus ring, and a fallback body; for a group, the `inside` cutaway
+clipped to `hollow`), `Link` (by `look`), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
+`glow` round what it opens under the devices and a `badge` over everything, with its label, `hot` and the reduced-motion
+clock), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
 `sealed`: Storybook draws a layer dive as a big envelope with its flap at the top, dashed when sealed. Scene-specific art (waves, prisms, beams) lives
 in the scene's own folder, so a new dive needs no theme change.
 
@@ -234,6 +270,8 @@ Vitest (`npm test`) covers:
 - negative fixtures
 - route resolution for every place
 - the scene tree and stale-path fallback, layer children per hop, stacked frames, `layerPath` and sideways stepping
+- doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
+  place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - the layer stacks, roles, NAT/CGNAT and GTP per hop
 - the URL round trip
@@ -252,8 +290,9 @@ CI runs `npm ci && npm test && npm run build`.
 - opening a layer dive from the peek (the envelope grows into the scene), its idle, a sideways step to the next
   layer, and that layer's idle
 
-Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 11 ms (the fly into
-5G; opening a layer dive is about 8.6 ms).
+Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 8 ms (the fly into
+5G; opening a layer dive is about 7 ms; it varies a few ms between runs). Door labels are measured once per language and theme, not per zoom step
+(measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 64.1 kB gz, against 60.9 kB for the prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so
+Initial JS is 68.6 kB gz (64.1 kB before the doors of issue #19), against 60.9 kB for the prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so
 adding dives doesn't grow the first load.

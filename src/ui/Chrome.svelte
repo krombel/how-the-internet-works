@@ -1,11 +1,18 @@
 <script lang="ts">
-  // Top bar: breadcrumb, style switcher (only when more than one theme is installed), language, kid/nerd, sound.
+  // Top bar: breadcrumb, "What can I explore?", style switcher (only when more than one theme is installed), language,
+  // kid/nerd, sound.
   import { languages } from '../model/strings';
   import { go } from '../router';
   import { loc, setLevel, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr } from '../state.svelte';
   import Icon from './Icon.svelte';
 
-  let { crumbs, small }: { crumbs: { title: string; path: string[] }[]; small: boolean } = $props();
+  let { crumbs, small, wide, explore, canExplore, ontoggle }: {
+    crumbs: { title: string; path: string[] }[]; small: boolean;
+    /** Room for the long "What can I explore?" label. */
+    wide: boolean;
+    /** "What can I explore?" is on / there's anything to explore in this scene. */
+    explore: boolean; canExplore: boolean; ontoggle: () => void;
+  } = $props();
   let open = $state<'style' | null>(null);
   const toggle = (p: 'style') => (open = open === p ? null : p);
   function pick(id: string) { settings.style = id; syncUrl(); open = null; }
@@ -22,6 +29,11 @@
     {/each}
   </div>
   <div class="controls">
+    <div class="card">
+      <button class="btn explore-btn" aria-pressed={explore} disabled={!canExplore} title={tr('explore.title')} onclick={ontoggle}>
+        <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
+      </button>
+    </div>
     {#if THEME_IDS.length > 1}
       <button class="card btn" aria-haspopup="true" aria-expanded={open === 'style'} onclick={() => toggle('style')} title={tr('ui.style')}>
         <span class="swatch" style:background={themeSwatches[settings.style]}></span>

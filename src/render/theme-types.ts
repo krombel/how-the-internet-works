@@ -3,7 +3,7 @@
 // ({ order, swatch }) is read eagerly for the style switcher; everything else loads on demand. A theme overrides any
 // subset of the art slots below; the rest fall back to src/render/art-base. Slots only draw engine things (sky, links
 // by look, packets, hints, labels…): devices, places and dives bring their own art in their content folders.
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import type { Orient } from '../define';
 import type { Curve } from '../engine/geometry';
 import type { MotionPreset } from '../engine/motion';
@@ -23,6 +23,10 @@ export interface DeviceProps {
   /** 'path' = in a path scene; 'dive' = drawn big inside a dive scene. */
   context: 'path' | 'dive';
   focused: boolean;
+  /** A group node's cutaway: faint silhouettes of the path inside it, drawn in the 200×200 box. Themes draw it over
+   *  the body, clipped to `hollow` (the see-through outline the node art exports; the whole box if it has none). */
+  inside?: Snippet | null;
+  hollow?: string | null;
 }
 /** Links are drawn by their technology's look. */
 type LinkLook = 'radio' | 'cable' | 'fibre' | 'trunk';
@@ -32,8 +36,29 @@ export interface PacketProps {
   /** The user is following this packet (draw a reticle / highlight). */
   followed: boolean;
 }
-/** Tap affordances: 'dive' = look inside, 'expand' = more hops, 'swap' = choose where you are / what you do. */
-export interface HintProps { kind: 'dive' | 'expand' | 'swap'; x: number; y: number; time: number }
+/** Tap affordances ("doors"), each with its own mark: 'dive' = look inside, 'expand' = open up (more stops inside),
+ *  'swap' = change where you are / what you do. Drawn in two parts: 'glow' under the devices (a breathing outline
+ *  around the thing it opens) and 'badge' over them. */
+export interface HintProps {
+  kind: 'dive' | 'expand' | 'swap';
+  part: 'glow' | 'badge';
+  /** The mark's centre; a labelled 'expand' pill is centred here instead. (The engine may nudge a labelled badge up or
+   *  down, off its spot, so lit labels don't cover each other.) */
+  x: number; y: number;
+  /** The verb in the reader's language ("Look inside", "Open up", "Change"), and its width at `size` in --label-font. */
+  label: string; labelW: number;
+  /** Show the label in a pill running on from the mark: always on 'expand'; on every door while "What can I explore?"
+   *  is on, or when hot. Keep the pill within about label width + 3.2·size by 2.4·size (the engine's tap target). */
+  labelled: boolean;
+  /** Label font size in scene units, clamped to a readable screen size; draw the badge in proportion to it. */
+  size: number;
+  /** Pointed at (mouse over it, or its caption chip focused) or lit by "What can I explore?". */
+  hot: boolean;
+  /** What it opens: a node (centre and size) or a link (its path). */
+  target: { x: number; y: number; size: number } | { d: string };
+  /** Scene clock. Frozen with prefers-reduced-motion, so the badges and outlines stand still. */
+  time: number;
+}
 /** Nerd-mode callout. `size` is the font size in scene units (already clamped to a readable screen size). */
 export interface TagProps { x: number; y: number; text: string; size: number; anchor: 'start' | 'middle' | 'end'; time: number }
 /** Scene labels. The engine computes `size` (clamped to a minimum screen size); themes style via CSS or override. */

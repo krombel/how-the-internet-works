@@ -8,8 +8,10 @@
   import { easeInOutCubic } from './engine/motion';
   import { livePackets, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
+  import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo } from './engine/zoom';
-  import { morphScene, pathScene, startNode, type PathScene } from './model/layout';
+  import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
+  import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
   import type { Route } from './model/resolve';
   import { parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
@@ -94,6 +96,7 @@
     shownRoute = nav.route;
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
+    if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (follow) endFollow(false, true);
     if (trans) frameTrans(trans.t0 + trans.dur);
     if (switched) {
@@ -195,44 +198,98 @@
     packets = next;
   }
 
-  // ------------------------------------------------------------------ taps
+  // ------------------------------------------------------------------ taps, hover, doors
   const nearLink = (l: Curve, p: Pt) => {
     let best = Infinity;
     for (let i = 0; i <= 24; i++) { const b = bezier(l, i / 24); best = Math.min(best, Math.hypot(b.x - p.x, b.y - p.y)); }
     return best;
   };
   let picker = $state<{ slot: number } | null>(null);
-  function onTap(sx: number, sy: number) {
-    const o = view.orient, info = sceneInfo(route, here.path, o);
-    if (info.ref.kind === 'path') {
-      // packets: a generous ≥ 30 px screen radius, for small fingers
-      let hit: { p: LivePacket; d: number } | null = null;
-      for (const p of packets.get(hereKey) ?? []) {
-        const s = toScreen(cam, toRoot(info.frame, p.pose)), d = Math.hypot(s.x - sx, s.y - sy);
-        if (d < 32 && (!hit || d < hit.d)) hit = { p, d };
-      }
-      if (hit) return startFollow(hit.p, hereKey);
+  /** The current path scene as drawn (mid-morph while switching place), or null in a dive. */
+  const hereScene = () => {
+    const info = sceneInfo(route, here.path, view.orient);
+    return info.ref.kind === 'path' ? { info, ps: morphScenes.get(hereKey) ?? pathScene(route, info.ref.group, view.orient) } : null;
+  };
+  type Hit = { packet: LivePacket } | { door: Door } | { node: SNode } | { link: SLink };
+  /** What's under a screen point: a door's badge, a packet (a generous ≥ 30 px radius, for small fingers), what a door
+   *  opens, or a stop. */
+  function hitAt(sx: number, sy: number): Hit | null {
+    const at = hereScene();
+    if (!at) return null;
+    const { info, ps } = at;
+    const sk = cam.k * info.frame.s, w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
+    const doors = doorsOf(ps, here.path.length === 0), size = badgeSize(themeState.current.labelMinPx, sk);
+    const badges = layoutDoors(doors, size, explore, chipHot ?? pointed, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
+    const onBadge = (pad: number) => badges.findIndex((b) => Math.abs(b.x - w.x) < b.w / 2 + pad && Math.abs(b.y - w.y) < b.h / 2 + pad);
+    // right on a badge beats a packet passing under it; near one, the packet wins
+    let i = onBadge(0);
+    if (i >= 0) return { door: doors[i] };
+    let best: { p: LivePacket; d: number } | null = null;
+    for (const p of packets.get(hereKey) ?? []) {
+      const s = toScreen(cam, toRoot(info.frame, p.pose)), d = Math.hypot(s.x - sx, s.y - sy);
+      if (d < 32 && (!best || d < best.d)) best = { p, d };
     }
-    if (follow) return endFollow(false);
-    if (info.ref.kind !== 'path') return;
-    const ps = morphScenes.get(hereKey) ?? pathScene(route, info.ref.group, o), sk = cam.k * info.frame.s;
-    const w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
-    const start = here.path.length ? null : startNode(ps);
-    if (start && Math.hypot(start.x + start.size * 0.36 - w.x, start.y - start.size * 0.36 - w.y) < Math.max(34, minR)) {
-      sfx.pop();
-      picker = { slot: start.hop.slot ?? 0 };
-      return;
+    if (best) return { packet: best.p };
+    i = onBadge(Math.max(size * 0.2, minR - size * 1.2));
+    if (i >= 0) return { door: doors[i] };
+    for (const d of doors) {
+      const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
+      if (l && nearLink(l, w) < Math.max(46, minR)) return { door: d };
     }
-    for (const l of ps.links) if (l.dive && nearLink(l, w) < Math.max(46, minR)) { sfx.pop(); return go({ path: [...here.path, l.id] }); }
     for (const n of ps.nodes) {
       if (Math.hypot(n.x - w.x, n.y - w.y) > Math.max(n.size * 0.55, minR)) continue;
-      sfx.pop();
-      if (n.kind === 'group') return go({ path: [...here.path, n.id] });
-      if (n.kind === 'entry') return go({ path: parentPath(here.path), stop: n.hop.id });
-      if (ps.stops.includes(n.id)) return go({ stop: here.stop === n.id ? null : n.id }, true);
+      const d = doors.find((k) => k.kind === 'expand' && k.id === n.id);
+      if (d) return { door: d };
+      if (n.kind === 'entry' || ps.stops.includes(n.id)) return { node: n };
     }
-    for (const l of ps.links) if (ps.stops.includes(l.id) && nearLink(l, w) < Math.max(40, minR)) { sfx.pop(); return go({ stop: l.id }, true); }
-    if (here.stop) go({ stop: null }, true);
+    for (const l of ps.links) if (ps.stops.includes(l.id) && nearLink(l, w) < Math.max(40, minR)) return { link: l };
+    return null;
+  }
+  function openDoor(d: Door) {
+    sfx.pop();
+    if (d.kind !== 'swap') return go({ path: [...here.path, d.id] });
+    const n = hereScene()?.ps.nodes.find((k) => k.id === d.id);
+    picker = { slot: n?.hop.slot ?? 0 };
+  }
+  function onTap(sx: number, sy: number) {
+    const hit = hitAt(sx, sy);
+    setExplore(false);
+    if (hit && 'packet' in hit) return startFollow(hit.packet, hereKey);
+    if (follow) return endFollow(false);
+    if (!hit) { if (here.stop) go({ stop: null }, true); return; }
+    if ('door' in hit) return openDoor(hit.door);
+    sfx.pop();
+    if ('link' in hit) return go({ stop: hit.link.id }, true);
+    const n = hit.node;
+    if (n.kind === 'entry') return go({ path: parentPath(here.path), stop: n.hop.id });
+    go({ stop: here.stop === n.id ? null : n.id }, true);
+  }
+  /** The door under the mouse (it glows and shows its label) and the one whose caption chip is pointed at or focused. */
+  let pointed = $state<string | null>(null), chipHot = $state<string | null>(null);
+  function onHover(e: PointerEvent) {
+    if (e.pointerType !== 'mouse' || e.buttons) return;
+    const r = stage.getBoundingClientRect(), hit = hitAt(e.clientX - r.left, e.clientY - r.top);
+    pointed = hit && 'door' in hit ? hit.door.id : null;
+    stage.style.cursor = hit ? 'pointer' : '';
+  }
+  // "What can I explore?": every door in the scene lights up with its label, for a few seconds or until tapped again.
+  const hereDoors = $derived.by(() => {
+    const at = hereScene();
+    return at ? doorsOf(at.ps, here.path.length === 0) : [];
+  });
+  let explore = $state(false), exploreTimer = 0;
+  function setExplore(on: boolean) {
+    clearTimeout(exploreTimer);
+    explore = on;
+    if (on) exploreTimer = window.setTimeout(() => (explore = false), 6000);
+  }
+  function toggleExplore() {
+    if (explore || !hereDoors.length) return setExplore(false);
+    const info = sceneInfo(route, here.path, view.orient);
+    // some doors are off screen (zoomed in on a stop): step back to see the whole scene
+    if (doorsInView(hereDoors, info.frame, cam, view.vp).length < hereDoors.length) go({ stop: null }, true);
+    sfx.pop();
+    setExplore(true);
   }
   // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there.
   let grow = $state.raw<{ from: DOMRect; head: Node; sealed: boolean; path: string[] } | null>(null);
@@ -350,6 +407,8 @@
         cam = { ...cam, x: cam.x + dx, y: cam.y + dy };
       },
     };
+    stage.addEventListener('pointermove', onHover);
+    stage.addEventListener('pointerleave', () => { pointed = null; stage.style.cursor = ''; });
     attachGestures(stage, ctl, {
       onTap, onFlick,
       onEnd() {
@@ -387,9 +446,16 @@
           return !!b;
         },
         picker(open = true) { picker = open ? { slot: 0 } : null; },
+        /** A door's badge on screen (in the current scene), e.g. to point the mouse at it. */
+        doorAt(id: string) {
+          const d = hereDoors.find((k) => k.id === id), info = sceneInfo(route, here.path, view.orient);
+          if (!d) return null;
+          const p = toScreen(cam, toRoot(info.frame, d.at)), r = stage.getBoundingClientRect();
+          return [p.x + r.left, p.y + r.top];
+        },
       },
     });
-    return () => { offNav(); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys); };
+    return () => { offNav(); clearTimeout(exploreTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys); };
   });
 
   $effect(() => {
@@ -412,16 +478,17 @@
 <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
   <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <A.Defs />
-    <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={{ key: hereKey, stop: here.stop }} />
+    <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={{ key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
     <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
   </svg>
 </div>
 <div class={portrait ? 'port' : 'land'}>
-  <Chrome {crumbs} {small} />
+  <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore} />
   {#if followed}
     <PeekPanel packet={followed} {route} onclose={() => endFollow(false)} ondive={openLayer} />
   {/if}
-  <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} hidden={!showCaption || (peekOpen && portrait)} bind:el={captionEl} />
+  <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore}
+    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || (peekOpen && portrait)} bind:el={captionEl} />
   {#if !(peekOpen && portrait)}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}

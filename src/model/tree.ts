@@ -152,16 +152,19 @@ export function sideways(r: Route, path: string[], stop: string | null, o: Orien
   return { kind: ref.kind === 'layer' ? 'layer' : 'dive', steps, i: steps.indexOf(path[path.length - 1]), min: 0 };
 }
 
+/** Where a child nested in a node sits (a group's own path scene): a little below its centre. */
+export const nodeAnchor = (n: SNode): Pt => ({ x: n.x, y: n.y + n.size * 0.06 });
+
 /** Where a child sits in its parent's coordinates. A hop's layer dives stack on it: lower layers below, upper above. */
 function anchorOf(r: Route, parent: SceneRef, step: string, o: Orient): Pt {
   const spot = spots(r, parent.group, o).get(step);
   if (spot) {
-    const n = spot.node, gap = WORLD_SIZE[o].h * DETAIL_SCALE * 1.15;
-    return { x: n.x, y: n.y + n.size * 0.06 - (spot.i - (spot.n - 1) / 2) * gap };
+    const a = nodeAnchor(spot.node), gap = WORLD_SIZE[o].h * DETAIL_SCALE * 1.15;
+    return { x: a.x, y: a.y - (spot.i - (spot.n - 1) / 2) * gap };
   }
   const ps = pathScene(r, parent.group, o);
   const n = ps.nodes.find((k) => k.id === step);
-  if (n) return { x: n.x, y: n.y + n.size * 0.06 };
+  if (n) return nodeAnchor(n);
   return bezier(ps.links.find((k) => k.id === step)!, 0.5);
 }
 

@@ -13,9 +13,9 @@
   "ui.soundOn": "Lyd til",
   "ui.soundOff": "Lyd fra – tryk for at slå til",
   "hint.zoomOut": "Knib eller scroll ud for at gå tilbage",
-  "hint.overview": "Tryk på et forstørrelsesglas for at kigge indenfor, eller på en pakke for at følge den. Swipe for at gå videre.",
+  "hint.overview": "Tryk på en pakke for at følge den. Swipe for at gå videre.",
   "hint.dive": "Tryk på forstørrelsesglasset for at se indeni",
-  "hint.expand": "Tryk på den for at folde den ud",
+  "hint.expand": "Tryk på den for at åbne den og se, hvad der er indeni",
   "hint.step": "Swipe eller brug pilene for at gå langs vejen",
   "peek.close": "Stop med at følge",
   "peek.where": "Fra {from} til {to}",
@@ -30,5 +30,10 @@
   "nav.above": "Laget ovenover",
   "hint.layer": "Stryg op eller ned for at skifte lag. Knib eller scroll ud for at gå tilbage.",
   "peek.dive": "Tryk på et forstørrelsesglas for at kigge ind i et lag",
-  "peek.look": "Kig ind i: {name}"
+  "peek.look": "Kig ind i: {name}",
+  "door.dive": "Kig ind i",
+  "door.expand": "Åbn",
+  "door.swap": "Skift",
+  "explore.title": "Hvad kan jeg udforske?",
+  "explore.short": "Udforsk"
 }
