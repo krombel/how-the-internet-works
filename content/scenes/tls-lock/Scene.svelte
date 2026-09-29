@@ -1,0 +1,147 @@
+<svelte:options namespace="svg" />
+<script lang="ts">
+  import { Node, TagAt, Text, nameOf, strings, view, type LayerSubject } from '$core/api';
+  import { layoutFor, parcelX, ramp, tlsMoment } from './tls';
+  import Card from './art/Card.svelte';
+  import Certificate from './art/Certificate.svelte';
+  import Crow from './art/Crow.svelte';
+  import LockedParcel from './art/LockedParcel.svelte';
+  import Pot from './art/Pot.svelte';
+  import StickerBook from './art/StickerBook.svelte';
+
+  let { subject }: { subject: LayerSubject } = $props();
+  const S = strings('scene.tls-lock');
+  const L = $derived(layoutFor(view.orient, view.vp));
+  const T = $derived(L.size);
+  const m = $derived(tlsMoment(view.time));
+  const isServer = $derived(subject.open && subject.ctx.to.node.id === subject.ctx.server.node.id);
+  const endpoint = $derived(subject.open ? (isServer ? 'server' : 'client') : 'middle');
+  const client = $derived(subject.ctx.client);
+  const server = $derived(subject.ctx.server);
+  const focused = $derived(endpoint === 'client' ? L.home[0] : endpoint === 'server' ? L.home[1] : L.hop);
+  const focusedId = $derived(endpoint === 'client' ? client.node.id : endpoint === 'server' ? server.node.id : subject.ctx.to.node.id);
+  const ends = $derived(endpoint === 'client' ? [L.ends[1]] : endpoint === 'server' ? [L.ends[0]] : L.ends);
+  const endHops = $derived(endpoint === 'client' ? [server] : endpoint === 'server' ? [client] : [client, server]);
+  const cert = $derived(L.cards[0]);
+  const mix = $derived(L.cards[1]);
+  const px = $derived(parcelX(m.u, L, endpoint));
+  const titleY = (b: { y: number }) => b.y + (view.orient === 'portrait' ? 75 : L.compact ? 72 : 66);
+  const phoneLabel = $derived(S('label.phone'));
+  const serverLabel = $derived(S('label.server'));
+  const rowLabelW = $derived(Math.max(phoneLabel.length, serverLabel.length) * 0.55 * T.text + (view.orient === 'portrait' ? 130 : L.compact ? 120 : 150));
+  const crow = $derived(endpoint === 'middle'
+    ? L.crow
+    : { x: view.orient === 'portrait' ? (endpoint === 'server' ? 340 : 560) : 800, y: view.orient === 'portrait' ? 1145 : L.compact ? 625 : 505 });
+  const wire = $derived(endpoint === 'middle'
+    ? L.wire
+    : { x1: crow.x - (view.orient === 'portrait' ? 140 : 200), x2: crow.x + (view.orient === 'portrait' ? 140 : 200), y: crow.y });
+  const crowScale = $derived(view.orient === 'portrait' ? 1.15 : 1);
+  const crowLabelSize = $derived(view.orient === 'portrait' ? T.text * 0.76 : T.text);
+  // The crow's words go on the side away from the focused node.
+  const crowRight = $derived(view.orient === 'portrait' && endpoint === 'server');
+  const crowLabelX = $derived(crowRight ? crow.x + 90 : crow.x - (view.orient === 'portrait' ? 90 : 100));
+  const crowLabelY = $derived(view.orient === 'portrait' ? 1084 : endpoint === 'middle' ? crow.y - 58 : crow.y + 40);
+  const brown = '#8a6043';
+  const orange = '#e97845';
+  const green = '#8fc97a';
+  function roadName(h: LayerSubject['ctx']['client']) {
+    if (view.orient === 'landscape') return nameOf(h);
+    if (h.id === client.id || h.node.id === 'phone') return S('label.phone');
+    if (h.id === server.id || h.node.id === 'cdn') return S('label.server');
+    if (h.node.id === 'router') return S('label.router');
+    if (h.node.id === 'mobile-core') return S('label.core');
+    return nameOf(h);
+  }
+</script>
+
+<!-- THESIS: TLS is a three-beat secret handshake: prove the server, mix a shared colour, then lock the parcel. OWN-WORLD: the IP dive family staging, pinned paper cards over a straight road, storybook ink and big props. STORY: endpoints open TLS; middle hops and the crow see only public mixes and locked parcels. FIRST VIEWPORT: phone/server/hop on the bottom road; ID card and paint-mixing cards above. FORM: issue-brief layer-dive staging with a deterministic 16s loop. -->
+<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="#f5d9a3" stroke="#6b3f2a" stroke-width="6" />
+<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="#fff7df" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
+
+<Card x={cert.x} y={cert.y} w={cert.w} h={cert.h} tint="#ffcf5d" />
+<Text x={cert.x + 34} y={titleY(cert)} text={S(L.compact ? 'label.proveShort' : 'label.prove')} size={T.big} kind="big" anchor="start" />
+<g opacity={m.beat === 'id' ? 1 : 0.48}>
+  {#if view.orient === 'landscape'}
+    <Certificate x={cert.x + (L.compact ? 38 : 40)} y={cert.y + (L.compact ? 96 : 86)} w={L.compact ? 300 : 275} h={L.compact ? 180 : 160} ok={ramp(m.u, 1.0, 2.3)} />
+    <StickerBook x={cert.x + (L.compact ? 360 : 350)} y={cert.y + (L.compact ? 96 : 86)} w={L.compact ? 300 : 238} h={L.compact ? 180 : 160} ok={ramp(m.u, 1.2, 2.6)} />
+    {#if !L.compact && m.beat !== 'id'}
+      <Text x={cert.x + 178} y={cert.y + cert.h - 28} text={S('label.videoName')} size={T.text} kind="node" />
+      <Text x={cert.x + 468} y={cert.y + cert.h - 28} text={S('label.stamps')} size={T.text} kind="node" />
+    {/if}
+  {:else}
+    <Certificate x={cert.x + 45} y={cert.y + 92} w={335} h={180} ok={ramp(m.u, 1.0, 2.3)} />
+    <StickerBook x={cert.x + 405} y={cert.y + 92} w={330} h={180} ok={ramp(m.u, 1.2, 2.6)} />
+  {/if}
+</g>
+{#if m.beat === 'id'}<Text x={cert.x + cert.w / 2} y={cert.y + cert.h - (view.orient === 'portrait' ? 36 : L.compact ? 40 : 26)} text={S('label.tick')} size={T.text} kind="big" colour="#4f8f3a" />{/if}
+
+<Card x={mix.x} y={mix.y} w={mix.w} h={mix.h} tint="#72b8a5" />
+<Text x={mix.x + 34} y={titleY(mix)} text={S(L.compact ? 'label.paintShort' : 'label.paint')} size={T.big} kind="big" anchor="start" />
+{#if view.orient === 'landscape'}
+  {@const y1 = mix.y + (L.compact ? 160 : 152)}{@const y2 = mix.y + (L.compact ? 285 : 266)}
+  {@const labelSize = L.compact ? T.text * 0.82 : T.text}
+  {@const potScale = L.compact ? 1.02 : 1.08}
+  {@const bigPot = L.compact ? 1.1 : 1.18}
+  {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + (L.compact ? 150 : 132)}{@const p2 = p1 + (L.compact ? 150 : 132)}
+  <Text x={mix.x + 42} y={y1 + 13} text={phoneLabel} size={labelSize} kind="small" anchor="start" />
+  <Pot x={p0} y={y1} colour="#ffcf5d" scale={potScale} />
+  <Text x={p0 + (L.compact ? 84 : 72)} y={y1 + 13} text="+" size={T.big} kind="big" />
+  <Pot x={p1} y={y1} colour={orange} scale={potScale} />
+  <Text x={p1 + (L.compact ? 84 : 72)} y={y1 + 13} text="=" size={T.big} kind="big" />
+  <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} active={m.beat === 'brown'} scale={bigPot} />
+  <Text x={mix.x + 42} y={y2 + 13} text={serverLabel} size={labelSize} kind="small" anchor="start" />
+  <Pot x={p0} y={y2} colour="#ffcf5d" scale={potScale} />
+  <Text x={p0 + (L.compact ? 84 : 72)} y={y2 + 13} text="+" size={T.big} kind="big" />
+  <Pot x={p1} y={y2} colour={green} scale={potScale} />
+  <Text x={p1 + (L.compact ? 84 : 72)} y={y2 + 13} text="=" size={T.big} kind="big" />
+  <Pot x={p2} y={y2} colour={m.brown > 0.75 ? brown : green} active={m.beat === 'brown'} scale={bigPot} />
+{:else}
+  {@const y1 = mix.y + 168}{@const y2 = mix.y + 320}
+  {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + 155}{@const p2 = p0 + 310}
+  <Text x={mix.x + 54} y={y1 + 18} text={phoneLabel} size={T.text} kind="small" anchor="start" />
+  <Pot x={p0} y={y1} colour="#ffcf5d" scale={1.18} />
+  <Text x={p0 + 78} y={y1 + 18} text="+" size={T.big} kind="big" />
+  <Pot x={p1} y={y1} colour={orange} scale={1.18} />
+  <Text x={p1 + 78} y={y1 + 18} text="=" size={T.big} kind="big" />
+  <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} scale={1.18} />
+  <Text x={mix.x + 54} y={y2 + 18} text={serverLabel} size={T.text} kind="small" anchor="start" />
+  <Pot x={p0} y={y2} colour="#ffcf5d" scale={1.18} />
+  <Text x={p0 + 78} y={y2 + 18} text="+" size={T.big} kind="big" />
+  <Pot x={p1} y={y2} colour={green} scale={1.18} />
+  <Text x={p1 + 78} y={y2 + 18} text="=" size={T.big} kind="big" />
+  <Pot x={p2} y={y2} colour={m.brown > 0.75 ? brown : green} scale={1.18} />
+{/if}
+
+{#if endpoint === 'middle'}<line x1={crow.x} x2={crow.x} y1={crow.y + 28} y2={L.road.y - 42} stroke="#6b3f2a" stroke-width="7" stroke-linecap="round" opacity="0.75" />{/if}
+<line x1={wire.x1} x2={wire.x2} y1={wire.y} y2={wire.y} stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" opacity="0.65" />
+<Crow x={crow.x} y={crow.y} look={m.swap} scale={crowScale} />
+{#if m.beat !== 'locked' && !L.compact}
+  <Text x={crowLabelX} y={crowLabelY} text={S('label.crowShort')} size={crowLabelSize} kind="big" anchor={crowRight ? 'start' : 'end'} />
+{/if}
+{#if m.beat === 'swap' || !subject.open}
+  <Pot x={crow.x - (view.orient === 'portrait' ? 70 : 115)} y={crow.y + (view.orient === 'portrait' ? 70 : 72)} colour={orange} scale={view.orient === 'portrait' ? 0.64 : 0.82} />
+  <Pot x={crow.x + (view.orient === 'portrait' ? 70 : 115)} y={crow.y + (view.orient === 'portrait' ? 70 : 72)} colour={green} scale={view.orient === 'portrait' ? 0.64 : 0.82} />
+{/if}
+
+{#each ends as e, i}
+  <Node id={endHops[i].node.id} x={e.x} y={e.y} size={e.size} />
+  {#if L.endNames}<Text x={e.x} y={L.names} text={roadName(endHops[i])} size={T.text} kind="node" />{/if}
+{/each}
+<Node id={focusedId} x={focused.x} y={focused.y} size={focused.size} focused />
+<Text x={focused.x} y={L.names} text={roadName(subject.ctx.to)} size={T.text} kind="big" />
+
+<g transform="translate({px} {L.walk}) scale({L.parcel}) translate({-px} {-L.walk})">
+  {#if m.beat === 'locked'}
+    <LockedParcel x={px} y={L.walk} locked={1} scramble={!subject.open} scale={1} lockColour={brown} />
+  {:else}
+    <LockedParcel x={px} y={L.walk} locked={0} scramble={false} scale={0.92} />
+  {/if}
+</g>
+{#if m.beat === 'locked' && (endpoint !== 'middle' || (view.orient === 'landscape' && Math.abs(px - L.hop.x) > L.hop.size / 2 + 60))}<Text x={px} y={L.walk - (view.orient === 'portrait' ? 118 : 145)} text={S('label.locked')} size={T.text} kind="big" />{/if}
+
+{#if view.orient === 'landscape' && L.tags.length >= 2}
+  <TagAt x={L.tags[0].x} y={L.tags[0].y} text={S('tag.chain')} size={T.tag} />
+  <TagAt x={L.tags[1].x} y={L.tags[1].y} text={S('tag.ecdhe')} size={T.tag} />
+{:else if L.tags.length}
+  <TagAt x={L.tags[0].x} y={L.tags[0].y} text={S('tag.ecdhe')} size={T.tag} />
+{/if}
