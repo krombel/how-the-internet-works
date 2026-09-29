@@ -1,0 +1,31 @@
+{
+  "title": "Tunnel-kuverten",
+  "kid": "Mobilnettet laver en privat tunnel mellem masten og mobilkernen. Din pakke beholder den samme telefonadresse, mens den store tunnel-kuvert skifter omkring den.",
+  "nerd": "GTP-U bærer UE'ens IP-pakke gennem operatørens net. gNB og UPF/PGW bruger ydre IP plus UDP/2152 med en TEID, som beskrevet i 3GPP TS 29.281.",
+  "label": {
+    "newTower": "Næste mast",
+    "sameAddress": "Samme adresse!",
+    "walk": "du kan gå",
+    "toCore": "Til mobilkernen",
+    "fromCore": "Tilbage til masten",
+    "envelope": "tunnel nr. 7",
+    "cardLabel": "Tunnel-etiket",
+    "handover": "Handover"
+  },
+  "tag": {
+    "tunnel": "UDP 2152 · TEID 0x7",
+    "anchor": "UE-IP ankret i UPF/PGW"
+  },
+  "at": {
+    "cell-tower": {
+      "title": "Masten åbner tunnelen",
+      "kid": "Ved masten kommer den store tunnel-kuvert af. Din pakke siger stadig 100.64.12.7, så masten kan sende den videre over radioen til din telefon.",
+      "nerd": "På downlink afslutter gNB'en GTP-U-strækningen fra UPF'en: ydre IP 10.20.0.1 → 10.20.0.5, UDP/2152, TEID 0x7. Den pakker UE-pakken til 100.64.12.7 ud og planlægger den på NR-radio. Ved handover opdaterer kernen tunnel-endepunkt og TEID, mens UE-IP'en bliver ankret."
+    },
+    "mobile-core": {
+      "title": "Kernen åbner tunnelen",
+      "kid": "I mobilkernen åbnes tunnel-kuverten, og din pakke kan fortsætte ud på internettet. Selv når du går til næste mast, beholder telefonen den samme adresse.",
+      "nerd": "På uplink modtager UPF/PGW GTP-U fra gNB'en: ydre IP 10.20.0.5 → 10.20.0.1, UDP/2152, TEID 0x7. Den pakker UE-pakken (100.64.12.7) ud, anvender politik/NAT og videresender den. Ved handover opdaterer UPF'en N3/S1-U-tunnelens endepunkt; UE-IP'en forbliver ankret."
+    }
+  }
+}
