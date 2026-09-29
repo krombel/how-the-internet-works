@@ -2,12 +2,11 @@
 <script lang="ts">
   import type { BackdropProps } from '$core/api';
   import { Depth } from '$core/api';
-  let { kind, orient, w, h, time }: BackdropProps = $props();
+  let { kind, orient, w, h }: BackdropProps = $props();
   const portrait = $derived(orient === 'portrait');
-  const cloudBob = $derived(Math.sin(time * 0.55) * 4);
 </script>
 
-<!-- THESIS: teach networks as a warm picture-book journey, not a glowing tech diagram. OWN-WORLD: peach sky, rolling green paper hills, chunky brown outlines, smiling devices, luggage tags. STORY: packets run from where you are (a place's own backdrop: the cut-away home, the street) through roads, radio, fibre and a cloud-town internet. FIRST VIEWPORT: the place sits low/left, internet town beyond hills, labels float like painted signs. FORM: brief-pinned flat storybook world, springy motion, no SVG filters. -->
+<!-- THESIS: teach networks as a warm picture-book journey, not a glowing tech diagram. OWN-WORLD: peach sky, rolling green paper hills, chunky brown outlines, smiling devices, luggage tags. STORY: packets run from where you are (a place's own backdrop: the cut-away home, the street) through roads, radio, fibre and a smiling-cloud internet. FIRST VIEWPORT: the place sits low/left, the internet cloud beyond the hills, labels float like painted signs. FORM: brief-pinned flat storybook world, springy motion, no SVG filters. -->
 
 {#if kind === 'root'}
   <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky, #ffeccf)" />
@@ -25,14 +24,6 @@
   <Depth d={0.42}>
     <g transform={portrait ? 'translate(545 250) scale(1.05)' : 'translate(1260 250)'}>
       <path d="M-120 110 C-92 58 -20 58 0 102 C42 84 92 112 92 160 C92 198 58 224 18 218 H-110 C-158 218 -186 186 -174 150 C-166 126 -148 114 -120 110 Z" fill="#fff6df" stroke="#6b3f2a" stroke-width="7" />
-      <path d="M-55 166 q16 18 34 0" fill="none" stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" />
-      <circle cx="-65" cy="143" r="6" fill="#6b3f2a" />
-      <circle cx="-8" cy="143" r="6" fill="#6b3f2a" />
-      <g fill="#f28f5b" stroke="#6b3f2a" stroke-width="4">
-        <rect x="20" y="130" width="34" height="58" rx="5" />
-        <rect x="58" y="112" width="42" height="76" rx="5" fill="#72b8a5" />
-        <rect x="104" y="138" width="30" height="50" rx="5" fill="#e4a342" />
-      </g>
     </g>
   </Depth>
 {:else}
