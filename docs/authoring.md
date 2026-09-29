@@ -132,7 +132,7 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 ## Add a layer (issue #5)
 
 `content/layers/<id>/`:
-- `layer.ts`: `defineLayer({ openAt?: ['endpoint', …], learnMore })`. `openAt` lists the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else sees it sealed. The default is everyone.
+- `layer.ts`: `defineLayer({ openAt?: ['endpoint', …], dive?: '<scene>', learnMore })`. `openAt` lists the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else sees it sealed. The default is everyone. `dive` points at a layer dive scene (see below): its envelope in the peek panel then gets a magnifier that flies into it.
 - `Layer.svelte`: gets `{ ctx, open, depth, children }` and renders an `<Envelope>` from `$core/api` with `name`, `fields`, `note` and `sealed`, then `{@render children?.()}` for the layers inside. `ctx` is the `LayerCtx`:
   - the link, and the `from`/`to` hops
   - the reader's `role`
@@ -147,6 +147,9 @@ Then reference it from a technology `stack`, a link override, or a flow `stack`.
 
 ## Add a dive scene
 
+A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, fibre, 5G) or a layer at one hop
+(`explains: 'layer'`, next section). Technologies and links may only point at link scenes, layers only at layer scenes.
+
 `content/scenes/<id>/`:
 - `scene.ts`: `defineScene({ learnMore })`.
 - `Scene.svelte`: gets `{ subject }`: the link it explains, with `subject.link.tech`, `subject.link.stack`, and its hops via `subject.route.hops[subject.link.from]`. It draws in the scene world (landscape 1600×900, portrait 900×1600; read `view.orient`). Build it from:
@@ -158,6 +161,43 @@ Then reference it from a technology `stack`, a link override, or a flow `stack`.
 - Strings: `title` (required) and `kid`/`nerd`. Per-technology variants such as `gpon.title` or `gpon.kid` win when the subject is that technology.
 
 Point a technology's `dive` at it, or a single link's `dive`.
+
+## Add a layer dive
+
+A layer dive is one layer as seen at one hop: IP at the home router, TCP at your phone. Readers get there by tapping a
+magnifier on an envelope in the peek panel (or by URL: `#/en/home/watch-video/router~ip`), and step up and down the
+stack of the same hop with the ▲/▼ buttons, a vertical flick or the arrow keys. **One scene serves every hop**, so it
+adapts to where it is opened rather than having near-duplicates (the IP dive is a signpost at a router, a swap
+notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a bridge, a door plate at an endpoint).
+
+`content/scenes/<id>/`:
+- `scene.ts`: `defineScene({ explains: 'layer', learnMore })`.
+- `Scene.svelte`: gets `{ subject }`, a `LayerSubject` (`import type { LayerSubject } from '$core/api'`):
+  - `subject.layer`: the layer id; `subject.open`: whether this hop reads it (else it is sealed here);
+  - `subject.ctx`: the hop's `LayerCtx`, as in `Layer.svelte`: `to` (this hop, with its `role`), `link` (the link
+    it arrived on), `client`/`server`, `src`/`dst`, `nat`, `ttl`, `dir`, `flow` and `level`;
+  - `subject.route`: the whole route (`chain`, `links`, `asides`, `activity`), to build what the hop knows from it
+    (the IP dive derives a router's signposts from the next and previous hops).
+- Vary by context, most general first: `subject.open` (open vs sealed), `ctx.to.role` (`endpoint`, `nat`, `router`,
+  `bridge`), then facts (`ctx.nat`, the link's `stack`). Avoid naming node ids.
+- Draw it like the other layer dives so they read as a family: a road along the bottom with the client, the server
+  and this hop (`Node`, focused) and names under them (`nameOf`); paper cards above it for the close-up; big
+  walking parcels. Keep the flap at the top centre of the panel empty (the envelope panel is drawn there).
+  Portrait (900×1600) and landscape (1600×900) are both needed; a short landscape screen (a phone on its side)
+  benefits from a compact layout with bigger text and fewer labels (see `layoutFor` in `scenes/ip-post/post.ts`).
+  Text never draws smaller than the theme's minimum on screen, so check the portrait phone for overlaps.
+- Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
+- Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
+  1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)
+  2. `role.<role>` (e.g. `role.nat`)
+  3. `sealed` (when this hop can't open the layer)
+  4. the plain `title`/`kid`/`nerd`
+
+  `{hop}` (this hop's name), `{yours}` ("your phone") and `{layer}` are filled in. Scene labels are your own keys,
+  read with `strings('scene.<id>')`; nerd callouts conventionally live under `tag.*`.
+
+Then set `dive: '<id>'` in `content/layers/<layer>/layer.ts`. The layer panels of a hop stack vertically around it in
+its path scene, so nothing else needs a layout. Dive scenes are loaded on demand, so they cost nothing at start-up.
 
 ## Add a segment
 
@@ -217,6 +257,6 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
 - [ ] `locales/en.json` has the required strings; `da.json` if you can.
-- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in.
+- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).
