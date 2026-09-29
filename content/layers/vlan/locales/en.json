@@ -1,0 +1,10 @@
+{
+  "name": {
+    "kid": "Street sticker",
+    "nerd": "VLAN tags (802.1ad Q-in-Q)"
+  },
+  "note": {
+    "kid": "It gets a coloured tag so the operator knows which street and which house it came from.",
+    "nerd": "Double-tagged (Q-in-Q): an S-VLAN per cabinet, a C-VLAN per customer, towards the BNG."
+  }
+}

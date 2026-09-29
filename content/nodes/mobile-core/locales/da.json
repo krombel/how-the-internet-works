@@ -1,0 +1,6 @@
+{
+  "name": "Mobilkerne",
+  "kid": "Mobilselskabets kontrolrum. Det tjekker dit SIM-kort, pakker dine pakker ud af mastens tunnel og giver dem en internetadresse.",
+  "nerd": "5G-kernen (5GC): AMF/SMF håndterer login og sessioner; UPF’en afslutter GTP-U-tunnelen, håndhæver politikker og laver carrier-grade NAT mod internettet.",
+  "tag": "5GC · UPF · CGNAT"
+}

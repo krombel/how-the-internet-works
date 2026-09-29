@@ -1,0 +1,15 @@
+{
+  "name": "Ved skrivebordet",
+  "kid": "Ingen radio denne gang: pakkerne løber gennem et kabel direkte ind i routeren og så ud langs en glastråd til internettet.",
+  "nerd": "Med kabel: Ethernet-rammer går direkte fra den bærbares port til hjemmerouteren, som NAT-oversætter pakkerne og sender dem videre over fiberforbindelsen (GPON) til internetudbyderen.",
+  "tag": {
+    "laptop": "Ethernet · 192.168.1.40",
+    "router": "NAT → 203.0.113.7"
+  },
+  "stop": {
+    "laptop": {
+      "kid": "Den bærbare vil også se en video. Den sender sin forespørgsel ned gennem kablet – uden bølger i luften.",
+      "nerd": "Den samme HTTPS-forespørgsel som på telefonen, men det nederste lag er en Ethernet-ramme i et parsnoet kabel i stedet for en Wi-Fi-radioramme."
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "from": "From",
+  "to": "To",
+  "server": "the video server",
+  "name": {
+    "kid": "Address label",
+    "nerd": "IP packet (IPv4)"
+  },
+  "nat": {
+    "kid": "{name} swaps the sender address for its own outside address, and remembers who asked.",
+    "nerd": "NAT: source {inside}:51034 is rewritten to {outside}:51034 and stored in the connection table."
+  },
+  "unnat": {
+    "kid": "{name} looks up who asked for this and changes the address back to {yours}.",
+    "nerd": "NAT reverse: destination {outside} is rewritten back to {inside} from the connection table."
+  },
+  "bridge": {
+    "kid": "{name} doesn’t read the address. It just passes the parcel on.",
+    "nerd": "{name} doesn’t route: it swaps the link frame for the next one and leaves this IP packet untouched."
+  },
+  "read": {
+    "kid": "This box reads the address and picks the best way onwards.",
+    "nerd": "Routed: longest-prefix match in the FIB, TTL − 1, a new link frame for the next hop."
+  },
+  "arrived": {
+    "kid": "Arrived! This is the right address.",
+    "nerd": "Destination reached: hand the payload up to TCP."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "label": "Label",
+  "name": {
+    "kid": "Ekspres-mærkat",
+    "nerd": "MPLS-label"
+  },
+  "note": {
+    "kid": "Inde i det store net siger et hurtigt mærkat, hvilken motorvej den skal tage, så ingen behøver læse adressen.",
+    "nerd": "Label-switches gennem kernen; labelen skiftes i hver LSR og fjernes før kanten."
+  }
+}

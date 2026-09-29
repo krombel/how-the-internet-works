@@ -1,0 +1,6 @@
+{
+  "name": "Internetknudepunkt",
+  "kid": "Et mødested, hvor en masse net bytter pakker gratis.",
+  "nerd": "Et internetknudepunkt er et stort fælles Ethernet-net; netværk peerer over BGP, ofte via route servere.",
+  "tag": "Peering LAN · BGP"
+}

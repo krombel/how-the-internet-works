@@ -1,0 +1,14 @@
+{
+  "name": {
+    "kid": "Brevet",
+    "nerd": "HTTP-besked"
+  },
+  "request": {
+    "kid": "“Send mig lige det næste stykke af kattevideoen!”",
+    "nerd": "En forespørgsel på det næste videosegment."
+  },
+  "video": {
+    "kid": "“Her er det næste stykke af kattevideoen!”",
+    "nerd": "Et svar med cirka 1 MB video."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Udbyderens kernenet",
+  "kid": "Internetfirmaets motorvej: lynhurtige forbindelser mellem store byer.",
+  "nerd": "En MPLS-kerne med 100–400G-forbindelser; pakker label-switches i stedet for at blive slået op i hvert hop.",
+  "tag": "MPLS · 400G"
+}

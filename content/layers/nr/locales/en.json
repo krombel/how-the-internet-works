@@ -1,0 +1,12 @@
+{
+  "to": "For",
+  "slot": "Slot",
+  "name": {
+    "kid": "5G radio envelope",
+    "nerd": "5G NR frame (PDCP · RLC · MAC)"
+  },
+  "note": {
+    "kid": "Sent through the air in your phone’s own seats. The tower checks every piece arrived and asks again if one got lost.",
+    "nerd": "Sent on the resource blocks the gNB granted this phone; HARQ resends lost blocks and PDCP encrypts the payload."
+  }
+}

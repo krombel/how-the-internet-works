@@ -1,0 +1,11 @@
+{
+  "to": "Til",
+  "name": {
+    "kid": "Kabel-kuvert",
+    "nerd": "Ethernet-ramme"
+  },
+  "note": {
+    "kid": "Hver boks på vejen tager kuverten af og sætter en ny på til det næste kabel.",
+    "nerd": "Kun lokalt: der skrives en ny ramme med nye MAC-adresser for hvert hop."
+  }
+}

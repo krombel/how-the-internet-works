@@ -1,0 +1,5 @@
+{
+  "name": "Video-server",
+  "kid": "Videoen bor her, på en server ikke langt fra dig, så den kommer hurtigt frem.",
+  "nerd": "En CDN-cache i eller ved IXP’et leverer segmentet; kun cache-miss går videre til origin-serveren."
+}

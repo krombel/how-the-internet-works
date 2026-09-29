@@ -1,0 +1,10 @@
+{
+  "name": {
+    "kid": "Gade-mærkat",
+    "nerd": "VLAN-tags (802.1ad Q-in-Q)"
+  },
+  "note": {
+    "kid": "Den får et farvet mærke, så udbyderen ved, hvilken gade og hvilket hus den kom fra.",
+    "nerd": "Dobbelt-tagget (Q-in-Q): en S-VLAN pr. skab og en C-VLAN pr. kunde, mod BNG’en."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "to": "Til",
+  "band": "Bånd",
+  "name": {
+    "kid": "Radio-kuvert",
+    "nerd": "Wi-Fi-ramme (802.11)"
+  },
+  "note": {
+    "kid": "Sendes gennem luften. Kun adgangspunktet og {yours} lytter efter den.",
+    "nerd": "Adgangspunktet kvitterer for hver ramme og sender tabte rammer igen. Indholdet er krypteret (WPA3)."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "from": "Fra",
+  "to": "Til",
+  "server": "video-serveren",
+  "name": {
+    "kid": "Adresselabel",
+    "nerd": "IP-pakke (IPv4)"
+  },
+  "nat": {
+    "kid": "{name} bytter afsenderadressen ud med sin egen udadvendte adresse og husker, hvem der spurgte.",
+    "nerd": "NAT: afsender {inside}:51034 omskrives til {outside}:51034 og gemmes i forbindelsestabellen."
+  },
+  "unnat": {
+    "kid": "{name} slår op, hvem der bad om den, og skifter adressen tilbage til {yours}.",
+    "nerd": "NAT retur: modtager {outside} omskrives tilbage til {inside} via forbindelsestabellen."
+  },
+  "bridge": {
+    "kid": "{name} læser ikke adressen. Den giver bare pakken videre.",
+    "nerd": "{name} router ikke: den bytter rammen ud med den næste og rører ikke IP-pakken."
+  },
+  "read": {
+    "kid": "Denne boks læser adressen og vælger den bedste vej videre.",
+    "nerd": "Routet: longest-prefix match i FIB’en, TTL − 1 og en ny ramme til næste hop."
+  },
+  "arrived": {
+    "kid": "Fremme! Det er den rigtige adresse.",
+    "nerd": "Modtager nået: indholdet gives videre op til TCP."
+  }
+}

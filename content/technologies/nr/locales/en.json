@@ -1,0 +1,6 @@
+{
+  "name": "5G",
+  "kid": "Your phone talks to the tower by radio. The tower aims a beam right at your phone, so lots of phones can talk at once.",
+  "nerd": "5G NR in the 3.5 GHz band: OFDMA with 30 kHz sub-carriers, beamformed by a massive-MIMO panel, scheduled every 0.5 ms slot.",
+  "tag": "NR · 100 MHz · 256-QAM"
+}

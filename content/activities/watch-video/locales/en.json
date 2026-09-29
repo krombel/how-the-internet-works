@@ -1,0 +1,19 @@
+{
+  "title": "Watching a video",
+  "kid": "You ask for a video.",
+  "nerd": "The app fetches the video in small segments over HTTPS (HTTP inside TLS inside TCP), and the server streams them back.",
+  "packet": {
+    "request": "Request",
+    "video": "Video"
+  },
+  "peek": {
+    "request": "Following a request",
+    "video": "Following a piece of video"
+  },
+  "stop": {
+    "phone": {
+      "kid": "Your phone wants a cat video, so it writes a little request and sends it off.",
+      "nerd": "The app opens a TLS connection and sends an HTTP GET for the next video segment. The OS splits the data into TCP segments inside IP packets."
+    }
+  }
+}

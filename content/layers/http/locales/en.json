@@ -1,0 +1,14 @@
+{
+  "name": {
+    "kid": "The letter",
+    "nerd": "HTTP message"
+  },
+  "request": {
+    "kid": "“Please send me the next bit of the cat video!”",
+    "nerd": "A request for the next video segment."
+  },
+  "video": {
+    "kid": "“Here’s the next bit of the cat video!”",
+    "nerd": "A response with about 1 MB of video."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "colour": "Colour of light",
+  "up": "going up the street",
+  "down": "coming home",
+  "name": {
+    "kid": "Light envelope",
+    "nerd": "GPON frame (GEM)"
+  },
+  "note": {
+    "kid": "Everyone on your street shares the same fibre, so each house only opens envelopes with its own number.",
+    "nerd": "Downstream is broadcast to every ONT on the splitter and AES-encrypted per GEM port; upstream uses time slots."
+  }
+}

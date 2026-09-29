@@ -1,0 +1,5 @@
+{
+  "name": "Video server",
+  "kid": "The video lives here, in a server not far from you, so it arrives quickly.",
+  "nerd": "A CDN edge cache inside or next to the IXP serves the segment; only cache misses go further to the origin."
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Vi ser en video",
+  "kid": "Du beder om en video.",
+  "nerd": "Appen henter videoen i små segmenter over HTTPS (HTTP inde i TLS inde i TCP), og serveren streamer dem tilbage.",
+  "packet": {
+    "request": "Forespørgsel",
+    "video": "Video"
+  },
+  "peek": {
+    "request": "Du følger en forespørgsel",
+    "video": "Du følger et stykke video"
+  },
+  "stop": {
+    "phone": {
+      "kid": "Din telefon vil se en kattevideo, så den skriver en lille forespørgsel og sender den af sted.",
+      "nerd": "Appen åbner en TLS-forbindelse og sender en HTTP GET efter næste videosegment. Styresystemet deler data op i TCP-segmenter inde i IP-pakker."
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "ports": "Porte",
+  "seq": "Seq",
+  "piece": "Stykke nr.",
+  "name": {
+    "kid": "Nummereret stykke",
+    "nerd": "TCP-segment"
+  },
+  "sealed": {
+    "kid": "Forseglet. Kun {yours} og serveren åbner den: de tjekker, at ingen stykker mangler.",
+    "nerd": "Undersøges ikke undervejs: ende-til-ende mellem de to ender (rækkefølge, gensending, trængselsstyring)."
+  },
+  "peek": {
+    "nerd": "NAT’en kigger på portnumrene (og kan omskrive afsenderporten), men resten forbliver forseglet."
+  }
+}

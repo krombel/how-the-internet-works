@@ -1,0 +1,6 @@
+{
+  "name": "Mobilmast",
+  "kid": "En mast med smarte antenner. Den taler med alle telefoner i nærheden via radio og sender deres pakker videre gennem en glastråd.",
+  "nerd": "En 5G-basestation (gNB): massive MIMO-antennepaneler, radioplanlæggeren og en fiber-backhaul, der tunnelerer brugertrafik (GTP-U) til mobilkernen.",
+  "tag": "gNB · n78 · 3.5 GHz"
+}

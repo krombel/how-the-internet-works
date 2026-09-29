@@ -1,0 +1,23 @@
+{
+  "name": "On the street",
+  "kid": "Out on the street there’s no Wi-Fi, so the parcels fly by radio to a cell tower, and from there along a glass thread to the internet.",
+  "nerd": "On 5G the phone talks NR to a gNB, which tunnels the packets (GTP-U) over fibre to the mobile core; its UPF does carrier-grade NAT towards the internet.",
+  "tag": {
+    "phone": "5G · 100.64.12.7",
+    "mobile-core": "UPF · CGNAT"
+  },
+  "stop": {
+    "phone": {
+      "kid": "Your phone wants a cat video, even out here. It sends a little request by radio."
+    },
+    "cell-tower-internet": {
+      "kid": "From the tower, your parcels travel inside a tunnel along a glass thread to the mobile company.",
+      "nerd": "Fibre backhaul from the gNB to the core; user packets ride inside GTP-U (UDP 2152) tunnels, one per session."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you."
+    }
+  }
+}

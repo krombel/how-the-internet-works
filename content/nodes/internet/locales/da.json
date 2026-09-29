@@ -1,0 +1,11 @@
+{
+  "name": "Internettet",
+  "kid": "Internettet er en masse net, der holder hinanden i hånden. Tryk for at se, hvad der er indeni!",
+  "nerd": "~75 000 autonome systemer, der udveksler ruter med BGP. Tryk for at folde vejen gennem udbyderen ud.",
+  "tag": "AS64500 · BGP",
+  "inside": {
+    "title": "Inde i internettet",
+    "kid": "Internettet er ikke én stor sky. Det er en kæde af bokse, der hver giver din pakke videre til den næste – fra din gade, gennem dit internetfirma, hen til der, hvor videoen bor.",
+    "nerd": "En kæde af net: dit adgangsnet, internetudbyderens kerne og derefter gratis peering i et internetknudepunkt (eller betalt transit) – og til sidst en CDN-cache tæt på dig."
+  }
+}

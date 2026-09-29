@@ -1,0 +1,6 @@
+{
+  "name": "Mobile core",
+  "kid": "The mobile company’s control room. It checks your SIM card, unpacks your parcels from the tower’s tunnel and gives them an internet address.",
+  "nerd": "The 5G core (5GC): AMF/SMF handle sign-in and sessions; the UPF ends the GTP-U tunnel, applies policy and does carrier-grade NAT towards the internet.",
+  "tag": "5GC · UPF · CGNAT"
+}

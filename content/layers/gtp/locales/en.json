@@ -1,0 +1,12 @@
+{
+  "from": "From",
+  "to": "To",
+  "name": {
+    "kid": "Tunnel envelope",
+    "nerd": "GTP-U tunnel (outer IP/UDP)"
+  },
+  "note": {
+    "kid": "The tower puts your parcel inside a bigger one addressed to the mobile core, so the network can find your phone wherever you walk.",
+    "nerd": "The gNB wraps the phone’s own IP packet in IP/UDP/GTP-U (port 2152) to the UPF; the TEID identifies this phone’s session."
+  }
+}

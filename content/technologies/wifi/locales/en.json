@@ -1,0 +1,6 @@
+{
+  "name": "Wi-Fi",
+  "kid": "The request flies through the air as radio waves – no wire needed!",
+  "nerd": "802.11ax on 5 GHz: OFDMA sub-carriers, 1024-QAM, WPA3 encryption between the device and the AP.",
+  "tag": "5 GHz · OFDM · 1024-QAM"
+}
