@@ -2,11 +2,11 @@
 <script lang="ts">
   // Look inside a 5G link: the tower's antenna panel aims a beam at each phone, and a scheduler gives every phone its
   // own seats in a time × frequency grid (like seats on a bus), so many phones share the air at once.
-  import { Node, TagAt, Text, strings, view, type Subject } from '$core/api';
+  import { Node, TagAt, Text, strings, view, type LinkSubject } from '$core/api';
   import { COLS, LAYOUT, ROWS, USERS, beamPath, columns, owner } from './radio';
   import Beam from './art/Beam.svelte';
   import Seat from './art/Seat.svelte';
-  let { subject }: { subject: Subject } = $props();
+  let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.nr-radio');
   // you, and two neighbours' phones
   const COLOURS = ['#bd6b87', '#72b8a5', '#e4a342'];

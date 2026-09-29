@@ -2,8 +2,8 @@
   // Orchestration: one rAF loop drives the scene clock, packets, the camera (eased zoom flights, follow) and the morph
   // between places. Everything is generic over the scene tree; scenes and art only render what this computes.
   import { onMount, untrack } from 'svelte';
-  import { areaCentre, clampCam, fit, flyInterpolator, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
-  import { bezier, type Curve, type Orient, type Pt } from './engine/geometry';
+  import { areaCentre, clampCam, fit, flyInterpolator, smoothstep, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { easeInOutCubic } from './engine/motion';
   import { livePackets, specsFor, type LivePacket } from './engine/packets';
@@ -12,8 +12,9 @@
   import { morphScene, pathScene, startNode, type PathScene } from './model/layout';
   import type { Loc } from './model/location';
   import type { Route } from './model/resolve';
-  import { childrenOf, parentPath, rectToRoot, sceneRef, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
+  import { parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
   import type { Mounted } from './render/ctx';
+  import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
   import { loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
@@ -120,24 +121,16 @@
     if (cam.k < b.k * 0.97 || visible < 0.45) startTrans(here.path, here.path, b, 450);
   }
 
-  // Sideways stepping: path scenes step through their stops; at dive level, between the parent's dives.
+  // Sideways stepping: path scenes step through their stops; link dives between the parent's dives; layer dives up and
+  // down the layers of their hop.
   let nudge = $state({ dir: 0, n: 0 });
-  const stepInfo = $derived.by(() => {
-    const o = view.orient, ref = sceneInfo(route, here.path, o).ref;
-    if (ref.kind === 'path') {
-      const stops = pathScene(route, ref.group, o).stops;
-      return { dive: false, stops, i: here.stop ? stops.indexOf(here.stop) : -1, min: -1 };
-    }
-    const parent = parentPath(here.path);
-    const stops = childrenOf(route, sceneInfo(route, parent, o).ref, o).filter((c) => c.kind === 'dive').map((c) => c.step);
-    return { dive: true, stops, i: stops.indexOf(here.path[here.path.length - 1]), min: 0 };
-  });
+  const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
   function step(d: -1 | 1) {
     if (follow) endFollow(false);
-    const { stops, i, min, dive } = stepInfo, ni = i + d;
-    if (ni < min || ni >= stops.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
-    if (dive) go({ path: [...parentPath(here.path), stops[ni]] });
-    else go({ stop: ni < 0 ? null : stops[ni] }, true);
+    const { kind, steps, i, min } = stepInfo, ni = i + d;
+    if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
+    else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
     if (picker) return (picker = null);
@@ -241,6 +234,32 @@
     for (const l of ps.links) if (ps.stops.includes(l.id) && nearLink(l, w) < Math.max(40, minR)) { sfx.pop(); return go({ stop: l.id }, true); }
     if (here.stop) go({ stop: null }, true);
   }
+  // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there.
+  let grow = $state.raw<{ from: DOMRect; head: Node; sealed: boolean; path: string[] } | null>(null);
+  let growEl = $state<HTMLDivElement>();
+  function openLayer(path: string[], env: HTMLElement) {
+    const head = env.querySelector('.env-head')?.cloneNode(true) ?? null, sealed = env.classList.contains('sealed');
+    endFollow(false, true);
+    go({ path });
+    grow = head && trans && !matchMedia('(prefers-reduced-motion: reduce)').matches ? { from: env.getBoundingClientRect(), head, sealed, path } : null;
+  }
+  $effect(() => { if (growEl && grow) growEl.replaceChildren(grow.head); });
+  function frameGrow(now: number) {
+    const G = grow!, el = growEl;
+    if (!trans || keyOf(here.path) !== keyOf(G.path)) { grow = null; return; }
+    if (!el) return;
+    const t = Math.min(1, (now - trans.t0) / trans.dur), e = easeInOutCubic(Math.min(1, t / 0.55));
+    const f = sceneInfo(route, G.path, view.orient).frame, W = WORLD_SIZE[view.orient], k = f.s * cam.k;
+    const x = lerp(G.from.x, cam.x + f.x * cam.k, e), y = lerp(G.from.y, cam.y + f.y * cam.k, e);
+    const w = lerp(G.from.width, W.w * k, e), h = lerp(G.from.height, W.h * k, e);
+    el.style.transform = `translate(${x}px, ${y}px)`;
+    el.style.width = `${w}px`;
+    el.style.height = `${h}px`;
+    el.style.borderRadius = `${lerp(18, 60 * k, e)}px`;
+    el.style.fontSize = `${Math.min(56, Math.max(14, h * 0.12))}px`;
+    el.style.opacity = String(1 - smoothstep(0.6, 0.95, t));
+  }
+
   function pick(p: { places?: string[]; activity?: string }) {
     picker = null;
     if (p.activity && p.activity !== here.activity) go({ activity: p.activity, path: [] });
@@ -248,9 +267,9 @@
   }
 
   function onFlick(dx: number, dy: number) {
-    const portrait = view.orient === 'portrait';
+    const vertical = view.orient === 'portrait' || stepInfo.kind === 'layer';
     if (Math.abs(dx) > Math.abs(dy) * 1.2) { step(dx < 0 ? 1 : -1); return true; }
-    if (portrait && Math.abs(dy) > Math.abs(dx) * 1.2) { step(dy > 0 ? 1 : -1); return true; }
+    if (vertical && Math.abs(dy) > Math.abs(dx) * 1.2) { step(dy > 0 ? 1 : -1); return true; }
     return false;
   }
 
@@ -312,6 +331,7 @@
           cam = { k: tk, x: c.x - wc.x * tk, y: c.y - wc.y * tk };
         }
       }
+      if (grow) frameGrow(now);
       if (trans) frameTrans(now);
       raf = requestAnimationFrame(loop);
     };
@@ -352,7 +372,7 @@
     // Test/screenshot hook (scripts/evaluate.mjs).
     Object.assign(window, {
       __app: {
-        go, loc: () => nav.loc, busy: () => !!trans || !!morph,
+        go, loc: () => nav.loc, busy: () => !!trans || !!morph || divesLoading(),
         follow(kind = 'video') {
           const list = packets.get(hereKey) ?? [];
           const p = list.filter((k) => k.kind === kind).sort((x, y) => x.age / x.spec.duration - y.age / y.spec.duration)[0] ?? list[0];
@@ -360,6 +380,12 @@
           return !!p;
         },
         setClock(t: number) { clock = t; },
+        /** Tap the magnifier of a layer's envelope in the peek panel (while following a packet). */
+        openLayer(layer: string) {
+          const b = document.querySelector<HTMLButtonElement>(`.peek .env-${layer} > .env-go`);
+          b?.click();
+          return !!b;
+        },
         picker(open = true) { picker = open ? { slot: 0 } : null; },
       },
     });
@@ -393,12 +419,13 @@
 <div class={portrait ? 'port' : 'land'}>
   <Chrome {crumbs} {small} />
   {#if followed}
-    <PeekPanel packet={followed} {route} onclose={() => endFollow(false)} />
+    <PeekPanel packet={followed} {route} onclose={() => endFollow(false)} ondive={openLayer} />
   {/if}
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} hidden={!showCaption || (peekOpen && portrait)} bind:el={captionEl} />
   {#if !(peekOpen && portrait)}
-    <StepButtons {portrait} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.stops.length - 1} onstep={step} {nudge} />
+    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
+  {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}
   {#if picker}
     <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={() => (picker = null)} />
   {/if}

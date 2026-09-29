@@ -39,7 +39,8 @@ export const kLimits = (r: Route, path: string[], vp: Viewport, o: Orient) => ({
 });
 
 /** Opacity of every scene worth drawing, keyed by path ("" = root). Each path in `paths` (the current location, and
- *  during a flight the one we came from) opens its chain of levels; siblings at each level fade in as you approach. */
+ *  during a flight the one we came from) opens its chain of levels; siblings at each level fade in as you approach.
+ *  Layer dives stack on their hop, so they only show when they are on a path (you get there from the peek panel). */
 export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Orient): Map<string, number> {
   const out = new Map<string, number>();
   for (const path of paths) {
@@ -49,6 +50,7 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
       const base = path.slice(0, i), bk = keyOf(base), k0 = fit(sceneInfo(r, base, o).fit, vp).k;
       let hide = 0, next = 0;
       for (const c of childrenOf(r, sceneInfo(r, base, o).ref, o)) {
+        if (c.kind === 'layer' && c.step !== path[i]) continue;
         const cp = [...base, c.step];
         const { u, prox } = progress(cam, vp, k0, sceneInfo(r, cp, o).fit);
         const a = smoothstep(0.45, 0.8, u) * prox;
@@ -64,7 +66,8 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
   return out;
 }
 
-/** After a gesture: the scene the camera has semantically moved into (up and/or down the tree), or null. */
+/** After a gesture: the scene the camera has semantically moved into (up and/or down the tree, but never into a layer
+ *  dive), or null. */
 export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orient): string[] | null {
   let p = path;
   while (p.length) {
@@ -78,6 +81,7 @@ export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orie
       found = false;
       const k0 = fit(sceneInfo(r, p, o).fit, vp).k;
       for (const c of childrenOf(r, sceneInfo(r, p, o).ref, o)) {
+        if (c.kind === 'layer') continue;
         const { u, prox } = progress(cam, vp, k0, sceneInfo(r, [...p, c.step], o).fit);
         if (u > 0.55 && prox > 0.5) { p = [...p, c.step]; found = true; break; }
       }

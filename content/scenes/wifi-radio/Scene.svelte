@@ -1,12 +1,12 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // Look inside a Wi-Fi link: bits riding a radio wave, from the access point to the device.
-  import { Node, Text, strings, view, type Subject } from '$core/api';
+  import { Node, Text, strings, view, type LinkSubject } from '$core/api';
   import { WIFI, toScene, trackMatrix, wifiBits, wifiRings, wifiWave } from './wave';
   import Wave from './art/Wave.svelte';
   import Bit from './art/Bit.svelte';
   import Rings from './art/Rings.svelte';
-  let { subject }: { subject: Subject } = $props();
+  let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.wifi-radio');
   const BIT_COLOURS = ['#72b8a5', '#f28f5b'];
   // the device end and the radio end of the link (phone ↔ access point on the home route)

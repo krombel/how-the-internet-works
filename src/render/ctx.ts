@@ -4,6 +4,7 @@ import { getContext, setContext } from 'svelte';
 import type { Cam } from '../engine/camera';
 import type { SLink } from '../model/layout';
 import type { Link, Route } from '../model/resolve';
+import type { LayerCtx } from '../model/stack';
 import type { Frame } from '../model/tree';
 
 /** A scene of the tree that is drawn this frame (key = its path joined by "/"). */
@@ -17,17 +18,38 @@ export interface SceneCtx {
   /** The camera zoom (in root units) at which this scene fills the screen. */
   readonly fitK: number;
 }
-/** What a dive scene explains: the link it was opened from, as drawn in its parent and in the route. Scenes use it to
+/** What a link dive explains: the link it was opened from, as drawn in its parent and in the route. Scenes use it to
  *  adapt (e.g. the fibre dive shows GPON's up/down colours on the access fibre). */
-export interface Subject {
+export interface LinkSubject {
+  kind: 'link';
   /** The underlying route link (its technology, stack, ends). */
   link: Link;
   /** The link as drawn in the parent scene (for a collapsed group this is the link entering it). */
   sceneLink: SLink;
   route: Route;
 }
+/** What a layer dive explains: one layer as one hop sees it (`ctx.to`, with its `role`), e.g. IP at a NAT or TCP
+ *  sealed at a router. The same context the layer's envelope gets in the peek panel. */
+export interface LayerSubject {
+  kind: 'layer';
+  layer: string;
+  ctx: LayerCtx;
+  /** Whether this hop opens the layer (else it only sees it sealed). */
+  open: boolean;
+  route: Route;
+}
+export type Subject = LinkSubject | LayerSubject;
+
+/** Set by the peek panel: which envelopes open a layer dive at the hop reading the packet, and how to go there. */
+export interface PeekDives {
+  can(layer: string): boolean;
+  /** `env` is the envelope's element (it grows into the dive). */
+  open(layer: string, env: HTMLElement): void;
+}
 
 export const setWorld = (w: WorldCtx) => setContext('world', w);
 export const getWorld = () => getContext<WorldCtx>('world');
 export const setScene = (s: SceneCtx) => setContext('scene', s);
 export const getScene = () => getContext<SceneCtx>('scene');
+export const setPeekDives = (d: PeekDives) => setContext('peek-dives', d);
+export const getPeekDives = () => getContext<PeekDives | undefined>('peek-dives');

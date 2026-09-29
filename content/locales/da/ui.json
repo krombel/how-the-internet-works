@@ -25,5 +25,10 @@
   "pick.what": "Hvad laver du?",
   "ui.change": "Skift",
   "ui.close": "Luk",
-  "hint.pick": "Tryk for at vælge, hvor du er, og hvad du laver"
+  "hint.pick": "Tryk for at vælge, hvor du er, og hvad du laver",
+  "nav.below": "Laget nedenunder",
+  "nav.above": "Laget ovenover",
+  "hint.layer": "Stryg op eller ned for at skifte lag. Knib eller scroll ud for at gå tilbage.",
+  "peek.dive": "Tryk på et forstørrelsesglas for at kigge ind i et lag",
+  "peek.look": "Kig ind i: {name}"
 }

@@ -1,13 +1,23 @@
 // What the caption says for a location: title, kid/nerd text, a gesture hint and learn-more links (issue #4). Text is
 // looked up from the most specific source to the least: the places and segments on the route (they can say something
 // about a stop in their context), then the node, technology or scene itself.
-import type { LearnMore, Orient } from '../define';
+import type { LearnMore, Level, Orient } from '../define';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
-import { sceneRef } from '../model/tree';
-import { loc, routeKeys, tr, trFirst } from '../state.svelte';
+import { opens } from '../model/stack';
+import { sceneRef, type SceneRef } from '../model/tree';
+import { fill, loc, nameOf, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
 export interface CaptionText { title: string; body: string; hint: string; links: LearnMore[] }
+
+/** A layer dive's text, most specific first: at this kind of node, for its role, sealed (when it can't open the
+ *  layer), then the scene's own; with {hop}, {yours} and {layer} filled in. */
+function layerText(r: Route, ref: SceneRef, suffix: string, level?: Level) {
+  const at = ref.at!, hop = r.hops[at.hop], base = `scene.${ref.dive}`, end = suffix ? `.${suffix}` : '';
+  const keys = [`${base}.at.${hop.node.id}`, `${base}.role.${hop.role}`, ...(opens(r, at.layer, hop.role) ? [] : [`${base}.sealed`]), base];
+  const vars = { hop: nameOf(hop), yours: yours(r.chain[0]), layer: trl(`layer.${at.layer}.name`) };
+  return fill(trFirst(keys.map((k) => k + end), level), vars);
+}
 
 /** The title of a scene (for the breadcrumb and the caption). */
 export function sceneTitle(r: Route, path: string[], o: Orient): string {
@@ -17,6 +27,7 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
     const g = r.hops[ref.group!];
     return trFirst([...routeKeys(`inside.${g.id}.title`), `node.${g.node.id}.inside.title`, `node.${g.node.id}.name`]);
   }
+  if (ref.kind === 'layer') return layerText(r, ref, 'title');
   const tech = ref.link!.link.tech.id;
   return trFirst([`scene.${ref.dive}.${tech}.title`, `scene.${ref.dive}.title`]);
 }
@@ -26,6 +37,12 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   const lv = loc.level;
   if (!ref) return { title: '', body: '', hint: '', links: [] };
   const c = r.content;
+  if (ref.kind === 'layer') return {
+    title: sceneTitle(r, path, o),
+    body: layerText(r, ref, '', lv),
+    hint: tr('hint.layer'),
+    links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
+  };
   if (ref.kind === 'dive') {
     const tech = ref.link!.link.tech;
     return {

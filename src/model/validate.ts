@@ -53,6 +53,15 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
   const learnMore = (file: string, list: { lang: string }[] | undefined) =>
     list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
   const has = (path: string) => files.includes(path);
+  /** A dive must point at a scene that explains that kind of thing. */
+  const dive = (file: string, where: string, id: string | undefined, kind: 'link' | 'layer') => {
+    if (id === undefined) return;
+    const s = c.scenes[id];
+    if (!s) return ref(file, where, 'scenes', id, 'a scene');
+    const is = s.explains ?? 'link';
+    const known = Object.values(c.scenes).filter((x) => (x.explains ?? 'link') === kind).map((x) => x.id);
+    if (is !== kind) add(file, where, `"${id}" explains a ${is}; this needs a scene with \`explains: '${kind}'\`. Known: ${known.join(', ') || '(none)'}.`);
+  };
 
   for (const n of Object.values(c.nodes)) {
     schema(n.file, S.node, strip(n));
@@ -62,7 +71,7 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
   for (const t of Object.values(c.technologies)) {
     schema(t.file, S.technology, strip(t));
     t.stack?.forEach((l, i) => ref(t.file, `stack[${i}]`, 'layers', l, 'a layer'));
-    ref(t.file, 'dive', 'scenes', t.dive, 'a scene');
+    dive(t.file, 'dive', t.dive, 'link');
     need(t.file, `tech.${t.id}.name`);
     learnMore(t.file, t.learnMore);
   }
@@ -70,6 +79,7 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     schema(l.file, S.layer, strip(l));
     if (!has(`/content/layers/${l.id}/Layer.svelte`)) add(l.file, 'component', `add content/layers/${l.id}/Layer.svelte (the envelope drawn in the peek panel)`);
     needLevelled(l.file, `layer.${l.id}.name`);
+    dive(l.file, 'dive', l.dive, 'layer');
     learnMore(l.file, l.learnMore);
   }
   for (const s of Object.values(c.scenes)) {
@@ -93,7 +103,7 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
       if (isLink(h)) {
         ref(file, `hops[${i}].link`, 'technologies', h.link, 'a technology');
         h.stack?.forEach((l, k) => ref(file, `hops[${i}].stack[${k}]`, 'layers', l, 'a layer'));
-        if (h.dive) ref(file, `hops[${i}].dive`, 'scenes', h.dive, 'a scene');
+        if (h.dive) dive(file, `hops[${i}].dive`, h.dive, 'link');
       } else {
         ref(file, `hops[${i}]`, 'nodes', h.node ?? h.at, 'a node (set "node" if the instance id differs)');
         if (h.in) ref(file, `hops[${i}].in`, 'nodes', h.in, 'a node');

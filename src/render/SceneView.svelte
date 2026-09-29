@@ -1,16 +1,17 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // One scene of the tree at its frame: a path scene (nodes, links, packets) or a dive (content/scenes/<id>/Scene.svelte).
-  // Nested scenes sit on the theme's Panel, clipped to their world.
+  // One scene of the tree at its frame: a path scene (nodes, links, packets) or a dive (content/scenes/<id>/Scene.svelte)
+  // into a link or into a layer at one hop. Nested scenes sit on the theme's Panel, clipped to their world.
   import { WORLD_SIZE } from '../engine/geometry';
   import type { LivePacket } from '../engine/packets';
   import { fit } from '../engine/camera';
   import { sceneInfo } from '../engine/zoom';
-  import { diveViews } from '../model/components';
   import { pathScene, type PathScene as PS } from '../model/layout';
   import type { Route } from '../model/resolve';
-  import { themeState, view } from '../state.svelte';
-  import { getWorld, setScene } from './ctx';
+  import { layerCtx, opens } from '../model/stack';
+  import { loc, themeState, view } from '../state.svelte';
+  import { getWorld, setScene, type Subject } from './ctx';
+  import { diveView } from './dives.svelte';
   import PathScene from './PathScene.svelte';
 
   let { route, path, alpha, packets, scene, places, focus }: {
@@ -29,8 +30,15 @@
   });
   const ref = $derived(info.ref);
   const ps = $derived(ref.kind === 'path' ? (scene ?? pathScene(route, ref.group, view.orient)) : null);
-  const Dive = $derived(ref.dive ? diveViews[ref.dive] : null);
-  const subject = $derived(ref.link ? { link: ref.link.link, sceneLink: ref.link, route } : null);
+  const Dive = $derived(ref.dive ? diveView(ref.dive) : null);
+  const subject = $derived.by((): Subject | null => {
+    if (ref.link) return { kind: 'link', link: ref.link.link, sceneLink: ref.link, route };
+    const at = ref.at;
+    if (!at) return null;
+    const ctx = layerCtx(route, at.link, at.flow, at.kind, at.dir, loc.level);
+    return { kind: 'layer', layer: at.layer, ctx, open: opens(route, at.layer, ctx.role), route };
+  });
+  const sealed = $derived(subject?.kind === 'layer' && !subject.open);
   const clip = $derived(`clip-${path.join('-') || 'root'}`);
   const visible = $derived(alpha > 0.002);
 </script>
@@ -41,10 +49,10 @@
   {:else}
     <clipPath id={clip}><rect width={W.w} height={W.h} rx="60" /></clipPath>
     <g clip-path="url(#{clip})">
-      <A.Panel part="back" w={W.w} h={W.h} orient={view.orient} time={view.time} />
+      <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
       {#if ps}<PathScene {route} {ps} {packets} {focus} root={false} />
       {:else if Dive && subject}<Dive {subject} />{/if}
     </g>
-    <A.Panel part="edge" w={W.w} h={W.h} orient={view.orient} time={view.time} />
+    <A.Panel part="edge" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
   {/if}
 </g>

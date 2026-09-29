@@ -38,8 +38,9 @@ export interface HintProps { kind: 'dive' | 'expand' | 'swap'; x: number; y: num
 export interface TagProps { x: number; y: number; text: string; size: number; anchor: 'start' | 'middle' | 'end'; time: number }
 /** Scene labels. The engine computes `size` (clamped to a minimum screen size); themes style via CSS or override. */
 export interface LabelProps { x: number; y: number; text: string; size: number; kind: 'node' | 'link' | 'big' | 'small'; colour?: string; anchor?: 'start' | 'middle' | 'end' }
-/** Background ('back') and frame ('edge') of a nested scene (w×h of its own world). */
-export interface PanelProps { part: 'back' | 'edge'; w: number; h: number; orient: Orient; time: number }
+/** Background ('back') and frame ('edge') of a nested scene (w×h of its own world): a group's path scene, a link dive
+ *  or a layer dive (which the peek panel draws as an envelope; `sealed` when the hop can't open that layer). */
+export interface PanelProps { part: 'back' | 'edge'; kind: 'path' | 'dive' | 'layer'; sealed: boolean; w: number; h: number; orient: Orient; time: number }
 /** Screen-space overlay (outside the camera: rasterised once, not per zoom frame). */
 export interface OverlayProps { w: number; h: number; time: number }
 
