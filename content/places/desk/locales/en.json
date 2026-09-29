@@ -1,0 +1,15 @@
+{
+  "name": "At the desk",
+  "kid": "No radio this time: the parcels run along a cable straight into the router, then out along a glass thread to the internet.",
+  "nerd": "Wired: Ethernet frames go straight from the laptop's port to the home router, which NATs the packets and forwards them over the fibre uplink (GPON) to the ISP.",
+  "tag": {
+    "laptop": "Ethernet · 192.168.1.40",
+    "router": "NAT → 203.0.113.7"
+  },
+  "stop": {
+    "laptop": {
+      "kid": "The laptop wants a video too. It sends its request down the cable – no waves in the air needed.",
+      "nerd": "Same HTTPS request as on the phone, but the lowest layer is an Ethernet frame on a twisted-pair cable instead of a Wi-Fi radio frame."
+    }
+  }
+}
