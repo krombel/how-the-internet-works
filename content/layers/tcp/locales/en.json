@@ -1,0 +1,16 @@
+{
+  "ports": "Ports",
+  "seq": "Seq",
+  "piece": "Piece no.",
+  "name": {
+    "kid": "Numbered piece",
+    "nerd": "TCP segment"
+  },
+  "sealed": {
+    "kid": "Sealed. Only your phone and the server open this: they check that no pieces are missing.",
+    "nerd": "Not inspected on the way: end-to-end between phone and server (ordering, retransmits, congestion control)."
+  },
+  "peek": {
+    "nerd": "The NAT peeks at the port numbers (and may rewrite the source port) but leaves the rest sealed."
+  }
+}

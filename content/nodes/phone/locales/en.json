@@ -1,0 +1,5 @@
+{
+  "name": "Phone",
+  "kid": "A small computer in your pocket, with radios for Wi-Fi and mobile data.",
+  "nerd": "An endpoint: it opens (and checks) every layer, from the radio frame up to the app’s HTTP messages."
+}

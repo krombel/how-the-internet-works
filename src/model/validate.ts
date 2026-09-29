@@ -1,0 +1,186 @@
+// Content validation for authors: every definition against its schema, every cross-reference, required English
+// strings and the presence of each folder's component. Runs in dev (errors go to the Vite overlay and the console),
+// in `npm run check:content` and in the tests. Never in the production bundle.
+import type { z } from 'zod';
+import * as S from './schema';
+import { isLink } from './resolve';
+import type { Content } from './registry';
+import { FALLBACK, type Pack } from './strings';
+
+export interface Problem { file: string; where: string; message: string }
+
+function distance(a: string, b: string) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+/** "Did you mean …? Known: …" for an unknown id. */
+function suggest(bad: string, known: string[]) {
+  const best = known.map((k) => [k, distance(bad, k)] as const).sort((x, y) => x[1] - y[1])[0];
+  const mean = best && best[1] <= Math.max(2, bad.length / 3) ? ` Did you mean "${best[0]}"?` : '';
+  return `${mean} Known: ${known.join(', ') || '(none)'}.`;
+}
+
+export interface ValidateInput {
+  content: Content;
+  packs: Record<string, Pack>;
+  /** Paths of the component files that exist (e.g. "/content/layers/ip/Layer.svelte"). */
+  files: string[];
+}
+
+export function validate({ content: c, packs, files }: ValidateInput): Problem[] {
+  const out: Problem[] = [];
+  const add = (file: string, where: string, message: string) => out.push({ file, where, message });
+  const langs = Object.keys(packs);
+  const en = packs[FALLBACK]?.strings ?? {};
+
+  const schema = <T>(file: string, s: z.ZodType<T>, v: unknown, skip: (path: PropertyKey[]) => boolean = () => false) => {
+    const r = s.safeParse(v);
+    if (!r.success) for (const i of r.error.issues) if (!skip(i.path)) add(file, i.path.map(String).join('.').replace(/\.(\d+)/g, '[$1]'), i.message);
+  };
+  const strip = <T extends { id: string; file: string }>(d: T) => { const { id: _i, file: _f, ...rest } = d; return rest; };
+  const ref = (file: string, where: string, kind: keyof Content, id: string | undefined, label: string) => {
+    if (id !== undefined && !c[kind][id]) add(file, where, `"${id}" is not ${label}.${suggest(id, Object.keys(c[kind]))}`);
+  };
+  const need = (file: string, key: string) => {
+    if (!(key in en)) add(file, 'strings', `missing English string "${key}" (in ${file.replace(/[^/]+$/, '')}locales/en.json)`);
+  };
+  const needLevelled = (file: string, key: string) => {
+    if (!(key in en) && !(`${key}.kid` in en)) add(file, 'strings', `missing English string "${key}" or "${key}.kid" (in ${file.replace(/[^/]+$/, '')}locales/en.json)`);
+  };
+  const learnMore = (file: string, list: { lang: string }[] | undefined) =>
+    list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
+  const has = (path: string) => files.includes(path);
+
+  for (const n of Object.values(c.nodes)) {
+    schema(n.file, S.node, strip(n));
+    need(n.file, `node.${n.id}.name`);
+    learnMore(n.file, n.learnMore);
+  }
+  for (const t of Object.values(c.technologies)) {
+    schema(t.file, S.technology, strip(t));
+    t.stack?.forEach((l, i) => ref(t.file, `stack[${i}]`, 'layers', l, 'a layer'));
+    ref(t.file, 'dive', 'scenes', t.dive, 'a scene');
+    need(t.file, `tech.${t.id}.name`);
+    learnMore(t.file, t.learnMore);
+  }
+  for (const l of Object.values(c.layers)) {
+    schema(l.file, S.layer, strip(l));
+    if (!has(`/content/layers/${l.id}/Layer.svelte`)) add(l.file, 'component', `add content/layers/${l.id}/Layer.svelte (the envelope drawn in the peek panel)`);
+    needLevelled(l.file, `layer.${l.id}.name`);
+    learnMore(l.file, l.learnMore);
+  }
+  for (const s of Object.values(c.scenes)) {
+    schema(s.file, S.scene, strip(s));
+    if (!has(`/content/scenes/${s.id}/Scene.svelte`)) add(s.file, 'component', `add content/scenes/${s.id}/Scene.svelte`);
+    need(s.file, `scene.${s.id}.title`);
+    learnMore(s.file, s.learnMore);
+  }
+
+  const segmentLike = (file: string, def: { hops: unknown[]; aside?: { from: string; link: string; at: string; node?: string }[]; entry?: Record<string, string> }, s: z.ZodType, whole: unknown) => {
+    const hops = Array.isArray(def.hops) ? def.hops : [];
+    hops.forEach((h, i) => {
+      const item = h as Record<string, unknown>;
+      schema(file, ('link' in item ? S.link : S.hop) as z.ZodType, item);
+      const where = `hops[${i}]`;
+      if (i % 2 === 0 && 'link' in item) add(file, where, 'expected a hop ({ at: … }) here: hops and links alternate, starting with a hop');
+      if (i % 2 === 1 && !('link' in item)) add(file, where, 'expected a link ({ link: … }) here: hops and links alternate, starting with a hop');
+    });
+    schema(file, s, whole, (p) => p[0] === 'hops' && p.length > 1);
+    for (const [i, h] of (hops as Parameters<typeof isLink>[0][]).entries()) {
+      if (isLink(h)) {
+        ref(file, `hops[${i}].link`, 'technologies', h.link, 'a technology');
+        h.stack?.forEach((l, k) => ref(file, `hops[${i}].stack[${k}]`, 'layers', l, 'a layer'));
+        if (h.dive) ref(file, `hops[${i}].dive`, 'scenes', h.dive, 'a scene');
+      } else {
+        ref(file, `hops[${i}]`, 'nodes', h.node ?? h.at, 'a node (set "node" if the instance id differs)');
+        if (h.in) ref(file, `hops[${i}].in`, 'nodes', h.in, 'a node');
+      }
+    }
+    const ids = new Set((hops as Parameters<typeof isLink>[0][]).flatMap((h) => (isLink(h) ? [] : [h.at])));
+    def.aside?.forEach((a, i) => {
+      ref(file, `aside[${i}]`, 'nodes', a.node ?? a.at, 'a node');
+      ref(file, `aside[${i}].link`, 'technologies', a.link, 'a technology');
+      if (!ids.has(a.from)) add(file, `aside[${i}].from`, `"${a.from}" is not a hop in this segment.${suggest(a.from, [...ids])}`);
+    });
+    for (const [g, n] of Object.entries(def.entry ?? {})) { ref(file, `entry.${g}`, 'nodes', g, 'a node'); ref(file, `entry.${g}`, 'nodes', n, 'a node'); }
+  };
+
+  for (const s of Object.values(c.segments)) {
+    segmentLike(s.file, s, S.segment, strip(s));
+    learnMore(s.file, s.learnMore);
+  }
+  for (const p of Object.values(c.places)) {
+    segmentLike(p.file, p, S.place, strip(p));
+    need(p.file, `place.${p.id}.name`);
+    learnMore(p.file, p.learnMore);
+  }
+
+  for (const a of Object.values(c.activities)) {
+    schema(a.file, S.activity, strip(a));
+    need(a.file, `activity.${a.id}.title`);
+    needLevelled(a.file, `activity.${a.id}`);
+    learnMore(a.file, a.learnMore);
+    const steps = a.route ?? [];
+    steps.forEach((st, i) => {
+      if ('segment' in st) ref(a.file, `route[${i}].segment`, 'segments', st.segment, 'a segment');
+      else {
+        st.only?.forEach((p, k) => ref(a.file, `route[${i}].only[${k}]`, 'places', p, 'a place'));
+        ref(a.file, `route[${i}].default`, 'places', st.default, 'a place');
+      }
+    });
+    a.groups?.forEach((g, i) => {
+      ref(a.file, `groups[${i}]`, 'nodes', g, 'a node');
+      if (c.nodes[g] && c.nodes[g].kind !== 'network') add(a.file, `groups[${i}]`, `"${g}" is a ${c.nodes[g].kind}; only network nodes expand`);
+      need(a.file, `node.${g}.inside.title`);
+    });
+    a.flows?.forEach((f, i) => f.stack?.forEach((l, k) => ref(a.file, `flows[${i}].stack[${k}]`, 'layers', l, 'a layer')));
+
+    // every combination of places must make a well-formed chain: each part starts with a hop, and every part but the
+    // last ends with the link that joins it to the next; the chain ends at the server
+    const options = steps.map((st) => ('segment' in st ? [c.segments[st.segment]] : Object.values(c.places).filter((p) => !st.only || st.only.includes(p.id))));
+    steps.forEach((_, i) => {
+      for (const d of options[i]) {
+        if (!d || !Array.isArray(d.hops) || !d.hops.length) continue;
+        const endsWithLink = isLink(d.hops[d.hops.length - 1]);
+        const last = i === steps.length - 1;
+        if (last && endsWithLink) add(d.file, 'hops', `the last part of "${a.id}" must end with a hop (the server), not a link`);
+        if (!last && !endsWithLink) add(d.file, 'hops', `it comes before another part in "${a.id}", so it must end with the link that joins them`);
+      }
+    });
+    const groupIds = new Set(a.groups ?? []);
+    for (const opt of options) for (const d of opt) (d?.hops ?? []).forEach((h, k) => {
+      if (!isLink(h) && h.in && !groupIds.has(h.in)) add(d.file, `hops[${k}].in`, `"${h.in}" is not one of the groups of "${a.id}" (${[...groupIds].join(', ') || 'none'})`);
+    });
+    // layouts may only place instances that exist somewhere in the activity's routes
+    const instances = new Set<string>([...groupIds]);
+    for (const opt of options) for (const d of opt) {
+      for (const h of d?.hops ?? []) if (!isLink(h)) instances.add(h.at);
+      for (const x of d?.aside ?? []) instances.add(x.at);
+      for (const e of Object.values(d?.entry ?? {})) instances.add(e);
+    }
+    const checkLayout = (file: string, layout: Record<string, Record<string, { nodes?: Record<string, unknown> } | undefined>> | undefined) => {
+      for (const [key, byOrient] of Object.entries(layout ?? {})) {
+        if (key !== 'overview' && !groupIds.has(key)) add(file, `layout.${key}`, `"${key}" is not a path scene: use "overview" or a group (${[...groupIds].join(', ')})`);
+        for (const [o, l] of Object.entries(byOrient)) for (const id of Object.keys(l?.nodes ?? {}))
+          if (!instances.has(id)) add(file, `layout.${key}.${o}.nodes.${id}`, `"${id}" is not a hop in any route of "${a.id}".${suggest(id, [...instances])}`);
+      }
+    };
+    checkLayout(a.file, a.layout);
+    for (const opt of options) for (const d of opt) if (d) checkLayout(d.file, d.layout);
+  }
+
+  // de-duplicate (a place shared by several activities is checked once per activity)
+  const seen = new Set<string>();
+  return out.filter((p) => { const k = `${p.file}|${p.where}|${p.message}`; return !seen.has(k) && !!seen.add(k); });
+}
+
+export const formatProblems = (ps: Problem[]) => ps.map((p) => `${p.file} › ${p.where}: ${p.message}`).join('\n');
+
+/** Translation coverage per language: how many of the English strings each language has. */
+export function coverage(packs: Record<string, Pack>) {
+  const en = Object.keys(packs[FALLBACK]?.strings ?? {});
+  return Object.entries(packs).map(([lang, p]) => ({ lang, have: en.filter((k) => k in p.strings).length, total: en.length }));
+}

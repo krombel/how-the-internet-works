@@ -1,0 +1,11 @@
+{
+  "name": "The internet",
+  "kid": "The internet is lots of networks holding hands. Tap it to see what’s inside!",
+  "nerd": "~75 000 autonomous systems exchanging routes with BGP. Tap to unfold the path through the ISP.",
+  "tag": "AS64500 · BGP",
+  "inside": {
+    "title": "Inside the internet",
+    "kid": "The internet isn’t one big cloud. It’s a chain of boxes, each passing your parcel to the next one – from your street, through your internet company, to where the video lives.",
+    "nerd": "A chain of networks: your access network, your internet company’s core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you."
+  }
+}

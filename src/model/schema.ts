@@ -1,0 +1,148 @@
+// Zod schemas for every kind of content definition. They are the single source of truth for the content types
+// (see define.ts, which only imports their types), and they run in dev and in tests only: the production bundle never
+// includes zod. Cross-references between items (a segment naming a technology, …) are checked in validate.ts.
+import { z } from 'zod';
+
+const id = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'use a lower-case kebab-case id, e.g. "cell-tower"');
+const colour = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'use a #rrggbb colour');
+const level = z.enum(['kid', 'nerd', 'both']);
+
+export const learnMore = z.strictObject({
+  url: z.url({ protocol: /^https$/, error: 'use a full https:// URL' }),
+  /** Link text, in the link's language. */
+  title: z.string().min(1),
+  level,
+  /** The language of the page it points to. */
+  lang: z.string().min(2),
+});
+const learnMoreList = z.array(learnMore).optional();
+
+export const role = z.enum(['endpoint', 'bridge', 'router', 'nat']);
+
+export const node = z.strictObject({
+  /** device = a thing you can hold or point at; network = a group that expands into a sub-path; place = a building/area. */
+  kind: z.enum(['device', 'network', 'place']),
+  /** What it does to passing packets (a hop can override it). Default: router. */
+  role: role.optional(),
+  learnMore: learnMoreList,
+});
+
+export const technology = z.strictObject({
+  /** How the theme draws the link. */
+  look: z.enum(['radio', 'cable', 'fibre', 'trunk']),
+  colour,
+  /** The lower layers this technology adds, outermost first (the activity's flow adds the upper ones). */
+  stack: z.array(id).min(1),
+  /** The "look inside" scene for links of this technology. */
+  dive: id.optional(),
+  learnMore: learnMoreList,
+});
+
+export const layer = z.strictObject({
+  /** Roles that open (read) this layer; everyone else sees it sealed. Default: everyone. */
+  openAt: z.array(role).optional(),
+  learnMore: learnMoreList,
+});
+
+export const scene = z.strictObject({
+  learnMore: learnMoreList,
+});
+
+const pt = z.tuple([z.number(), z.number()]);
+const labelSide = z.enum(['above', 'below']);
+/** [x, y, size, label side] in the scene's world (landscape 1600×900, portrait 900×1600). */
+export const placement = z.tuple([z.number(), z.number(), z.number().positive(), labelSide.optional()]);
+const linkLayout = z.strictObject({
+  /** Curvature, as a fraction of the link length (+ bends to the left of travel). */
+  bend: z.number().optional(),
+  /** Label offset from the link's midpoint. */
+  label: z.tuple([z.number(), z.number()]).optional(),
+  /** A hand-drawn curve instead (start, control, end points); it still follows its nodes when they move. */
+  curve: z.tuple([pt, pt, pt]).optional(),
+});
+export const sceneLayout = z.strictObject({
+  nodes: z.record(id, placement).optional(),
+  /** Keyed by "<from>-<to>" instance ids as seen in that scene. */
+  links: z.record(z.string(), linkLayout).optional(),
+});
+/** Keyed by path scene: "overview" or a group node instance (e.g. "internet"). */
+export const layout = z.record(id, z.strictObject({ landscape: sceneLayout.optional(), portrait: sceneLayout.optional() }));
+
+export const hop = z.strictObject({
+  /** Instance id (unique within a route). */
+  at: id,
+  /** The node definition; defaults to `at`. */
+  node: id.optional(),
+  /** The group node this hop lives inside (shown when that group is expanded). */
+  in: id.optional(),
+  role: role.optional(),
+  /** Its address as seen by the next hop (IPv4 documentation ranges, please). */
+  addr: z.string().optional(),
+  /** NAT: the address it rewrites the client's source address to. */
+  natTo: z.string().optional(),
+});
+export const link = z.strictObject({
+  /** Technology id. */
+  link: id,
+  /** Override the technology's lower stack for this link (e.g. add a tunnel layer). */
+  stack: z.array(id).min(1).optional(),
+  /** Override the technology's dive scene (false = no dive here). */
+  dive: z.union([id, z.literal(false)]).optional(),
+});
+export const aside = hop.extend({
+  /** The hop it branches off from (an alternative path, drawn dashed; packets don't take it). */
+  from: id,
+  link: id,
+});
+export const segment = z.strictObject({
+  /** Hops and links, alternating, starting with a hop. A segment that isn't last in a route ends with a link. */
+  hops: z.array(z.union([hop, link])).min(1),
+  aside: z.array(aside).optional(),
+  /** When a group is expanded, the hop that stands for "where you came from" (e.g. { internet: "home" }). */
+  entry: z.record(id, id).optional(),
+  layout: layout.optional(),
+  learnMore: learnMoreList,
+});
+
+export const packet = z.strictObject({
+  kind: id,
+  /** up = client → server, down = server → client. */
+  dir: z.enum(['up', 'down']),
+  /** Seconds per link. */
+  pace: z.number().positive(),
+  /** Seconds between two packets (default: one at a time). */
+  every: z.number().positive().optional(),
+  offset: z.number().min(0).optional(),
+  colour,
+});
+export const flow = z.strictObject({
+  id,
+  /** Upper layers, outermost first (the technology of each link adds the lower ones). */
+  stack: z.array(id).min(1),
+  packets: z.array(packet).min(1),
+});
+/** A place is where the device is (home, street, airplane…): the access segment from the device to where it joins the
+ *  shared network, plus its backdrop. Every place can be combined with every activity. */
+export const place = segment.extend({
+  /** Sort order in the "Where are you?" picker. */
+  order: z.number().optional(),
+});
+/** A route step: a place slot (filled with the chosen place) or a fixed segment. */
+export const placeSlot = z.strictObject({
+  place: id,
+  /** Restrict this slot to some places (default: all). */
+  only: z.array(id).min(1).optional(),
+  default: id.optional(),
+});
+/** An activity is what you do on the device (watch a video, send a message…): the flows and the rest of the route. */
+export const activity = z.strictObject({
+  route: z.array(z.union([placeSlot, z.strictObject({ segment: id })])).min(1),
+  /** Network nodes that expand into their own path scene. */
+  groups: z.array(id).optional(),
+  flows: z.array(flow).min(1),
+  layout: layout.optional(),
+  order: z.number().optional(),
+  learnMore: learnMoreList,
+});
+
+export const localeMeta = z.strictObject({ name: z.string().min(1), dir: z.enum(['ltr', 'rtl']), note: z.string().optional() });

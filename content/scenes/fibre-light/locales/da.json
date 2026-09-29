@@ -1,0 +1,20 @@
+{
+  "title": "Lys i en glastråd",
+  "kid": "En fiber er en glastråd, der er tyndere end et hår. Lysglimt hopper frem inde i den. Forskellige farver kan dele den samme tråd uden at blive blandet sammen!",
+  "nerd": "Lyset holdes inde i kernen af total intern refleksion ved grænsen mellem kerne og kappe. DWDM multiplekser snesevis af bølgelængder omkring 1550 nm på én fiber, hver en uafhængig kanal på 100–800 Gbit/s.",
+  "core": "Kerne",
+  "cladding": "Kappe",
+  "mux": "Saml farverne",
+  "demux": "Del farverne",
+  "channels": "Hver farve er sin egen kanal",
+  "up": "Op ad gaden",
+  "down": "På vej hjem",
+  "tag": {
+    "dwdm": "C-band · 50 GHz grid",
+    "gpon": "1270 nm ↑ · 1577 nm ↓"
+  },
+  "gpon": {
+    "kid": "Denne glastråd deles af alle husene på din vej. Pakker på vej op ad gaden bruger én farve lys, pakker på vej hjem bruger en anden.",
+    "nerd": "Et passivt optisk net: nedstrøms på 1577 nm sendes til alle hjem på splitteren, opstrøms på 1270 nm skiftes i tidsluker (XGS-PON)."
+  }
+}

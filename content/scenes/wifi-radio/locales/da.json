@@ -1,0 +1,7 @@
+{
+  "title": "Radiobølger",
+  "kid": "Adgangspunktet laver hver pakke om til ettaller og nuller og sender dem gennem luften på en usynlig radiobølge. Store bølger betyder 1, små bølger betyder 0!",
+  "nerd": "Bittene modulerer en bærebølge på 2,4/5/6 GHz. Her vist som simpel amplitudeskiftmodulation; rigtigt Wi-Fi bruger OFDM med op til 4096-QAM og pakker 12 bit ind i hvert symbol på hundredvis af underbærebølger.",
+  "carrier": "Radiobølge",
+  "bits": "Bit"
+}

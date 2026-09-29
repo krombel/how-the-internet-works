@@ -1,0 +1,20 @@
+{
+  "title": "Light in a glass thread",
+  "kid": "Fibre is a glass thread thinner than a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
+  "nerd": "Light is confined to the core by total internal reflection at the core/cladding boundary. DWDM multiplexes dozens of wavelengths around 1550 nm onto one fibre, each an independent channel of 100–800 Gbit/s.",
+  "core": "Core",
+  "cladding": "Cladding",
+  "mux": "Combine colours",
+  "demux": "Split colours",
+  "channels": "Each colour is its own channel",
+  "up": "Going up",
+  "down": "Coming home",
+  "tag": {
+    "dwdm": "C-band · 50 GHz grid",
+    "gpon": "1270 nm ↑ · 1577 nm ↓"
+  },
+  "gpon": {
+    "kid": "This glass thread is shared by all the houses on your street. Parcels going up the street use one colour of light, parcels coming home use another.",
+    "nerd": "A passive optical network: downstream at 1577 nm is broadcast to every home on the splitter, upstream at 1270 nm takes turns in time slots (XGS-PON)."
+  }
+}

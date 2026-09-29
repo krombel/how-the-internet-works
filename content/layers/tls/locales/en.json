@@ -1,0 +1,14 @@
+{
+  "name": {
+    "kid": "Locked box",
+    "nerd": "TLS record"
+  },
+  "note": {
+    "kid": "Only your phone and the server have the key.",
+    "nerd": "Encrypted and authenticated end to end."
+  },
+  "sealed": {
+    "kid": "Locked. Nobody on the way can read what’s inside.",
+    "nerd": "Ciphertext: intermediate hops can’t read or change it."
+  }
+}

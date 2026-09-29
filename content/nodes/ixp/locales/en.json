@@ -1,0 +1,6 @@
+{
+  "name": "Internet exchange",
+  "kid": "A meeting place where lots of networks swap parcels for free.",
+  "nerd": "An internet exchange is a big shared Ethernet fabric; networks peer over BGP, often via route servers.",
+  "tag": "Peering LAN · BGP"
+}

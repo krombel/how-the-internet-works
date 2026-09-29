@@ -1,0 +1,6 @@
+{
+  "name": "ISP core",
+  "kid": "The motorway of your internet company: super-fast connections between big cities.",
+  "nerd": "An MPLS core with 100–400G links; packets are label-switched rather than looked up at every hop.",
+  "tag": "MPLS · 400G"
+}

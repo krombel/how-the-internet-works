@@ -1,0 +1,6 @@
+{
+  "name": "Transit provider",
+  "kid": "If there’s no shortcut, your internet company pays a bigger network to carry the parcel.",
+  "nerd": "Paid IP transit from a tier-1 or tier-2 provider: a full routing table and reach to everything.",
+  "tag": "Tier-1 · paid transit"
+}

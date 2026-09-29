@@ -1,0 +1,6 @@
+{
+  "name": "ISP gateway",
+  "kid": "Here your internet company checks it’s really you and lets your parcels onto the internet.",
+  "nerd": "The Broadband Network Gateway terminates subscriber sessions (IPoE/PPPoE), assigns addresses and applies policy and QoS.",
+  "tag": "IPoE · per-subscriber"
+}

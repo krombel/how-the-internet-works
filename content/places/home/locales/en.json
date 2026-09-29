@@ -1,0 +1,20 @@
+{
+  "name": "At home",
+  "kid": "Little parcels of data zoom through the air, down a cable and along a glass thread to the internet – and the video comes back the same way!",
+  "nerd": "At home, packets leave over 802.11 Wi-Fi, are bridged onto Ethernet at the access point, NATed by the home router and forwarded over a fibre uplink to the ISP.",
+  "tag": {
+    "phone": "Wi-Fi 6 · 192.168.1.23",
+    "router": "NAT → 203.0.113.7"
+  },
+  "stop": {
+    "router": {
+      "kid": "The router is the front door of your home. It writes your home’s address on the parcel and remembers who asked.",
+      "nerd": "NAT rewrites the private source address 192.168.1.23 to the public 203.0.113.7 and tracks the connection so replies find their way back."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "Access network (PON/OLT), an aggregation layer (L2 backhaul to the BNG), the ISP’s MPLS core, then either settlement-free peering at an IXP or paid transit, ending at a CDN cache close to you."
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Home router",
+  "kid": "The front door of your home network.",
+  "nerd": "Routes between the home LAN and the ISP, and does NAT so the whole home shares one public address."
+}

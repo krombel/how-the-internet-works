@@ -1,0 +1,6 @@
+{
+  "name": "Cell tower",
+  "kid": "A mast with clever antennas. It talks to all the phones nearby by radio and sends their parcels on through a glass thread.",
+  "nerd": "A 5G base station (gNB): massive-MIMO antenna panels, the radio scheduler, and a fibre backhaul that tunnels user traffic (GTP-U) to the mobile core.",
+  "tag": "gNB · n78 · 3.5 GHz"
+}

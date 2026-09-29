@@ -1,0 +1,12 @@
+{
+  "from": "Fra",
+  "to": "Til",
+  "name": {
+    "kid": "Tunnel-kuvert",
+    "nerd": "GTP-U-tunnel (ydre IP/UDP)"
+  },
+  "note": {
+    "kid": "Masten putter din pakke ind i en større, adresseret til mobilnettets kerne, så nettet kan finde din telefon, hvor du end går.",
+    "nerd": "gNB’en pakker telefonens egen IP-pakke ind i IP/UDP/GTP-U (port 2152) til UPF’en; TEID’en angiver telefonens session."
+  }
+}

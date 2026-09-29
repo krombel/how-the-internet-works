@@ -1,0 +1,20 @@
+{
+  "name": "Hjemme",
+  "kid": "Små pakker med data suser gennem luften, ned ad et kabel og langs en glastråd ud til internettet – og videoen kommer tilbage samme vej!",
+  "nerd": "Hjemme forlader pakkerne telefonen via 802.11-Wi-Fi, bliver brokoblet over på Ethernet i adgangspunktet, NAT-oversat af hjemmerouteren og sendt videre over en fiberforbindelse til internetudbyderen.",
+  "tag": {
+    "phone": "Wi-Fi 6 · 192.168.1.23",
+    "router": "NAT → 203.0.113.7"
+  },
+  "stop": {
+    "router": {
+      "kid": "Routeren er hjemmets hoveddør. Den skriver dit hjems adresse på pakken og husker, hvem der spurgte.",
+      "nerd": "NAT omskriver den private afsenderadresse 192.168.1.23 til den offentlige 203.0.113.7 og holder styr på forbindelsen, så svarene finder hjem."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "Adgangsnet (PON/OLT), et aggregeringslag (L2-backhaul til BNG’en), udbyderens MPLS-kerne og derefter enten gratis peering i et IXP eller betalt transit – og til sidst en CDN-cache tæt på dig."
+    }
+  }
+}
