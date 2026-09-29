@@ -85,9 +85,10 @@ describe('path scenes', () => {
 
 const notLayers = (r: typeof home, path: string[]) => childrenOf(r, sceneRef(r, path)!).filter((c) => c.kind !== 'layer');
 const layerSteps = (r: typeof home, path: string[]) => childrenOf(r, sceneRef(r, path)!).filter((c) => c.kind === 'layer').map((c) => c.step);
-/** The real content, with a dive for two more layers (so these tests don't depend on which layer dives exist). */
-const twoDives = () => {
+/** The real content with dives for exactly IP, TCP and GTP (so these tests don't depend on which layer dives exist). */
+const layerDives = () => {
   const c: Content = structuredClone(content);
+  for (const l of Object.values(c.layers)) delete l.dive;
   c.layers.ip.dive = c.layers.tcp.dive = c.layers.gtp.dive = Object.values(c.scenes).find((s) => s.explains === 'layer')!.id;
   return { home: resolveRoute({ activity: 'watch-video', places: ['home'] }, c), street: resolveRoute({ activity: 'watch-video', places: ['street'] }, c) };
 };
@@ -116,7 +117,7 @@ describe('scene tree', () => {
   });
 
   it('has layer dives at the hops drawn in each scene, following their hop', () => {
-    const { home: h, street: s } = twoDives();
+    const { home: h, street: s } = layerDives();
     expect(layerSteps(h, [])).toEqual(['phone~ip', 'phone~tcp', 'ap~ip', 'ap~tcp', 'router~ip', 'router~tcp']);
     // inside a group: its own hops, not the entry stand-in ("home") or a side branch nobody travels ("transit")
     expect(layerSteps(h, ['internet']).filter((x) => x.endsWith('~ip'))).toEqual(['cabinet~ip', 'backhaul~ip', 'bng~ip', 'core~ip', 'ixp~ip', 'cdn~ip']);
@@ -128,7 +129,7 @@ describe('scene tree', () => {
   });
 
   it('resolves layer dives with the hop that reads them', () => {
-    const { home: h, street: s } = twoDives();
+    const { home: h, street: s } = layerDives();
     const at = (r: typeof home, path: string[]) => { const ref = sceneRef(r, path)!; return { kind: ref.kind, hop: ref.at!.hop, link: ref.at!.link.id, dir: ref.at!.dir, packet: ref.at!.kind }; };
     // arriving upwards when it does (the request at the home router), else downwards (the video at the phone)
     expect(at(h, ['router~ip'])).toEqual({ kind: 'layer', hop: 'router', link: 'ap-router', dir: 'up', packet: 'request' });
@@ -141,7 +142,7 @@ describe('scene tree', () => {
   });
 
   it('stacks a hop\'s layer dives on it: upper layers above', () => {
-    const { street: s } = twoDives();
+    const { street: s } = layerDives();
     for (const o of ['landscape', 'portrait'] as const) {
       const [gtp, ip, tcp] = ['cell-tower~gtp', 'cell-tower~ip', 'cell-tower~tcp'].map((x) => frameOf(s, [x], o));
       expect(gtp.x).toBeCloseTo(ip.x);
@@ -161,7 +162,7 @@ describe('scene tree', () => {
   });
 
   it('steps sideways along stops, between link dives, and up and down a hop\'s layers', () => {
-    const { home: h } = twoDives();
+    const { home: h } = layerDives();
     expect(sideways(h, [], 'ap', 'landscape')).toMatchObject({ kind: 'stop', i: 2, min: -1 });
     expect(sideways(h, [], null, 'landscape').steps).toEqual(pathScene(h, null, 'landscape').stops);
     expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'router-internet'], i: 1, min: 0 });
