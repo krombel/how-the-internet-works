@@ -3,7 +3,7 @@
 export type { Level, Orient } from './define';
 export type { Pt } from './engine/geometry';
 export type { LayerCtx } from './model/stack';
-export type { Subject } from './render/ctx';
+export type { LayerSubject, LinkSubject } from './render/ctx';
 export type * from './render/theme-types';
 
 export { pts, textBox } from './engine/svg';

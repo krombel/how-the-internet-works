@@ -1,0 +1,53 @@
+{
+  "title": "Hvilken vej nu?",
+  "kid": "En router læser adressemærket på hver pakke og kigger på sine vejskilte: hvilken vej kommer den tættere på den adresse? Så sender den pakken af sted ad den vej.",
+  "nerd": "En router slår destinationen op i sin forwarding-tabel. Det længste matchende præfiks vinder (et /24 slår standardruten 0.0.0.0/0), TTL tælles én ned, og pakken sendes ud ad rutens interface.",
+  "role": {
+    "nat": {
+      "title": "Byttebogen",
+      "kid": "Alt derhjemme deler én adresse udadtil. Routeren bytter afsender-mærkatet ud med sin egen adresse og skriver det ned i sin notesbog, så den ved, hvem der spurgte, når svaret kommer tilbage.",
+      "nerd": "NAPT: den private afsenderadresse og port omskrives til den offentlige adresse. Koblingen (indvendig adresse:port ↔ udvendig port) gemmes i forbindelsestabellen, og svar slås op i den og omskrives tilbage."
+    },
+    "bridge": {
+      "title": "Bare på gennemrejse",
+      "kid": "Den her boks læser slet ikke adressemærket! Den tager kuverten af, som pakken kom i, og giver den en ny på til næste stykke vej.",
+      "nerd": "En lag 2-enhed (eller en, der tunnellerer): den fjerner den indgående link-ramme og skriver en ny til det udgående link med nye MAC-adresser. IP-headeren, også TTL, røres aldrig."
+    },
+    "endpoint": {
+      "title": "Er den til mig?",
+      "kid": "For enden af vejen tjekker computeren adressemærket mod sin egen adresse. Det passer! Den åbner pakken og sender det nummererede stykke indeni videre op. På alt, den selv sender, skriver den selv mærkatet.",
+      "nerd": "Destinationen er en lokal adresse, så IP-headeren fjernes, og indholdet sendes op til TCP (protokol 6). På udgående pakker skriver værten selv afsender, modtager og en frisk TTL på 64."
+    }
+  },
+  "at": {
+    "mobile-core": {
+      "title": "En hel gade deler én adresse",
+      "kid": "Telefoner på mobilnettet får ikke deres egen internetadresse. Mobilcentralen bytter afsender-mærkatet på en masse telefoner ud med den samme ene adresse og giver hver sit eget billetnummer i sin notesbog.",
+      "nerd": "Carrier-grade NAT: abonnenter får adresser fra det delte område 100.64.0.0/10 (RFC 6598), og tusindvis deler én offentlig IPv4-adresse med hver sin blok af porte. Det er en stor grund til IPv6."
+    }
+  },
+  "signs": "Vejskilte",
+  "elsewhere": "Alle andre steder",
+  "notebook": "Byttebog",
+  "table": "NAT-tabel · {addr}",
+  "you": "Dig",
+  "neighbour": "Nabo",
+  "ticket": "Nr. {n}",
+  "swap": "Ny kuvert",
+  "door": "Min adresse",
+  "match": "Den er til mig!",
+  "up": "Op: {layer}",
+  "write": "Skriver mærkatet",
+  "tag": {
+    "lpm": "længste match vinder",
+    "default": "standardrute 0/0",
+    "ttl": "TTL {a} → {b}",
+    "nat": "192.168.x.x → offentlig",
+    "cgnat": "100.64.0.0/10 → offentlig",
+    "ports": "optaget? ny port",
+    "mac": "ny MAC {mac}",
+    "untouched": "IP-hoved urørt",
+    "proto": "protokol 6 → TCP",
+    "ttl64": "nye pakker: TTL 64"
+  }
+}

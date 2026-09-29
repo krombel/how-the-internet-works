@@ -54,12 +54,15 @@ export function layerCtx(r: Route, link: Link, flow: string, kind: string, dir: 
   };
 }
 
+/** Whether a device with this role opens (reads) a layer, or sees it sealed. */
+export function opens(r: Route, layer: string, role: Role): boolean {
+  const openAt = r.content.layers[layer]?.openAt;
+  return !openAt || openAt.includes(role);
+}
+
 /** Layers on a link, outermost first, each open or sealed for the device that reads it next. */
 export function stackOf(r: Route, link: Link, flowStack: string[], role: Role): StackEntry[] {
-  return [...link.stack, ...flowStack].map((id) => {
-    const openAt = r.content.layers[id]?.openAt;
-    return { id, open: !openAt || openAt.includes(role) };
-  });
+  return [...link.stack, ...flowStack].map((id) => ({ id, open: opens(r, id, role) }));
 }
 
 /** A stable, made-up MAC address for an instance (locally administered range). */

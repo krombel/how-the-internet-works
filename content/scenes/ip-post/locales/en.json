@@ -1,0 +1,53 @@
+{
+  "title": "Which road next?",
+  "kid": "A router reads the address label on every parcel and checks its signposts: which road takes it closer to that address? Then off the parcel goes, down that road.",
+  "nerd": "A router looks up the destination in its forwarding table. The longest matching prefix wins (a /24 beats the default route 0.0.0.0/0), the TTL goes down by one, and the packet leaves on that route’s interface.",
+  "role": {
+    "nat": {
+      "title": "The swap notebook",
+      "kid": "Everything at home shares one outside address. The home router swaps the sender sticker for its own address and writes it in its notebook, so when the answer comes back it knows who asked.",
+      "nerd": "NAPT: the private source address and port are rewritten to the public address. The mapping (inside address:port ↔ outside port) stays in the connection table, and replies are matched on it and rewritten back."
+    },
+    "bridge": {
+      "title": "Just passing through",
+      "kid": "This box doesn’t even read the address label! It takes off the envelope the parcel came in and puts on a new one for the next stretch.",
+      "nerd": "A layer-2 device (or one that tunnels): it strips the incoming link frame and writes a new one for the outgoing link, with new MAC addresses. The IP header, TTL included, is never touched."
+    },
+    "endpoint": {
+      "title": "Is it for me?",
+      "kid": "At the end of the road the computer checks the address label against its own address. It’s a match! It opens the parcel and hands the numbered piece inside up. On everything it sends, it writes the label itself.",
+      "nerd": "The destination matches a local address, so the IP header is stripped and the payload goes up to TCP (protocol 6). For outgoing packets the host writes the source, the destination and a fresh TTL of 64."
+    }
+  },
+  "at": {
+    "mobile-core": {
+      "title": "A whole street shares one address",
+      "kid": "Phones on the mobile network don’t get an internet address of their own. The mobile core swaps the sender sticker of lots of phones for the same single address, and gives each its own ticket number in its notebook.",
+      "nerd": "Carrier-grade NAT: subscribers get addresses from the shared space 100.64.0.0/10 (RFC 6598), and thousands of them share one public IPv4 address, each with its own block of ports. This is a big reason for IPv6."
+    }
+  },
+  "signs": "Signposts",
+  "elsewhere": "Everywhere else",
+  "notebook": "Swap notebook",
+  "table": "NAT table · {addr}",
+  "you": "You",
+  "neighbour": "Neighbour",
+  "ticket": "No. {n}",
+  "swap": "New envelope",
+  "door": "My address",
+  "match": "It’s for me!",
+  "up": "Up to: {layer}",
+  "write": "Writing the label",
+  "tag": {
+    "lpm": "longest match wins",
+    "default": "default route 0/0",
+    "ttl": "TTL {a} → {b}",
+    "nat": "192.168.x.x → public",
+    "cgnat": "100.64.0.0/10 → public",
+    "ports": "clash? new port",
+    "mac": "new MAC {mac}",
+    "untouched": "IP header untouched",
+    "proto": "protocol 6 → TCP",
+    "ttl64": "new packets: TTL 64"
+  }
+}

@@ -41,10 +41,14 @@ export const technology = z.strictObject({
 export const layer = z.strictObject({
   /** Roles that open (read) this layer; everyone else sees it sealed. Default: everyone. */
   openAt: z.array(role).optional(),
+  /** The "look inside" scene for this layer, at any hop that reads it (a scene with `explains: 'layer'`). */
+  dive: id.optional(),
   learnMore: learnMoreList,
 });
 
 export const scene = z.strictObject({
+  /** What the scene is a dive into: a link (its technology) or a layer (at one hop). Default: link. */
+  explains: z.enum(['link', 'layer']).optional(),
   learnMore: learnMoreList,
 });
 

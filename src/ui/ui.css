@@ -126,6 +126,19 @@ button { cursor: pointer; }
 .env-note, .env-sealed { margin: 4px 0 0; font-size: 12.5px; line-height: 1.35; }
 .env-sealed { color: var(--muted); font-style: italic; }
 @keyframes env-in { from { opacity: 0; transform: scale(0.94) translateY(6px); } }
+/* a layer with a dive: the head is a button with a magnifier */
+.env-go { display: flex; width: 100%; min-height: 32px; margin: -3px 0; padding: 0; border: 0; background: none; text-align: start; }
+.env-dive { width: 26px; height: 26px; flex: none; margin-inline-start: auto; transition: transform 0.15s; }
+.env-dive circle:first-child { fill: var(--env-dive, var(--accent)); stroke: var(--env-edge); stroke-width: 1.6; }
+.env-dive circle + circle, .env-dive path { fill: none; stroke: var(--accent-ink, #fff); stroke-width: 2.2; stroke-linecap: round; }
+.env-go:hover .env-dive, .env-go:focus-visible .env-dive { transform: scale(1.15); }
+.peek .dive-hint { margin-top: -4px; font-weight: 600; }
+/* the tapped envelope growing into its dive (positioned every frame by App.svelte) */
+.env.grow { position: fixed; left: 0; top: 0; z-index: 12; margin: 0; box-sizing: border-box; display: flex; align-items: center;
+  justify-content: center; pointer-events: none; animation: none; will-change: transform, width, height; }
+.env.grow .env-head { width: auto; gap: 0.4em; }
+.env.grow .env-name { font-size: 1em; }
+.env.grow .env-dive, .env.grow .env-lock { width: 1.1em; height: 1.1em; }
 
 @media (max-width: 700px) {
   .chrome { padding-inline: 8px; gap: 6px; }

@@ -1,0 +1,57 @@
+{
+  "title": "TCP keeps the pieces in order",
+  "kid": "Your phone and the video server number every little piece. If one falls in a hole, the phone keeps pointing at the gap until the server sends that piece again.",
+  "nerd": "TCP is end-to-end (RFC 9293): a 3-way handshake (SYN, SYN-ACK, ACK) establishes sequence spaces. The sender keeps a four-segment window, ACKs advance it, and three duplicate ACKs for segment 5 trigger fast retransmit; delivery to the app waits for in-order bytes.",
+  "at": {
+    "cdn": {
+      "title": "The server sends numbered TCP pieces",
+      "kid": "The video server lines up pieces and lets four travel at a time. When your phone says piece 5 is missing, the server sends 5 again before the app gets the row.",
+      "nerd": "From the server endpoint, TCP transmits segments with sequence numbers, observes cumulative ACKs, slides the send window, and fast-retransmits segment 5 after three duplicate ACKs without waiting for the RTO."
+    }
+  },
+  "sealed": {
+    "title": "TCP passes by sealed",
+    "kid": "This stop carries the numbered boxes, but it does not open them. It can see sealed piece 5 pass once, fall after the stop, and pass again when the server retries.",
+    "nerd": "At this non-endpoint hop, TCP remains opaque: routers and bridges forward the IP packet and do not inspect sequence or ACK state. The retransmitted segment 5 is just another sealed payload passing through."
+  },
+  "role": {
+    "nat": {
+      "title": "A NAT only peeks at the port sticker",
+      "kid": "This box is still sealed here. The NAT only reads the tiny port sticker so replies can find the right phone, then leaves the numbered pieces alone.",
+      "nerd": "NAT is the exception to pure opacity: it reads and rewrites the TCP/UDP port tuple (for example 51034 ↔ the outside mapping) while leaving sequence numbers and data semantics end-to-end."
+    }
+  },
+  "handshake": {
+    "hi": "Hi, shall we talk?",
+    "yes": "Yes, let's!",
+    "great": "Great!"
+  },
+  "card": {
+    "server": "Server",
+    "phone": "Shelf"
+  },
+  "ack": {
+    "got3": "got 3!",
+    "wait5": "waiting for 5!"
+  },
+  "label": {
+    "window": "4 at once",
+    "gap": "gap at 5",
+    "handshake": "3 hello tickets",
+    "hello": "hello",
+    "lost": "5 is missing",
+    "resend": "send 5 again",
+    "done": "all lined up",
+    "ready": "all in order — ready for the app!",
+    "port": "port only"
+  },
+  "tag": {
+    "syn": "SYN seq=1000",
+    "window": "win=4",
+    "dupAck": "dup ACK=5",
+    "fast": "3 dup ACKs → #5",
+    "order": "in-order bytes",
+    "seal": "TCP sealed",
+    "nat": "ports: {nat}"
+  }
+}

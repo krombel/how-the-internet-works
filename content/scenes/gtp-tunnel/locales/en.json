@@ -1,0 +1,30 @@
+{
+  "title": "The tunnel envelope",
+  "kid": "The mobile network makes a private tunnel between the tower and the mobile core. Your parcel keeps the same phone address while the big tunnel envelope changes around it.",
+  "nerd": "GTP-U carries the UE IP packet through the operator network. The gNB and UPF/PGW use outer IP plus UDP/2152 with a TEID, as specified by 3GPP TS 29.281.",
+  "label": {
+    "sameAddress": "Same address!",
+    "walk": "you can walk",
+    "toCore": "To mobile core",
+    "fromCore": "Back to tower",
+    "envelope": "tunnel no. 7",
+    "cardLabel": "Tunnel label",
+    "handover": "Handover"
+  },
+  "tag": {
+    "tunnel": "UDP 2152 · TEID 0x7",
+    "anchor": "UE IP anchored at UPF/PGW"
+  },
+  "at": {
+    "cell-tower": {
+      "title": "The tower opens the tunnel",
+      "kid": "At the tower, the big tunnel envelope comes off. Your parcel still says 100.64.12.7, so the tower can send it over the radio to your phone.",
+      "nerd": "On the downlink the gNB terminates the GTP-U leg from the UPF: outer IP 10.20.0.1 → 10.20.0.5, UDP/2152, TEID 0x7. It decapsulates the UE packet for 100.64.12.7 and schedules it onto NR radio. During handover, the core updates the tunnel endpoint and TEID while the UE IP stays anchored."
+    },
+    "mobile-core": {
+      "title": "The core opens the tunnel",
+      "kid": "At the mobile core, the tunnel envelope opens and your parcel can go on to the internet. Even if you walk to the next tower, your phone keeps the same address.",
+      "nerd": "On the uplink the UPF/PGW receives GTP-U from the gNB: outer IP 10.20.0.5 → 10.20.0.1, UDP/2152, TEID 0x7. It decapsulates the UE packet (100.64.12.7), applies policy/NAT, and forwards it. In handover, the UPF updates the N3/S1-U tunnel endpoint; the UE IP remains anchored."
+    }
+  }
+}

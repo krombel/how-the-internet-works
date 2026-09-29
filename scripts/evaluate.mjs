@@ -1,6 +1,6 @@
-// App evaluation: screenshots (desktop + portrait phone) of the key places, dives, languages and follow + peek,
-// bytes loaded, and frame timings (idle, zoom flights, a 3-level dive, follow, the place morph) at 1× and 6× CPU
-// throttle.
+// App evaluation: screenshots (desktop + portrait phone) of the key places, dives, layer dives, languages and
+// follow + peek, bytes loaded, and frame timings (idle, zoom flights, a 3-level dive, follow, the place morph, opening
+// a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
 // Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf] [--style=id]
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
 import { chromium } from 'playwright';
@@ -110,6 +110,16 @@ for (const style of STYLES) {
       r.flyTo5G = await sample(p, cdp, 1600, () => go({ path: ['phone-cell-tower'] }));
       await settle(p);
       r.nrIdle = await sample(p, cdp, 1500);
+      // a layer dive: tap IP in the peek (the envelope grows into the dive), idle there, step up the stack
+      await go({ places: ['home'], path: [], stop: null }); await settle(p);
+      await p.evaluate(() => window.__app.follow('video'));
+      await p.waitForTimeout(600);
+      r.openLayer = await sample(p, cdp, 1600, () => p.evaluate(() => window.__app.openLayer('ip')));
+      await settle(p);
+      r.layerIdle = await sample(p, cdp, 1500);
+      r.layerStep = await sample(p, cdp, 1600, () => p.keyboard.press('ArrowUp'));
+      await settle(p);
+      r.layerStepIdle = await sample(p, cdp, 1500);
     }
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await ctx.close();
@@ -127,12 +137,23 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/internet', name: `internet-${view}` });
       shots.push({ view, where: 'street/watch-video/internet', name: `internet-street-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/home-cabinet', name: `gpon-${view}` });
+      // layer dives: one scene per layer, varied by where it's opened
+      shots.push({ view, where: 'home/watch-video/router~ip', name: `ip-nat-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/core~ip', name: `ip-router-${view}` });
+      shots.push({ view, where: 'street/watch-video/internet/mobile-core~ip', name: `ip-cgnat-${view}` });
+      shots.push({ view, where: 'home/watch-video/ap~ip', name: `ip-bridge-${view}` });
+      shots.push({ view, where: 'home/watch-video/phone~tcp', name: `tcp-${view}` });
+      shots.push({ view, where: 'home/watch-video/router~tcp', name: `tcp-sealed-${view}` });
+      shots.push({ view, where: 'home/watch-video/phone~tls', name: `tls-${view}` });
+      shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
     }
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', name: 'home-nerd-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-street-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', lang: 'ar', name: 'home-ar-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', follow: true, grow: 'ip', name: 'grow-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', follow: true, name: 'peek-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video', follow: true, name: 'peek-street-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', picker: true, name: 'picker-desktop' });
@@ -147,6 +168,11 @@ for (const style of STYLES) {
       if (s.follow) {
         await p.evaluate(() => window.__app.follow('video'));
         await p.waitForTimeout(2600);
+        if (s.grow) {
+          // mid-flight into a layer dive: the peek's envelope on its way to becoming the dive's panel
+          await p.evaluate((l) => window.__app.openLayer(l), s.grow);
+          await p.waitForTimeout(330);
+        }
       } else if (s.picker) {
         await p.evaluate(() => window.__app.picker(true));
         await p.waitForTimeout(500);

@@ -25,5 +25,10 @@
   "pick.what": "What are you doing?",
   "ui.change": "Change",
   "ui.close": "Close",
-  "hint.pick": "Tap to choose where you are and what you do"
+  "hint.pick": "Tap to choose where you are and what you do",
+  "nav.below": "Layer below",
+  "nav.above": "Layer above",
+  "hint.layer": "Swipe up or down to change layer. Pinch or scroll out to go back.",
+  "peek.dive": "Tap a magnifier to look inside a layer",
+  "peek.look": "Look inside: {name}"
 }

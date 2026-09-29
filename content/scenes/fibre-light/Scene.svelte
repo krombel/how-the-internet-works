@@ -2,14 +2,14 @@
 <script lang="ts">
   // Look inside a fibre link: light bouncing along a glass core. On a GPON access fibre it shows the two colours
   // (up the street, coming home); anywhere else it shows DWDM's many colours going the same way.
-  import { TagAt, Text, strings, view, type Subject } from '$core/api';
+  import { TagAt, Text, strings, view, type LinkSubject } from '$core/api';
   import { DWDM, FIBRE, GPON, channelRoute, fibrePulses, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
   import Emitter from './art/Emitter.svelte';
   import Prism from './art/Prism.svelte';
   import Pulse from './art/Pulse.svelte';
-  let { subject }: { subject: Subject } = $props();
+  let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.fibre-light');
   const F = FIBRE;
   const gpon = $derived(subject.link.tech.id === 'gpon');

@@ -25,6 +25,7 @@ graph LR
   Hop -- "link: technology" --> Technology
   Technology -- "lower stack" --> Layer
   Technology -- "dive" --> Scene
+  Layer -- "dive" --> Scene
   Node -- "kind: network = expands" --> Group[sub-path scene]
 ```
 
@@ -32,8 +33,8 @@ graph LR
 |---|---|---|
 | **Node** | `content/nodes/<id>/` | A device or place on the path (phone, router, cell tower, CDN…). `kind` is `device` or `network` (a group, like `internet`, that unfolds into its own path scene). Its default `role` (`endpoint`, `bridge`, `router`, `nat`) decides which layers it opens and what it does to addresses. Art: `art/Device.svelte`. |
 | **Technology** | `content/technologies/<id>/` | What a link is made of (Wi‑Fi, Ethernet, GPON, 5G NR…). Its **lower layer stack**, a `look` (`radio`, `cable`, `fibre`, `trunk`: the theme draws each look), a colour, and optionally the **dive** scene that explains it. |
-| **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. `openAt` lists the roles that read it (TCP: only endpoints); `Layer.svelte` draws it in the peek panel from a `LayerCtx` (below). Issue #5. |
-| **Scene** | `content/scenes/<id>/` | A "look inside" dive (`wifi-radio`, `fibre-light`, `nr-radio`): `Scene.svelte` plus its own art and maths. It gets a `subject` (the link it explains), so one scene serves several technologies (the fibre dive draws GPON's two colours on the access fibre and DWDM elsewhere). |
+| **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. `openAt` lists the roles that read it (TCP: only endpoints); `Layer.svelte` draws it in the peek panel from a `LayerCtx` (below), and `dive` names the layer dive scene behind its magnifier. Issues #5, #8. |
+| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link** (`wifi-radio`, `fibre-light`, `nr-radio`) or a **layer at one hop** (`ip-post`, `tcp-pieces`, `tls-lock`, `gtp-tunnel`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws GPON's two colours on the access fibre and DWDM elsewhere) or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → IXP → CDN, with transit as a dashed side branch). Hops, links, side branches, per-hop overrides and layout. |
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
@@ -97,21 +98,27 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 #/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=nerd  ?style=<theme>
 #/da/street/watch-video/internet/@mobile-core
 #/en/home/watch-video/internet/home-cabinet                         (three levels: the access fibre)
+#/en/home/watch-video/router~ip                                     (a layer dive: IP at the home router)
+#/da/street/watch-video/internet/mobile-core~ip                     (IP at the mobile core: carrier-grade NAT)
 ```
 
 1. **Location** (`model/location.ts`, `router.ts`). The hash is parsed into `{ lang, places, activity, path, stop }`.
    - Changing a scene or place pushes a history entry, so Back undoes a place switch. Changing the stop or the language replaces the entry.
-   - A path that no longer exists falls back to its longest valid prefix. For example, after switching to the street, the Wi‑Fi dive becomes the overview, and `internet/home-cabinet` becomes `internet`.
+   - A path that no longer exists falls back to its longest valid prefix. For example, after switching to the street, the Wi‑Fi dive becomes the overview, and `internet/home-cabinet` becomes `internet`. A layer dive survives a place switch when its hop is in both routes (`phone~tcp`); `router~ip` on the street becomes the overview.
 2. **Route** (`model/resolve.ts`). The activity's route steps are filled with the chosen places and segments and joined into one chain of hops and links. Each hop gets its node, role, address and group. Each link gets its technology, stack, dive and colour. The route also records which folder each part came from, so strings can be looked up from the most specific source.
 3. **Path scenes** (`model/layout.ts`). The root scene shows the hops outside any group, and each group collapses into one node. Expanding a group shows the hops inside it, with an *entry* node that stands for "where you came from" (the house, or the cell tower).
    - Placement comes from the place, segment and activity `layout`, per orientation. Unplaced nodes are spread along the spine.
    - Links are routed from their end nodes, with a `bend` or a hand-drawn `curve`.
 4. **Scene tree** (`model/tree.ts`).
-   - A path scene's children, in route order, are its expandable groups and its links that have a dive.
-   - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth.
+   - A path scene's children, in route order, are its expandable groups, its links that have a dive, and its **layer dives**: for every hop drawn in the scene (not groups, entries or asides), every layer with a `dive` on the links arriving at it. The step is `<hop>~<layer>`.
+   - A layer dive's subject is that hop's `LayerCtx`, in a canonical direction (the way the layer arrives upwards if it does, else downwards: the NAT sees the request go out, the phone the video come in), so the URL needs no direction. The scenes show the round trip anyway.
+   - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth. A hop's layer panels form a **vertical stack** centred on the node, lower layers below, so stepping between them is a flight up or down.
+   - `layerPath(route, hop, layer)` finds the scene in which a hop is drawn, so tapping IP in the peek at the root, for a packet at the cabinet, flies to `internet/cabinet~ip`.
    - Each mounted scene gets one flat transform from the root, computed in JS doubles, so three levels deep (1000×) stays sharp. Only the scenes along the flight and their near children are mounted.
 5. **Camera** (`engine/camera.ts`, `engine/zoom.ts`). Fly zoom and semantic zoom (pinch or scroll into a child and it opens; out, and it closes) work on the current scene, its parent and its children, never on hard-coded ids.
-   - Sideways stepping walks the stops of a path scene, or the sibling dives in route order (Wi‑Fi ↔ fibre at home; 5G ↔ fibre on the street).
+   - Layer dives are only reached by address (the peek, the URL, stepping), never discovered by pinching into a node: `mixes` and `decide` skip layer children that aren't on the current path, so pinching into a router still does what it did.
+   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers of the same hop in stack order (▲/▼, a vertical flick, the arrow keys).
+   - **Into a layer dive from the peek:** the tapped envelope's rect is noted, the follow ends and the normal fly zoom starts; a DOM clone of the envelope is moved each frame from its peek rect to the dive panel's current on-screen rect, landing on it as the panel fades in (none with `prefers-reduced-motion`).
 6. **Packets** (`engine/packets.ts`). Each flow's packets run along every link of the scene at a per-link pace. Tapping one follows it, and the peek panel shows its layers at the current hop.
 
 ### The place morph
@@ -126,10 +133,15 @@ Packets restart on the new route, and the caption waits for the morph to finish.
 
 ## The context that content gets
 
-**Dive scenes** (`Scene.svelte`) get `{ subject }`:
-- `subject.link`: the route link it explains, with `tech`, `stack`, and the `from`/`to` hops.
-- `subject.sceneLink`: the link as drawn in the parent.
-- `subject.route`: the whole route.
+**Dive scenes** (`Scene.svelte`) get `{ subject }`, a `LinkSubject` or a `LayerSubject` (`subject.kind`):
+- link dives: `subject.link` (the route link it explains, with `tech`, `stack`, and the `from`/`to` hops),
+  `subject.sceneLink` (the link as drawn in the parent) and `subject.route` (the whole route);
+- layer dives: `subject.layer`, `subject.ctx` (the hop's `LayerCtx`, below, at the current level), `subject.open`
+  (whether the hop reads the layer, else it's sealed there) and `subject.route`. Captions look up
+  `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings.
+
+Dive scenes load on demand (`render/dives.svelte.ts`): a scene's chunk is fetched when the flight towards it starts,
+and the peek preloads the layer dives it offers.
 
 From `$core/api` they read `view` (time, orientation, level), `strings('scene.<id>')`, and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text) and `TagAt`.
 
@@ -171,7 +183,8 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
 `Device` (places the node art, adds a face and a focus ring, and a fallback body), `Link` (by `look`), `Packet`, `Hint`
-(`dive`, `expand`, `swap`), `Tag`, `Label`, `Panel` and `Overlay`. Scene-specific art (waves, prisms, beams) lives
+(`dive`, `expand`, `swap`), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
+`sealed`: Storybook draws a layer dive as a big envelope with its flap at the top, dashed when sealed. Scene-specific art (waves, prisms, beams) lives
 in the scene's own folder, so a new dive needs no theme change.
 
 ## Strings and languages
@@ -184,7 +197,7 @@ in the scene's own folder, so a new dive needs no theme change.
   3. the item itself (`node.router`)
 - **English fallback.** Any missing string falls back to English. `npm run check:content` prints translation coverage.
 - **Bundling.** English ships in the main bundle. Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
-- **RTL.** Arabic is the right-to-left test pack.
+- **RTL.** Arabic is the right-to-left test pack. Content is reviewed in English and Danish; the new layer dives fall back to English in Arabic (see issue #11).
 
 ## Learn more (issue #4)
 
@@ -208,6 +221,7 @@ zod never reaches the production bundle.
 - that the required English strings exist
 - that learn-more languages exist
 - that each layer and scene folder has its component
+- that technology and link dives point at link scenes, and layer dives at layer scenes
 
 In dev, problems go to the console and the Vite overlay:
 
@@ -219,7 +233,8 @@ Vitest (`npm test`) covers:
 - that the real content validates
 - negative fixtures
 - route resolution for every place
-- the scene tree and stale-path fallback
+- the scene tree and stale-path fallback, layer children per hop, stacked frames, `layerPath` and sideways stepping
+- layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - the layer stacks, roles, NAT/CGNAT and GTP per hop
 - the URL round trip
 - string fallback and lazy language packs
@@ -234,7 +249,11 @@ CI runs `npm ci && npm test && npm run build`.
 - idle, the fly into the fibre and back out
 - the fly three levels down and follow
 - the morph to the street, the fly into 5G, and the 5G dive idle
+- opening a layer dive from the peek (the envelope grows into the scene), its idle, a sideways step to the next
+  layer, and that layer's idle
 
-Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 9 ms.
+Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 11 ms (the fly into
+5G; opening a layer dive is about 8.6 ms).
 
-Initial JS is 64.0 kB gz, against 60.9 kB for the prototype.
+Initial JS is 64.1 kB gz, against 60.9 kB for the prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so
+adding dives doesn't grow the first load.

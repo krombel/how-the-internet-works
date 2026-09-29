@@ -58,6 +58,16 @@ describe('validation messages', () => {
     expect(msg).toContain('content/layers/zip/layer.ts › component: add content/layers/zip/Layer.svelte');
   });
 
+  it('checks layer dives: they exist and explain a layer', () => {
+    const layerScene = Object.values(content.scenes).find((s) => s.explains === 'layer')!.id;
+    const typo = `${layerScene}x`;
+    expect(broken((c) => { c.layers.tcp.dive = typo; })).toContain(`content/layers/tcp/layer.ts › dive: "${typo}" is not a scene. Did you mean "${layerScene}"?`);
+    expect(broken((c) => { c.layers.tcp.dive = 'wifi-radio'; })).toContain('content/layers/tcp/layer.ts › dive: "wifi-radio" explains a link; this needs a scene with `explains: \'layer\'`.');
+    expect(broken((c) => { c.technologies.wifi.dive = layerScene; })).toContain(`content/technologies/wifi/technology.ts › dive: "${layerScene}" explains a layer; this needs a scene with \`explains: 'link'\`. Known: `);
+    expect(broken((c) => { c.places.street.hops[3] = { link: 'metro-fibre', dive: layerScene }; })).toContain('place.ts › hops[3].dive: ');
+    expect(broken((c) => { (c.scenes[layerScene] as { explains: string }).explains = 'node'; })).toContain(`content/scenes/${layerScene}/scene.ts › explains:`);
+  });
+
   it('checks schemas and learn-more links', () => {
     const msg = broken((c) => { (c.nodes.phone as { role: string }).role = 'modem'; c.nodes.phone.learnMore = [{ url: 'http://x.org', title: 'x', level: 'kid', lang: 'dk' }]; });
     expect(msg).toContain('content/nodes/phone/node.ts › role:');

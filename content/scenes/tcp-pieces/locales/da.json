@@ -1,0 +1,57 @@
+{
+  "title": "TCP holder styr på stykkerne",
+  "kid": "Din telefon og videoserveren giver hvert lille stykke et nummer. Hvis et stykke falder i et hul, bliver telefonen ved med at pege på hullet, indtil serveren sender stykket igen.",
+  "nerd": "TCP er ende-til-ende (RFC 9293): et 3-vejs-handshake (SYN, SYN-ACK, ACK) opretter sekvensrum. Afsenderen holder et vindue på fire segmenter, ACKs flytter det frem, og tre duplikerede ACKs for segment 5 udløser fast retransmit; appen får først bytes i rækkefølge.",
+  "at": {
+    "cdn": {
+      "title": "Serveren sender nummererede TCP-stykker",
+      "kid": "Videoserveren stiller stykkerne op og lader fire være på vej ad gangen. Når din telefon siger, at stykke 5 mangler, sender serveren 5 igen, før appen får rækken.",
+      "nerd": "Set fra server-endepunktet sender TCP segmenter med sekvensnumre, ser kumulative ACKs, flytter send-vinduet og gensender segment 5 hurtigt efter tre duplikerede ACKs uden at vente på RTO."
+    }
+  },
+  "sealed": {
+    "title": "TCP kører forbi forseglet",
+    "kid": "Dette stop bærer de nummererede kasser, men åbner dem ikke. Det kan se det forseglede stykke 5 køre forbi én gang, falde efter stoppet og køre forbi igen, når serveren prøver igen.",
+    "nerd": "Ved dette mellemhop er TCP uigennemsigtigt: routere og broer videresender IP-pakken og undersøger ikke sekvens- eller ACK-tilstand. Det gensendte segment 5 er bare endnu en forseglet nyttelast på vej forbi."
+  },
+  "role": {
+    "nat": {
+      "title": "En NAT kigger kun på portmærket",
+      "kid": "Kassen er stadig forseglet her. NAT’en læser kun det lille portmærke, så svarene finder den rigtige telefon, og lader de nummererede stykker være i fred.",
+      "nerd": "NAT er undtagelsen fra ren uigennemsigtighed: den læser og omskriver TCP/UDP-port-tuplen (for eksempel 51034 ↔ den udvendige mapping), mens sekvensnumre og data forbliver ende-til-ende."
+    }
+  },
+  "handshake": {
+    "hi": "Hej?",
+    "yes": "Ja!",
+    "great": "Fint!"
+  },
+  "card": {
+    "server": "Server",
+    "phone": "Hylde"
+  },
+  "ack": {
+    "got3": "fik 3!",
+    "wait5": "mangler 5!"
+  },
+  "label": {
+    "window": "4 ad gangen",
+    "gap": "hul ved 5",
+    "handshake": "3 hej-sedler",
+    "hello": "hej",
+    "lost": "5 mangler",
+    "resend": "send 5 igen",
+    "done": "alt på række",
+    "ready": "alt i orden — klar til appen!",
+    "port": "kun port"
+  },
+  "tag": {
+    "syn": "SYN seq=1000",
+    "window": "vindue=4",
+    "dupAck": "dup ACK=5",
+    "fast": "3 dup ACKs → #5",
+    "order": "bytes i rækkefølge",
+    "seal": "TCP forseglet",
+    "nat": "porte: {nat}"
+  }
+}
