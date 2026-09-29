@@ -3,6 +3,8 @@ import { normaliseChoice, resolveRoute } from './resolve';
 import { morphScene, pathScene } from './layout';
 import { childrenOf, frameOf, sceneRef, validPrefix } from './tree';
 import { formatHash, normaliseLoc, parseHash } from './location';
+import { content } from './registry';
+import { stackOf } from './stack';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
@@ -23,6 +25,26 @@ describe('resolveRoute', () => {
   it('picks the entry stand-in for a group', () => {
     expect(home.entry.internet.id).toBe('home');
     expect(street.entry.internet.id).toBe('cell-tower');
+  });
+
+  // generic: holds for whatever places and activities exist, so a new content folder is exercised too
+  it('makes a working route for every place × activity', () => {
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      const what = `${place} × ${activity}`;
+      expect(r.chain[0].role, what).toBe('endpoint');
+      expect(r.chain.at(-1)!.role, what).toBe('endpoint');
+      expect(r.links.length, what).toBe(r.chain.length - 1);
+      for (const l of r.links) for (const f of r.activity.flows) expect(stackOf(r, l, f.stack, 'endpoint').length, what).toBeGreaterThan(f.stack.length);
+      for (const o of ['landscape', 'portrait'] as const) {
+        const walk = (path: string[]): void => {
+          const ref = sceneRef(r, path, o);
+          expect(ref, `${what} ${o} /${path.join('/')}`).not.toBeNull();
+          for (const c of childrenOf(r, ref!, o)) walk([...path, c.step]);
+        };
+        walk([]);
+      }
+    }
   });
 });
 

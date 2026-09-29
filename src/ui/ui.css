@@ -88,7 +88,8 @@ button { cursor: pointer; }
   border: 3px solid transparent; }
 .picker .option.wide { flex-direction: row; grid-column: span 2; }
 .picker .option.on { border-color: var(--accent); }
-.picker .option svg { width: 92px; height: 92px; overflow: visible; }
+/* beats the theme's small-screen `.btn svg` icon size */
+.picker .options .option.btn svg { width: 92px; height: 92px; overflow: visible; }
 @keyframes pick-in { from { opacity: 0; scale: 0.94; } }
 @keyframes sheet-in { from { transform: translateY(100%); } }
 

@@ -1,0 +1,174 @@
+{
+  "generated": "2026-09-29T11:50:05.885Z",
+  "gpu": true,
+  "viewport": "perf: 390×844 @2x (portrait phone)",
+  "metrics": {
+    "storybook": {
+      "kB": {
+        "js": 64,
+        "css": 4.6,
+        "font": 109.4
+      },
+      "perf": {
+        "1x": {
+          "idle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.69
+          },
+          "flyToFibre": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.36
+          },
+          "fibreIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.73
+          },
+          "flyOut": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.02
+          },
+          "flyDeep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.22
+          },
+          "deepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.76
+          },
+          "follow": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.12
+          },
+          "morphToStreet": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1
+          },
+          "streetIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.64
+          },
+          "flyTo5G": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.9
+          },
+          "nrIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.32
+          }
+        },
+        "6x": {
+          "idle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.61
+          },
+          "flyToFibre": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 6.35
+          },
+          "fibreIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.12
+          },
+          "flyOut": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 5.07
+          },
+          "flyDeep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 33.3,
+            "cpuMsPerFrame": 6.38
+          },
+          "deepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.3
+          },
+          "follow": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 6.14
+          },
+          "morphToStreet": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 4.71
+          },
+          "streetIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.74
+          },
+          "flyTo5G": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 9.35
+          },
+          "nrIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 6.53
+          }
+        }
+      }
+    }
+  }
+}

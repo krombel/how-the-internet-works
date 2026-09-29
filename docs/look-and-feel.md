@@ -5,6 +5,10 @@
 > option) is kept at git tag [`spikes/look-and-feel-v1`](https://github.com/tkjaer/how-the-internet-works/tree/spikes/look-and-feel-v1). Check out the tag
 > (`git checkout spikes/look-and-feel-v1 && npm install && npm run dev`) to try the other styles and the lab. The
 > style and lab URLs below only work there.
+>
+> **Update (core architecture):** `prototype/` has since become the app: an engine in `src/` and content folders in
+> `content/`. See [architecture.md](architecture.md). The paths below refer to the prototype as it was (tag
+> `spikes/look-and-feel-v1`, or the commit before the core architecture).
 
 The rendering stack is settled (Svelte 5 + SVG + DOM text; see [visualisation-spikes.md](visualisation-spikes.md)).
 This round explores what people actually notice: **the art style** and **the interaction feel**.
@@ -417,3 +421,10 @@ Questions 1–3 are settled by the [decision](#decision-after-trying-it): storyb
 14. **Issue #5, reusable layers.** The layer components are reused along the path already. The next step is
     letting a *scene* reuse them, e.g. the TCP layer as its own zoomable dive at any hop. Is that the "down the
     layers" direction you want?
+
+**Status after the core architecture** ([architecture.md](architecture.md)):
+- **10.** Scenes now nest to any depth; the access fibre inside the internet is the first third level. Dives into *nodes* (the BNG, the IXP, the CDN) are the next step.
+- **11.** Answered by *places*: each access technology is a place in the "Where are you?" picker, with its own route and backdrop. The desk (a laptop on a cable) was added that way, as content only.
+- **12.** Plugs in as a place plus an activity (see the table in architecture.md). The story is still open.
+- **13.** Links are now per level and per language, and fall back to English. Curating kid-friendly Danish sources is still open.
+- **14.** Layers are reusable per hop, with a context (`LayerCtx`). "Down the layers" dives are a follow-up issue.

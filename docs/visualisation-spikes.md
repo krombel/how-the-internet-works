@@ -7,7 +7,8 @@
 > Links to the discarded spikes point at that tag.
 >
 > **Update (look-and-feel round):** the kept spike has since moved to `prototype/` (with `spikes/shared` folded into
-> `prototype/core/`) and grew swappable visual themes. See [look-and-feel.md](look-and-feel.md). The `spikes/…` paths
+> `prototype/core/`) and grew swappable visual themes. See [look-and-feel.md](look-and-feel.md). It is now the
+> app's engine in `src/` (see [architecture.md](architecture.md)). The `spikes/…` paths
 > below now link to the tag.
 
 Four disposable spikes that all implement **the same mini-scene**, so the rendering stack for the real app can be

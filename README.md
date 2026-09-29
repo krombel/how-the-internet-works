@@ -4,30 +4,36 @@ An explorable, zoomable explanation of how the internet works — from radio wav
 ## Run it
 
 ```sh
-npm install && npm run dev   # then open http://localhost:5173/ (redirects to /prototype/)
+npm install && npm run dev   # then open http://localhost:5173/
 npm run dev -- --host        # to try it on a phone on the same network
+npm test                     # content validation, routes, layer stacks, URLs (Vitest)
 npm run build                # type-check + static build into dist/
 ```
 
-## The prototype (`prototype/`)
+## What's in it
 
-The same mini-scene (phone → Wi‑Fi → home router → fibre → the internet, and back) with semantic zoom into the
-Wi‑Fi and fibre links, an internet you can unfold into its hops, packets you can follow and peek inside, and
-sideways stepping (flick, ◀ ▶ or the arrow keys). It is drawn in the **Storybook** style, lays out as a
-horizontal path on wide screens and a vertical one on portrait phones, and has optional sound (muted by default).
-The scene and language live in the hash, e.g. `/prototype/#/da/fibre`; `?level=nerd` starts in nerd mode.
+You pick **where you are** (at home on Wi‑Fi, on the street on 5G, at the desk on a cable) and **what you do**
+(watch a video). You then see your packets travel through the access network, the ISP, an internet exchange and on
+to a CDN server:
+- **Zoom into** the internet to unfold its hops. The home route passes the fibre cabinet, the backhaul and the BNG; the street route passes the mobile core.
+- **Look inside** the links: Wi‑Fi waves, light in a glass thread (with GPON's two colours on the access fibre), and 5G beams with their time × frequency seats. This goes up to three levels deep.
+- **Follow a packet** and peek at its envelopes, which change at every hop (NAT at the home router, a GTP tunnel and carrier-grade NAT on 5G).
+- **Switch place**: the scene morphs and the packets re-route.
 
-Everything is pluggable content:
+It comes in kid and nerd levels, in English and Danish, with Arabic as a right-to-left test. Learn-more links point onwards.
 
-| Folder | What | Add one by… |
-|---|---|---|
-| `locales/<lang>/strings.json` | language packs (`_meta.dir` for RTL) | adding a folder |
-| `prototype/themes/<id>/` | a visual style: `meta.json`, `theme.ts` (motion, sound, colours, art-slot overrides), `tokens.css`, `art/*.svelte`, `locales/` | copying `themes/storybook`; unset slots fall back to `themes/_base`. With more than one theme a style picker appears and `?style=<id>` selects one |
-| `prototype/layers/<id>/` | an envelope layer in the peek view (HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS) with its own strings | adding a folder and listing it in `layers/stacks.ts` |
-| `prototype/core/scene.ts` | nodes, links (by technology), stops, learn-more links | data |
+The location is in the URL, e.g. `#/da/street/watch-video/internet/@mobile-core`; `?level=nerd` starts in nerd
+mode.
 
-`npm run evaluate` (with `npx vite preview --port 5318` running on a fresh build) regenerates the screenshots and
-frame-time metrics in `docs/` for every theme present.
+## How it's built
+
+An engine in `src/` and content folders in `content/`. Nodes, technologies, layers, dive scenes, segments, places,
+activities, languages, themes and learn-more links are each **added as a folder**, validated with zod:
+- [docs/architecture.md](docs/architecture.md): the model, the scene tree, and the context scenes and layers get
+- [docs/authoring.md](docs/authoring.md): how to add each kind of thing (with the laptop as a worked example)
+
+`npm run evaluate` (with `npx vite preview --port 5318` running on a fresh build) regenerates the screenshots in
+`docs/img/app-*` and the frame-time metrics in [docs/app-metrics.json](docs/app-metrics.json).
 
 ## Earlier rounds
 
