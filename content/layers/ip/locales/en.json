@@ -1,7 +1,6 @@
 {
   "from": "From",
   "to": "To",
-  "you": "your phone",
   "server": "the video server",
   "name": {
     "kid": "Address label",
@@ -12,7 +11,7 @@
     "nerd": "NAT: source {inside}:51034 is rewritten to {outside}:51034 and stored in the connection table."
   },
   "unnat": {
-    "kid": "{name} looks up who asked for this and changes the address back to your phone.",
+    "kid": "{name} looks up who asked for this and changes the address back to {yours}.",
     "nerd": "NAT reverse: destination {outside} is rewritten back to {inside} from the connection table."
   },
   "bridge": {

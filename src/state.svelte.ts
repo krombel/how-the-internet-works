@@ -44,6 +44,8 @@ export const nav = $state<{ loc: Loc; route: Route }>({
 });
 /** Display name of a hop (an instance of a node). */
 export const nameOf = (h: Hop | string) => tr(`node.${typeof h === 'string' ? nav.route.hops[h]?.node.id ?? h : h.node.id}.name`);
+/** How the text refers to the reader's own device ("your phone"): the node's `yours` string, else its name. */
+export const yours = (h: Hop) => lookup(loc.lang, `node.${h.node.id}.yours`) ?? nameOf(h);
 /** Strings for an item in the current route: the places and segments may override the item's own text. */
 export const routeKeys = (suffix: string) => stringSources(nav.route).map((s) => `${s}.${suffix}`);
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Envelope, fakeMac, nameOf, strings, type LayerCtx } from '$core/api';
+  import { Envelope, fakeMac, fill, nameOf, strings, yours, type LayerCtx } from '$core/api';
   let { ctx, open, depth, children }: { ctx: LayerCtx; open: boolean; depth: number; children?: Snippet } = $props();
   const L = strings('layer.wifi');
   const to = $derived(nameOf(ctx.to.node.id));
@@ -9,4 +9,4 @@
     : [[L('to'), to]]);
 </script>
 
-<Envelope id="wifi" name={L('name', ctx.level)} {open} {depth} {fields} note={L('note', ctx.level)}>{@render children?.()}</Envelope>
+<Envelope id="wifi" name={L('name', ctx.level)} {open} {depth} {fields} note={fill(L('note', ctx.level), { yours: yours(ctx.client) })}>{@render children?.()}</Envelope>

@@ -1,7 +1,7 @@
 <script lang="ts">
   // TCP stays sealed on the way: only the endpoints open it. A NAT peeks at the port numbers.
   import type { Snippet } from 'svelte';
-  import { Envelope, strings, type LayerCtx } from '$core/api';
+  import { Envelope, fill, strings, yours, type LayerCtx } from '$core/api';
   let { ctx, open, depth, children }: { ctx: LayerCtx; open: boolean; depth: number; children?: Snippet } = $props();
   const L = strings('layer.tcp');
   const up = $derived(ctx.dir === 'up');
@@ -14,4 +14,4 @@
   const note = $derived(!open && nat && ctx.level === 'nerd' ? L('peek', ctx.level) : '');
 </script>
 
-<Envelope id="tcp" name={L('name', ctx.level)} {open} {depth} {fields} {note} sealed={L('sealed', ctx.level)}>{@render children?.()}</Envelope>
+<Envelope id="tcp" name={L('name', ctx.level)} {open} {depth} {fields} {note} sealed={fill(L('sealed', ctx.level), { yours: yours(ctx.client) })}>{@render children?.()}</Envelope>

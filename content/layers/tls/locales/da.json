@@ -4,7 +4,7 @@
     "nerd": "TLS-record"
   },
   "note": {
-    "kid": "Kun din telefon og serveren har nøglen.",
+    "kid": "Kun {yours} og serveren har nøglen.",
     "nerd": "Krypteret og autentificeret fra ende til ende."
   },
   "sealed": {

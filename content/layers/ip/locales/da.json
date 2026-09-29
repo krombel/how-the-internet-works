@@ -1,7 +1,6 @@
 {
   "from": "Fra",
   "to": "Til",
-  "you": "din telefon",
   "server": "video-serveren",
   "name": {
     "kid": "Adresselabel",
@@ -12,7 +11,7 @@
     "nerd": "NAT: afsender {inside}:51034 omskrives til {outside}:51034 og gemmes i forbindelsestabellen."
   },
   "unnat": {
-    "kid": "{name} slår op, hvem der bad om den, og skifter adressen tilbage til din telefon.",
+    "kid": "{name} slår op, hvem der bad om den, og skifter adressen tilbage til {yours}.",
     "nerd": "NAT retur: modtager {outside} omskrives tilbage til {inside} via forbindelsestabellen."
   },
   "bridge": {

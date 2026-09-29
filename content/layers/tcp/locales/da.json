@@ -7,8 +7,8 @@
     "nerd": "TCP-segment"
   },
   "sealed": {
-    "kid": "Forseglet. Kun din telefon og serveren åbner den: de tjekker, at ingen stykker mangler.",
-    "nerd": "Undersøges ikke undervejs: ende-til-ende mellem telefon og server (rækkefølge, gensending, trængselsstyring)."
+    "kid": "Forseglet. Kun {yours} og serveren åbner den: de tjekker, at ingen stykker mangler.",
+    "nerd": "Undersøges ikke undervejs: ende-til-ende mellem de to ender (rækkefølge, gensending, trængselsstyring)."
   },
   "peek": {
     "nerd": "NAT’en kigger på portnumrene (og kan omskrive afsenderporten), men resten forbliver forseglet."

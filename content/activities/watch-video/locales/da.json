@@ -1,6 +1,6 @@
 {
   "title": "Vi ser en video",
-  "kid": "Din telefon beder om en video.",
+  "kid": "Du beder om en video.",
   "nerd": "Appen henter videoen i små segmenter over HTTPS (HTTP inde i TLS inde i TCP), og serveren streamer dem tilbage.",
   "packet": {
     "request": "Forespørgsel",

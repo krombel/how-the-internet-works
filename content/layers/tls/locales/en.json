@@ -4,7 +4,7 @@
     "nerd": "TLS record"
   },
   "note": {
-    "kid": "Only your phone and the server have the key.",
+    "kid": "Only {yours} and the server have the key.",
     "nerd": "Encrypted and authenticated end to end."
   },
   "sealed": {

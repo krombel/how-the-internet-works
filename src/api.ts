@@ -9,7 +9,7 @@ export type * from './render/theme-types';
 export { pts, textBox } from './engine/svg';
 export { fakeMac } from './model/stack';
 export { defineTheme } from './render/art-base';
-export { fill, nameOf, view } from './state.svelte';
+export { fill, nameOf, view, yours } from './state.svelte';
 
 export { default as Depth } from './render/Depth.svelte';
 export { default as Node } from './render/Node.svelte';

@@ -1,6 +1,6 @@
 {
   "title": "Watching a video",
-  "kid": "Your phone asks for a video.",
+  "kid": "You ask for a video.",
   "nerd": "The app fetches the video in small segments over HTTPS (HTTP inside TLS inside TCP), and the server streams them back.",
   "packet": {
     "request": "Request",
