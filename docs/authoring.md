@@ -282,6 +282,38 @@ Strings:
 - `peek.<kind>` ("Caught: a piece of video")
 - `stop.*`
 
+## Make art mode-aware (day and night, issue #43)
+
+Storybook has a day and a night mode. The reader's OS setting picks the default; the ☀️/🌙 button and `?mode=day|night`
+switch it. Night repaints everything through tokens, so art that follows these rules works at night without
+extra effort:
+- **Colours come from the theme's palette:** `fill="var(--peach)"`, `stroke="var(--line)"`,
+  `style="color: var(--teal)"`. Never write a literal (`#ffcf5d`, `rgb(…)`, `white`). The palette is at the top of
+  `content/themes/storybook/tokens.css`, and night overrides it in the `[data-mode='night']` block. If no
+  colour fits, add a token to the day block and give it a night value.
+- **Some tokens are lights,** plain by day and lit at night. Use them where something glows after dark:
+  - `--window`: a window pane
+  - `--room`: a lit room seen from outside
+  - `--lamp`: a lamp head or headlights
+  - `--shade`: a drop shadow. At night it is near black, not brown.
+- **For elements that only exist at night** (stars, a lamp's pool of light, a halo around a wave), wrap them in
+  `{#if view.mode === 'night'}`. Draw halos as a wider, translucent copy of the stroke. Don't use SVG filters: they
+  cost too much at 6× throttle and don't fit the paper look. A device's `accent` part (an LED) glows at night by
+  itself.
+- **Some colours really are fixed,** such as a fibre wavelength's colour or the T568 insulation colours of copper
+  pairs. Mark them with a comment that starts with `fixed-colour:` and gives the reason:
+  - on its own line, it covers the lines after it, up to the next blank line
+  - at the end of a line, it covers that line only
+
+  Data colours (a technology's or a packet's `colour`) are identity, not paint, and stay literal in the definition files.
+- **Tests check the rules:**
+  - `art-colours.test.ts` flags literals in `content/**` art. It also checks that every `var(--x)` exists in the
+    theme's day tokens, and that night only overrides tokens the day defines.
+  - `contrast.test.ts` checks the chrome's text pairs (caption, chips, peek, tags, buttons, links, labels) for WCAG AA
+    in both modes.
+- Look at it at night: `npm run dev`, then add `?mode=night` to the URL. `npm run evaluate -- --mode=night` takes the
+  night screenshots and perf.
+
 ## Add a language
 
 1. `content/locales/<lang>/meta.json`: `{ "name": "Dansk", "dir": "ltr" }` (`rtl` for Arabic, Hebrew…). `name` is
@@ -313,5 +345,6 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - [ ] `locales/en.json` has the required strings; `da.json` if you can.
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes).
 - [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
+- [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).

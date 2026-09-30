@@ -39,7 +39,7 @@ graph LR
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
 | **Locale** | `content/locales/<lang>/` | `meta.json` (`name`, `dir`) and `ui.json` (chrome strings). Every other folder carries its own `locales/<lang>.json`. |
-| **Theme** | `content/themes/<id>/` | The visual style (`?style=<id>`): tokens, motion, sound, and the engine's art slots (below). |
+| **Theme** | `content/themes/<id>/` | The visual style (`?style=<id>`): tokens, motion, sound, and the engine's art slots (below). A theme may have a night mode (`?mode=night`). |
 
 Designed in, but used by only one item so far:
 - **Instances.** A hop is `{ at: <instance>, node?: <node> }`, so a route can hold two routers (messaging, later).
@@ -96,7 +96,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 ## From URL to pixels
 
 ```
-#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=nerd  ?style=<theme>
+#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=nerd  ?style=<theme>  ?mode=day|night
 #/da/street/watch-video/internet/@mobile-core
 #/en/home/watch-video/internet/home-cabinet                         (three levels: the access fibre)
 #/en/home/watch-video/router~ip                                     (a layer dive: IP at the home router)
@@ -262,7 +262,7 @@ Packets restart on the new route, and the caption waits for the morph to finish.
 Dive scenes load on demand (`render/dives.svelte.ts`): a scene's chunk is fetched when the flight towards it starts,
 and the peek preloads the layer dives it offers.
 
-From `$core/api` they read `view` (time, orientation, level), `strings('scene.<id>')`, and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text) and `TagAt`.
+From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text) and `TagAt`.
 
 **Layer dives** get a `LayerCtx` (`model/stack.ts`, built on the packet model), per hop and direction:
 
@@ -307,6 +307,19 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 clock), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
 `sealed`: Storybook draws a layer dive as a big envelope with its flap at the top, dashed when sealed. Scene-specific art (waves, prisms, beams) lives
 in the scene's own folder, so a new dive needs no theme change.
+
+**Day and night (issue #43).** A theme that declares `night: { themeColor, scheme }` gets a night mode:
+- **Choosing the mode** (`state.svelte.ts`). The mode is `?mode=`, then the reader's stored choice, then
+  `prefers-color-scheme`, which is followed live. The ☀️/🌙 button in the chrome shows only when the theme has a
+  night.
+- **What the engine sets.** `data-mode="day|night"` on `<html>`, the theme-color meta and `color-scheme`, and
+  `view.mode` for art that adds night-only elements. It knows nothing about stars or lamps: the night palette is the
+  theme's `[data-mode='night']` token block.
+- **The switch.** It runs inside `document.startViewTransition`, a snapshot cross-fade on the compositor. The theme
+  may style `::view-transition-*`; Storybook's is a sunset wipe. It is instant under reduced motion or without
+  View Transitions.
+- **Headings.** The chrome's headings use `--heading` (by default `--accent`), so a theme can keep a bright accent
+  for buttons and use a darker colour for text.
 
 ## Strings and languages
 
@@ -373,6 +386,12 @@ Vitest (`npm test`) covers:
 - the URL round trip
 - string fallback and lazy language packs
 - the import rules
+- colours in art (`model/art-colours.test.ts`):
+  - no colour literals in `content/**` art unless marked `fixed-colour:`
+  - every `var(--x)` exists in each theme's day tokens
+  - a night block overrides only tokens the day defines
+- contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
+  night, with translucent cards composited over the page background
 
 CI runs `npm ci && npm test && npm run build`.
 
@@ -389,12 +408,17 @@ CI runs `npm ci && npm test && npm run build`.
 - sideways travel (#36): two quick steps inside the internet (access → metro → backbone fibre, one joined glide), the
   long-haul and metro fibre idles, and Wi‑Fi → copper on the overview
 
+`--mode=night` runs the same shots and phases at night. The results go to `app-<style>-night-*.jpg`, and the metrics
+under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× (the halos in the long-haul fibre) and
+keeps the same p95. `--diff=<url>` compares every screenshot against another build instead, pixel by pixel. Use it
+to show that a change leaves the day untouched.
+
 Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
 5G and down to copper, and opening a layer dive; it varies a few ms between runs). Animated scenes avoid group
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 71.9 kB gz (68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is 73.5 kB gz (72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

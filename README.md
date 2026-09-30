@@ -20,10 +20,10 @@ to a CDN server:
 - **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field for nerds and a protocol tree for details.
 - **Switch place**: the scene morphs and the packets re-route.
 
-It comes in kid and nerd levels, in English and Danish. Learn-more links point onwards.
+It comes in kid and nerd levels, in English and Danish, by day and by night. Learn-more links point onwards.
 
 The location is in the URL, e.g. `#/da/street/watch-video/internet/@mobile-core`; `?level=nerd` starts in nerd
-mode.
+mode, and `?mode=night` at night.
 
 ## How it's built
 
