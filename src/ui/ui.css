@@ -50,7 +50,9 @@ button { cursor: pointer; }
 .controls { margin-inline-start: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .controls > .card { display: inline-flex; align-items: center; padding: 3px; }
 .controls > .card > .btn { background: none; }
-.icon-btn[aria-pressed='true'] { background: var(--btn-on) !important; color: var(--btn-on-ink); }
+.icon-btn[aria-pressed='true'], .explore-btn[aria-pressed='true'] { background: var(--btn-on) !important; color: var(--btn-on-ink); }
+.explore-btn { min-height: 36px; padding: 6px 12px 6px 9px; font-size: 13px; }
+.explore-btn:disabled { opacity: 0.45; cursor: default; filter: none; }
 .pop { position: absolute; z-index: 20; top: 100%; margin-top: 4px; padding: 10px; min-width: 220px; inset-inline-end: 12px; }
 .pop h3 { margin: 4px 6px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 800; }
 .styles { display: grid; gap: 4px; }
@@ -70,6 +72,17 @@ button { cursor: pointer; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 0; border-radius: 99px; background: var(--btn); font-weight: 800; }
 .caption .chip u { text-underline-offset: 2px; color: var(--link); }
+/* doors, by verb: "Look inside: Wi-Fi · Fibre   Open up: The internet" */
+.caption .doors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.caption .verb { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.caption .verb-name { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; color: var(--door-ink); }
+.caption .verb-name svg { width: 15px; height: 15px; }
+.caption .door { box-shadow: inset 0 0 0 2px var(--door-ink); }
+.caption .door:hover, .caption .door:focus-visible, .caption .doors.lit .door { background: var(--door-ink); color: var(--btn-on-ink); }
+/* small screens: just the verb's icon (its name is the group's label for screen readers) */
+@media (max-width: 520px), (max-height: 500px) { .caption .verb-name span { display: none; } .caption .doors { gap: 4px 10px; } }
+.door-dive { --door-ink: var(--door-dive, var(--accent)); }
+.door-expand { --door-ink: var(--door-open, var(--accent)); }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }

@@ -1,14 +1,30 @@
-// What the caption says for a location: title, kid/nerd text, a gesture hint and learn-more links (issue #4). Text is
+// What the caption says for a location: title, kid/nerd text, a gesture hint, the doors you can open from here and
+// learn-more links (issue #4). Text is
 // looked up from the most specific source to the least: the places and segments on the route (they can say something
 // about a stop in their context), then the node, technology or scene itself.
 import type { LearnMore, Level, Orient } from '../define';
-import { pathScene } from '../model/layout';
+import { doorsOf } from '../model/doors';
+import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
 import { sceneRef, type SceneRef } from '../model/tree';
 import { fill, loc, nameOf, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
-export interface CaptionText { title: string; body: string; hint: string; links: LearnMore[] }
+/** A door to open from the caption, by verb: look inside a link's technology or open up a group. */
+export interface CaptionDoor { kind: 'dive' | 'expand'; id: string; name: string }
+export interface CaptionText { title: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
+
+/** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip. */
+function captionDoors(ps: PathScene, root: boolean, stop: string | null): CaptionDoor[] {
+  const out: CaptionDoor[] = [];
+  for (const d of doorsOf(ps, root)) {
+    if (d.kind === 'swap' || (stop && d.id !== stop)) continue;
+    const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
+    const name = l ? tr(`tech.${l.link.tech.id}.name`) : tr(`node.${ps.nodes.find((k) => k.id === d.id)!.node.id}.name`);
+    out.push({ kind: d.kind, id: d.id, name });
+  }
+  return out;
+}
 
 /** A layer dive's text, most specific first: at this kind of node, for its role, sealed (when it can't open the
  *  layer), then the scene's own; with {hop}, {yours} and {layer} filled in. */
@@ -35,12 +51,13 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
 export function captionFor(r: Route, path: string[], stop: string | null, o: Orient): CaptionText {
   const ref = sceneRef(r, path, o);
   const lv = loc.level;
-  if (!ref) return { title: '', body: '', hint: '', links: [] };
+  if (!ref) return { title: '', body: '', hint: '', doors: [], links: [] };
   const c = r.content;
   if (ref.kind === 'layer') return {
     title: sceneTitle(r, path, o),
     body: layerText(r, ref, '', lv),
     hint: tr('hint.layer'),
+    doors: [],
     links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
   };
   if (ref.kind === 'dive') {
@@ -49,22 +66,26 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       title: sceneTitle(r, path, o),
       body: trFirst([`scene.${ref.dive}.${tech.id}`, `scene.${ref.dive}`], lv),
       hint: tr('hint.zoomOut'),
+      doors: [],
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(tech.learnMore ?? [])]),
     };
   }
   const ps = pathScene(r, ref.group, o);
   const n = stop ? ps.nodes.find((k) => k.id === stop) : null;
   const l = stop && !n ? ps.links.find((k) => k.id === stop) : null;
+  const doors = captionDoors(ps, path.length === 0, n || l ? stop : null);
   if (n) return {
     title: tr(`node.${n.node.id}.name`),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),
     hint: tr(n.kind === 'group' ? 'hint.expand' : 'hint.step'),
+    doors,
     links: learnMore(n.node.learnMore ?? []),
   };
   if (l) return {
     title: tr(`tech.${l.link.tech.id}.name`),
     body: trFirst([...routeKeys(`stop.${l.id}`), `tech.${l.link.tech.id}`], lv),
     hint: tr(l.dive ? 'hint.dive' : 'hint.step'),
+    doors,
     links: learnMore(l.link.tech.learnMore ?? []),
   };
   if (ref.group) {
@@ -73,6 +94,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       title: sceneTitle(r, path, o),
       body: trFirst([...routeKeys(`inside.${g.id}`), `node.${g.node.id}.inside`], lv),
       hint: tr('hint.group'),
+      doors,
       links: learnMore(g.node.learnMore ?? []),
     };
   }
@@ -81,6 +103,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     title: sceneTitle(r, [], o),
     body: [tr(`activity.${r.activity.id}.${lv}`), ...places.map((p) => trFirst([`place.${p.id}`], lv))].filter(Boolean).join(' '),
     hint: tr('hint.overview'),
+    doors,
     links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
   };
 }

@@ -1,21 +1,30 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // A path scene: backdrop, links, nodes, labels, nerd tags, tap hints and packets. The root scene also draws the chosen
-  // places' backdrops (the house, the street) and the swap badge on the start device.
+  // A path scene: backdrop, links, nodes (a group with a cutaway of the path inside it), labels, nerd tags, doors and
+  // packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
+  // start device. Doors (model/doors.ts) are drawn in two parts: a glow around what they open, under the nodes, and a
+  // badge over them.
   import { bezier, curvePath, WORLD_SIZE } from '../engine/geometry';
+  import { textBox } from '../engine/svg';
   import type { LivePacket } from '../engine/packets';
   import { nodeArt, placeBackdrops } from '../model/components';
-  import { startNode, type PathScene, type SNode } from '../model/layout';
+  import { badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
+  import type { PathScene, SNode } from '../model/layout';
   import type { Route } from '../model/resolve';
   import { loc, nameOf, routeKeys, themeState, tr, trFirst, view } from '../state.svelte';
+  import { getScene, getWorld } from './ctx';
+  import Cutaway from './Cutaway.svelte';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
 
-  let { route, ps, packets, focus, root, places }: {
+  let { route, ps, packets, focus, root, places, hot = null, lit = false }: {
     route: Route; ps: PathScene; packets: LivePacket[]; focus: string | null; root: boolean;
     /** Place backdrops to draw (root only); defaults to the route's places. */
     places?: { id: string; alpha: number; dx: number }[];
+    /** The door pointed at (its item id), and whether "What can I explore?" lights every door up. */
+    hot?: string | null; lit?: boolean;
   } = $props();
+  const world = getWorld(), scene = getScene();
   const W = $derived(WORLD_SIZE[view.orient]);
   const portrait = $derived(view.orient === 'portrait');
   const A = $derived(themeState.current.art);
@@ -25,8 +34,29 @@
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
-  const swapAt = $derived(root ? startNode(ps) : null);
+  const doors = $derived(doorsOf(ps, root));
+  const doorPx = $derived(badgeSize(themeState.current.labelMinPx, world.cam.k * scene.frame.s));
+  const doorTime = $derived(view.still ? 0 : view.time);
+  const doorLabel = (d: Door) => tr(`door.${d.kind}`);
+  /** Label widths per 1 px of font, measured once per language and theme (not at every zoom step). */
+  const perPx = $derived.by(() => {
+    void themeState.current.id;
+    return Object.fromEntries((['dive', 'expand', 'swap'] as const).map((k) => [k, textBox(tr(`door.${k}`), 100, 'middle', 0.6, '--label-font').w / 100]));
+  });
+  const labelW = (d: Door) => perPx[d.kind] * doorPx;
+  const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW));
+  const doorTarget = (d: Door) => {
+    const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
+    if (l) return { d: curvePath(l) };
+    const n = ps.nodes.find((k) => k.id === d.id)!;
+    return { x: n.x, y: n.y, size: n.size };
+  };
 </script>
+
+{#snippet door(d: Door, i: number, part: 'glow' | 'badge')}
+  <A.Hint kind={d.kind} {part} x={d.at.x} y={boxes[i].y} label={doorLabel(d)} labelW={labelW(d)} labelled={boxes[i].labelled}
+    size={doorPx} hot={lit || hot === d.id} target={doorTarget(d)} time={doorTime} />
+{/snippet}
 
 <g class="scene scene-{ps.key}">
   <A.Backdrop kind={root ? 'root' : 'group'} orient={view.orient} w={W.w} h={W.h} time={view.time} />
@@ -41,10 +71,13 @@
       <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} />
     </g>
   {/each}
+  {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
   {#each ps.nodes as n (n.id)}
     {@const art = nodeArt[n.node.id]}
+    {#snippet inside()}<Cutaway {route} node={n} />{/snippet}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
-      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} />
+      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id}
+        inside={n.kind === 'group' ? inside : null} hollow={art?.hollow ?? null} />
     </g>
   {/each}
   {#each ps.nodes as n (n.id)}
@@ -76,17 +109,8 @@
       </g>
     {/each}
   {/if}
-  {#each ps.links.filter((l) => l.dive && l.alpha > 0.5) as l (l.id)}
-    {@const m = bezier(l, 0.5)}
-    <A.Hint kind="dive" x={m.x} y={m.y} time={view.time} />
-  {/each}
-  {#each ps.nodes.filter((n) => n.kind === 'group' && n.alpha > 0.5) as n (n.id)}
-    <A.Hint kind="expand" x={n.x + n.size * 0.36} y={n.y - n.size * 0.26} time={view.time} />
-  {/each}
-  {#if swapAt}
-    <g class="swap-hint"><A.Hint kind="swap" x={swapAt.x + swapAt.size * 0.36} y={swapAt.y - swapAt.size * 0.36} time={view.time} /></g>
-  {/if}
   {#each packets as p (p.id)}
     <A.Packet kind={p.kind} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} />
   {/each}
+  {#each doors as d, i (d.id)}{@render door(d, i, 'badge')}{/each}
 </g>

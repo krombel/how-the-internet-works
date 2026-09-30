@@ -108,6 +108,9 @@ export async function loadTheme(id: string) {
 }
 
 // ------------------------------------------------------------------ view (shared with scenes)
-export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null }>({
-  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null,
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+/** `still`: the reader prefers reduced motion (decorative motion, like the doors' breathing, stands still). */
+export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean }>({
+  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches,
 });
+calm.addEventListener('change', () => (view.still = calm.matches));

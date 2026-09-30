@@ -13,9 +13,9 @@
   "ui.soundOn": "Sound on",
   "ui.soundOff": "Sound off – tap to turn on",
   "hint.zoomOut": "Pinch or scroll out to go back",
-  "hint.overview": "Tap a magnifier to look inside, or a parcel to follow it. Swipe to walk along.",
+  "hint.overview": "Tap a parcel to follow it. Swipe to walk along.",
   "hint.dive": "Tap the magnifier to look inside",
-  "hint.expand": "Tap it to unfold what’s inside",
+  "hint.expand": "Tap it to open it up and see what’s inside",
   "hint.step": "Swipe or use the arrows to walk along",
   "peek.close": "Stop following",
   "peek.where": "From {from} to {to}",
@@ -30,5 +30,10 @@
   "nav.above": "Layer above",
   "hint.layer": "Swipe up or down to change layer. Pinch or scroll out to go back.",
   "peek.dive": "Tap a magnifier to look inside a layer",
-  "peek.look": "Look inside: {name}"
+  "peek.look": "Look inside: {name}",
+  "door.dive": "Look inside",
+  "door.expand": "Open up",
+  "door.swap": "Change",
+  "explore.title": "What can I explore?",
+  "explore.short": "Explore"
 }
