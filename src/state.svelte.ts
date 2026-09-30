@@ -3,7 +3,7 @@
 import type { Level, Orient } from './define';
 import type { Viewport } from './engine/camera';
 import { sfx } from './engine/sound';
-import { clearMeasureCache } from './engine/svg';
+import { clearMeasureCache, textBox } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
 import { firstOf, languages, loadDiveStrings as loadDives, lookup, lookupLevel, packs } from './model/strings';
@@ -51,6 +51,8 @@ class Nav {
 export const nav = new Nav();
 /** Display name of a hop (an instance of a node). */
 export const nameOf = (h: Hop | string) => tr(`node.${typeof h === 'string' ? nav.route.hops[h]?.node.id ?? h : h.node.id}.name`);
+/** How wide a device's name is drawn, at its authored 28 units (in this language and theme). */
+export const nameW = (n: { node: { id: string } }) => textBox(tr(`node.${n.node.id}.name`), 28, 'middle', 0.6, '--label-font').w;
 /** How the text refers to the reader's own device ("your phone"): the node's `yours` string, else its name. */
 export const yours = (h: Hop) => lookup(loc.lang, `node.${h.node.id}.yours`) ?? nameOf(h);
 /** Strings for an item in the current route: the places and segments may override the item's own text. */

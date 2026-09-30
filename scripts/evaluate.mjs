@@ -1,7 +1,7 @@
-// App evaluation: screenshots (desktop + portrait phone) of the key places, dives, layer dives, languages and
-// a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame timings (idle, zoom flights, a
-// 3-level dive, catching and stepping a packet, the place morph, opening a layer dive from the peek and stepping up the
-// stack) at 1× and 6× CPU throttle.
+// App evaluation: screenshots (desktop + portrait phone, and a few short-landscape phone) of the key places, dives,
+// layer dives, languages and a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame
+// timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
+// morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
 // Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf] [--style=id]
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
 import { chromium } from 'playwright';
@@ -16,7 +16,7 @@ const STYLES = flag('style')
   ? [flag('style')]
   : readdirSync('content/themes').filter((d) => existsSync(`content/themes/${d}/meta.json`))
       .sort((a, b) => JSON.parse(readFileSync(`content/themes/${a}/meta.json`)).order - JSON.parse(readFileSync(`content/themes/${b}/meta.json`)).order);
-const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true } };
+const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true }, short: { w: 844, h: 390, dpr: 2, touch: true } };
 // GPU-backed headless where available (macOS: Metal via ANGLE); CPU swiftshader otherwise.
 const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'];
 
@@ -105,6 +105,19 @@ for (const style of STYLES) {
       r.flyDeep = await sample(p, cdp, 2400, () => go({ path: ['internet', 'home-cabinet'] }));
       await settle(p);
       r.deepIdle = await sample(p, cdp, 1500);
+      // sideways at dive level: zoom out, travel the path, zoom in. Two quick steps (access → metro → backbone fibre)
+      // join into one glide; then the long-haul and metro fibre idle.
+      r.travelInternet = await sample(p, cdp, 4200, async () => {
+        await p.keyboard.press('ArrowRight'); await p.waitForTimeout(350); await p.keyboard.press('ArrowRight');
+      });
+      await settle(p);
+      r.backboneIdle = await sample(p, cdp, 1500);
+      await go({ path: ['internet', 'cabinet-backhaul'] }); await settle(p);
+      r.metroIdle = await sample(p, cdp, 1500);
+      // and on the overview: the Wi‑Fi dive to the copper dive, past the access point
+      await go({ path: ['phone-ap'] }); await settle(p);
+      r.travelRoot = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
+      await settle(p);
       await go({ path: [] }); await settle(p);
       // catch a packet (traffic pauses), then step it two hops on
       r.catchStep = await sample(p, cdp, 2400, async () => {
@@ -140,7 +153,7 @@ for (const style of STYLES) {
   if (ONLY !== 'perf') {
     // 3. screenshots
     const shots = [];
-    for (const view of Object.keys(VIEWS)) {
+    for (const view of ['desktop', 'phone']) {
       shots.push({ view, where: 'home/watch-video', name: `home-${view}` });
       shots.push({ view, where: 'street/watch-video', name: `street-${view}` });
       shots.push({ view, where: 'home/watch-video/phone-ap', name: `wifi-${view}` });
@@ -159,7 +172,8 @@ for (const style of STYLES) {
       shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
       // all the way down (issues #13, #18): the link envelopes and the signals under them
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
-      shots.push({ view, where: 'home/watch-video/internet/core-ixp', name: `backbone-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/bng-core', name: `backbone-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/cabinet-backhaul', name: `metro-${view}` });
       shots.push({ view, where: 'home/watch-video/ap~wifi', name: `wifi-frame-${view}` });
       shots.push({ view, where: 'home/watch-video/router~ethernet', name: `ethernet-me-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/cabinet~ethernet', name: `ethernet-bridge-${view}` });
@@ -168,6 +182,12 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/router~gpon', name: `gpon-frame-${view}` });
       shots.push({ view, where: 'street/watch-video/phone~nr', name: `nr-frame-${view}` });
     }
+    // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
+    for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
+      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone']])
+      shots.push({ view: 'short', where, name: `${name}-short` });
+    shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=nerd', name: 'backbone-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=nerd', name: 'gpon-nerd-phone' });
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', name: 'home-nerd-desktop' });

@@ -8,9 +8,10 @@
   import type { LivePacket } from '../engine/packets';
   import { nodeArt, placeBackdrops } from '../model/components';
   import { badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
-  import type { PathScene, SNode } from '../model/layout';
+  import { labelY, type PathScene, type SNode } from '../model/layout';
+  import { diveRuns } from '../model/tree';
   import type { Route } from '../model/resolve';
-  import { loc, nameOf, routeKeys, themeState, tr, trFirst, view } from '../state.svelte';
+  import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, view } from '../state.svelte';
   import { getScene, getWorld } from './ctx';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
@@ -28,11 +29,10 @@
   const A = $derived(themeState.current.art);
   const nerd = $derived(loc.level === 'nerd');
   const backdrops = $derived(places ?? route.slots.map((s) => ({ id: s.place, alpha: 1, dx: 0 })));
-  const labelY = (n: SNode) => (n.label === 'above' ? n.y - n.size / 2 - 4 : n.y + n.size / 2 + 30);
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
-  const doors = $derived(doorsOf(ps, root));
+  const doors = $derived(doorsOf(ps, root, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW));
   const doorPx = $derived(badgeSize(themeState.current.labelMinPx, world.cam.k * scene.frame.s));
   const doorTime = $derived(view.still ? 0 : view.time);
   const doorLabel = (d: Door) => tr(`door.${d.kind}`);
@@ -44,8 +44,7 @@
   const labelW = (d: Door) => perPx[d.kind] * doorPx;
   const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW));
   const doorTarget = (d: Door) => {
-    const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
-    if (l) return { d: curvePath(l) };
+    if (d.kind === 'dive') return { d: d.links.map((id) => curvePath(ps.links.find((k) => k.id === id)!)).join(' ') };
     const n = ps.nodes.find((k) => k.id === d.id)!;
     return { x: n.x, y: n.y, size: n.size };
   };

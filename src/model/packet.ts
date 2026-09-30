@@ -46,6 +46,10 @@ const hex = (n: number, digits: number) => `0x${(n >>> 0).toString(16).padStart(
 /** Travel order: the hop after chain hop `h` for a packet going `dir`. */
 export const nextHop = (h: number, dir: Dir) => (dir === 'up' ? h + 1 : h - 1);
 /** Stepping a caught packet `d` hops along its way (−1 = back where it came from); null past either end. */
+/** Stepping a caught packet is spatial, like every ◀ ▶ (look-and-feel): path scenes lay the chain out left → right
+ *  (portrait: bottom → top), so a request (up) moves along it on screen and a response against it. `s` is a screen
+ *  direction (+1 = right/up: a button, arrow key or swipe); returns the hop step (+1 = on) for `stepHop`. */
+export const hopStepFor = (dir: Dir, s: -1 | 1): -1 | 1 => (dir === 'up' ? s : s > 0 ? -1 : 1);
 export function stepHop(r: Route, h: number, dir: Dir, d: -1 | 1): number | null {
   const n = d > 0 ? nextHop(h, dir) : nextHop(h, dir === 'up' ? 'down' : 'up');
   return n >= 0 && n < r.chain.length ? n : null;

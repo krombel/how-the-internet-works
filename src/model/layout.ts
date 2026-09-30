@@ -47,6 +47,8 @@ export interface PathScene {
   stops: string[];
 }
 
+/** The baseline of a device's name (28 px text, centred on it), above or below its art. */
+export const labelY = (n: SNode) => (n.label === 'above' ? n.y - n.size / 2 - 4 : n.y + n.size / 2 + 30);
 /** The device you start from (it carries the "where are you / what are you doing" badge). */
 export const startNode = (ps: PathScene) => ps.nodes.find((n) => n.kind === 'hop' && n.hop.slot !== null && n.hop.index === 0);
 

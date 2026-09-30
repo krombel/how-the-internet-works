@@ -9,12 +9,16 @@ export interface GestureHandlers {
 }
 
 const FLICK_MS = 320, FLICK_PX = 45, FLICK_V = 0.35; // px/ms
+/** A wheel stream ends after this long without an event. */
+const WHEEL_END_MS = 160;
 
+/** Returns `interrupt()`: something else took the camera (a step, a key, a link), so the wheel stream or drag in
+ *  progress is over without an `onEnd`, and the rest of it (e.g. a trackpad's momentum) is ignored until it pauses. */
 export function attachGestures(el: HTMLElement, cam: Zoomable, h: GestureHandlers = {}) {
   el.style.touchAction = 'none';
   const pts = new Map<number, { x: number; y: number }>();
   let down: { x: number; y: number; t: number; moved: boolean; multi: boolean } | null = null;
-  let wheelTimer = 0;
+  let wheelTimer = 0, wheelStale = false;
   const local = (e: { clientX: number; clientY: number }) => {
     const r = el.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -22,14 +26,18 @@ export function attachGestures(el: HTMLElement, cam: Zoomable, h: GestureHandler
 
   el.addEventListener('wheel', (e) => {
     e.preventDefault();
+    if (wheelStale) return endWheel(() => (wheelStale = false));
     if (!wheelTimer) { cam.stop(); h.onStart?.(); }
     const p = local(e);
     const scale = e.deltaMode === 1 ? 20 : e.deltaMode === 2 ? 400 : 1;
     const factor = Math.exp(-e.deltaY * scale * (e.ctrlKey ? 0.01 : 0.002));
     cam.zoomAt(factor, p.x, p.y);
-    clearTimeout(wheelTimer);
-    wheelTimer = window.setTimeout(() => { wheelTimer = 0; h.onEnd?.(); }, 160);
+    endWheel(() => h.onEnd?.());
   }, { passive: false });
+  const endWheel = (then: () => void) => {
+    clearTimeout(wheelTimer);
+    wheelTimer = window.setTimeout(() => { wheelTimer = 0; then(); }, WHEEL_END_MS);
+  };
 
   el.addEventListener('pointerdown', (e) => {
     if ((e.target as Element).closest?.('[data-ui]')) return;
@@ -74,4 +82,12 @@ export function attachGestures(el: HTMLElement, cam: Zoomable, h: GestureHandler
   };
   el.addEventListener('pointerup', up);
   el.addEventListener('pointercancel', up);
+
+  return {
+    interrupt() {
+      if (wheelTimer) { wheelStale = true; endWheel(() => (wheelStale = false)); }
+      pts.clear();
+      down = null;
+    },
+  };
 }

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { caughtSpot } from '../engine/packets';
 import { pathScene } from './layout';
-import { hopAhead, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
+import { hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
 import { resolveRoute, type Route } from './resolve';
-import { hopScenePath } from './tree';
+import { content } from './registry';
+import { chainOf, childrenOf, hopScenePath, sceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
@@ -155,6 +156,26 @@ describe('catching and stepping a packet', () => {
     expect(stepHop(home, 0, 'up', -1)).toBeNull();
     expect(stepHop(home, home.chain.length - 1, 'up', 1)).toBeNull();
     expect(stepHop(home, 0, 'down', 1)).toBeNull();
+  });
+
+  it('steps spatially: the button, key or swipe pointing the way the packet moves on screen takes it on', () => {
+    // a request moves right (portrait: up) along the chain, a response left (down): ▶ is "on" for one, ◀ for the other
+    expect([hopStepFor('up', 1), hopStepFor('up', -1), hopStepFor('down', 1), hopStepFor('down', -1)]).toEqual([1, -1, -1, 1]);
+    expect(stepHop(home, 3, 'down', hopStepFor('down', -1))).toBe(2);
+    // …which holds because every path scene lays its chain out left → right (portrait: bottom → top)
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      const walk = (path: string[]): void => {
+        const ref = sceneRef(r, path)!;
+        for (const o of ['landscape', 'portrait'] as const) {
+          const { pts } = chainOf(r, ref.kind === 'path' ? ref.group : null, o), a = pts[0], z = pts[pts.length - 1];
+          if (o === 'landscape') expect(z.x, `${place} ${path}`).toBeGreaterThan(a.x);
+          else expect(z.y, `${place} ${path}`).toBeLessThan(a.y);
+        }
+        for (const c of childrenOf(r, ref)) if (c.kind === 'expand') walk([...path, c.step]);
+      };
+      walk([]);
+    }
   });
 
   it('catches a packet at the hop it is heading to, unless only the one behind it is drawn', () => {

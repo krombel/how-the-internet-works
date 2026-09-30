@@ -260,7 +260,8 @@ tokens, so they restyle with each style for free (see the peek screenshots).
 Tapping the × button, pressing Esc or tapping empty space ends the follow, and the camera flies back.
 
 > **Since issue #17** following is replaced by **pause, catch and step**: pause freezes the traffic, a tapped packet
-> waits at a hop, and ◀ ▶ step it along its path. The peek shows the packet as it leaves that hop, with what the hop
+> waits at a hop, and ◀ ▶ step it along its path. They are spatial: the button pointing the way the packet moves on
+> screen (a request ▶, the video coming back ◀; ▲ / ▼ in portrait) takes it on and is the filled one. The peek shows the packet as it leaves that hop, with what the hop
 > used (soft yellow, `--env-used`) and changed (struck-through old value → new, `--env-change`), kid fields only or
 > every header field for nerds, and a Details protocol tree. See [architecture](architecture.md#pause-catch-and-step-issue-17).
 
@@ -288,6 +289,16 @@ always muted again on reload.
   level. A slow drag still pans. The ◀ ▶ buttons and the arrow keys do the same.
   - The overview's stops are phone → Wi-Fi → AP → cable → router → fibre → internet.
   - The sub-path's stops are its hops. At dive level, flicking moves between Wi-Fi and fibre.
+  - At dive level the camera doesn't jump from one dive to the next: it **zooms out, travels along the path and
+    zooms back in** (issue #36), so you see the device between the two links, where the medium changes. The
+    highlight hops link → device → link on the way. It's calm on purpose (about 3 s to a neighbour): the
+    camera slows past each device, a small pill there names the change ("Wi‑Fi → Cable"), and a pill at the
+    bottom says where from and to. Quick repeated steps join into one, slightly quicker glide. With
+    `prefers-reduced-motion` it cuts straight to the next dive.
+  - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
+    street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
+    looks different, instead of stepping through six identical "light in a glass thread" dives. The run has one
+    magnifier, on its links and never over a device or its name (the run's glow shows what it covers), and its caption says what it covers ("3 stretches · via ISP core and Internet exchange").
   - The buttons point where the camera will go, so they are not mirrored in RTL.
 - **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas. The chrome buttons are
   36–40 px on a phone so they fit on two rows. That's fine for grown-ups, but a bit small for the youngest.

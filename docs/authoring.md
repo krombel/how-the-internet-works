@@ -130,6 +130,9 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 - Strings: `name` (the link label), `kid`/`nerd`, and optionally `tag`.
 - Every technology needs a `dive` (its signal: an existing scene with per-technology strings, or a new one), and every
   layer in its `stack` a layer dive, so a reader can always go all the way down (a content test checks this).
+- Consecutive links with the same technology (and the same dive) are **one sideways stop** at dive level: they are one
+  dive, with one magnifier on its links (placed clear of the devices and their names) and a "2 stretches · via …" line in its caption (issue #34). To make a stretch its own stop, give it its own technology
+  or its own `dive` (the undersea cable would be a `submarine` technology, not a backbone link with a note).
 
 ## Add a layer (issue #5)
 
@@ -191,6 +194,12 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   - `TagAt`
   - its own `art/*.svelte` and maths files
 - Strings: `title` (required) and `kid`/`nerd`. Per-technology variants such as `gpon.title` or `gpon.kid` win when the subject is that technology.
+  When one scene explains several technologies that can sit next to each other on a route, give each its own
+  `<tech>.title` and draw the difference: a reader steps from one stretch to the next and should see what changed (a
+  content test checks the titles differ). `fibre-light` picks a mode from `subject.link.tech` (`light.ts` › `modeOf`):
+  **access** (GPON: a splitter shares one thread with the street, the light coming home reaches every house, the houses
+  take turns going up), **metro** (DWDM colours with mux and demux) and **long haul** (the backbone: eight colours, a
+  booster every 80 km). Each mode is its own component with portrait, landscape and short-landscape layouts.
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
   the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it
   say what the signal is ("Electricity in copper").

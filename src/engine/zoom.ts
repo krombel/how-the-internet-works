@@ -1,7 +1,7 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
 import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
-import { fit, progress, smoothstep, type Cam, type Viewport } from './camera';
+import { TRAVEL, fit, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
@@ -38,6 +38,17 @@ export const kLimits = (r: Route, path: string[], vp: Viewport, o: Orient) => ({
   max: (fit(sceneInfo(r, path, o).fit, vp).k / DETAIL_SCALE) * 5,
 });
 
+/** Zoom progress u (0 = a parent's fit, 1 = its child's) over which a child fades in, and its parent fades out. */
+const FADE_IN: [number, number] = [0.45, 0.8];
+const HIDE: [number, number] = [0.6, 0.92];
+
+/** The zoom a sideways travel between children of `parent` glides at: progress `TRAVEL.u`, as deep into the parent as
+ *  it goes before any child starts to show (`FADE_IN`). The child's fit sets the scale of u. */
+export function travelK(r: Route, parent: string[], child: string[], vp: Viewport, o: Orient): number {
+  const k0 = fit(sceneInfo(r, parent, o).fit, vp).k, kd = fit(sceneInfo(r, child, o).fit, vp).k;
+  return k0 * (kd / k0) ** TRAVEL.u;
+}
+
 const union = (a: Rect, b: Rect): Rect => {
   const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
   return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
@@ -68,10 +79,10 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
         const cp = [...base, c.step];
         const { fit: f } = sceneInfo(r, cp, o);
         const { u, prox } = progress(cam, vp, k0, f, c.step === path[i] ? nearRect(r, cp, path, o) : f);
-        const a = smoothstep(0.45, 0.8, u) * prox;
+        const a = smoothstep(...FADE_IN, u) * prox;
         if (c.step === path[i]) next = a;
         m.set(keyOf(cp), a * reach);
-        hide = Math.max(hide, smoothstep(0.6, 0.92, u) * prox);
+        hide = Math.max(hide, smoothstep(...HIDE, u) * prox);
       }
       m.set(bk, (m.get(bk) ?? 0) * (1 - hide));
       reach *= next;

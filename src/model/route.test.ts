@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { normaliseChoice, resolveRoute } from './resolve';
 import { morphScene, pathScene } from './layout';
-import { childrenOf, downFrom, frameOf, layerPath, linkOut, sceneRef, sideways, upFrom, validPrefix } from './tree';
+import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, downFrom, frameOf, layerPath, linkDivePath, linkOut, sceneRef, sideways, travelOf, upFrom, validPrefix } from './tree';
+import { DETAIL_SCALE, WORLD_SIZE, bezier } from '../engine/geometry';
 import { formatHash, normaliseLoc, parseHash } from './location';
 import { content, type Content } from './registry';
 import { packetOn } from './packet';
@@ -111,7 +112,8 @@ describe('scene tree', () => {
       { step: 'phone-ap', kind: 'dive' }, { step: 'ap-router', kind: 'dive' }, { step: 'router-internet', kind: 'dive' }, { step: 'internet', kind: 'expand' },
     ]);
     expect(notLayers(street, []).map((c) => c.step)).toEqual(['phone-cell-tower', 'cell-tower-internet', 'internet']);
-    expect(notLayers(street, ['internet']).map((c) => c.step)).toEqual(['cell-tower-mobile-core', 'mobile-core-core', 'core-ixp', 'ixp-cdn']);
+    // the backbone links are one stretch, one dive
+    expect(notLayers(street, ['internet']).map((c) => c.step)).toEqual(['cell-tower-mobile-core', 'mobile-core-core']);
   });
 
   it('resolves dives with their subject link', () => {
@@ -180,6 +182,87 @@ describe('scene tree', () => {
     expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router-internet'], i: 2, min: 0 });
     expect(sideways(h, ['router~ip'], null, 'portrait')).toEqual({ kind: 'layer', steps: ['router~ip', 'router~tcp'], i: 0, min: 0 });
     expect(sideways(h, ['internet', 'core~tcp'], null, 'landscape')).toEqual({ kind: 'layer', steps: ['core~ip', 'core~tcp'], i: 1, min: 0 });
+  });
+
+  it('makes a stretch of consecutive links into the same scene with the same technology one dive', () => {
+    const desk = resolveRoute({ activity: 'watch-video', places: ['desk'] });
+    const runs = (r: typeof home, group: string | null) => diveRuns(r, group, 'landscape').runs.map((x) => x.links.map((l) => l.id));
+    // access, metro, backbone: not six identical fibre dives
+    expect(runs(home, 'internet')).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-ixp', 'ixp-cdn']]);
+    expect(runs(street, 'internet')).toEqual([['cell-tower-mobile-core'], ['mobile-core-core', 'core-ixp', 'ixp-cdn']]);
+    // different scenes (or technologies) stay apart
+    expect(runs(street, null)).toEqual([['phone-cell-tower'], ['cell-tower-internet']]);
+    expect(runs(desk, null)).toEqual([['laptop-router'], ['router-internet']]);
+    // one child, one sideways stop, one step each way: its first link is its step, the rest are not steps of their own
+    expect(sideways(home, ['internet', 'cabinet-backhaul'], null, 'portrait')).toMatchObject({ steps: ['home-cabinet', 'cabinet-backhaul', 'bng-core'], i: 1 });
+    expect(sceneRef(home, ['internet', 'backhaul-bng'])).toBeNull();
+    expect(validPrefix(home, ['internet', 'backhaul-bng'])).toEqual(['internet']);
+    // the dive sits in the middle of the stretch (a single link's at its midpoint), and a travel lands there
+    for (const o of ['landscape', 'portrait'] as const) {
+      const ch = chainOf(home, 'internet', o), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
+      const metro = diveRuns(home, 'internet', o).byLink.get('backhaul-bng')!;
+      expect(metro.s).toBeCloseTo((s('cabinet-backhaul') + s('backhaul-bng')) / 2);
+      expect(travelOf(home, ['internet', 'home-cabinet'], ['internet', 'cabinet-backhaul'], o)).toEqual({ parent: ['internet'], b: metro.s });
+      expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'home-cabinet'], o)!.b).toBe(s('home-cabinet'));
+      const pf = frameOf(home, ['internet'], o), f = frameOf(home, ['internet', 'cabinet-backhaul'], o), W = WORLD_SIZE[o];
+      expect(f.x).toBeCloseTo(pf.x + (metro.at.x - (W.w * DETAIL_SCALE) / 2) * pf.s, 6);
+      expect(f.y).toBeCloseTo(pf.y + (metro.at.y - (W.h * DETAIL_SCALE) / 2) * pf.s, 6);
+    }
+    // a layer dive's way down to its signal finds the stretch
+    const backhaul = pathScene(home, 'internet', 'landscape').links.find((l) => l.id === 'backhaul-bng')!.link;
+    expect(linkDivePath(home, backhaul)).toEqual(['internet', 'cabinet-backhaul']);
+  });
+
+  it('draws a path scene\'s chain as one curve through its links and devices', () => {
+    for (const o of ['landscape', 'portrait'] as const) {
+      const ps = pathScene(home, 'internet', o), ch = chainOf(home, 'internet', o);
+      // device, link, device, …, in route order, along an increasing arc
+      expect(ch.items.map((x) => x.id)).toEqual(['home', ...ps.route.flatMap((id) => [id, ps.links.find((l) => l.id === id)!.to])]);
+      for (let i = 1; i < ch.items.length; i++) expect(ch.items[i].s).toBeGreaterThan(ch.items[i - 1].s);
+      // a link sits at its midpoint (where a single link's dive is anchored)
+      for (const id of ps.route) {
+        const l = ps.links.find((x) => x.id === id)!, p = chainAt(ch, ch.items.find((x) => x.id === id)!.s), m = bezier(l, 0.5);
+        expect(Math.hypot(p.x - m.x, p.y - m.y)).toBeLessThan(1e-6);
+      }
+      expect(chainItemAt(ch, ch.items[3].s + 1)).toBe(ch.items[3].id);
+      // links know their technology, devices have none
+      for (const it of ch.items) expect(it.tech).toBe(ps.links.find((l) => l.id === it.id)?.link.tech.id ?? null);
+    }
+  });
+
+  it('slows a glide down past each device, and moves on along the links', () => {
+    const ch = chainOf(home, null, 'landscape'), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
+    const a = s('phone-ap'), b = s('ap-router'), ap = s('ap'), r = (b - a) / 6;
+    for (const [from, to] of [[a, b], [b, a]]) {
+      const w = chainWarp(ch, from, to, 0.4, r), N = 400, u = (i: number) => i / N;
+      expect([w.at(0), w.at(1)].map((x) => +x.toFixed(6))).toEqual([from, to].map((x) => +x.toFixed(6)));
+      // monotonic, and the time spent near the access point is longer than plain arc length would give it
+      for (let i = 1; i <= N; i++) expect((w.at(u(i)) - w.at(u(i - 1))) * Math.sign(to - from)).toBeGreaterThanOrEqual(0);
+      const near = Array.from({ length: N + 1 }, (_, i) => w.at(u(i))).filter((x) => Math.abs(x - ap) < r / 2).length / (N + 1);
+      expect(near).toBeGreaterThan((r / Math.abs(to - from)) * 1.5);
+      // setting off on a plain stretch of link: quicker than the average
+      expect(w.rate0).toBeGreaterThan(1);
+    }
+    // no slow-down: plain arc length
+    expect(chainWarp(ch, a, b, 1, r).at(0.3)).toBeCloseTo(a + (b - a) * 0.3);
+  });
+
+  it('travels between sibling dives on the chain, and only those', () => {
+    const tv = travelOf(home, ['phone-ap'], ['ap-router'], 'landscape')!;
+    const ch = chainOf(home, null, 'landscape'), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
+    expect(tv).toEqual({ parent: [], b: s('ap-router') });
+    // setting off from where the camera is: on a link's dive, that link's midpoint; stopped part-way, the nearest point
+    expect(chainNear(ch, chainAt(ch, s('phone-ap')))).toBeCloseTo(s('phone-ap'), 6);
+    expect(Math.abs(chainNear(ch, { x: chainAt(ch, s('ap')).x, y: chainAt(ch, s('ap')).y + 3 }) - s('ap'))).toBeLessThan(5);
+    // passing the access point on the way
+    expect(chainItemAt(ch, (s('phone-ap') + tv.b) / 2)).toBe('ap');
+    expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'cabinet-backhaul'], 'portrait')).toMatchObject({ parent: ['internet'] });
+    const { home: h } = layerDives();
+    expect(travelOf(h, ['router~ip'], ['router~tcp'], 'landscape')).toBeNull();
+    expect(travelOf(home, ['router-internet'], ['internet', 'home-cabinet'], 'landscape')).toBeNull();
+    expect(travelOf(home, [], ['phone-ap'], 'landscape')).toBeNull();
+    expect(travelOf(home, ['phone-ap'], ['phone-ap'], 'landscape')).toBeNull();
+    expect(travelOf(home, ['router-internet'], ['internet'], 'landscape')).toBeNull();
   });
 
   it('goes down from a link envelope to its signal, next to it if it can', () => {
