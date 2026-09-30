@@ -14,6 +14,7 @@
   const S = strings('scene.fibre-light');
   const F = FIBRE, A = ACCESS;
   /** Channel 0 goes up (red), 1 comes home (blue). */
+  // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const colours = ['#e85d75', '#4aa3cf'];
   const routes = accessRoutes(), drops = accessDrops();
   const pulses = $derived(accessPulses(view.time, routes));
@@ -30,8 +31,8 @@
 
 <g transform={trackMatrix(o)}>
   {#each drops as d}
-    <polyline points={pts(d)} fill="none" stroke="#6b3f2a" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
-    <polyline points={pts(d)} fill="none" stroke="#d9f0e9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <polyline points={pts(d)} fill="none" stroke="var(--line)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+    <polyline points={pts(d)} fill="none" stroke="var(--glass)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
   {/each}
   <Fibre x0={A.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={view.time} />
   {#each routes.up as r}<Route points={r} channel={0} colour={colours[0]} />{/each}

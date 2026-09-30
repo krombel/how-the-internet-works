@@ -92,9 +92,9 @@
 <path d={portrait
   ? `M0 ${L.road.y - 125} C210 ${L.road.y - 200} 370 ${L.road.y - 80} 560 ${L.road.y - 145} C700 ${L.road.y - 190} 805 ${L.road.y - 130} 900 ${L.road.y - 160} L900 1600 H0 Z`
   : `M0 ${L.road.y - 95} C260 ${L.road.y - 165} 460 ${L.road.y - 65} 690 ${L.road.y - 130} C940 ${L.road.y - 200} 1180 ${L.road.y - 70} 1600 ${L.road.y - 170} L1600 900 H0 Z`}
-  fill="#d7e7a3" opacity="0.52" />
-<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="#f5d9a3" stroke="#6b3f2a" stroke-width="6" />
-<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="#fff7df" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
+  fill="var(--meadow)" opacity="0.52" />
+<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="var(--kraft)" stroke="var(--line)" stroke-width="6" />
+<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="var(--paper)" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
 <Node id={subject.ctx.client.node.id} x={L.client.x} y={L.client.y} size={L.client.size} />
 <Node id={subject.ctx.to.node.id} x={L.hop.x} y={L.hop.y} size={L.hop.size} focused />
 <Node id={subject.ctx.server.node.id} x={L.server.x} y={L.server.y} size={L.server.size} />
@@ -105,35 +105,35 @@
 {#if !compact}<Text x={roadNameX(L.hop.x, nameOf(subject.ctx.to), T.big)} y={namesY} text={nameOf(subject.ctx.to)} size={T.big * (portrait ? 0.92 : 1)} kind="big" />{/if}
 
 <!-- downstream broadcast card -->
-<Card x={c0.x} y={c0.y} w={c0.w} h={c0.h} tint="#72b8a5" active={!activeTurns} />
+<Card x={c0.x} y={c0.y} w={c0.w} h={c0.h} tint="var(--teal)" active={!activeTurns} />
 <Text x={c0.x + 34} y={c0.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.everyoneCompact' : 'label.everyone')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
 <g>
   {#if nerd && !compact && !portrait}
     <Text x={c0.x + 34} y={c0.y + 116} text={S('label.header')} size={T.text * 0.76} kind="small" anchor="start" />
     {#each fieldRows as row, i}
-      <rect x={c0.x + 28} y={c0.y + 134 + i * 47} width={down.fieldW - 34} height="38" rx="10" fill={i === 1 ? '#ffcf5d' : '#fff2d7'} stroke="#6b3f2a" stroke-width={i === 1 ? 4 : 2.5} />
+      <rect x={c0.x + 28} y={c0.y + 134 + i * 47} width={down.fieldW - 34} height="38" rx="10" fill={i === 1 ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === 1 ? 4 : 2.5} />
       <Text x={c0.x + 44} y={c0.y + 161 + i * 47} text={row} size={T.text * 0.7} kind={i === 1 ? 'node' : 'small'} anchor="start" />
     {/each}
   {/if}
   <Node id="cabinet" x={down.cab.x} y={down.cab.y} size={portrait ? 78 : compact ? 54 : 60} />
-  <path d={`M${down.cab.x} ${down.cab.y + (portrait ? 38 : 30)} L${down.splitter.x} ${down.splitter.y - 18}`} stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" opacity="0.85" />
+  <path d={`M${down.cab.x} ${down.cab.y + (portrait ? 38 : 30)} L${down.splitter.x} ${down.splitter.y - 18}`} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.85" />
   <g transform="translate({down.splitter.x} {down.splitter.y})">
-    <path d="M0 -24 L28 0 L0 24 L-28 0 Z" fill="#f5d9a3" stroke="#6b3f2a" stroke-width="5" />
-    <circle r="7" fill="#72b8a5" stroke="#6b3f2a" stroke-width="2" />
+    <path d="M0 -24 L28 0 L0 24 L-28 0 Z" fill="var(--kraft)" stroke="var(--line)" stroke-width="5" />
+    <circle r="7" fill="var(--teal)" stroke="var(--line)" stroke-width="2" />
   </g>
   {#if !compact}
-    <rect x={down.splitter.x + (portrait ? 48 : 42)} y={down.splitter.y - (portrait ? 19 : 17)} width={portrait ? 150 : 104} height={portrait ? 36 : 30} rx="10" fill="#fff7df" opacity="0.9" />
+    <rect x={down.splitter.x + (portrait ? 48 : 42)} y={down.splitter.y - (portrait ? 19 : 17)} width={portrait ? 150 : 104} height={portrait ? 36 : 30} rx="10" fill="var(--paper)" opacity="0.9" />
     <Text x={down.splitter.x + (portrait ? 62 : 54)} y={down.splitter.y + (portrait ? 8 : 7)} text={S('label.splitterShort')} size={T.text * 0.56} kind="small" anchor="start" />
   {/if}
   {#each down.houses as h, i}
-    <path d={`M${down.splitter.x} ${down.splitter.y + 13} L${h.x} ${h.y - h.size * 0.48}`} stroke={i === 2 ? '#e97845' : '#8a6043'} stroke-width={i === 2 ? 6 : 3.5} stroke-linecap="round" opacity={i === 2 ? 0.9 : 0.52} />
+    <path d={`M${down.splitter.x} ${down.splitter.y + 13} L${h.x} ${h.y - h.size * 0.48}`} stroke={i === 2 ? 'var(--accent)' : 'var(--muted)'} stroke-width={i === 2 ? 6 : 3.5} stroke-linecap="round" opacity={i === 2 ? 0.9 : 0.52} />
     {#if i === 2}
       <Node id="router" x={h.x} y={h.y} size={h.size * 1.1} />
     {:else}
       <House x={h.x} y={h.y} size={h.size} />
     {/if}
     {@const bw = Math.max(h.size * 0.72, houseNumbers[i].length * badgeSize * 0.62 + 14)}
-    <rect x={h.x - bw / 2} y={h.y + h.size * 0.62} width={bw} height={badgeSize * 1.35} rx="8" fill={i === 2 ? '#ffcf5d' : '#fff2d7'} stroke="#6b3f2a" stroke-width={i === 2 ? 4 : 3} />
+    <rect x={h.x - bw / 2} y={h.y + h.size * 0.62} width={bw} height={badgeSize * 1.35} rx="8" fill={i === 2 ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === 2 ? 4 : 3} />
     <Text x={h.x} y={h.y + h.size * 0.62 + badgeSize * 1.0} text={houseNumbers[i]} size={badgeSize} kind={i === 2 ? 'node' : 'small'} />
   {/each}
   {#each down.houses as h, i}
@@ -143,16 +143,16 @@
 </g>
 
 <!-- upstream time-slot card -->
-<Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="#bd6b87" active={activeTurns} />
+<Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="var(--berry)" active={activeTurns} />
 <Text x={c1.x + 34} y={c1.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.turnsCompact' : 'label.turns')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
 <g>
-  <rect x={up.strip.x} y={up.strip.y} width={up.strip.w} height={up.strip.h} rx="18" fill="#fff2d7" stroke="#6b3f2a" stroke-width="5" />
+  <rect x={up.strip.x} y={up.strip.y} width={up.strip.w} height={up.strip.h} rx="18" fill="var(--paper-2)" stroke="var(--line)" stroke-width="5" />
   {#each [0, 1, 2, 3] as slot}
     {@const x = slotX(up.strip, slot)}
     {@const w = up.strip.w / 4}
-    <rect x={x + 5} y={up.strip.y + 8} width={w - 10} height={up.strip.h - 16} rx="13" fill={slot === yourSlot ? '#ffcf5d' : '#f5d9a3'} stroke="#6b3f2a" stroke-width={slot === yourSlot ? 5 : 2.5} opacity={slot === yourSlot ? 1 : 0.72} />
+    <rect x={x + 5} y={up.strip.y + 8} width={w - 10} height={up.strip.h - 16} rx="13" fill={slot === yourSlot ? 'var(--sun)' : 'var(--kraft)'} stroke="var(--line)" stroke-width={slot === yourSlot ? 5 : 2.5} opacity={slot === yourSlot ? 1 : 0.72} />
     {#if nerd}
-      <path d={`M${x} ${up.strip.y + up.strip.h + 8} V${up.strip.y + up.strip.h + 20}`} stroke="#6b3f2a" stroke-width="3" />
+      <path d={`M${x} ${up.strip.y + up.strip.h + 8} V${up.strip.y + up.strip.h + 20}`} stroke="var(--line)" stroke-width="3" />
       <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={slotLabels[slot]} size={slotLabelSize} kind={slot === yourSlot ? 'node' : 'small'} />
     {:else}
       <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={portrait ? String(slot + 1) : `${S('label.slot')} ${slot + 1}`} size={slotLabelSize * 0.82} kind={slot === yourSlot ? 'node' : 'small'} />
@@ -164,27 +164,27 @@
   {/if}
   {#each [0, 1, 2, 3] as slot}
     {@const x = slotX(up.strip, slot) + up.strip.w / 8}
-    <circle cx={x} cy={dotY} r={slot === st.slot ? 11 : 7} fill={slot === yourSlot ? '#ffcf5d' : '#72b8a5'} stroke="#6b3f2a" stroke-width="3" opacity={slot === st.slot ? 1 : 0.5} />
+    <circle cx={x} cy={dotY} r={slot === st.slot ? 11 : 7} fill={slot === yourSlot ? 'var(--sun)' : 'var(--teal)'} stroke="var(--line)" stroke-width="3" opacity={slot === st.slot ? 1 : 0.5} />
   {/each}
   <g transform="translate({burstX} {burstY})">
-    <rect x={portrait ? -34 : -28} y={portrait ? -20 : -16} width={portrait ? 68 : 56} height={portrait ? 40 : 32} rx="10" fill={st.slot === yourSlot ? '#ffcf5d' : '#72b8a5'} stroke="#6b3f2a" stroke-width="4" />
-    <path d={portrait ? 'M-22 -5 H22 M-16 8 H16' : 'M-18 -4 H18 M-13 7 H13'} stroke="#fff7df" stroke-width="4" stroke-linecap="round" />
+    <rect x={portrait ? -34 : -28} y={portrait ? -20 : -16} width={portrait ? 68 : 56} height={portrait ? 40 : 32} rx="10" fill={st.slot === yourSlot ? 'var(--sun)' : 'var(--teal)'} stroke="var(--line)" stroke-width="4" />
+    <path d={portrait ? 'M-22 -5 H22 M-16 8 H16' : 'M-18 -4 H18 M-13 7 H13'} stroke="var(--paper)" stroke-width="4" stroke-linecap="round" />
   </g>
   {#if !nerd}
     {#each [0, 1, 2, 3] as slot}
       {@const x = slotX(up.strip, slot) + up.strip.w / 8}
       <g transform="translate({x} {lowerBurstY})" opacity={slot === st.slot ? 1 : 0.55}>
-        <path d="M0 -15 V15 M-14 -7 L14 7 M-14 7 L14 -7" stroke={slot === yourSlot ? '#e97845' : '#72b8a5'} stroke-width={slot === st.slot ? 7 : 5} stroke-linecap="round" />
-        <circle r={slot === st.slot ? 9 : 6} fill="#fff7df" stroke="#6b3f2a" stroke-width="3" />
+        <path d="M0 -15 V15 M-14 -7 L14 7 M-14 7 L14 -7" stroke={slot === yourSlot ? 'var(--accent)' : 'var(--teal)'} stroke-width={slot === st.slot ? 7 : 5} stroke-linecap="round" />
+        <circle r={slot === st.slot ? 9 : 6} fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
       </g>
     {/each}
     {#if !compact}
-      <Text x={slotX(up.strip, yourSlot) + up.strip.w / 8} y={lowerBurstY + (portrait ? 48 : 40)} text={S('label.yourTurnShort')} size={portrait ? 28 : 25} kind="big" colour="#a65435" />
+      <Text x={slotX(up.strip, yourSlot) + up.strip.w / 8} y={lowerBurstY + (portrait ? 48 : 40)} text={S('label.yourTurnShort')} size={portrait ? 28 : 25} kind="big" colour="var(--brick)" />
     {/if}
   {/if}
 </g>
 {#if !compact && nerd}
-  <rect x={c1.x + (portrait ? 30 : 48)} y={c1.y + c1.h - (portrait ? 88 : 62)} width={c1.w - (portrait ? 60 : 96)} height={portrait ? 64 : 42} rx="14" fill="#fff2d7" stroke="#6b3f2a" stroke-width="4" />
+  <rect x={c1.x + (portrait ? 30 : 48)} y={c1.y + c1.h - (portrait ? 88 : 62)} width={c1.w - (portrait ? 60 : 96)} height={portrait ? 64 : 42} rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="4" />
   <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - (portrait ? 47 : 34)} text={S('label.nerdGrant')} size={portrait ? 26 : 26} kind="big" />
 {/if}
 

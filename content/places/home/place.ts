@@ -22,20 +22,21 @@ export default definePlace({
   layout: {
     overview: {
       landscape: {
-        nodes: { phone: [230, 560, 210], ap: [640, 380, 190, 'above'], router: [1010, 580, 200] },
+        // everything indoors: the Wi-Fi box on the wall, so the radio hop crosses the room and not the roof
+        nodes: { phone: [230, 590, 210], ap: [590, 560, 180, 'above'], router: [1015, 600, 190] },
         links: {
-          // hand-drawn curves
-          'phone-ap': { curve: [[300, 500], [420, 360], [580, 400]], label: [-10, -58] },
-          'ap-router': { curve: [[690, 450], [790, 640], [920, 590]], label: [0, 62] },
-          'router-internet': { curve: [[1100, 570], [1250, 580], [1290, 430]], label: [40, 70] },
+          'phone-ap': { bend: -0.15, label: [0, 90] },
+          'ap-router': { bend: 0.18, label: [0, -50] },
+          'router-internet': { curve: [[1090, 590], [1250, 600], [1290, 430]], label: [40, 70] },
         },
       },
       portrait: {
-        nodes: { phone: [250, 1330, 250], ap: [650, 1030, 220], router: [260, 720, 230] },
+        // the Wi-Fi box and the phone downstairs, the router up in the attic, the fibre out through the roof
+        nodes: { phone: [220, 1400, 210], ap: [650, 1150, 170], router: [464, 885, 180, 'above'] },
         links: {
-          'phone-ap': { bend: 0.16, label: [-30, -64] },
-          'ap-router': { bend: 0.16, label: [-44, 56] },
-          'router-internet': { bend: 0.16, label: [-60, -50] },
+          'phone-ap': { bend: -0.2, label: [5, -50] },
+          'ap-router': { bend: 0.2, label: [200, 0] },
+          'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
       },
     },

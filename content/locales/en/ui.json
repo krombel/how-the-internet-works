@@ -12,6 +12,8 @@
   "ui.level": "Detail level",
   "ui.soundOn": "Sound on",
   "ui.soundOff": "Sound off – tap to turn on",
+  "ui.day": "Day – tap for night",
+  "ui.night": "Night – tap for day",
   "hint.zoomOut": "Pinch or scroll out to go back",
   "hint.overview": "Tap a parcel to catch it. Swipe to walk along.",
   "dive.stretches": "{n} stretches · via {via}",

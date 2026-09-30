@@ -22,21 +22,25 @@
 </g>
 
 <style>
-  .focus { fill: #fff6d7; stroke: #efb159; stroke-width: 7; opacity: .8; }
-  .storybook-device :global(.body), .storybook-device :global(.screen) { stroke: #6b3f2a; stroke-width: 6; stroke-linejoin: round; }
-  .storybook-device :global(.body) { fill: #f6b56b; }
-  .storybook-device :global(.peach) { fill: #ffd89c; }
-  .storybook-device :global(.orange) { fill: #f19a55; }
-  .storybook-device :global(.teal) { fill: #72b8a5; }
-  .storybook-device :global(.berry) { fill: #bd6b87; }
-  .storybook-device :global(.cloud) { fill: #fff7df; }
-  .storybook-device :global(.screen) { fill: #fff1d1; }
+  .focus { fill: var(--paper); stroke: var(--focus-ring); stroke-width: 7; opacity: .8; }
+  .storybook-device :global(.body), .storybook-device :global(.screen) { stroke: var(--line); stroke-width: 6; stroke-linejoin: round; }
+  .storybook-device :global(.body) { fill: var(--tan); }
+  .storybook-device :global(.peach) { fill: var(--peach); }
+  .storybook-device :global(.orange) { fill: var(--orange-soft); }
+  .storybook-device :global(.teal) { fill: var(--teal); }
+  .storybook-device :global(.berry) { fill: var(--berry); }
+  .storybook-device :global(.cloud) { fill: var(--paper); }
+  .storybook-device :global(.screen) { fill: var(--paper-2); }
   .storybook-device :global(.roof), .storybook-device :global(.line), .storybook-device :global(.wave), .smile {
-    fill: none; stroke: #6b3f2a; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
+    fill: none; stroke: var(--line); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
   }
   .storybook-device :global(.thin) { stroke-width: 4; opacity: .55; }
   .storybook-device :global(.wave) { stroke-width: 6; }
-  .storybook-device :global(.accent), .storybook-device :global(.button) { fill: #ffcf5d; stroke: #6b3f2a; stroke-width: 4; }
-  .storybook-device :global(.hi) { fill: #fff6d7; opacity: .55; }
-  .eye { fill: #6b3f2a; }
+  .storybook-device :global(.accent), .storybook-device :global(.button) { fill: var(--sun); stroke: var(--line); stroke-width: 4; }
+  /* at night the little lights (a device's accent dots) glow: a wide soft stroke under the fill, no filters */
+  :global(:root[data-mode='night']) .storybook-device :global(.accent) {
+    stroke: color-mix(in srgb, var(--lamp) 38%, transparent); stroke-width: 12; paint-order: stroke;
+  }
+  .storybook-device :global(.hi) { fill: var(--paper); opacity: .55; }
+  .eye { fill: var(--line); }
 </style>

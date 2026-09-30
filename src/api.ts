@@ -1,6 +1,6 @@
 // The one module Svelte content (node art, dive scenes, place backdrops, themes) imports, as `$core/api`.
 // Keeping content on this surface is what lets the engine change underneath it. (Data files use `$core/define`.)
-export type { Level, Orient } from './define';
+export type { Level, Mode, Orient } from './define';
 export type { Pt } from './engine/geometry';
 export type { LayerCtx } from './model/stack';
 export type { LayerSubject, LinkSubject } from './render/ctx';

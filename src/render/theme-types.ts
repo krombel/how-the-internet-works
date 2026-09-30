@@ -84,6 +84,9 @@ export interface Theme {
   themeColor: string;
   /** Colour scheme for native UI (scrollbars, form controls). */
   scheme: 'light' | 'dark';
+  /** The theme has a night mode: its tokens.css sets night tokens under `:root[data-mode='night']`, and
+   *  these replace `themeColor` and `scheme` at night. Without it the theme is always day and the ☀/🌙 toggle hides. */
+  night?: { themeColor: string; scheme: 'light' | 'dark' };
   motion: MotionPreset;
   timbre: Timbre;
   /** Labels never render smaller than this many CSS px on screen. */

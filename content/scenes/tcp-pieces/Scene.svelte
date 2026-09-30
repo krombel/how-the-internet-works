@@ -46,30 +46,30 @@
   const ticketY = $derived(portrait ? L.road.y - 285 : L.road.y - 225);
 </script>
 
-<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="#f5d9a3" stroke="#6b3f2a" stroke-width="6" />
-<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="#fff7df" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
+<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="var(--kraft)" stroke="var(--line)" stroke-width="6" />
+<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="var(--paper)" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
 
-<Card x={L.cards[0].x} y={L.cards[0].y} w={L.cards[0].w} h={L.cards[0].h} tint="#ffcf5d" />
+<Card x={L.cards[0].x} y={L.cards[0].y} w={L.cards[0].w} h={L.cards[0].h} tint="var(--sun)" />
 <Text x={L.cards[0].x + 34} y={L.cards[0].y + (portrait ? 82 : 72)} text={S('card.server')} size={L.text.title} kind="big" anchor="start" />
 <g>
   {#each [1, 2, 3, 4, 5, 6, 7, 8] as n}
     {@const p = serverBox(L.cards[0], n, portrait)}
     <Box x={p.x} y={p.y} n={n} size={L.box} opacity={n < win ? 0.42 : 1} glow={n === 5 && (beat === 'loss' || beat === 'resend')} />
   {/each}
-  <rect x={serverBox(L.cards[0], win, portrait).x - L.box * 0.68} y={serverBox(L.cards[0], win, portrait).y - L.box * 0.72} width={gap * 3 + L.box * 1.36} height={L.box * 1.45} rx="18" fill="none" stroke="#72b8a5" stroke-width="8" />
-  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(compact && beat === 'handshake' ? 'label.hello' : beat === 'handshake' ? 'label.handshake' : beat === 'send' ? 'label.window' : beat === 'loss' ? 'label.lost' : beat === 'resend' ? 'label.resend' : 'label.done')} size={L.text.label} kind="big" colour={beat === 'loss' || beat === 'resend' ? '#bd6b87' : '#3f8f7c'} />
+  <rect x={serverBox(L.cards[0], win, portrait).x - L.box * 0.68} y={serverBox(L.cards[0], win, portrait).y - L.box * 0.72} width={gap * 3 + L.box * 1.36} height={L.box * 1.45} rx="18" fill="none" stroke="var(--teal)" stroke-width="8" />
+  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(compact && beat === 'handshake' ? 'label.hello' : beat === 'handshake' ? 'label.handshake' : beat === 'send' ? 'label.window' : beat === 'loss' ? 'label.lost' : beat === 'resend' ? 'label.resend' : 'label.done')} size={L.text.label} kind="big" colour={beat === 'loss' || beat === 'resend' ? 'var(--berry)' : 'var(--teal-dark)'} />
 </g>
 
-<Card x={L.cards[1].x} y={L.cards[1].y} w={L.cards[1].w} h={L.cards[1].h} tint="#8fc97a" />
+<Card x={L.cards[1].x} y={L.cards[1].y} w={L.cards[1].w} h={L.cards[1].h} tint="var(--leaf)" />
 <Text x={L.cards[1].x + 34} y={L.cards[1].y + (portrait ? 82 : 72)} text={S('card.phone')} size={L.text.title} kind="big" anchor="start" />
 <g>
   {#each [1, 2, 3, 4, 5, 6, 7, 8] as n}
     {@const p = shelfBox(L.cards[1], n, portrait)}
-    <rect x={p.x - L.box / 2} y={p.y - L.box / 2} width={L.box} height={L.box} rx="12" fill="#fff7df" stroke={n === 5 && !shelfFilled(view.time, 5) ? '#bd6b87' : '#d0a06e'} stroke-width={n === 5 && !shelfFilled(view.time, 5) ? 7 : 4} stroke-dasharray={n === 5 && !shelfFilled(view.time, 5) ? '10 8' : undefined} opacity="0.85" />
+    <rect x={p.x - L.box / 2} y={p.y - L.box / 2} width={L.box} height={L.box} rx="12" fill="var(--paper)" stroke={n === 5 && !shelfFilled(view.time, 5) ? 'var(--berry)' : 'var(--kraft-dark)'} stroke-width={n === 5 && !shelfFilled(view.time, 5) ? 7 : 4} stroke-dasharray={n === 5 && !shelfFilled(view.time, 5) ? '10 8' : undefined} opacity="0.85" />
     {#if shelfFilled(view.time, n)}<Box x={p.x} y={p.y} n={n} size={L.box} />{/if}
   {/each}
   {#if shelfStatus}
-    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={shelfStatus} size={L.text.label} kind="big" colour={beat === 'ready' ? '#4f8b41' : '#6b3f2a'} />
+    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={shelfStatus} size={L.text.label} kind="big" colour={beat === 'ready' ? 'var(--leaf-dark)' : 'var(--line)'} />
   {/if}
 </g>
 
@@ -91,8 +91,8 @@
 
 {#if ctx.nat && !subject.open}
   <g transform="translate({L.hop.x + (portrait ? 138 : 145)} {L.hop.y - (portrait ? 40 : 45)}) rotate(-12)">
-    <circle r="42" fill="#fff7df" opacity="0.65" stroke="#6b3f2a" stroke-width="7" />
-    <path d="M30 30 L68 68" stroke="#6b3f2a" stroke-width="9" stroke-linecap="round" />
+    <circle r="42" fill="var(--paper)" opacity="0.65" stroke="var(--line)" stroke-width="7" />
+    <path d="M30 30 L68 68" stroke="var(--line)" stroke-width="9" stroke-linecap="round" />
   </g>
 {/if}
 

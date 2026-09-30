@@ -1,10 +1,10 @@
 <script lang="ts">
   // Top bar: breadcrumb, "What can I explore?", pause, style switcher (only when more than one theme is installed),
-  // language, kid/nerd, sound. On a short landscape screen it is one slim row, and the breadcrumb keeps its last two
+  // language, kid/nerd, day/night (when the theme has a night), sound. On a short landscape screen it is one slim row, and the breadcrumb keeps its last two
   // steps (the rest are in a menu behind "…").
   import { languages } from '../model/strings';
   import { go } from '../router';
-  import { loc, setLevel, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr } from '../state.svelte';
+  import { hasNight, loc, setLevel, setMode, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr, view } from '../state.svelte';
   import Icon from './Icon.svelte';
 
   let { crumbs, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
@@ -70,6 +70,11 @@
         <button class="btn" class:on={loc.level === lv} onclick={() => setLevel(lv)}>{tr(small ? `mode.${lv}.short` : `mode.${lv}`)}</button>
       {/each}
     </div>
+    {#if hasNight()}
+      <div class="card">
+        <button class="btn icon-btn" aria-pressed={view.mode === 'night'} title={tr(`ui.${view.mode}`)} onclick={() => setMode(view.mode === 'night' ? 'day' : 'night')}><Icon name={view.mode} /></button>
+      </div>
+    {/if}
     <div class="card">
       <button class="btn icon-btn" aria-pressed={settings.sound} title={tr(settings.sound ? 'ui.soundOn' : 'ui.soundOff')} onclick={() => setSound(!settings.sound)}><Icon name={settings.sound ? 'soundOn' : 'soundOff'} /></button>
     </div>

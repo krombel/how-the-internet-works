@@ -3,6 +3,10 @@
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
 // Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf] [--style=id]
+//   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
+//   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
+//                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
+//                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
 import { chromium } from 'playwright';
 import { gzipSync } from 'node:zlib';
@@ -12,6 +16,8 @@ const args = process.argv.slice(2);
 const flag = (k) => args.find((a) => a.startsWith(`--${k}=`))?.split('=')[1];
 const BASE = args.find((a) => !a.startsWith('--')) ?? 'http://127.0.0.1:5318/';
 const ONLY = flag('only');
+const MODE = flag('mode') === 'night' ? 'night' : 'day';
+const DIFF = flag('diff');
 const STYLES = flag('style')
   ? [flag('style')]
   : readdirSync('content/themes').filter((d) => existsSync(`content/themes/${d}/meta.json`))
@@ -28,7 +34,7 @@ const metrics = { ...old };
 
 async function open(view, url) {
   const v = VIEWS[view];
-  const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch });
+  const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch, colorScheme: MODE === 'night' ? 'dark' : 'light' });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => console.log('  pageerror', e.message));
   p.on('console', (m) => m.type() === 'error' && console.log('  console', m.text()));
@@ -39,7 +45,30 @@ async function open(view, url) {
 }
 const settle = (p) => p.waitForFunction(() => !window.__app.busy(), null, { timeout: 8000 }).then(() => p.waitForTimeout(400));
 /** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
-const url = (style, lang, where, q = '') => `${BASE}?style=${style}${q}#/${lang}/${where}`;
+const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
+
+/** In the page: compare two PNGs (base64). Returns the pixels that differ at all, those that differ visibly, the
+ *  largest difference (sum over RGB), and a diff image: `b` faded, changes in red. */
+async function comparePng([a, b]) {
+  const load = (d) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = `data:image/png;base64,${d}`; });
+  const [ia, ib] = await Promise.all([load(a), load(b)]);
+  const c = document.createElement('canvas');
+  c.width = ia.width; c.height = ia.height;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(ia, 0, 0);
+  const da = g.getImageData(0, 0, c.width, c.height).data;
+  g.drawImage(ib, 0, 0);
+  const img = g.getImageData(0, 0, c.width, c.height), db = img.data;
+  let n = 0, big = 0, max = 0;
+  for (let i = 0; i < da.length; i += 4) {
+    const d = Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]);
+    if (d) { n++; if (d > 24) big++; if (d > max) max = d; db[i] = 255; db[i + 1] = 0; db[i + 2] = 60; }
+    else { const v = 205 + (db[i] + db[i + 1] + db[i + 2]) / 15; db[i] = db[i + 1] = db[i + 2] = v; }
+  }
+  if (!n) return { n, big, max, total: da.length / 4, png: null };
+  g.putImageData(img, 0, 0);
+  return { n, big, max, total: da.length / 4, png: c.toDataURL('image/png').split(',')[1] };
+}
 
 /** Frame times over `ms` (rAF deltas) plus main-thread busy time per frame (CDP TaskDuration). */
 async function sample(p, cdp, ms, during) {
@@ -59,9 +88,10 @@ async function sample(p, cdp, ms, during) {
 
 for (const style of STYLES) {
   console.log(style);
-  const m = (metrics[style] = { ...(metrics[style] ?? {}) });
+  const key = MODE === 'night' ? `${style}-night` : style;
+  const m = (metrics[key] = { ...(metrics[key] ?? {}) });
 
-  if (ONLY !== 'shots') {
+  if (ONLY !== 'shots' && !DIFF) {
     // 1. bytes actually fetched from dist/ for an English start (js/css gzipped, fonts as-is)
     const files = new Set();
     const { ctx, p } = await open('phone', url(style, 'en', 'home/watch-video'));
@@ -205,17 +235,18 @@ for (const style of STYLES) {
     shots.push({ view: 'desktop', where: 'home/watch-video', picker: true, name: 'picker-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video', picker: true, name: 'picker-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', morph: true, name: 'morph-desktop' });
-    for (const s of shots) {
-      const { ctx, p } = await open(s.view, url(style, s.lang ?? 'en', s.where, s.q ?? ''));
+    const shoot = async (s, base = BASE) => {
+      const { ctx, p } = await open(s.view, url(style, s.lang ?? 'en', s.where, s.q ?? '', base));
       await settle(p);
-      // a fixed clock so packets sit in the same spots across runs
-      await p.evaluate(() => window.__app.setClock(5.2));
+      // a fixed clock so packets sit in the same spots across runs (held still for a pixel diff)
+      await p.evaluate((hold) => window.__app.setClock(5.2, hold), !!DIFF);
       if (s.catch) {
         await p.evaluate((k) => window.__app.catch(k), s.catch);
         await p.waitForSelector('.peek');
         for (let i = 0; i < (s.steps ?? 0); i++) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
         if (s.detail) await p.click('.peek header .chip');
-        await p.waitForTimeout(1500);
+        // (longer for a diff: the camera's tracking of the caught packet eases in exponentially)
+        await p.waitForTimeout(DIFF ? 4000 : 1500);
         if (s.grow) {
           // mid-flight into a layer dive: the peek's envelope on its way to becoming the dive's panel
           await p.evaluate((l) => window.__app.openLayer(l), s.grow);
@@ -229,11 +260,32 @@ for (const style of STYLES) {
         await p.evaluate(() => window.__app.go({ places: ['street'] }));
         await p.waitForTimeout(330);
       } else await p.waitForTimeout(700);
-      await p.screenshot({ path: `docs/img/app-${style}-${s.name}.jpg`, type: 'jpeg', quality: s.view === 'phone' ? 68 : 74 });
+      const shot = await p.screenshot(DIFF ? { type: 'png' }
+        : { path: `docs/img/app-${style}${MODE === 'night' ? '-night' : ''}-${s.name}.jpg`, type: 'jpeg', quality: s.view === 'phone' ? 68 : 74 });
       await ctx.close();
+      return shot;
+    };
+    if (!DIFF) {
+      for (const s of shots) await shoot(s);
+    } else {
+      mkdirSync('.tmp/diff', { recursive: true });
+      const cmp = await browser.newPage();
+      let same = 0;
+      for (const s of shots) {
+        // mid-transition frames depend on wall-clock timing, so they can't be compared pixel for pixel
+        if (s.morph || s.grow) continue;
+        const [a, b] = await Promise.all([shoot(s), shoot(s, DIFF)]);
+        const r = await cmp.evaluate(comparePng, [a.toString('base64'), b.toString('base64')]);
+        if (!r.n) { same++; continue; }
+        writeFileSync(`.tmp/diff/${MODE === 'night' ? 'night-' : ''}${s.name}.png`, Buffer.from(r.png, 'base64'));
+        console.log(`  ${s.name}: ${r.n} px differ (${((r.n / r.total) * 100).toFixed(3)} %), ${r.big} by more than 24/765, max ${r.max}`);
+      }
+      await cmp.close();
+      console.log(`  ${same} of ${shots.filter((s) => !s.morph && !s.grow).length} shots identical`);
+      continue;
     }
     console.log(`  ${shots.length} screenshots`);
   }
 }
-writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
+if (!DIFF) writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
 await browser.close();

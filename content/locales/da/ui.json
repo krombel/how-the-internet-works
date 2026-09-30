@@ -12,6 +12,8 @@
   "ui.level": "Detaljeniveau",
   "ui.soundOn": "Lyd til",
   "ui.soundOff": "Lyd fra – tryk for at slå til",
+  "ui.day": "Dag – tryk for nat",
+  "ui.night": "Nat – tryk for dag",
   "hint.zoomOut": "Knib eller scroll ud for at gå tilbage",
   "hint.overview": "Tryk på en pakke for at fange den. Swipe for at gå videre.",
   "dive.stretches": "{n} strækninger · via {via}",

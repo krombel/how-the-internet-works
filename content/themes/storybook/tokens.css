@@ -18,12 +18,75 @@
 
 :root[data-style='storybook'] {
   color-scheme: light;
-  --bg: #ffeccf;
+  /* The palette: every colour the art uses (content/**: var(--name), never a literal; see docs/authoring.md). */
   --sky: #ffeccf;
   --ink: #5a3827;
-  --muted: #8a6043;
+  --muted: #7f583e;
   --accent: #e97845;
-  --accent-ink: #fff7df;
+  --line: #6b3f2a;
+  --shade: #6b3f2a;
+  --brick: #a65435;
+  --bark: #7b543b;
+  --wood: #9a6b45;
+  --paper: #fff7df;
+  --paper-2: #fff2d7;
+  --paper-white: #fffaf0;
+  --white: #ffffff;
+  --kraft: #f5d9a3;
+  --kraft-edge: #e8be80;
+  --kraft-dark: #d0a06e;
+  --flap: #fbe4b8;
+  --flap-sealed: #ecca8e;
+  --kraft-edge-sealed: #c99b5e;
+  --peach: #ffd89c;
+  --tan: #f6b56b;
+  --tan-pale: #f2c287;
+  --sand: #d9a66b;
+  --clay: #d69b62;
+  --cardboard: #c58a54;
+  --stone: #d9cbb4;
+  --road: #cbb29a;
+  --road-top: #f3c989;
+  --trunk: #dcb071;
+  --wall-plain: #f3e2c7;
+  --roof-plain: #c9a58a;
+  --sun: #ffcf5d;
+  --mustard: #e4a342;
+  --focus-ring: #efb159;
+  --glow: #fff3c6;
+  --glow-pale: #fff0b3;
+  --glow-box: #fff0a6;
+  --orange: #f28f5b;
+  --orange-bright: #f08a4b;
+  --orange-soft: #f19a55;
+  --roof: #f28057;
+  --leaf: #8fc97a;
+  --leaf-dark: #4f8b41;
+  --leaf-ink: #315d27;
+  --leaf-pale: #dff0c8;
+  --mint: #e7f2df;
+  --meadow: #d7e7a3;
+  --hill-far: #b9d887;
+  --grass-far: #acd87e;
+  --grass-near: #78bd6d;
+  --teal: #72b8a5;
+  --blue: #4aa3cf;
+  --teal-dark: #3f8f7c;
+  --teal-deep: #4f8f82;
+  --glass: #d9f0e9;
+  --berry: #bd6b87;
+  --berry-dark: #bd4f74;
+  /* Lights: plain by day, lit at night */
+  --window: var(--paper-2);
+  --room: var(--paper-2);
+  --lamp: var(--sun);
+  /* The couriers' faces and shine: dark ink on their bright bodies in both modes */
+  --face: var(--line);
+  --shine: var(--paper);
+  /* What the chrome and the engine's art slots use */
+  --bg: var(--sky);
+  --accent-ink: var(--paper);
+  --heading: var(--brick);
   --ui-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --heading-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --label-font: 'Baloo 2 Variable', system-ui, sans-serif;
@@ -32,62 +95,152 @@
   --heading-weight: 800;
   --heading-transform: none;
   --heading-spacing: -0.01em;
-  --card: rgba(255, 247, 223, 0.94);
-  --card-edge: #6b3f2a;
+  --card: color-mix(in srgb, var(--paper) 94%, transparent);
+  --card-edge: var(--line);
   --card-edge-w: 3px;
   --card-radius: 24px;
-  --card-shadow: 0 9px 0 rgba(107, 63, 42, 0.15), 0 16px 30px rgba(107, 63, 42, 0.12);
+  --card-shadow: 0 9px 0 color-mix(in srgb, var(--shade) 15%, transparent), 0 16px 30px color-mix(in srgb, var(--shade) 12%, transparent);
+  --card-rim: color-mix(in srgb, var(--white) 42%, transparent);
   --card-blur: none;
   --btn: #ffe0a9;
-  --btn-on: #e97845;
-  --btn-on-ink: #fff7df;
+  --btn-on: #c24c17;
+  --btn-on-ink: var(--paper);
   --btn-radius: 999px;
-  --env-bg: #fff2d7;
-  --env-edge: #6b3f2a;
+  --env-bg: var(--paper-2);
+  --env-edge: var(--line);
   --env-radius: 18px;
-  --env-sealed: #f5d9a3;
-  --env-name: #a65435;
-  --env-dive: #72b8a5;
-  --door-dive: #3f8f7b;
-  --door-open: #d0673a;
+  --env-sealed: var(--kraft);
+  --env-name: #974c30;
+  --env-dive: var(--teal-dark);
+  --door-dive: #377c6c;
+  --door-open: #b4542b;
   --door-catch: #8a4f75;
-  --env-used: rgba(255, 207, 93, 0.55);
-  --env-change: #c4452a;
-  --link: #c45f3c;
+  --env-used: color-mix(in srgb, var(--sun) 55%, transparent);
+  --env-change: #ab3c25;
+  --link: #b35636;
   --lbl-weight: 800;
-  --lbl-halo: #fff7df;
+  --lbl-halo: var(--paper);
   --lbl-halo-w: 0.22em;
-  --scene-bg: #ffeccf;
-  --panel-bg: #fff1d1;
-  --panel-edge: #6b3f2a;
-  --dev-body: #ffd89c;
-  --dev-screen: #fff1d1;
-  --dev-edge: #6b3f2a;
-  --dev-accent: #ffcf5d;
-  --box: #ffd89c;
-  --box-edge: #6b3f2a;
-  --hint: #6b3f2a;
-  --hint-bg: #fff7df;
+  --scene-bg: var(--sky);
+  --panel-bg: var(--paper-2);
+  --panel-edge: var(--line);
+  --dev-body: var(--peach);
+  --dev-screen: var(--paper-2);
+  --dev-edge: var(--line);
+  --dev-accent: var(--sun);
+  --hint: var(--line);
+  --hint-bg: var(--paper);
   --tag-bg: #fff0bd;
-  --tag-edge: #6b3f2a;
-  --tag-ink: #5a3827;
-  --wave: #72b8a5;
-  --core: #fff7df;
-  --core-edge: #72b8a5;
-  --cladding: #d9f0e9;
-  --cladding-edge: #6b3f2a;
-  --prism: #d7f0ee;
-  --prism-edge: #6b3f2a;
+  --tag-edge: var(--line);
+  --tag-ink: var(--ink);
 }
 
+/* Night: the same picture book by moonlight. Deep indigo sky, dark paper, pale moonlit outlines and ink, and the
+   warm lights (sun-yellow, lamps, glows) stay warm. Overrides only; everything else follows the day tokens. */
+:root[data-style='storybook'][data-mode='night'] {
+  color-scheme: dark;
+  --sky: #1c2048;
+  --ink: #f6ead2;
+  --muted: #c9bddf;
+  --accent: #f39a64;
+  --line: #e2d4bc;
+  --shade: #05041a;
+  --brick: #f2a07a;
+  --bark: #c7a489;
+  --wood: #a9835f;
+  --paper: #2b2a55;
+  --paper-2: #33315f;
+  --paper-white: #3a3868;
+  --white: #d9d4f2;
+  --kraft: #5c4b52;
+  --kraft-edge: #806656;
+  --kraft-dark: #8e6f55;
+  --flap: #4c4159;
+  --flap-sealed: #6a5758;
+  --kraft-edge-sealed: #9c7d5d;
+  --peach: #5e4a74;
+  --tan: #a2704f;
+  --tan-pale: #7e6156;
+  --sand: #7d5f4b;
+  --clay: #8a6049;
+  --cardboard: #7a5a45;
+  --stone: #585671;
+  --road: #3b3a5c;
+  --road-top: #5b5063;
+  --trunk: #6d5749;
+  --wall-plain: #464169;
+  --roof-plain: #69556f;
+  --sun: #ffcf5d;
+  --mustard: #d99a3a;
+  --focus-ring: #f0b860;
+  --glow: #ffe8a3;
+  --glow-pale: #f5de9c;
+  --glow-box: #ffe28a;
+  --orange: #e5855a;
+  --orange-bright: #ee8a4e;
+  --orange-soft: #d58a55;
+  --roof: #b25f50;
+  --leaf: #3f7a5f;
+  --leaf-dark: #2b5a48;
+  --leaf-ink: #b3e0a6;
+  --leaf-pale: #2d4b45;
+  --mint: #2a4545;
+  --meadow: #34544d;
+  --hill-far: #2e4e5c;
+  --grass-far: #2c4f55;
+  --grass-near: #274a46;
+  --teal: #4c9f90;
+  --blue: #4a93c9;
+  --teal-dark: #2f7667;
+  --teal-deep: #3b7c73;
+  --glass: #29465a;
+  --berry: #b8698e;
+  --berry-dark: #c86e92;
+  --window: #ffd98a;
+  --room: #d9a36a;
+  --lamp: #ffe08a;
+  --face: #2a1d33;
+  --shine: #fff6e0;
+  --btn: #3c3968;
+  --btn-on: #f39a64;
+  --btn-on-ink: #1c2048;
+  --heading: #f5ac86;
+  --env-name: #f8bc9c;
+  --door-dive: #7fd3bf;
+  --door-open: #f7a577;
+  --door-catch: #e3a4d3;
+  --env-used: color-mix(in srgb, var(--sun) 16%, transparent);
+  --env-dive: var(--door-dive);
+  --env-change: #ff9f86;
+  --link: #ffb48c;
+  --card-rim: color-mix(in srgb, var(--white) 10%, transparent);
+  --tag-bg: #3a3460;
+}
+
+/* Day ↔ night (the engine switches inside a View Transition): night falls from the top of the sky, day comes up
+   from the horizon, over a soft edge. Without motion the switch is instant (the engine skips the transition). */
+:root[data-style='storybook']::view-transition-old(root) { animation: none; }
+:root[data-style='storybook']::view-transition-new(root) {
+  animation: 1.3s cubic-bezier(0.4, 0, 0.3, 1) both storybook-dusk;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 60%);
+  mask-size: 100% 250%;
+  mask-repeat: no-repeat;
+}
+:root[data-style='storybook'][data-mode='day']::view-transition-new(root) {
+  animation-name: storybook-dawn;
+  mask-image: linear-gradient(to top, black 40%, transparent 60%);
+}
+@keyframes storybook-dusk { from { mask-position: 0 100%; } to { mask-position: 0 0; } }
+@keyframes storybook-dawn { from { mask-position: 0 0; } to { mask-position: 0 100%; } }
+
 :root[data-style='storybook'] .card {
-  outline: 2px solid rgba(255, 255, 255, 0.42);
+  outline: 2px solid var(--card-rim);
   outline-offset: -7px;
 }
 
 :root[data-style='storybook'] .btn {
-  border: 2px solid #6b3f2a;
-  box-shadow: 0 3px 0 rgba(107, 63, 42, 0.18);
+  border: 2px solid var(--line);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--shade) 18%, transparent);
 }
 
 :root[data-style='storybook'] .seg .btn {
@@ -99,28 +252,23 @@
 :root[data-style='storybook'] .controls .seg .btn.on,
 :root[data-style='storybook'] .styles .btn.on,
 :root[data-style='storybook'] .icon-btn[aria-pressed='true'] {
-  border-color: #6b3f2a;
+  border-color: var(--line);
 }
 
 :root[data-style='storybook'] .swatch {
-  border-color: #6b3f2a;
+  border-color: var(--line);
   border-radius: 10px;
 }
 
-:root[data-style='storybook'] .caption h2,
-:root[data-style='storybook'] .peek h2 {
-  color: #a65435;
-}
-
 :root[data-style='storybook'] .env {
-  box-shadow: 0 3px 0 rgba(107, 63, 42, 0.12);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--shade) 12%, transparent);
 }
 
 @media (max-width: 699px), (orientation: landscape) and (max-height: 499px) {
   :root[data-style='storybook'] {
     --card-edge-w: 2px;
     --card-radius: 18px;
-    --card-shadow: 0 4px 0 rgba(107, 63, 42, 0.13), 0 8px 18px rgba(107, 63, 42, 0.10);
+    --card-shadow: 0 4px 0 color-mix(in srgb, var(--shade) 13%, transparent), 0 8px 18px color-mix(in srgb, var(--shade) 10%, transparent);
   }
 
   :root[data-style='storybook'] .chrome {

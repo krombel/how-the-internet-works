@@ -26,10 +26,10 @@ export default definePlace({
         },
       },
       portrait: {
-        nodes: { laptop: [300, 1320, 260], router: [560, 900, 230] },
+        nodes: { laptop: [300, 1345, 250], router: [464, 885, 180, 'above'] },
         links: {
-          'laptop-router': { bend: 0.16, label: [95, 10] },
-          'router-internet': { bend: 0.16, label: [-60, -50] },
+          'laptop-router': { bend: -0.2, label: [150, 0] },
+          'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
       },
     },
