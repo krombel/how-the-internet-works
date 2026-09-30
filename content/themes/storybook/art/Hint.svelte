@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // Doors in the storybook look. Each verb has its own mark and shape: look inside = a teal magnifier in a round lens,
-  // open up = a big orange pill with a door swinging open and its label, change = a berry square with arrows going
+  // open up = an orange lens with a door swinging open, change = a berry square with arrows going
   // round. Things that open "breathe" at rest (a dashed, glowing ring round a group, a pulsing ring round a magnifier), and
   // glow when pointed at or lit by "What can I explore?".
   import type { HintProps } from '$core/api';

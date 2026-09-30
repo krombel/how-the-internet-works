@@ -62,7 +62,7 @@ describe('doors', () => {
     expect(seen).not.toContain('expand:internet');
   });
 
-  it('labels "Open up" always, the rest when pointed at or lit, and keeps lit labels from covering each other', () => {
+  it('labels a door when pointed at or lit, and keeps lit labels from covering each other', () => {
     const size = 22, textW = () => 100;
     const doors: Door[] = [
       { kind: 'swap', id: 'a', at: { x: 0, y: 10 } },
@@ -70,15 +70,15 @@ describe('doors', () => {
       { kind: 'expand', id: 'c', at: { x: 500, y: 0 } },
     ];
     const rest = layoutDoors(doors, size, false, null, textW);
-    expect(rest.map((b) => b.labelled)).toEqual([false, false, true]);
-    expect(rest[2]).toMatchObject({ x: 500, y: 0 }); // centred on its spot
+    expect(rest.map((b) => b.labelled)).toEqual([false, false, false]);
     expect(rest[0]).toMatchObject({ x: 0, y: 10, w: rest[0].h });
     const hot = layoutDoors(doors, size, false, 'b', textW);
-    expect(hot.map((b) => b.labelled)).toEqual([false, true, true]);
+    expect(hot.map((b) => b.labelled)).toEqual([false, true, false]);
     expect(hot[1].x - hot[1].w / 2).toBeCloseTo(20 - hot[1].h / 2); // the pill starts at the mark
     expect(hot[0].y).toBe(10); // pointing never moves anything
     const lit = layoutDoors(doors, size, true, null, textW);
     expect(lit.every((b) => b.labelled)).toBe(true);
+    expect(lit[2]).toMatchObject({ x: 500, y: 0 }); // "Open up" is centred on its spot
     const overlap = (p: typeof lit[0], q: typeof lit[0]) => Math.abs(p.x - q.x) * 2 < p.w + q.w && Math.abs(p.y - q.y) * 2 < p.h + q.h;
     expect(overlap(lit[0], lit[1])).toBe(false);
     expect(lit[2].y).toBe(0);

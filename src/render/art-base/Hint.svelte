@@ -1,6 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // Doors: a round lens (look inside), a labelled pill (open up) and a rounded square (change), each with its mark,
+  // Doors: a round lens (look inside), a door (open up) and a rounded square (change), each with its mark,
   // coloured from the --hint / --hint-bg tokens. A group breathes an outline at rest; anything hot glows.
   import type { HintProps } from '../theme-types';
   let { kind, part, x, y, label, labelW, labelled, size, hot, target, time }: HintProps = $props();

@@ -29,7 +29,7 @@ The same mini-world is built in four swappable styles:
 | **Motion feel** | **Ease** | spring, stop-motion |
 | **Layout** | **Auto** (vertical path on portrait screens) | forced landscape / portrait |
 | **Lively packets** | **Off** (plain gliding couriers) | squash & stretch, anticipation, trails |
-| **Doors** (issue #19) | **One verb, one mark each**: *Look inside* (teal lens, magnifier), *Open up* (orange pill with a door, always labelled), *Change* (berry square, arrows); *Catch* is kept for packets. Things that open breathe at rest and glow when pointed at; a group shows the path inside it through its outline | three similar small round badges and a generic hint in the caption |
+| **Doors** (issue #19) | **One verb, one mark each**: *Look inside* (teal lens, magnifier), *Open up* (orange lens, a door), *Change* (berry square, arrows); *Catch* is kept for packets. Things that open breathe at rest and glow when pointed at; labels show when pointed at or with *What can I explore?* | three similar small round badges and a generic hint in the caption |
 
 ### What was kept
 
@@ -279,7 +279,7 @@ always muted again on reload.
 
 ### Touch, sideways and big targets
 
-- **Tap** a door to go down a level: a magnifier (*Look inside*) or the *Open up* pill. Tapping a device or link
+- **Tap** a door to go down a level: a magnifier (*Look inside*) or the *Open up* door. Tapping a device or link
   selects it as the current stop and shows its caption. The caption lists the doors as chips, and *What can I
   explore?* lights them all up with their labels (see "Doors" in [architecture.md](architecture.md)).
 - **Pinch or scroll** is continuous zoom. Zooming far enough out goes back up a level, as does the round ⌃

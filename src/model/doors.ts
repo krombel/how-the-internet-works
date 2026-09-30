@@ -23,14 +23,14 @@ export const badgeSize = (labelMinPx: number, sk: number) => Math.max(22, (label
 /** A badge's footprint in scene units (centre and size), and whether it shows its label. */
 export interface Badge { x: number; y: number; w: number; h: number; labelled: boolean }
 
-/** Where each door's badge goes, roughly as themes draw it: a mark about 2.4·size across at its spot; labelled (an
- *  'expand' always; every door while `lit`; the `hot` one) a pill that fits the label (`textW` measures it), centred
- *  on the spot for 'expand', else starting at the mark. While lit, pills that would cover each other are nudged apart
- *  up or down ('expand' ones stay put, the rest give way in order). */
+/** Where each door's badge goes, roughly as themes draw it: a mark about 2.4·size across at its spot; labelled (every
+ *  door while `lit`; the `hot` one) a pill that fits the label (`textW` measures it), centred on the spot for
+ *  'expand', else starting at the mark. While lit, pills that would cover each other are nudged apart up or down
+ *  ('expand' ones stay put, the rest give way in order). */
 export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: string | null, textW: (d: Door) => number): Badge[] {
   const h = size * 2.4;
   const boxes = doors.map((d): Badge => {
-    if (d.kind !== 'expand' && !lit && hot !== d.id) return { x: d.at.x, y: d.at.y, w: h, h, labelled: false };
+    if (!lit && hot !== d.id) return { x: d.at.x, y: d.at.y, w: h, h, labelled: false };
     const w = textW(d) + size * 3.2;
     return { x: d.kind === 'expand' ? d.at.x : d.at.x - h / 2 + w / 2, y: d.at.y, w, h, labelled: true };
   });

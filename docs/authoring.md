@@ -111,7 +111,7 @@ the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/hom
 
 `content/nodes/<id>/`:
 - `node.ts`: `kind` is `device`, or `network` for a group that unfolds into its own path scene (list it in the activity's `groups`). Add a default `role` and `learnMore`.
-- `art/Device.svelte`: optional; without it the theme draws a plain fallback body. Draw in a 200×200 box with the vocabulary classes: `body`, `peach`, `orange`, `teal`, `berry`, `cloud`, `screen`, `hi`, `button`, `accent`, `line`, `thin`, `wave`, `roof`. Export `face` if a face fits. For a `network` node, also export `hollow`: the outline of its body as one path `d`, so a theme can show the path inside it through it (the internet's cloud does this). Without it the theme uses the whole box.
+- `art/Device.svelte`: optional; without it the theme draws a plain fallback body. Draw in a 200×200 box with the vocabulary classes: `body`, `peach`, `orange`, `teal`, `berry`, `cloud`, `screen`, `hi`, `button`, `accent`, `line`, `thin`, `wave`, `roof`. Export `face` if a face fits.
 - `locales/en.json`:
   - `name` (required) and `kid`/`nerd` (the caption when it's the stop)
   - optionally `tag` (a small technical label in nerd mode) and `yours` ("your phone", used when this is the reader's device)

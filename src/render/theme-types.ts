@@ -3,7 +3,7 @@
 // ({ order, swatch }) is read eagerly for the style switcher; everything else loads on demand. A theme overrides any
 // subset of the art slots below; the rest fall back to src/render/art-base. Slots only draw engine things (sky, links
 // by look, packets, hints, labels…): devices, places and dives bring their own art in their content folders.
-import type { Component, Snippet } from 'svelte';
+import type { Component } from 'svelte';
 import type { Orient } from '../define';
 import type { Curve } from '../engine/geometry';
 import type { MotionPreset } from '../engine/motion';
@@ -23,10 +23,6 @@ export interface DeviceProps {
   /** 'path' = in a path scene; 'dive' = drawn big inside a dive scene. */
   context: 'path' | 'dive';
   focused: boolean;
-  /** A group node's cutaway: faint silhouettes of the path inside it, drawn in the 200×200 box. Themes draw it over
-   *  the body, clipped to `hollow` (the see-through outline the node art exports; the whole box if it has none). */
-  inside?: Snippet | null;
-  hollow?: string | null;
 }
 /** Links are drawn by their technology's look. */
 type LinkLook = 'radio' | 'cable' | 'fibre' | 'trunk';
@@ -47,8 +43,8 @@ export interface HintProps {
   x: number; y: number;
   /** The verb in the reader's language ("Look inside", "Open up", "Change"), and its width at `size` in --label-font. */
   label: string; labelW: number;
-  /** Show the label in a pill running on from the mark: always on 'expand'; on every door while "What can I explore?"
-   *  is on, or when hot. Keep the pill within about label width + 3.2·size by 2.4·size (the engine's tap target). */
+  /** Show the label in a pill running on from the mark (centred on the spot for 'expand'): on every door while "What
+   *  can I explore?" is on, or when hot. Keep the pill within about label width + 3.2·size by 2.4·size (the engine's tap target). */
   labelled: boolean;
   /** Label font size in scene units, clamped to a readable screen size; draw the badge in proportion to it. */
   size: number;
