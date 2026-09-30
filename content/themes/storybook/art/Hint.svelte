@@ -22,7 +22,7 @@
 
 {#if part === 'glow'}
   {#if !node}
-    {#if hot}<path d={'d' in target ? target.d : ''} fill="none" stroke="var(--sun-36b)" stroke-width={size * 1.8} stroke-linecap="round" opacity=".6" pointer-events="none" />{/if}
+    {#if hot}<path d={'d' in target ? target.d : ''} fill="none" stroke="var(--sun)" stroke-width={size * 1.8} stroke-linecap="round" opacity=".6" pointer-events="none" />{/if}
   {:else if kind === 'expand' || hot}
     <!-- a warm glow with a dashed ring round the thing that opens, breathing slowly; brighter when pointed at -->
     <g transform="translate({node.x} {node.y + node.size * 0.05})" pointer-events="none">
@@ -34,7 +34,7 @@
 {:else}
   <g class="hint" transform="translate({x} {y + bob}) scale({hot ? 1.12 : 1})" pointer-events="none">
     {#if kind === 'dive' && !hot}<circle cx={mx} r={R + R * 0.75 * pulse} fill="none" stroke="var(--glow)" stroke-width={size * 0.22} opacity={0.6 * (1 - pulse)} />{/if}
-    {#if hot}<rect x={x0 - size * 0.35} y={-R - size * 0.35} width={pw + size * 0.7} height={R * 2 + size * 0.7} rx={R + size * 0.35} fill="var(--sun-36b)" opacity=".75" />{/if}
+    {#if hot}<rect x={x0 - size * 0.35} y={-R - size * 0.35} width={pw + size * 0.7} height={R * 2 + size * 0.7} rx={R + size * 0.35} fill="var(--sun)" opacity=".75" />{/if}
     {#if labelled}
       <rect x={x0} y={-R + size * 0.2} width={pw} height={R * 2} rx={R} fill={INK} opacity=".18" />
       <rect x={x0} y={-R} width={pw} height={R * 2} rx={R} {fill} stroke={INK} stroke-width={size * 0.22} />

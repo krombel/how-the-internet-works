@@ -30,7 +30,7 @@
     <ellipse cx="0" cy="0" rx="18" ry="7" fill="var(--line)" opacity="0.3" />
   </g>
   <!-- pavement, kerb and road -->
-  <rect x="-40" y={ground} width={w + 80} height="34" fill="var(--pavement)" stroke="var(--line)" stroke-width="6" />
+  <rect x="-40" y={ground} width={w + 80} height="34" fill="var(--flap)" stroke="var(--line)" stroke-width="6" />
   <rect x="-40" y={ground + 34} width={w + 80} height="220" fill="var(--road)" stroke="var(--line)" stroke-width="6" />
   <path d={`M-40 ${ground + 104} H${w + 40}`} stroke="var(--paper)" stroke-width="8" stroke-dasharray="46 38" opacity="0.8" />
   <!-- a little car pootling along -->

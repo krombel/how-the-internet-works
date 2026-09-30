@@ -89,7 +89,7 @@
 
 {#snippet tinyDoorBox(x0: number, y0: number, scale = 1, vlan = false)}
   <g transform="translate({x0} {y0}) scale({scale})">
-    <rect x="-125" y="-70" width="250" height="140" rx="22" fill="var(--kraft-edge-d78)" stroke="var(--line)" stroke-width="6" />
+    <rect x="-125" y="-70" width="250" height="140" rx="22" fill="var(--kraft-edge)" stroke="var(--line)" stroke-width="6" />
     {#each [0, 1, 2, 3] as i}
       {@const lane = !vlan || i === 0 || i === 2}
       <rect x={-104 + i * 56} y="-22" width="42" height="70" rx="8" fill={vlan ? (lane ? 'var(--teal)' : 'var(--stone)') : 'var(--paper-2)'} stroke="var(--line)" stroke-width="4" opacity={vlan && !lane ? 0.55 : 1} />
@@ -194,7 +194,7 @@
 <Node id={ctx.server.node.id} x={L.ends[1].x} y={L.ends[1].y} size={L.ends[1].size} />
 
 <g>
-  <rect x={L.box.x} y={L.box.y} width={L.box.w} height={L.box.h} rx="28" fill="var(--kraft-edge-d78)" stroke="var(--line)" stroke-width="7" />
+  <rect x={L.box.x} y={L.box.y} width={L.box.w} height={L.box.h} rx="28" fill="var(--kraft-edge)" stroke="var(--line)" stroke-width="7" />
   <path d={`M${L.box.x + 28} ${L.box.y + 58} H${L.box.x + L.box.w - 28}`} stroke="var(--paper)" stroke-width="8" stroke-linecap="round" opacity="0.55" />
   {#each L.doors as d, i}
     {@const sameLane = layer !== 'vlan' || i === 0 || i === 2}

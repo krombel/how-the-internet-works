@@ -205,7 +205,7 @@
     <circle cx={card.x + 50} cy={py} r="6" fill="var(--line)" /><circle cx={card.x + card.w - 50} cy={py} r="6" fill="var(--line)" />
     <Text x={card.x + card.w / 2} y={py + T.text * 0.35} text={plate} size={T.text} kind="node" />
     {#if m.leg === 0 && act > 0.35}
-      <Text x={card.x + card.w / 2} y={sy} text={act > 0.6 && above ? fill(S('up'), { layer: LN(`${above}.name`, ctx.level) }) : S('match')} size={T.text} kind="big" colour="var(--leaf-dark-93a)" />
+      <Text x={card.x + card.w / 2} y={sy} text={act > 0.6 && above ? fill(S('up'), { layer: LN(`${above}.name`, ctx.level) }) : S('match')} size={T.text} kind="big" colour="var(--leaf-dark)" />
     {:else if m.leg === 1 && m.phase !== 'rest'}
       <Text x={card.x + card.w / 2} y={sy} text={S('write')} size={T.text} kind="big" colour="var(--brick)" />
     {/if}

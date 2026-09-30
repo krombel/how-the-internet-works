@@ -22,7 +22,7 @@
 </g>
 
 <style>
-  .focus { fill: var(--paper-6d7); stroke: var(--focus-ring); stroke-width: 7; opacity: .8; }
+  .focus { fill: var(--paper); stroke: var(--focus-ring); stroke-width: 7; opacity: .8; }
   .storybook-device :global(.body), .storybook-device :global(.screen) { stroke: var(--line); stroke-width: 6; stroke-linejoin: round; }
   .storybook-device :global(.body) { fill: var(--tan); }
   .storybook-device :global(.peach) { fill: var(--peach); }
@@ -30,13 +30,13 @@
   .storybook-device :global(.teal) { fill: var(--teal); }
   .storybook-device :global(.berry) { fill: var(--berry); }
   .storybook-device :global(.cloud) { fill: var(--paper); }
-  .storybook-device :global(.screen) { fill: var(--paper-1d1); }
+  .storybook-device :global(.screen) { fill: var(--paper-2); }
   .storybook-device :global(.roof), .storybook-device :global(.line), .storybook-device :global(.wave), .smile {
     fill: none; stroke: var(--line); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
   }
   .storybook-device :global(.thin) { stroke-width: 4; opacity: .55; }
   .storybook-device :global(.wave) { stroke-width: 6; }
   .storybook-device :global(.accent), .storybook-device :global(.button) { fill: var(--sun); stroke: var(--line); stroke-width: 4; }
-  .storybook-device :global(.hi) { fill: var(--paper-6d7); opacity: .55; }
+  .storybook-device :global(.hi) { fill: var(--paper); opacity: .55; }
   .eye { fill: var(--line); }
 </style>

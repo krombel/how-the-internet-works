@@ -6,7 +6,7 @@
 </script>
 
 <g class="storybook-link link-{look}" class:focused>
-  {#if focused}<path {d} fill="none" stroke="var(--glow-4c5)" stroke-width={look === 'trunk' ? 38 : 24} stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />{/if}
+  {#if focused}<path {d} fill="none" stroke="var(--glow)" stroke-width={look === 'trunk' ? 38 : 24} stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />{/if}
   {#if look === 'radio'}
     <path {d} fill="none" stroke="var(--line)" stroke-width="18" stroke-linecap="round" stroke-dasharray="1 25" stroke-dashoffset={dash} />
     <path {d} fill="none" stroke="var(--orange)" stroke-width="12" stroke-linecap="round" stroke-dasharray="1 25" stroke-dashoffset={dash} />

@@ -14,7 +14,7 @@
   <Text x={0} y={size * 0.16} text={`${n}`} size={size * 0.56} kind="big" colour="var(--line)" />
   {#if sealed}
     <g transform="translate({size * 0.31} {-size * 0.29}) rotate(-11)">
-      <circle r={size * 0.22} fill="var(--berry-dark-96e)" stroke="var(--line)" stroke-width="3.5" />
+      <circle r={size * 0.22} fill="var(--berry-dark)" stroke="var(--line)" stroke-width="3.5" />
       <path d="M{-size * 0.09} 0 C{-size * 0.03} {-size * 0.06} {size * 0.04} {-size * 0.06} {size * 0.09} 0 M0 {-size * 0.1} V{size * 0.1}" stroke="var(--paper)" stroke-width="2.8" stroke-linecap="round" fill="none" />
     </g>
   {/if}

@@ -102,7 +102,7 @@
   <Card x={E.x} y={E.y} w={E.w} h={E.h} tint="var(--berry)" />
   <text x={E.x + E.w / 2} y={E.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={L.text.head} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('eyeTitle')}</text>
   <g>
-    <rect x={E.x + 82} y={E.y + 78} width={E.w - 122} height={portrait ? 210 : 126} rx="18" fill="var(--paper-white-df3)" stroke="var(--line)" stroke-width="4" opacity="0.9" />
+    <rect x={E.x + 82} y={E.y + 78} width={E.w - 122} height={portrait ? 210 : 126} rx="18" fill="var(--paper-white)" stroke="var(--line)" stroke-width="4" opacity="0.9" />
     {#each PAM_LABELS as label, i}
       {@const yy = E.y + 88 + ((portrait ? 190 : 106) * i) / 4}
       <path d={`M${E.x + 82} ${yy} H${E.x + E.w - 40}`} stroke="var(--line)" stroke-width="2" opacity="0.14" />
@@ -113,7 +113,7 @@
     {/each}
     {#each [0, 1, 2, 3] as gap}
       {@const gy = E.y + 88 + ((portrait ? 190 : 106) * (gap + 0.5)) / 4}
-      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} ry={portrait ? 18 : 13} fill="var(--paper-white-df3)" opacity="0.52" />
+      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} ry={portrait ? 18 : 13} fill="var(--paper-white)" opacity="0.52" />
       <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} ry={portrait ? 18 : 13} fill="none" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="7 9" opacity="0.42" />
     {/each}
   </g>

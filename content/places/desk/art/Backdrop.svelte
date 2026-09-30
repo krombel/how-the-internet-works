@@ -11,6 +11,6 @@
 <Depth d={1.03}>
   <g stroke="var(--line)" stroke-width="7" stroke-linejoin="round">
     <path d="M{desk.x + 22} {desk.top + 14} V{desk.floor} M{desk.x + desk.w - 22} {desk.top + 14} V{desk.floor}" fill="none" />
-    <rect x={desk.x} y={desk.top} width={desk.w} height="20" rx="6" fill="var(--cardboard-a55)" />
+    <rect x={desk.x} y={desk.top} width={desk.w} height="20" rx="6" fill="var(--cardboard)" />
   </g>
 </Depth>

@@ -14,7 +14,7 @@
     <path d={`M0 0 L${w / 2} ${Math.min(w, h) * 0.16} L${w} 0 Z`} fill={sealed ? 'var(--flap-sealed)' : 'var(--flap)'} stroke="var(--kraft-edge)" stroke-width="4" stroke-linejoin="round" />
     <rect x="24" y="24" width={w - 48} height={h - 48} rx="52" fill="none" stroke={sealed ? 'var(--kraft-edge-sealed)' : 'var(--kraft-edge)'} stroke-width="4" stroke-dasharray="20 14" opacity="0.82" />
   {:else}
-    <rect width={w} height={h} fill="var(--paper-1d1)" />
+    <rect width={w} height={h} fill="var(--paper-2)" />
     <rect x="24" y="24" width={w - 48} height={h - 48} rx="52" fill="var(--paper)" stroke="var(--kraft-edge)" stroke-width="4" stroke-dasharray="20 14" opacity="0.82" />
     <path d={`M0 ${h * 0.77 + wiggle} C${w * 0.25} ${h * 0.68} ${w * 0.45} ${h * 0.84} ${w * 0.68} ${h * 0.72} C${w * 0.85} ${h * 0.63} ${w} ${h * 0.7} ${w} ${h * 0.68} L${w} ${h} H0 Z`} fill="var(--meadow)" opacity="0.52" />
   {/if}

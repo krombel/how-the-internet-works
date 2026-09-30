@@ -18,7 +18,7 @@
     <g transform="translate(54 290)">
       <path d="M55 130 H1070 V500 H55 Z" fill="var(--peach)" stroke="var(--line)" stroke-width="9" />
       <path d="M0 136 L275 0 L555 136 Z" fill="var(--roof)" stroke="var(--line)" stroke-width="9" stroke-linejoin="round" />
-      <path d="M555 136 L795 12 L1128 136 Z" fill="var(--orange-soft-b55)" stroke="var(--line)" stroke-width="9" stroke-linejoin="round" />
+      <path d="M555 136 L795 12 L1128 136 Z" fill="var(--orange-soft)" stroke="var(--line)" stroke-width="9" stroke-linejoin="round" />
       <path d="M120 190 H1020 V452 H120 Z" fill="var(--paper-2)" stroke="var(--line)" stroke-width="5" opacity="0.74" />
       <path d="M505 188 V452 M120 318 H1020" stroke="var(--line)" stroke-width="4" opacity="0.24" />
     </g>
