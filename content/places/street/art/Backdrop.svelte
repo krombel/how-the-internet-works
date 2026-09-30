@@ -7,9 +7,9 @@
   // [x, width, height, colour, roof colour] of each shop, standing on the pavement
   const shops = $derived<[number, number, number, string, string][]>(portrait
     ? [[24, 150, 230, 'var(--peach)', 'var(--roof)'], [470, 170, 190, 'var(--paper-2)', 'var(--teal)']]
-    : [[30, 170, 250, 'var(--peach)', 'var(--roof)'], [440, 150, 200, 'var(--paper-2)', 'var(--teal)'], [600, 120, 150, 'var(--tan)', 'var(--berry)']]);
+    : [[20, 170, 250, 'var(--peach)', 'var(--roof)'], [200, 150, 200, 'var(--paper-2)', 'var(--teal)'], [360, 120, 150, 'var(--tan)', 'var(--berry)']]);
   const ground = $derived(portrait ? 1470 : 712);
-  const lamp = $derived(portrait ? 410 : 1030);
+  const lamp = $derived(portrait ? 700 : 520);
   const car = $derived(((time * 70) % (w + 400)) - 200);
   const night = $derived(view.mode === 'night');
 </script>

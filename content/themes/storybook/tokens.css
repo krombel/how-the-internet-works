@@ -80,6 +80,9 @@
   --window: var(--paper-2);
   --room: var(--paper-2);
   --lamp: var(--sun);
+  /* The couriers' faces and shine: dark ink on their bright bodies in both modes */
+  --face: var(--line);
+  --shine: var(--paper);
   /* What the chrome and the engine's art slots use */
   --bg: var(--sky);
   --accent-ink: var(--paper);
@@ -194,8 +197,10 @@
   --berry: #b8698e;
   --berry-dark: #c86e92;
   --window: #ffd98a;
-  --room: #b88a5e;
+  --room: #d9a36a;
   --lamp: #ffe08a;
+  --face: #2a1d33;
+  --shine: #fff6e0;
   --btn: #3c3968;
   --btn-on: #f39a64;
   --btn-on-ink: #1c2048;

@@ -16,10 +16,11 @@ export default definePlace({
   layout: {
     overview: {
       landscape: {
-        nodes: { phone: [300, 610, 200], 'cell-tower': [800, 420, 260, 'above'] },
+        // the shops stand back down the road, so the 5G hop crosses open sky
+        nodes: { phone: [650, 610, 200], 'cell-tower': [920, 420, 260, 'above'] },
         links: {
           'phone-cell-tower': { bend: -0.2, label: [-20, -58] },
-          'cell-tower-internet': { bend: 0.3, label: [30, 74] },
+          'cell-tower-internet': { bend: 0.3, label: [-20, 74] },
         },
       },
       portrait: {

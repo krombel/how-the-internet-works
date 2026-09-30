@@ -28,7 +28,8 @@
     {:else}
       <circle cx={portrait ? 170 : 1320} cy={portrait ? 170 : 150} r={portrait ? 62 : 70} fill="var(--sun)" stroke="var(--line)" stroke-width="6" />
     {/if}
-    <path d={portrait ? 'M500 185 C535 135 615 145 628 198 C690 194 720 235 692 275 H485 C450 252 456 203 500 185 Z' : 'M160 130 C194 86 268 96 282 145 C340 142 368 178 342 214 H146 C112 193 123 145 160 130 Z'} fill="var(--paper)" stroke="var(--line)" stroke-width="6" />
+    <!-- portrait keeps one sky cloud: a second one would sit right behind the internet cloud -->
+    {#if !portrait}<path d="M160 130 C194 86 268 96 282 145 C340 142 368 178 342 214 H146 C112 193 123 145 160 130 Z" fill="var(--paper)" stroke="var(--line)" stroke-width="6" />{/if}
     <path d={portrait ? 'M100 420 C132 384 192 392 205 436 C252 435 279 464 260 498 H86 C60 478 69 438 100 420 Z' : 'M760 96 C792 62 850 70 862 112 C912 112 940 142 918 174 H744 C714 157 724 113 760 96 Z'} fill="var(--paper-white)" stroke="var(--line)" stroke-width="5" opacity="0.95" />
   </Depth>
   <Depth d={0.62}>
@@ -36,11 +37,6 @@
   </Depth>
   <Depth d={0.82}>
     <path d={portrait ? `M-100 ${h * 0.56} C160 ${h * 0.44} 310 ${h * 0.63} 520 ${h * 0.52} C700 ${h * 0.43} 860 ${h * 0.50} 1020 ${h * 0.44} L1020 ${h * 1.4} H-100 Z` : `M-120 650 C130 520 330 670 550 560 C780 450 1020 660 1270 505 C1450 395 1650 460 1740 560 L1740 1100 H-120 Z`} fill="var(--leaf)" stroke="var(--line)" stroke-width="8" />
-  </Depth>
-  <Depth d={0.42}>
-    <g transform={portrait ? 'translate(545 250) scale(1.05)' : 'translate(1260 250)'}>
-      <path d="M-120 110 C-92 58 -20 58 0 102 C42 84 92 112 92 160 C92 198 58 224 18 218 H-110 C-158 218 -186 186 -174 150 C-166 126 -148 114 -120 110 Z" fill="var(--paper)" stroke="var(--line)" stroke-width="7" />
-    </g>
   </Depth>
 {:else}
   <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky)" />
