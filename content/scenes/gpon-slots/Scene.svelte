@@ -106,7 +106,7 @@
 
 <!-- downstream broadcast card -->
 <Card x={c0.x} y={c0.y} w={c0.w} h={c0.h} tint="#72b8a5" active={!activeTurns} />
-<Text x={c0.x + 34} y={c0.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.everyoneTiny' : 'label.everyone')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
+<Text x={c0.x + 34} y={c0.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.everyoneCompact' : 'label.everyone')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
 <g>
   {#if nerd && !compact && !portrait}
     <Text x={c0.x + 34} y={c0.y + 116} text={S('label.header')} size={T.text * 0.76} kind="small" anchor="start" />
@@ -144,7 +144,7 @@
 
 <!-- upstream time-slot card -->
 <Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="#bd6b87" active={activeTurns} />
-<Text x={c1.x + 34} y={c1.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.turnsTiny' : 'label.turns')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
+<Text x={c1.x + 34} y={c1.y + (portrait || compact ? 82 : 70)} text={S(compact ? 'label.turnsCompact' : 'label.turns')} size={compact ? T.big * 0.76 : T.big} kind="big" anchor="start" />
 <g>
   <rect x={up.strip.x} y={up.strip.y} width={up.strip.w} height={up.strip.h} rx="18" fill="#fff2d7" stroke="#6b3f2a" stroke-width="5" />
   {#each [0, 1, 2, 3] as slot}

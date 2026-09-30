@@ -24,9 +24,6 @@
   const harqLeft = $derived(c1.x + c1.w * (portrait ? 0.24 : 0.26));
   const harqMid = $derived(c1.x + c1.w * 0.50);
   const harqRight = $derived(c1.x + c1.w * (portrait ? 0.76 : 0.74));
-  const seatY = $derived(c0.y + c0.h * (portrait ? 0.45 : compact ? 0.40 : 0.48));
-  const actionPhoneX = $derived(c0.x + c0.w * (portrait ? 0.20 : compact ? 0.20 : 0.20));
-  const actionTowerX = $derived(c0.x + c0.w * (portrait ? 0.82 : compact ? 0.82 : 0.82));
   const ticketK = $derived(st.phase === 'request' ? 0 : st.phase === 'grant' ? st.p : 1);
   const rowLit = $derived(st.phase !== 'request' && !(st.phase === 'grant' && st.p < 0.65));
   const askOn = $derived(st.phase === 'request' || (st.phase === 'grant' && st.p < 0.35));
@@ -81,25 +78,31 @@
 <Card x={c0.x} y={c0.y} w={c0.w} h={c0.h} tint="#ffcf5d" />
 <Text x={c0.x + 34} y={c0.y + (portrait ? 82 : compact ? 78 : 70)} text={S('card.seat')} size={T.title} kind="big" anchor="start" />
 
-<!-- 1) ask -->
-<g opacity={askOn ? 1 : 0.86}>
-  <rect x={c0.x + (portrait ? 58 : compact ? 86 : 64)} y={c0.y + (portrait ? 116 : compact ? 106 : 98)} width={portrait ? 430 : compact ? 286 : 252} height={portrait ? 78 : compact ? 62 : 54} rx={portrait ? 24 : 18} fill="#fff2d7" stroke="#6b3f2a" stroke-width="4" />
-  <Text x={c0.x + (portrait ? 273 : compact ? 229 : 190)} y={c0.y + (portrait ? 166 : compact ? 146 : 134)} text={S('label.ask')} size={portrait ? 27 : compact ? 29 : 25} kind="big" colour="#a65435" />
-  <path d={`M${c0.x + (portrait ? 500 : compact ? 390 : 340)} ${c0.y + (portrait ? 160 : compact ? 138 : 126)} C${c0.x + c0.w * 0.56} ${c0.y + (portrait ? 108 : 98)} ${c0.x + c0.w * 0.65} ${c0.y + (portrait ? 108 : 98)} ${c0.x + c0.w * 0.72} ${c0.y + (portrait ? 152 : 125)}`} fill="none" stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" stroke-dasharray="12 10" opacity="0.65" />
-</g>
+{#if compact}
+  <!-- one bubble: the ask, then the ticket -->
+  <rect x={c0.x + 60} y={c0.y + 112} width={c0.w - 120} height="78" rx="22" fill="#fff2d7" stroke="#6b3f2a" stroke-width={askOn ? 4 : 5} />
+  <Text x={c0.x + c0.w / 2} y={c0.y + 164} text={askOn ? S('label.ask') : ticketText} size={30} kind="big" colour="#a65435" />
+{:else}
+  <!-- 1) ask -->
+  <g opacity={askOn ? 1 : 0.86}>
+    <rect x={c0.x + (portrait ? 58 : 64)} y={c0.y + (portrait ? 116 : 98)} width={portrait ? 430 : 252} height={portrait ? 78 : 54} rx={portrait ? 24 : 18} fill="#fff2d7" stroke="#6b3f2a" stroke-width="4" />
+    <Text x={c0.x + (portrait ? 273 : 190)} y={c0.y + (portrait ? 166 : 134)} text={S('label.ask')} size={portrait ? 27 : 25} kind="big" colour="#a65435" />
+    <path d={`M${c0.x + (portrait ? 500 : 340)} ${c0.y + (portrait ? 160 : 126)} C${c0.x + c0.w * 0.56} ${c0.y + (portrait ? 108 : 98)} ${c0.x + c0.w * 0.65} ${c0.y + (portrait ? 108 : 98)} ${c0.x + c0.w * 0.72} ${c0.y + (portrait ? 152 : 125)}`} fill="none" stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" stroke-dasharray="12 10" opacity="0.65" />
+  </g>
 
-<!-- 2) ticket -->
-<g opacity={ticketK > 0 ? 0.4 + ticketK * 0.6 : 0.25}>
-  <rect x={c0.x + (portrait ? 340 : compact ? 405 : 390)} y={c0.y + (portrait ? 198 : compact ? 184 : 162)} width={portrait ? 410 : compact ? 260 : 230} height={portrait ? 96 : compact ? 72 : 62} rx="18" fill="#fff2d7" stroke="#6b3f2a" stroke-width="5" />
-</g>
-<Text x={c0.x + (portrait ? 545 : compact ? 535 : 505)} y={c0.y + (portrait ? 257 : compact ? 211 : 187)} text={portrait && !nerd ? fill(S('label.ticketPortrait'), { n: kidRnti }) : ticketText} size={portrait ? 25 : compact ? 24 : 22} kind="big" colour="#a65435" />
-{#if !portrait}<Text x={c0.x + (compact ? 535 : 505)} y={c0.y + (compact ? 239 : 214)} text={grantLine} size={compact ? 21 : 20} kind="node" colour="#a65435" />{/if}
+  <!-- 2) ticket -->
+  <g opacity={ticketK > 0 ? 0.4 + ticketK * 0.6 : 0.25}>
+    <rect x={c0.x + (portrait ? 340 : 390)} y={c0.y + (portrait ? 198 : 162)} width={portrait ? 410 : 230} height={portrait ? 96 : 62} rx="18" fill="#fff2d7" stroke="#6b3f2a" stroke-width="5" />
+  </g>
+  <Text x={c0.x + (portrait ? 545 : 505)} y={c0.y + (portrait ? 257 : 187)} text={portrait && !nerd ? fill(S('label.ticketPortrait'), { n: kidRnti }) : ticketText} size={portrait ? 25 : 22} kind="big" colour="#a65435" />
+  {#if !portrait}<Text x={c0.x + 505} y={c0.y + 214} text={grantLine} size={20} kind="node" colour="#a65435" />{/if}
+{/if}
 
 <!-- 3) schedule list -->
-<Text x={L.schedule.x} y={listLabelY} text={S('label.schedule')} size={T.text * (portrait ? 0.78 : compact ? 0.76 : 0.72)} kind="big" anchor="start" colour="#a65435" />
+{#if !compact}<Text x={L.schedule.x} y={listLabelY} text={S('label.schedule')} size={T.text * (portrait ? 0.78 : 0.72)} kind="big" anchor="start" colour="#a65435" />{/if}
 {#each scheduleRows as row, i}
   {@const y = L.schedule.y + i * L.schedule.row}
-  <rect x={L.schedule.x} y={y - T.small * (portrait ? 1.3 : 0.95)} width={L.schedule.w} height={T.small * (portrait ? 2.15 : 1.55)} rx="16" fill={row.on && rowLit ? '#ffcf5d' : '#fff2d7'} stroke="#6b3f2a" stroke-width={row.on && rowLit ? 5 : 3} opacity={row.on || nerd ? 1 : 0.78} />
+  <rect x={L.schedule.x} y={y - T.small * (portrait ? 1.3 : compact ? 1.05 : 0.95)} width={L.schedule.w} height={T.small * (portrait ? 2.15 : compact ? 1.75 : 1.55)} rx="16" fill={row.on && rowLit ? '#ffcf5d' : '#fff2d7'} stroke="#6b3f2a" stroke-width={row.on && rowLit ? 5 : 3} opacity={row.on || nerd ? 1 : 0.78} />
   {#if row.on && scanOn}
     <circle cx={L.schedule.x + 18 + st.p * (L.schedule.w - 36)} cy={y} r={T.small * 0.62} fill="none" stroke="#72b8a5" stroke-width="7" opacity="0.82" />
   {/if}
@@ -111,7 +114,7 @@
 <Text x={c1.x + 34} y={c1.y + (portrait || compact ? 82 : 70)} text={S('card.harq')} size={T.title} kind="big" anchor="start" />
 <g>
   {#if !nerd}<g opacity="0.88">
-    <Node id={focus === 'phone' ? 'phone' : 'cell-tower'} x={rxX} y={c1.y + c1.h - (portrait || compact ? 92 : 66)} size={portrait || compact ? 62 : 68} />
+    <Node id={focus === 'phone' ? 'phone' : 'cell-tower'} x={rxX} y={c1.y + c1.h - (portrait ? 92 : compact ? 150 : 66)} size={portrait || compact ? 62 : 68} />
   </g>{/if}
   {#if st.phase === 'combine'}
     <Piece x={harqMid - L.harq.gap * 0.45 + resendK * L.harq.gap * 0.35} y={harqY - resendK * T.piece * 0.05} size={T.piece} colour="#bd6b87" smudge={1 - clearK * 0.7} />

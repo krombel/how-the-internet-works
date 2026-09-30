@@ -16,11 +16,9 @@
   },
   "label": {
     "everyone": "Hjemad: alle hører med",
-    "everyoneCompact": "Beholder nr. 1127",
-    "everyoneTiny": "1127",
+    "everyoneCompact": "Alle hører med",
     "turns": "Udad: skift til at tale",
     "turnsCompact": "Skift til at tale",
-    "turnsTiny": "tur",
     "cabinet": "kabinet / OLT",
     "cabinetShort": "kabinet",
     "splitter": "passiv splitter",

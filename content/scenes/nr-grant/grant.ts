@@ -55,7 +55,7 @@ export function layoutFor(orient: Orient, focus: Focus, vp: { h: number; top: nu
       cards: [{ x: 60, y: 118, w: 710, h: 440 }, { x: 830, y: 118, w: 710, h: 440 }],
       names: 860,
       walk: 740,
-      schedule: { x: 105, y: 380, w: 620, row: 52 },
+      schedule: { x: 100, y: 368, w: 630, row: 66 },
       harq: { y: 326, gap: 150 },
       tags: [],
       size: { title: 54, text: 44, small: 34, tag: 40, piece: 78, ticket: 0.96 },

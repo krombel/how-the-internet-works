@@ -55,8 +55,8 @@
   const rowY = (i: number) => L.cards[1].y + (isPortrait ? 148 : L.compact ? 142 : 112) + i * (isPortrait ? 62 : L.compact ? 58 : 44);
   const doorPulse = $derived(m.phase === 'fanout' ? ramp(m.p, 0.05, 0.85) : m.phase === 'straight' ? 1 : 0);
   const peel = $derived(role !== 'bridge' && layer === 'ethernet' ? (m.phase === 'fanout' ? ramp(m.p, 0, 0.6) : m.phase === 'straight' ? 1 : 0) : 0);
-  const actionScale = $derived(isPortrait ? 1.05 : L.compact ? 1.1 : 0.95);
-  const actionY = $derived(L.cards[0].y + (isPortrait ? 198 : L.compact ? 232 : 158));
+  const actionScale = $derived(isPortrait ? 1.05 : L.compact ? 0.9 : 0.95);
+  const actionY = $derived(L.cards[0].y + (isPortrait ? 198 : L.compact ? 178 : 158));
   // each drawing is lopsided around its origin; nudge it back to the card's middle
   const actionDx = $derived(layer === 'mpls' ? 0 : layer === 'vlan' ? 10 : role === 'bridge' ? 39 : -73);
   const steps = $derived([S(`mini.${action}.a`), S(`mini.${action}.b`)]);
@@ -157,12 +157,12 @@
     </g>
   {/if}
 </g>
-{#if isPortrait}
+{#if isPortrait || L.compact}
   {#each steps as step, i}
-    <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - 100 + i * 62} text={i ? `→ ${step}` : step} size={32} kind="big" colour="#a65435" />
+    <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (L.compact ? 84 : 100) + i * (L.compact ? 60 : 62)} text={i ? `→ ${step}` : step} size={32} kind="big" colour="#a65435" />
   {/each}
 {:else}
-  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (L.compact ? 26 : 24)} text={`${steps[0]}  →  ${steps[1]}`} size={L.compact ? 30 : 22} kind="big" colour="#a65435" />
+  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - 24} text={`${steps[0]}  →  ${steps[1]}`} size={22} kind="big" colour="#a65435" />
 {/if}
 
 <Card x={L.cards[1].x} y={L.cards[1].y} w={L.cards[1].w} h={L.cards[1].h} tint={bookTint} />

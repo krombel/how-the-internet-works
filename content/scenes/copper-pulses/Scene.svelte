@@ -30,8 +30,8 @@
       title: { x: 610, y: 100 }, cableLabel: { x: 610, y: 1390 }, text: { title: 40, head: 34, body: 36, small: 36, tick: 32 },
     };
     if (compact) return {
-      node: { size: 170, fromLabel: { x: fromPos.x, y: fromPos.y + 112 }, toLabel: { x: toPos.x, y: toPos.y + 112 } },
-      twist: { x: 150, y: 470, w: 620, h: 300 }, kid: { x: 830, y: 470, w: 620, h: 300 }, pam: { x: 580, y: 470, w: 440, h: 300 }, eye: { x: 1070, y: 470, w: 440, h: 300 },
+      node: { size: 170, fromLabel: { x: fromPos.x + 40, y: fromPos.y + 112 }, toLabel: { x: toPos.x - 80, y: toPos.y + 112 } },
+      twist: { x: nerd ? 70 : 150, y: 470, w: nerd ? 460 : 620, h: 300 }, kid: { x: 830, y: 470, w: 620, h: 300 }, pam: { x: 570, y: 470, w: 460, h: 300 }, eye: { x: 1070, y: 470, w: 460, h: 300 },
       title: { x: 800, y: 90 }, cableLabel: { x: 800, y: 438 }, text: { title: 38, head: 30, body: 24, small: 22, tick: 22 },
     };
     return {

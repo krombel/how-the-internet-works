@@ -16,11 +16,9 @@
   },
   "label": {
     "everyone": "Going home: everyone hears",
-    "everyoneCompact": "Keeps no. 1127",
-    "everyoneTiny": "1127",
+    "everyoneCompact": "Everyone hears",
     "turns": "Going up: take turns",
     "turnsCompact": "Take turns",
-    "turnsTiny": "turns",
     "cabinet": "cabinet / OLT",
     "cabinetShort": "cabinet",
     "splitter": "passive splitter",
