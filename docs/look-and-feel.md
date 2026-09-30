@@ -290,8 +290,10 @@ always muted again on reload.
   - The sub-path's stops are its hops. At dive level, flicking moves between Wi-Fi and fibre.
   - At dive level the camera doesn't jump from one dive to the next: it **zooms out, travels along the path and
     zooms back in** (issue #36), so you see the device between the two links, where the medium changes. The
-    highlight hops link → device → link on the way. It's one quick move (about 0.7 s to a neighbour), and quick
-    repeated steps join into one glide. With `prefers-reduced-motion` it cuts straight to the next dive.
+    highlight hops link → device → link on the way. It's calm on purpose (about 2.4 s to a neighbour): the
+    camera slows past each device, a small pill there names the change ("Wi‑Fi → Cable"), and a pill at the
+    bottom says where from and to. Quick repeated steps join into one, slightly quicker glide. With
+    `prefers-reduced-motion` it cuts straight to the next dive.
   - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
     street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
     looks different, instead of stepping through six identical "light in a glass thread" dives.

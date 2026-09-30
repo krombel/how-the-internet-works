@@ -236,8 +236,8 @@ export function sidewaysTarget(s: Sideways, d: -1 | 1): string | null | undefine
 
 /** A path scene's chain as one curve through its links and devices (start device → … → end device), so a camera can
  *  travel along it. `s` is arc length; each chain item (device or link) has the arc where it sits: a link at its
- *  midpoint (its dive's anchor), a device where the curve passes it. */
-export interface Chain { pts: Pt[]; cum: number[]; items: { id: string; s: number }[] }
+ *  midpoint (its dive's anchor), a device where the curve passes it; a link also has its technology (null: a device). */
+export interface Chain { pts: Pt[]; cum: number[]; items: { id: string; s: number; tech: string | null }[] }
 const chainMemo = new WeakMap<Route, Map<string, Chain>>();
 export function chainOf(r: Route, group: string | null, o: Orient): Chain {
   let m = chainMemo.get(r);
@@ -254,12 +254,12 @@ export function chainOf(r: Route, group: string | null, o: Orient): Chain {
     ch.cum.push(q ? ch.cum[ch.cum.length - 1] + Math.hypot(p.x - q.x, p.y - q.y) : 0);
     ch.pts.push(p);
   };
-  const mark = (id: string) => ch.items.push({ id, s: ch.cum[ch.cum.length - 1] });
+  const mark = (id: string, tech: string | null = null) => ch.items.push({ id, s: ch.cum[ch.cum.length - 1], tech });
   const curve = (c: Curve, n: number, from: number, to: number) => { for (let i = 0; i <= n; i++) add(bezier(c, lerp(from, to, i / n))); };
   if (links.length) { add(node(links[0].from)); mark(links[0].from); }
   links.forEach((l, i) => {
     curve(l, 8, 0, 0.5);
-    mark(l.id);
+    mark(l.id, l.link.tech.id);
     curve(l, 8, 0.5, 1);
     const n = node(l.to), next = links[i + 1];
     // through the device: a curve from this link's end past its centre to the next link's start
@@ -294,6 +294,28 @@ export function chainNear(ch: Chain, p: Pt): number {
     if (d < best) { best = d; s = lerp(ch.cum[i - 1], ch.cum[i], f); }
   }
   return s;
+}
+
+/** Time along a glide from arc `a` to `b` that slows down past each device (to `slow` of its speed, within `r` arc
+ *  units, easing in and out), where the medium changes, and moves on along the plain stretches of link. `at(u)`: the
+ *  arc at glide time u (0–1); `rate0`: the speed at the start relative to the average (to carry on at a given speed). */
+export function chainWarp(ch: Chain, a: number, b: number, slow: number, r: number): { at: (u: number) => number; rate0: number } {
+  const devices = ch.items.filter((it) => it.tech === null).map((it) => it.s);
+  const speed = (s: number) => {
+    let w = 0;
+    for (const d of devices) { const x = Math.abs(s - d) / r; if (x < 1) w = Math.max(w, (1 + Math.cos(Math.PI * x)) / 2); }
+    return 1 - (1 - slow) * w;
+  };
+  if (a === b || r <= 0 || slow >= 1) return { at: (u) => lerp(a, b, u), rate0: 1 };
+  const N = 96, T = [0];
+  for (let i = 1; i <= N; i++) T.push(T[i - 1] + 1 / speed(lerp(a, b, (i - 0.5) / N)));
+  const at = (u: number) => {
+    const t = Math.min(1, Math.max(0, u)) * T[N];
+    let lo = 0, hi = N;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (T[mid] <= t) lo = mid; else hi = mid; }
+    return lerp(a, b, (lo + (t - T[lo]) / (T[hi] - T[lo])) / N);
+  };
+  return { at, rate0: (speed(a) * T[N]) / N };
 }
 
 /** The chain item nearest arc length `s`: what a camera travelling the chain is passing. */

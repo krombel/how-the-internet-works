@@ -7,9 +7,13 @@ type Knob = { key: keyof typeof TRAVEL; label: string; min: number; max: number;
 const KNOBS: Knob[] = [
   { key: 'outMs', label: 'out ms', min: 100, max: 1500, step: 10 },
   { key: 'inMs', label: 'in ms', min: 100, max: 1500, step: 10 },
-  { key: 'perScreenMs', label: 'glide ms / screen', min: 60, max: 800, step: 10 },
-  { key: 'minGlideMs', label: 'glide min ms', min: 0, max: 1500, step: 10 },
-  { key: 'maxGlideMs', label: 'glide max ms', min: 100, max: 3000, step: 10 },
+  { key: 'minGlideMs', label: 'glide min ms', min: 300, max: 5000, step: 50 },
+  { key: 'maxGlideMs', label: 'glide max ms', min: 500, max: 8000, step: 50 },
+  { key: 'perDeviceMs', label: 'glide + ms per more device passed', min: 0, max: 2000, step: 50 },
+  { key: 'perScreenMs', label: 'glide ms / screen (distance)', min: 100, max: 4000, step: 50 },
+  { key: 'chained', label: 'chained step speed-up (× glide)', min: 0.3, max: 1, step: 0.05 },
+  { key: 'slow', label: 'device slow-down (speed ×, 1 = off)', min: 0.15, max: 1, step: 0.05 },
+  { key: 'slowR', label: 'slow-down reach (screens)', min: 0.05, max: 0.6, step: 0.01 },
   { key: 'overlap', label: 'overlap', min: 0, max: 0.6, step: 0.05 },
   { key: 'u', label: 'altitude u (0.45 = panels start)', min: 0.1, max: 0.6, step: 0.01 },
 ];

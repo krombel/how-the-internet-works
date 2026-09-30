@@ -52,18 +52,26 @@ describe('sideways travel', () => {
     expect([f.pos(0), f.pos(1)]).toEqual([0, 1]);
   });
 
-  it('is snappy: overlapping legs, a glide clamped by distance', () => {
-    const near = travelInterpolator(a, b, along, 1000, kT, vp).duration;
-    expect(near).toBeLessThan(TRAVEL.outMs + TRAVEL.maxGlideMs + TRAVEL.inMs);
-    expect(near).toBeGreaterThan(TRAVEL.outMs);
-    const far = travelInterpolator(a, camAt(1e5, 0, 4), (u) => ({ x: u * 1e5, y: 0 }), 1e5, kT, vp).duration;
-    expect(far).toBeLessThan(TRAVEL.outMs * 1.3 + TRAVEL.maxGlideMs + TRAVEL.inMs * 1.3);
+  it('glides slowly enough to follow: at least the minimum, longer past more devices, capped, a little quicker chained', () => {
+    const glide = (o: Parameters<typeof travelInterpolator>[6] = {}, length = 1000) => {
+      const f = travelInterpolator(a, camAt(length, 0, 4), (u) => ({ x: u * length, y: 0 }), length, kT, vp, o);
+      // the time spent at the travel zoom, gliding
+      return ts.filter((t) => f(t).k < kT * 1.001).length / (ts.length - 1) * f.duration;
+    };
+    const one = glide(), three = glide({ devices: 3 });
+    expect(one).toBeGreaterThan(TRAVEL.minGlideMs * 0.5);
+    expect(three).toBeGreaterThan(one + TRAVEL.perDeviceMs);
+    expect(glide({}, 1e6)).toBeLessThan(TRAVEL.maxGlideMs);
+    expect(glide({ devices: 3, chained: true })).toBeLessThan(three);
+    const total = travelInterpolator(a, b, along, 1000, kT, vp).duration;
+    expect(total).toBeGreaterThan(TRAVEL.minGlideMs);
+    expect(total).toBeLessThan(TRAVEL.outMs * 1.3 + TRAVEL.maxGlideMs + TRAVEL.inMs * 1.3);
   });
 
   it('carries on at the speed it was going when a step comes mid-glide', () => {
     const mid = camAt(400, 0, kT);
     const still = travelInterpolator(mid, b, (u) => ({ x: 400 + u * 600, y: 0 }), 600, kT, vp);
-    const going = travelInterpolator(mid, b, (u) => ({ x: 400 + u * 600, y: 0 }), 600, kT, vp, 2);
+    const going = travelInterpolator(mid, b, (u) => ({ x: 400 + u * 600, y: 0 }), 600, kT, vp, { v0: 2 });
     // already at the travel zoom: no zoom-out leg to speak of, and it doesn't stop to start again
     expect(going.pos(0.05)).toBeGreaterThan(still.pos(0.05) * 2);
     expect(going(0).x).toBeCloseTo(mid.x);

@@ -74,9 +74,16 @@ export function flyInterpolator(a: Cam, b: Cam, vp: Viewport) {
 }
 
 /** Timings of a sideways travel (natural ms, before the theme's motion speed). `overlap` is the share of each leg that
- *  runs under the next one, so the move reads as out, glide, in without ever stopping at a join. `u` is the travel
- *  altitude (see `travelK`). TEMPORARY: mutable, with `ease`, while the dev tuner (src/dev/tune.ts) is in. */
-export const TRAVEL = { outMs: 650, inMs: 700, perScreenMs: 240, minGlideMs: 280, maxGlideMs: 800, overlap: 0.2, u: 0.4, ease: 'sine' as 'sine' | 'cubic' };
+ *  runs under the next one, so the move reads as out, glide, in without ever stopping at a join. The glide is slow on
+ *  purpose (the reader should see where they go from and to, and what's in between): at least `minGlideMs`, longer
+ *  for each more device it passes and with distance on screen. A glide that carries on from another (a quick double
+ *  step) runs at `chained` of that. Passing a device it slows to `slow` of its speed, within `slowR` screens of it
+ *  (`chainWarp`). `u` is the travel altitude (see `travelK`).
+ *  TEMPORARY: mutable, with `ease`, while the dev tuner (src/dev/tune.ts) is in. */
+export const TRAVEL = {
+  outMs: 650, inMs: 700, minGlideMs: 1500, perDeviceMs: 600, perScreenMs: 900, maxGlideMs: 3000, chained: 0.75,
+  overlap: 0.2, slow: 0.45, slowR: 0.2, u: 0.4, ease: 'sine' as 'sine' | 'cubic',
+};
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 /** Ease-in-out for the log-zoom legs: sine is the gentlest start (no sharp push off the dive). */
@@ -86,10 +93,11 @@ const leaveAt = (t: number, m: number) => (t * t * t - 2 * t * t + t) * m + (3 -
 
 /** A sideways travel along a path: zoom out to `kT` where we are, glide the view centre along the path, then zoom in to
  *  `b`, as three overlapping legs of one continuous move. `along(u)` is the path in root coordinates (u = 0 → 1),
- *  `length` its length. `v0` (root units per ms) is how fast we're already gliding that way (a step during a travel
- *  carries on without a stop). The returned fn takes linear time t ∈ [0, 1] (the legs ease themselves); `pos(t)` is
- *  how far along the path the view centre is. */
-export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, length: number, kT: number, vp: Viewport, v0 = 0) {
+ *  `length` its length, `devices` how many it passes. `v0` (root units per ms) is how fast we're already gliding that
+ *  way, and `chained` says we are (a step during a travel carries on without a stop, a little quicker). The returned
+ *  fn takes linear time t ∈ [0, 1] (the legs ease themselves); `pos(t)` is how far along the path the view centre is. */
+export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, length: number, kT: number, vp: Viewport,
+  { devices = 1, v0 = 0, chained = false }: { devices?: number; v0?: number; chained?: boolean } = {}) {
   const c = areaCentre(vp), T = TRAVEL;
   const centre = (m: Cam): Pt => ({ x: (c.x - m.x) / m.k, y: (c.y - m.y) / m.k });
   const ca = centre(a), cb = centre(b), p0 = along(0), p1 = along(1);
@@ -99,7 +107,8 @@ export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, len
   const leg = (k: number, off: Pt, ms: number) =>
     Math.max(ms * Math.min(1.3, Math.abs(Math.log(k / kT)) / Math.log(4)), Math.min(ms, screens(Math.hypot(off.x, off.y)) * T.perScreenMs));
   const out = leg(a.k, dA, T.outMs), inn = leg(b.k, dB, T.inMs);
-  const glide = Math.min(T.maxGlideMs, Math.max(T.minGlideMs, screens(length) * T.perScreenMs));
+  const glide = Math.min(T.maxGlideMs, Math.max(T.minGlideMs + T.perDeviceMs * Math.max(0, devices - 1), screens(length) * T.perScreenMs)) *
+    (chained ? T.chained : 1);
   const t1 = out * (1 - T.overlap), t2 = t1 + glide * (1 - T.overlap), duration = Math.max(t2 + inn, t1 + glide);
   const m0 = length > 0 ? Math.min(3, Math.max(0, (v0 * glide) / length)) : 0;
   const w = (ms: number, from: number, dur: number) => (dur > 0 ? clamp01((ms - from) / dur) : ms >= from ? 1 : 0);

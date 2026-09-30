@@ -3,7 +3,7 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, untrack } from 'svelte';
-  import { areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { easeInOutCubic } from './engine/motion';
@@ -16,7 +16,7 @@
   import type { Loc } from './model/location';
   import { hopAhead, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
-  import { chainAt, chainItemAt, chainNear, chainOf, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, sidewaysTarget, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain } from './model/tree';
+  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, sidewaysTarget, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
@@ -39,14 +39,19 @@
   // ------------------------------------------------------------------ camera + flights
   /** A flight (eased here) or a sideways travel along a path scene's chain (it eases its own legs). */
   interface Trans { b: Cam; t0: number; dur: number; fly: (t: number) => Cam; travel: Travel | null }
-  /** Travelling from arc `a` to `b` along the chain of the path scene `key` (`pos(t)`: how far, 0–1). */
-  interface Travel { key: string; chain: Chain; a: number; b: number; pos: (t: number) => number }
+  /** Travelling along the chain of the path scene `key`: `s(t)` is the arc the view centre is at (from `a` to `b`),
+   *  `start` the dive the whole glide set off from (a chained step keeps it). */
+  interface Travel { key: string; chain: Chain; frame: Frame; nodes: Map<string, SNode>; kT: number; a: number; b: number; s: (t: number) => number; start: string[] }
   let cam = $state.raw<Cam>({ x: 0, y: 0, k: 1 });
   let trans: Trans | null = null;
   /** During a flight: where we came from (still blended in) and where we go (mounted from the start). */
   let flight = $state.raw<{ from: string[]; to: string[] } | null>(null);
   /** During a travel: the link or device of the path scene we're passing (it lights up as the camera glides by). */
   let passing = $state.raw<{ key: string; stop: string } | null>(null);
+  /** During a travel: where from and where to, and whether we're past half way; and the device we're passing, where
+   *  the medium changes ("Wi‑Fi → Cable"), at its place on screen, fading in and out as we pass. */
+  let trip = $state.raw<{ from: string; to: string; past: boolean } | null>(null);
+  let change = $state.raw<{ text: string; x: number; y: number; below: boolean; alpha: number } | null>(null);
   /** Test hook: hold transitions at this t (0–1) for a frame strip. */
   let holdT: number | null = null;
   let gestureNav = false;
@@ -66,35 +71,63 @@
    *  a travel was cut short (a finger on the stage), it sets off from where the camera stopped. */
   function startTravel(from: string[], to: string[], tv: { parent: string[]; b: number }) {
     const o = view.orient, key = keyOf(tv.parent), info = sceneInfo(route, tv.parent, o), speed = themeState.current.motion.speed;
-    const chain = chainOf(route, info.ref.group, o), now = performance.now();
+    const chain = chainOf(route, info.ref.group, o), now = performance.now(), T = TRAVEL;
     const c = areaCentre(view.vp);
-    let a = chainNear(chain, toLocal(info.frame, toWorldPt(cam, c.x, c.y))), v0 = 0;
-    const T = trans?.travel?.key === key ? trans : null;
-    if (T) {
-      const t = transT(T, now), dt = 0.02, s = (x: number) => lerp(T.travel!.a, T.travel!.b, T.travel!.pos(x));
+    let a = chainNear(chain, toLocal(info.frame, toWorldPt(cam, c.x, c.y))), v0 = 0, start = from;
+    const R = trans?.travel?.key === key ? trans : null;
+    if (R) {
+      const t = transT(R, now), dt = 0.02, s = R.travel!.s;
       a = s(t);
-      v0 = (((s(Math.min(1, t + dt)) - a) * Math.sign(tv.b - a)) / (dt * T.dur)) * info.frame.s * speed;
+      v0 = (((s(Math.min(1, t + dt)) - a) * Math.sign(tv.b - a)) / (dt * R.dur)) * info.frame.s * speed;
+      // a glide that turns back to where it set off from is a trip from the step it turned back from
+      start = keyOf(R.travel!.start) === keyOf(to) ? from : R.travel!.start;
     }
-    const b = target(), along = (u: number) => toRoot(info.frame, chainAt(chain, lerp(a, tv.b, u)));
-    const fly = travelInterpolator(cam, b, along, Math.abs(tv.b - a) * info.frame.s, travelK(route, tv.parent, to, view.vp, o), view.vp, v0);
-    trans = { b, t0: now, dur: fly.duration * speed, fly, travel: { key, chain, a, b: tv.b, pos: fly.pos } };
+    const kT = travelK(route, tv.parent, to, view.vp, o);
+    const warp = chainWarp(chain, a, tv.b, T.slow, (T.slowR * view.vp.w) / (kT * info.frame.s));
+    const b = target(), along = (u: number) => toRoot(info.frame, chainAt(chain, warp.at(u)));
+    const devices = chain.items.filter((it) => it.tech === null && (it.s - a) * (tv.b - it.s) > 0).length;
+    const fly = travelInterpolator(cam, b, along, Math.abs(tv.b - a) * info.frame.s, kT, view.vp, { devices, v0: v0 / warp.rate0, chained: !!R });
+    const nodes = new Map(pathScene(route, info.ref.group, o).nodes.map((n) => [n.id, n]));
+    trans = { b, t0: now, dur: fly.duration * speed, fly, travel: { key, chain, frame: info.frame, nodes, kT, a, b: tv.b, s: (t) => warp.at(fly.pos(t)), start } };
     flight = { from, to };
+    trip = { from: sceneTitle(route, start, o), to: sceneTitle(route, to, o), past: false };
   }
   const transT = (T: Trans, now: number) => holdT ?? Math.min(1, (now - T.t0) / T.dur);
   function frameTrans(now: number) {
     const T = trans!, t = transT(T, now);
     cam = T.fly(t);
-    if (T.travel) {
-      const stop = chainItemAt(T.travel.chain, lerp(T.travel.a, T.travel.b, T.travel.pos(t)));
-      if (passing?.stop !== stop) passing = { key: T.travel.key, stop };
-    }
+    if (T.travel) followTravel(T.travel, t);
     if (t >= 1) finishTrans();
+  }
+  /** Light up what the travel passes, and name the change of medium at a device on the way. */
+  function followTravel(tv: Travel, t: number) {
+    const s = tv.s(t), stop = chainItemAt(tv.chain, s), k = cam.k * tv.frame.s;
+    if (passing?.stop !== stop) passing = { key: tv.key, stop };
+    const past = Math.abs(s - tv.a) > Math.abs(tv.b - tv.a) / 2;
+    if (trip && trip.past !== past) trip = { ...trip, past };
+    // the device nearest the view centre, if it's between the ends and the links either side differ
+    const { items } = tv.chain, dir = Math.sign(tv.b - tv.a);
+    let near = -1;
+    for (let i = 1; i < items.length - 1; i++)
+      if (items[i].tech === null && (items[i].s - tv.a) * dir > 0 && (tv.b - items[i].s) * dir > 0 && (near < 0 || Math.abs(items[i].s - s) < Math.abs(items[near].s - s))) near = i;
+    const [was, now] = near < 0 ? [] : dir > 0 ? [items[near - 1].tech, items[near + 1].tech] : [items[near + 1].tech, items[near - 1].tech];
+    const px = near < 0 ? Infinity : Math.abs(items[near].s - s) * k, fade = view.vp.w * TRAVEL.slowR;
+    // near the device, and only while gliding (it goes as the camera zooms into the next dive)
+    const alpha = (1 - smoothstep(fade * 0.5, fade * 1.2, px)) * (1 - smoothstep(1.15, 1.6, cam.k / tv.kT));
+    const [wasName, nowName] = [was, now].map((id) => (id ? tr(`tech.${id}.name`) : ''));
+    if (!wasName || !nowName || wasName === nowName || alpha <= 0.01) { if (change) change = null; return; }
+    const text = `${wasName} → ${nowName}`;
+    const n = tv.nodes.get(items[near].id)!, p = toScreen(cam, toRoot(tv.frame, n)), half = (n.size / 2) * k;
+    const below = n.label === 'above';
+    change = { text, x: p.x, y: p.y + (below ? half + 10 : -half - 10), below, alpha };
   }
   /** Stop a transition where it is. */
   function dropTrans() {
     trans = null;
     flight = null;
     passing = null;
+    trip = null;
+    change = null;
   }
   function finishTrans(b = trans!.b) {
     cam = b;
@@ -635,6 +668,13 @@
     ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.runs.length - 1} onstep={step} {nudge} />
+  {/if}
+  {#if trip}
+    <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
+  {/if}
+  {#if change}
+    <div class="change" aria-hidden="true" style:opacity={change.alpha}
+      style:transform="translate({change.x}px, {change.y}px) translate(-50%, {change.below ? 0 : -100}%)">{change.text}</div>
   {/if}
   {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}
   {#if picker}

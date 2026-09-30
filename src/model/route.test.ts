@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normaliseChoice, resolveRoute } from './resolve';
 import { morphScene, pathScene } from './layout';
-import { chainAt, chainItemAt, chainNear, chainOf, childrenOf, downFrom, frameOf, layerPath, linkOut, sceneRef, sideways, sidewaysTarget, travelOf, upFrom, validPrefix } from './tree';
+import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, downFrom, frameOf, layerPath, linkOut, sceneRef, sideways, sidewaysTarget, travelOf, upFrom, validPrefix } from './tree';
 import { bezier } from '../engine/geometry';
 import { formatHash, normaliseLoc, parseHash } from './location';
 import { content, type Content } from './registry';
@@ -224,7 +224,26 @@ describe('scene tree', () => {
         expect(Math.hypot(p.x - m.x, p.y - m.y)).toBeLessThan(1e-6);
       }
       expect(chainItemAt(ch, ch.items[3].s + 1)).toBe(ch.items[3].id);
+      // links know their technology, devices have none
+      for (const it of ch.items) expect(it.tech).toBe(ps.links.find((l) => l.id === it.id)?.link.tech.id ?? null);
     }
+  });
+
+  it('slows a glide down past each device, and moves on along the links', () => {
+    const ch = chainOf(home, null, 'landscape'), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
+    const a = s('phone-ap'), b = s('ap-router'), ap = s('ap'), r = (b - a) / 6;
+    for (const [from, to] of [[a, b], [b, a]]) {
+      const w = chainWarp(ch, from, to, 0.4, r), N = 400, u = (i: number) => i / N;
+      expect([w.at(0), w.at(1)].map((x) => +x.toFixed(6))).toEqual([from, to].map((x) => +x.toFixed(6)));
+      // monotonic, and the time spent near the access point is longer than plain arc length would give it
+      for (let i = 1; i <= N; i++) expect((w.at(u(i)) - w.at(u(i - 1))) * Math.sign(to - from)).toBeGreaterThanOrEqual(0);
+      const near = Array.from({ length: N + 1 }, (_, i) => w.at(u(i))).filter((x) => Math.abs(x - ap) < r / 2).length / (N + 1);
+      expect(near).toBeGreaterThan((r / Math.abs(to - from)) * 1.5);
+      // setting off on a plain stretch of link: quicker than the average
+      expect(w.rate0).toBeGreaterThan(1);
+    }
+    // no slow-down: plain arc length
+    expect(chainWarp(ch, a, b, 1, r).at(0.3)).toBeCloseTo(a + (b - a) * 0.3);
   });
 
   it('travels between sibling dives on the chain, and only those', () => {

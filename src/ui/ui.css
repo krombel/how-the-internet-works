@@ -70,6 +70,20 @@ button { cursor: pointer; }
 .caption.hide { opacity: 0; transform: translateY(14px); }
 .caption.hide > * { pointer-events: none; }
 .caption > * { pointer-events: auto; }
+
+/* ---------------- sideways travel: where from and to, and the change of medium at a device on the way (no backdrop
+   blur: the stage moves under them every frame) */
+.trip, .change { position: fixed; z-index: 9; pointer-events: none; background: var(--card); border: var(--card-edge-w) solid var(--card-edge);
+  box-shadow: var(--card-shadow); color: var(--ink); white-space: nowrap; }
+.trip { left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: calc(100% - 24px);
+  display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;
+  animation: trip-in 0.3s ease both; }
+.trip span { overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.trip span.now { color: var(--accent); }
+.trip .arrow { flex: none; color: var(--ink); }
+.change { left: 0; top: 0; padding: 4px 12px; border-radius: 999px; font-family: var(--label-font); font-weight: var(--lbl-weight);
+  font-size: 15px; will-change: transform, opacity; }
+@keyframes trip-in { from { opacity: 0; transform: translate(-50%, 8px); } }
 .caption h2 { margin: 0 0 3px; font-family: var(--heading-font); font-weight: var(--heading-weight); text-transform: var(--heading-transform);
   letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--accent); }
 .caption p { margin: 0; font-size: 15.5px; line-height: 1.42; max-height: 4.3em; overflow: auto; }
@@ -250,4 +264,4 @@ button { cursor: pointer; }
   .crumbs .btn { line-height: 20px; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
 }
-@media (prefers-reduced-motion: reduce) { .env, .picker { animation: none; } .caption { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .env, .picker, .trip { animation: none; } .caption { transition: none; } }
