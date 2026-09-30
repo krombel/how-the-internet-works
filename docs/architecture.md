@@ -434,7 +434,7 @@ Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame
 `text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
 made the zoom out of the router's dive miss frames at 6×; geometric text is scaled as drawn.
 
-Initial JS is 74.4 kB gz (73.8 kB before the node dives of #9 and #38; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is 74.6 kB gz (73.8 kB before the node dives of #9 and #38; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.
