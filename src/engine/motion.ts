@@ -1,7 +1,30 @@
-// Motion: the easing used by every camera transition, and a theme's motion preset.
+// Motion: the easing used by every camera transition, a theme's motion preset, and how a navigation moves the camera.
 export interface MotionPreset {
   /** Duration multiplier (1 = the camera's natural flight time). */
   speed: number;
 }
 
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+/** How the camera gets to a new location (issue #41): a sideways `travel` between sibling dives, the `morph` to another
+ *  place, a `fly` (van Wijk) for everything else (up, down, doors, chips, layer ▲/▼, Back), or, when the reader prefers
+ *  reduced motion, a `fade` for all of them: the camera cuts there under a short cross-fade of the old picture, with no
+ *  zoom, pan or morph. The URL, history and focus are the same whichever it is. */
+export type Move = 'travel' | 'morph' | 'fly' | 'fade';
+export function moveFor({ switched, travel, still }: { switched: boolean; travel: boolean; still: boolean }): Move {
+  if (still) return 'fade';
+  return switched ? 'morph' : travel ? 'travel' : 'fly';
+}
+
+/** How long a `fade` takes (ms). */
+export const FADE_MS = 220;
+/** A `fade`: a still copy of `pic` (the stage's SVG, as it is before the cut) laid over it, fading out on the compositor
+ *  while the new picture shows through. A fade still running is dropped for the new one. */
+export function fadeOver(pic: Element) {
+  pic.parentElement?.querySelectorAll(':scope > .fading').forEach((e) => e.remove());
+  const copy = pic.cloneNode(true) as SVGElement;
+  copy.classList.add('fading');
+  copy.style.animationDuration = `${FADE_MS}ms`;
+  copy.addEventListener('animationend', () => copy.remove());
+  pic.after(copy);
+}

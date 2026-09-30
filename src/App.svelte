@@ -6,7 +6,7 @@
   import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
-  import { easeInOutCubic } from './engine/motion';
+  import { FADE_MS, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { textBox } from './engine/svg';
@@ -135,6 +135,16 @@
     dropTrans();
     showCaption = true;
   }
+  /** Prefers-reduced-motion: cut straight to `b` under a short cross-fade of the picture as it was (#41). */
+  function cutTo(b: Cam) {
+    fadeOver(stage.querySelector(':scope > svg')!);
+    finishTrans(b);
+  }
+  /** Back to `b` in the same scene (after a gesture, or letting a packet go): a short flight, or a cut. */
+  function settleTo(b: Cam, ms: number) {
+    if (view.still) cutTo(b);
+    else startTrans(here.path, here.path, b, ms);
+  }
 
   // ------------------------------------------------------------------ switching place / activity (morph)
   interface Morph { a: Route; t0: number; dur: number; placesA: string[] }
@@ -172,30 +182,23 @@
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
-    const tv = switched ? null : travelOf(route, validPrefix(route, prev.path), next.path, view.orient);
-    // a flight first lands; a travel hands over from wherever its camera is
-    if (trans && !trans.travel) finishTrans();
-    if (tv) {
-      gestureNav = false;
-      sfx.swish();
-      // reduced motion: cut straight there
-      if (view.still) return finishTrans(target());
-      showCaption = false;
-      return startTravel(validPrefix(route, prev.path), next.path, tv);
-    }
-    if (switched) {
-      morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
-      startTrans(next.path, next.path, target(), MORPH_MS);
-      showCaption = false;
-      sfx.swish();
-      return;
-    }
+    const from = validPrefix(route, prev.path), tv = switched ? null : travelOf(route, from, next.path, view.orient);
     const quick = gestureNav;
     gestureNav = false;
-    const dur = startTrans(validPrefix(route, prev.path), next.path, target(), quick ? 480 : undefined);
-    showCaption = false;
-    if (keyOf(next.path) !== keyOf(prev.path)) sfx.whoosh(next.path.length > prev.path.length, dur);
-    else sfx.swish();
+    // a flight first lands; a travel hands over from wherever its camera is
+    if (trans && !trans.travel) finishTrans();
+    const move = moveFor({ switched, travel: !!tv, still: view.still });
+    let dur = FADE_MS;
+    if (move === 'fade') cutTo(target());
+    else if (move === 'travel') startTravel(from, next.path, tv!);
+    else if (move === 'morph') {
+      morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
+      startTrans(next.path, next.path, target(), MORPH_MS);
+    } else dur = startTrans(from, next.path, target(), quick ? 480 : undefined);
+    if (move !== 'fade') showCaption = false;
+    // the sound says what changed, however the camera gets there
+    if (switched || tv || keyOf(next.path) === keyOf(prev.path)) sfx.swish();
+    else sfx.whoosh(next.path.length > prev.path.length, dur);
   }
 
   function settle() {
@@ -205,7 +208,7 @@
     const x0 = Math.max(0, r.x * cam.k + cam.x), x1 = Math.min(vp.w, (r.x + r.w) * cam.k + cam.x);
     const y0 = Math.max(0, r.y * cam.k + cam.y), y1 = Math.min(vp.h, (r.y + r.h) * cam.k + cam.y);
     const visible = (Math.max(0, x1 - x0) * Math.max(0, y1 - y0)) / Math.min(vp.w * vp.h, r.w * r.h * cam.k * cam.k);
-    if (cam.k < b.k * 0.97 || visible < 0.45) startTrans(here.path, here.path, b, 450);
+    if (cam.k < b.k * 0.97 || visible < 0.45) settleTo(b, 450);
   }
 
   // Sideways stepping: path scenes step through their stops; link dives between the parent's dives; layer dives up and
@@ -338,7 +341,7 @@
     caught = null; ghost = null; glide = null; view.followId = null;
     if (pausedByCatch) paused = false;
     pausedByCatch = false;
-    if (!silent) startTrans(here.path, here.path, target(), 800);
+    if (!silent) settleTo(target(), 800);
   }
   function ghostPose(now: number) {
     if (glide) {
@@ -464,14 +467,15 @@
     sfx.pop();
     setExplore(true);
   }
-  // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there.
+  // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there (not
+  // with prefers-reduced-motion: the camera cuts there, so there is no flight).
   let grow = $state.raw<{ from: DOMRect; head: Node; sealed: boolean; path: string[] } | null>(null);
   let growEl = $state<HTMLDivElement>();
   function openLayer(path: string[], env: HTMLElement) {
     const head = env.querySelector('.env-head')?.cloneNode(true) ?? null, sealed = env.classList.contains('sealed');
     release(true);
     go({ path });
-    grow = head && trans && !matchMedia('(prefers-reduced-motion: reduce)').matches ? { from: env.getBoundingClientRect(), head, sealed, path } : null;
+    grow = head && trans ? { from: env.getBoundingClientRect(), head, sealed, path } : null;
   }
   $effect(() => { if (growEl && grow) growEl.replaceChildren(grow.head); });
   function frameGrow(now: number) {

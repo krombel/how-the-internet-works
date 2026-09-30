@@ -20,6 +20,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); c
 body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
 #stage { position: fixed; inset: 0; }
 #stage > svg { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
+/* a camera cut with prefers-reduced-motion: the old picture fades out over the new one (engine/motion.ts › fadeOver) */
+#stage > .fading { position: absolute; inset: 0; pointer-events: none; will-change: opacity; animation: fade-out ease-out both; }
+@keyframes fade-out { to { opacity: 0; } }
 button, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
