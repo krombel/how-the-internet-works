@@ -2,6 +2,7 @@
    (scoped to :root[data-style="<id>"]). These are neutral fallbacks. */
 :root {
   --bg: #10163e; --ink: #eef1ff; --muted: #a9b8ff; --accent: #3ef0ff; --accent-ink: #07122e;
+  --heading: var(--accent);
   --ui-font: system-ui, sans-serif; --heading-font: var(--ui-font); --label-font: var(--ui-font);
   --tag-font: var(--ui-font); --mono-font: ui-monospace, monospace;
   --heading-weight: 800; --heading-transform: none; --heading-spacing: normal;
@@ -79,13 +80,13 @@ button { cursor: pointer; }
   display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;
   animation: trip-in 0.3s ease both; }
 .trip span { overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
-.trip span.now { color: var(--accent); }
+.trip span.now { color: var(--heading); }
 .trip .arrow { flex: none; color: var(--ink); }
 .change { left: 0; top: 0; padding: 4px 12px; border-radius: 999px; font-family: var(--label-font); font-weight: var(--lbl-weight);
   font-size: 15px; will-change: transform, opacity; }
 @keyframes trip-in { from { opacity: 0; transform: translate(-50%, 8px); } }
 .caption h2 { margin: 0 0 3px; font-family: var(--heading-font); font-weight: var(--heading-weight); text-transform: var(--heading-transform);
-  letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--accent); }
+  letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--heading); }
 .caption .tag { margin: 0 0 3px; font-size: 12.5px; font-weight: 800; color: var(--door-ink); }
 .caption p { margin: 0; font-size: 15.5px; line-height: 1.42; max-height: 4.3em; overflow: auto; }
 .caption .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; }
@@ -127,7 +128,7 @@ button { cursor: pointer; }
 .picker.sheet { top: auto; bottom: 0; left: 0; right: 0; translate: none; width: auto; border-end-start-radius: 0; border-end-end-radius: 0;
   padding-bottom: max(18px, env(safe-area-inset-bottom)); animation-name: sheet-in; }
 .picker header { display: flex; align-items: center; }
-.picker h2 { margin: 6px 0 10px; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 20px; color: var(--accent);
+.picker h2 { margin: 6px 0 10px; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 20px; color: var(--heading);
   text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
 .picker .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
 .picker .option { flex-direction: column; gap: 4px; padding: 10px 8px 12px; border-radius: 18px; font-size: 16px; font-weight: 800;
@@ -175,7 +176,7 @@ button { cursor: pointer; }
 .off-label { margin: 4px 0 0; font-size: 12px; font-weight: 800; color: var(--muted); }
 .off-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .off-row .env { flex: 1 1 12em; border-style: dashed; opacity: 0.75; }
-.peek h2 { margin: 0; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 18px; color: var(--accent);
+.peek h2 { margin: 0; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 18px; color: var(--heading);
   text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
 .peek .where { font-size: 13px; line-height: 1.35; color: var(--muted); font-weight: 700; margin: 0 0 8px; }
 .env { border: 2px solid var(--env-edge); background: var(--env-bg); border-radius: var(--env-radius); padding: 7px 9px 8px; margin-top: 6px;

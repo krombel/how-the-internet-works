@@ -21,7 +21,7 @@
   /* The palette: every colour the art uses (content/**: var(--name), never a literal; see docs/authoring.md). */
   --sky: #ffeccf;
   --ink: #5a3827;
-  --muted: #8a6043;
+  --muted: #7f583e;
   --accent: #e97845;
   --line: #6b3f2a;
   --brick: #a65435;
@@ -78,6 +78,7 @@
   /* What the chrome and the engine's art slots use */
   --bg: var(--sky);
   --accent-ink: var(--paper);
+  --heading: var(--brick);
   --ui-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --heading-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --label-font: 'Baloo 2 Variable', system-ui, sans-serif;
@@ -93,21 +94,21 @@
   --card-shadow: 0 9px 0 rgba(107, 63, 42, 0.15), 0 16px 30px rgba(107, 63, 42, 0.12);
   --card-blur: none;
   --btn: #ffe0a9;
-  --btn-on: var(--accent);
+  --btn-on: #c24c17;
   --btn-on-ink: var(--paper);
   --btn-radius: 999px;
   --env-bg: var(--paper-2);
   --env-edge: var(--line);
   --env-radius: 18px;
   --env-sealed: var(--kraft);
-  --env-name: var(--brick);
-  --env-dive: var(--teal);
-  --door-dive: var(--teal-dark);
-  --door-open: #d0673a;
+  --env-name: #974c30;
+  --env-dive: var(--teal-dark);
+  --door-dive: #377c6c;
+  --door-open: #b4542b;
   --door-catch: #8a4f75;
   --env-used: rgba(255, 207, 93, 0.55);
-  --env-change: #c4452a;
-  --link: #c45f3c;
+  --env-change: #ab3c25;
+  --link: #b35636;
   --lbl-weight: 800;
   --lbl-halo: var(--paper);
   --lbl-halo-w: 0.22em;
@@ -150,11 +151,6 @@
 :root[data-style='storybook'] .swatch {
   border-color: var(--line);
   border-radius: 10px;
-}
-
-:root[data-style='storybook'] .caption h2,
-:root[data-style='storybook'] .peek h2 {
-  color: var(--brick);
 }
 
 :root[data-style='storybook'] .env {
