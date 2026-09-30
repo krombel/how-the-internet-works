@@ -183,7 +183,7 @@ caption and the strings (`door.*`):
 | Verb | Kind | On | Opens | Mark (Storybook) |
 |---|---|---|---|---|
 | **Look inside** | `dive` | a link with a dive | the link's dive scene | teal round lens with a magnifier, pulsing |
-| **Open up** | `expand` | a group node (`kind: network`) | its own path scene | orange pill with a door and the label, always shown; a breathing dashed ring round the group |
+| **Open up** | `expand` | a group node (`kind: network`) | its own path scene | orange lens with a door (its label shows when pointed at or lit); a breathing dashed ring round the group |
 | **Change** | `swap` | the start device (root only) | the place / activity picker | berry rounded square with arrows |
 
 A fourth verb, **Catch**, is for packets (issue #17, above): the caption lists the flow's packet kinds ("Catch: Request ·
@@ -203,10 +203,6 @@ Video") and a chip catches the youngest packet of that kind on screen.
 - **Caption chips.** The caption lists the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a
   stop, only that stop's own). They are real buttons, so they are the keyboard and screen-reader way in (the scene
   SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
-- **The cutaway.** A group node shows the path inside it through its outline: `render/Cutaway.svelte` draws the
-  group's own path scene (roads, stop silhouettes and its packets, faintly) exactly where that scene opens when you
-  zoom in, so opening it grows what was already there. The node art exports `hollow` (its outline path) and the
-  theme's `Device` draws the `inside` snippet clipped to it.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 
 ### The place morph
@@ -271,8 +267,7 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 | Validation | `model/validate.ts` | runs every schema and cross-reference; dev + tests only |
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
-`Device` (places the node art, adds a face and a focus ring, and a fallback body; for a group, the `inside` cutaway
-clipped to `hollow`), `Link` (by `look`), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
+`Device` (places the node art, adds a face and a focus ring, and a fallback body), `Link` (by `look`), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
 `glow` round what it opens under the devices and a `badge` over everything, with its label, `hot` and the reduced-motion
 clock), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
 `sealed`: Storybook draws a layer dive as a big envelope with its flap at the top, dashed when sealed. Scene-specific art (waves, prisms, beams) lives
@@ -355,7 +350,7 @@ Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame
 5G; opening a layer dive is about 7 ms; it varies a few ms between runs). Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 71.8 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is 70.8 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.6 kB) and the English layer strings (about 4.7 kB), which
 load on the first catch.

@@ -3,11 +3,10 @@
 import type { Component } from 'svelte';
 import type { PlaceBackdropProps } from '../render/theme-types';
 
-type Mod<P extends Record<string, any>> = { default: Component<P>; face?: [number, number]; hollow?: string };
+type Mod<P extends Record<string, any>> = { default: Component<P>; face?: [number, number] };
 const byFolder = <P extends Record<string, any>>(mods: Record<string, Mod<P>>) => Object.fromEntries(Object.entries(mods).map(([p, m]) => [p.split('/')[3], m]));
 
-/** content/nodes/<id>/art/Device.svelte (a 200×200 body; `export const face = [x, y]` in <script module>, and for a
- *  group node optionally `hollow`, the outline of the body a theme may see through to show what's inside). */
+/** content/nodes/<id>/art/Device.svelte (a 200×200 body; `export const face = [x, y]` in <script module>). */
 export const nodeArt = byFolder(import.meta.glob<Mod<{ time: number }>>('/content/nodes/*/art/Device.svelte', { eager: true }));
 /** content/places/<id>/art/Backdrop.svelte: drawn over the theme's sky in the root path scene. */
 export type PlaceBackdrop = Component<PlaceBackdropProps>;

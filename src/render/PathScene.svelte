@@ -1,7 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // A path scene: backdrop, links, nodes (a group with a cutaway of the path inside it), labels, nerd tags, doors and
-  // packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
+  // A path scene: backdrop, links, nodes, labels, nerd tags, doors and packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
   // start device. Doors (model/doors.ts) are drawn in two parts: a glow around what they open, under the nodes, and a
   // badge over them.
   import { bezier, curvePath, WORLD_SIZE } from '../engine/geometry';
@@ -13,7 +12,6 @@
   import type { Route } from '../model/resolve';
   import { loc, nameOf, routeKeys, themeState, tr, trFirst, view } from '../state.svelte';
   import { getScene, getWorld } from './ctx';
-  import Cutaway from './Cutaway.svelte';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
 
@@ -74,10 +72,8 @@
   {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
   {#each ps.nodes as n (n.id)}
     {@const art = nodeArt[n.node.id]}
-    {#snippet inside()}<Cutaway {route} node={n} />{/snippet}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
-      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id}
-        inside={n.kind === 'group' ? inside : null} hollow={art?.hollow ?? null} />
+      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} />
     </g>
   {/each}
   {#each ps.nodes as n (n.id)}

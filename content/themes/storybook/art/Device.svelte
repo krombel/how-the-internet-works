@@ -2,11 +2,8 @@
 <script lang="ts">
   // Places a node's own art (content/nodes/<id>/art/Device.svelte) and gives it the storybook look: chunky brown
   // outlines, paper colours, a blinking face and a gentle bob in dives. The node art only uses the shared classes.
-  // A group shows what's inside it through its outline (`hollow`), faintly, like a window into it.
   import type { DeviceProps } from '$core/api';
-  let { id, x, y, size, time, Art, face, context, focused, inside = null, hollow = null }: DeviceProps = $props();
-  const uid = $props.id();
-  const clip = `inside-${uid}`;
+  let { id, x, y, size, time, Art, face, context, focused }: DeviceProps = $props();
   const blink = $derived(Math.sin(time * 3 + id.length * 0.7) > 0.93);
   const bob = $derived(context === 'dive' ? Math.sin(time * 1.5 + id.length) * 3 : 0);
 </script>
@@ -14,10 +11,6 @@
 <g class="storybook-device dev-{id}" class:focused transform="translate({x - size / 2} {y - size / 2 + bob}) scale({size / 200})">
   {#if focused}<circle class="focus" cx="100" cy="100" r="98" />{/if}
   {#if Art}<Art {time} />{:else}<rect class="body peach" x="34" y="44" width="132" height="112" rx="26" />{/if}
-  {#if inside}
-    <clipPath id={clip}><path d={hollow ?? 'M34 44 H166 V156 H34 Z'} /></clipPath>
-    <g class="inside" clip-path="url(#{clip})">{@render inside()}</g>
-  {/if}
   {#if face || !Art}
     {@const f = face ?? [100, 104]}
     <g class="face" transform="translate({f[0]} {f[1]})">
@@ -46,5 +39,4 @@
   .storybook-device :global(.accent), .storybook-device :global(.button) { fill: #ffcf5d; stroke: #6b3f2a; stroke-width: 4; }
   .storybook-device :global(.hi) { fill: #fff6d7; opacity: .55; }
   .eye { fill: #6b3f2a; }
-  .inside { opacity: .42; --cut-ink: #8a6043; }
 </style>
