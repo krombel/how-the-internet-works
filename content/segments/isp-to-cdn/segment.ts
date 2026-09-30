@@ -19,7 +19,8 @@ export default defineSegment({
       },
       portrait: {
         nodes: { core: [260, 720, 180], transit: [150, 480, 140], ixp: [670, 520, 180], cdn: [330, 270, 180] },
-        links: { 'core-transit': { bend: 0.08 } },
+        // bowed up so the fibre's badge clears the exchange's name
+        links: { 'core-transit': { bend: 0.08 }, 'core-ixp': { bend: -0.14 } },
       },
     },
   },

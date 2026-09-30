@@ -1,0 +1,54 @@
+{
+  "title": "GPON: shared fibre envelopes",
+  "kid": "A fibre can be shared by many homes. Going home, every house hears the envelopes, but your router keeps only the one with your house number. Going out, homes take turns.",
+  "nerd": "This is a classic GPON GEM frame on a PON. Downstream is broadcast over the splitter with per-GEM-port AES; upstream uses 125 µs TDMA slots assigned by the OLT BWmap after ranging.",
+  "role": {
+    "nat": {
+      "title": "Your router keeps its house number",
+      "kid": "Your router hears the shared fibre, but it only keeps the light envelope marked House no. 1127. The others stay locked. Underneath, the envelope travels as flashes of light in a glass thread.",
+      "nerd": "At the ONT/router, downstream GEM frames for all ONTs arrive from the splitter. This ONT accepts GEM Port-ID 1127, discards other Port-IDs, and relies on per-port AES for privacy."
+    },
+    "bridge": {
+      "title": "The cabinet hands out turns",
+      "kid": "The cabinet is the boss of the shared fibre. It sends a little timetable so each house knows when to talk and nobody talks over anyone else.",
+      "nerd": "At the OLT, the downstream header carries a BWmap. Upstream bursts use Alloc-IDs/T-CONTs, DBA grants, and ranging equalisation delays so near and far ONTs land in their assigned 125 µs frame slots."
+    }
+  },
+  "label": {
+    "everyone": "Going home: everyone hears",
+    "everyoneCompact": "Everyone hears",
+    "turns": "Going up: take turns",
+    "turnsCompact": "Take turns",
+    "cabinet": "cabinet / OLT",
+    "cabinetShort": "cabinet",
+    "splitter": "passive splitter",
+    "splitterShort": "splitter",
+    "yourHouse": "your house",
+    "otherHouse": "neighbour",
+    "keeps": "keeps 1127",
+    "ignores": "ignores",
+    "timetable": "timetable",
+    "yourTurn": "your turn!",
+    "yourTurnShort": "Your turn!",
+    "yourTurnSlot": "your turn: slot 3",
+    "slot": "slot",
+    "burst": "your burst",
+    "header": "GEM header",
+    "payload": "video bytes",
+    "equalDelay": "equalisation delay",
+    "nerdGrant": "BWmap · 0x467 · ranging"
+  },
+  "field": {
+    "pli": "PLI {value}",
+    "portKid": "House no. 1127",
+    "portNerd": "GEM Port-ID 1127",
+    "pti": "PTI 001",
+    "hec": "HEC {value}"
+  },
+  "tag": {
+    "down": "Broadcast · AES per GEM port",
+    "up": "BWmap · Alloc-ID/T-CONT · DBA",
+    "rate": "GPON: 2.488 Gbit/s ↓ · 1.244 Gbit/s ↑",
+    "ranging": "Ranging adds equalisation delay"
+  }
+}

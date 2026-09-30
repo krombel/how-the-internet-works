@@ -7,30 +7,35 @@ import { doorsOf } from '../model/doors';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
-import { sceneRef, type SceneRef } from '../model/tree';
+import { downFrom, sceneRef, upFrom, type SceneRef } from '../model/tree';
 import { fill, loc, nameOf, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
-/** A door to open from the caption, by verb: look inside a link's technology or open up a group. */
-export interface CaptionDoor { kind: 'dive' | 'expand'; id: string; name: string }
+/** A door to open from the caption, by verb: look inside a link's technology or open up a group (doors of the path
+ *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
+export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
 export interface CaptionText { title: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
 
-/** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip. */
+/** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip.
+ *  Links of the same technology share one chip (the first); their badges on the map open the others. */
 function captionDoors(ps: PathScene, root: boolean, stop: string | null): CaptionDoor[] {
   const out: CaptionDoor[] = [];
   for (const d of doorsOf(ps, root)) {
     if (d.kind === 'swap' || (stop && d.id !== stop)) continue;
     const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
     const name = l ? tr(`tech.${l.link.tech.id}.name`) : tr(`node.${ps.nodes.find((k) => k.id === d.id)!.node.id}.name`);
+    if (out.some((o) => o.kind === d.kind && o.name === name)) continue;
     out.push({ kind: d.kind, id: d.id, name });
   }
   return out;
 }
 
 /** A layer dive's text, most specific first: at this kind of node, for its role, sealed (when it can't open the
- *  layer), then the scene's own; with {hop}, {yours} and {layer} filled in. */
+ *  layer), then the scene's own; each first for this layer (a scene may serve several), then for any; with {hop},
+ *  {yours} and {layer} filled in. */
 function layerText(r: Route, ref: SceneRef, suffix: string, level?: Level) {
   const at = ref.at!, hop = r.hops[at.hop], base = `scene.${ref.dive}`, end = suffix ? `.${suffix}` : '';
-  const keys = [`${base}.at.${hop.node.id}`, `${base}.role.${hop.role}`, ...(opens(r, at.layer, hop.role) ? [] : [`${base}.sealed`]), base];
+  const chain = (b: string) => [`${b}.at.${hop.node.id}`, `${b}.role.${hop.role}`, ...(opens(r, at.layer, hop.role) ? [] : [`${b}.sealed`]), b];
+  const keys = [...chain(`${base}.${at.layer}`), ...chain(base)];
   const vars = { hop: nameOf(hop), yours: yours(r.chain[0]), layer: trl(`layer.${at.layer}.name`) };
   return fill(trFirst(keys.map((k) => k + end), level), vars);
 }
@@ -53,20 +58,23 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   const lv = loc.level;
   if (!ref) return { title: '', body: '', hint: '', doors: [], links: [] };
   const c = r.content;
-  if (ref.kind === 'layer') return {
-    title: sceneTitle(r, path, o),
-    body: layerText(r, ref, '', lv),
-    hint: tr('hint.layer'),
-    doors: [],
-    links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
-  };
+  if (ref.kind === 'layer') {
+    const down = downFrom(r, ref);
+    return {
+      title: sceneTitle(r, path, o),
+      body: layerText(r, ref, '', lv),
+      hint: tr('hint.layer'),
+      doors: down ? [{ kind: 'down', id: down.join('/'), name: sceneTitle(r, down, o), path: down }] : [],
+      links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
+    };
+  }
   if (ref.kind === 'dive') {
     const tech = ref.link!.link.tech;
     return {
       title: sceneTitle(r, path, o),
       body: trFirst([`scene.${ref.dive}.${tech.id}`, `scene.${ref.dive}`], lv),
       hint: tr('hint.zoomOut'),
-      doors: [],
+      doors: upFrom(r, ref).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(tech.learnMore ?? [])]),
     };
   }

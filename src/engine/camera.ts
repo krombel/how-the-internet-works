@@ -48,13 +48,13 @@ export const smoothstep = (a: number, b: number, x: number) => {
 
 /** How far we are zoomed from a parent (k0 = its fit) into a child (its fit rect): u = 0 at the parent, 1 at the
  *  child; prox = how centred the child is (1 when the view centre is inside it). */
-export function progress(cam: Cam, vp: Viewport, k0: number, child: Rect) {
+export function progress(cam: Cam, vp: Viewport, k0: number, child: Rect, near: Rect = child) {
   const kd = fit(child, vp).k;
   const u = Math.log(cam.k / k0) / Math.log(kd / k0);
-  // distance from the view centre to the child's rect (0 when inside it), so a zoomed-in look at one corner of a
-  // child scene still counts as being "in" it
+  // distance from the view centre to the child's rect (or the wider `near` one; 0 when inside it), so a zoomed-in look
+  // at one corner of a child scene still counts as being "in" it
   const c = areaCentre(vp);
-  const x0 = child.x * cam.k + cam.x, y0 = child.y * cam.k + cam.y, x1 = x0 + child.w * cam.k, y1 = y0 + child.h * cam.k;
+  const x0 = near.x * cam.k + cam.x, y0 = near.y * cam.k + cam.y, x1 = x0 + near.w * cam.k, y1 = y0 + near.h * cam.k;
   const dx = Math.max(x0 - c.x, 0, c.x - x1), dy = Math.max(y0 - c.y, 0, c.y - y1);
   const dist = Math.hypot(dx, dy) / (Math.min(vp.w, vp.h) / 2);
   return { u, prox: 1 - smoothstep(0.35, 1.1, dist) };

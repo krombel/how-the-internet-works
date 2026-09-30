@@ -89,6 +89,7 @@ button { cursor: pointer; }
 .door-dive { --door-ink: var(--door-dive, var(--accent)); }
 .door-expand { --door-ink: var(--door-open, var(--accent)); }
 .door-catch { --door-ink: var(--door-catch, var(--accent)); }
+.door-down, .door-up { --door-ink: var(--door-dive, var(--accent)); }
 /* compact (a short landscape screen): a one-line pill; opened, the whole caption lies over the scene (anchored at the
    pill, so the pill's height is all the scene gives up) */
 .caption.compact { width: fit-content; max-width: min(560px, calc(100% - 20px)); padding: 2px 6px 2px 16px; }
@@ -192,6 +193,11 @@ button { cursor: pointer; }
 .env-dive circle + circle, .env-dive path { fill: none; stroke: var(--accent-ink, #fff); stroke-width: 2.2; stroke-linecap: round; }
 .env-go:hover .env-dive, .env-go:focus-visible .env-dive { transform: scale(1.15); }
 .peek .dive-hint { margin-top: -4px; font-weight: 600; }
+.peek .travels { align-self: start; gap: 6px; margin-top: 10px; min-height: 34px; padding: 4px 12px; font-size: 13px; font-weight: 800;
+  box-shadow: inset 0 0 0 2px var(--door-ink); }
+.peek .travels svg { width: 16px; height: 16px; color: var(--door-ink); }
+.peek .travels:hover, .peek .travels:focus-visible { background: var(--door-ink); color: var(--btn-on-ink); }
+.peek .travels:hover svg, .peek .travels:focus-visible svg { color: inherit; }
 /* the detail view: a protocol tree, each layer unfolding into its header diagram and fields */
 .tree { display: grid; gap: 6px; }
 .tree-layer { border: 2px solid var(--env-edge); border-radius: 12px; background: var(--env-bg); padding: 4px 8px; }

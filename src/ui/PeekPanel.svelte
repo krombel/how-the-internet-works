@@ -2,18 +2,21 @@
   // The caught packet at one hop (issue #17). Traffic is paused; ◀ ▶ step the packet along its path. The panel shows
   // what this hop does, the envelopes taken off here, then the packet as it leaves: every layer sealed, closed or
   // opened, the fields the hop uses marked and the ones it changed as old → new. "Details" swaps the envelopes for
-  // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8).
+  // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8), and below the
+  // envelopes, the link they leave on leads down to how it carries them (issue #13).
   import { hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
-  import { layerPath } from '../model/tree';
+  import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/dives.svelte';
+  import { sceneTitle } from './caption';
   import { fill, loc, nameOf, tr, trFirst, trl, yours } from '../state.svelte';
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
   import Icon from './Icon.svelte';
-  let { route, flow, kind, dir, hop, onstep, onclose, ondive }: {
+  let { route, flow, kind, dir, hop, onstep, onclose, ondive, ondown }: {
     route: Route; flow: string; kind: string; dir: Dir; hop: number;
     onstep: (d: -1 | 1) => void; onclose: () => void; ondive: (path: string[], env: HTMLElement) => void;
+    ondown: (path: string[]) => void;
   } = $props();
   let detail = $state(false);
   const v = $derived(hopView(route, flow, dir, hop));
@@ -35,6 +38,10 @@
   $effect(() => { for (const id of dives.keys()) void loadDive(route.content.layers[id].dive!); });
   const dive = (l: LayerView) => (dives.has(l.id) ? (env: HTMLElement) => ondive(dives.get(l.id)!, env) : undefined);
   const lname = (id: string) => trl(`layer.${id}.name`);
+  const down = $derived.by(() => {
+    const link = linkOut(route, hop, dir), path = link && linkDivePath(route, link);
+    return path ? { path, name: sceneTitle(route, path, 'landscape') } : null;
+  });
 </script>
 
 <aside class="peek card" class:wide={detail} data-ui aria-live="polite">
@@ -72,6 +79,9 @@
       {/key}
     {/if}
   </div>
+  {#if down}
+    <button class="btn chip travels door-down" onclick={() => ondown(down.path)}><Icon name="wave" /><span dir="auto">{fill(tr('peek.travels'), { name: down.name })}</span></button>
+  {/if}
 </aside>
 
 {#snippet nest(i: number)}

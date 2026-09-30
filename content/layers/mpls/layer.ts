@@ -1,6 +1,7 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
+  dive: 'sticker-doors',
   code: { ethertype: '0x8847 (MPLS)' },
   fields: [
     { id: 'label', bits: 20, value: { up: '24012', down: '17003' }, use: true, kid: true },

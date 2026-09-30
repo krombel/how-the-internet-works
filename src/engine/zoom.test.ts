@@ -5,6 +5,7 @@ import { decide, mixes, sceneInfo } from './zoom';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const vp: Viewport = { w: 1440, h: 900, top: 0, bottom: 0 };
+const pvp: Viewport = { w: 390, h: 844, top: 0, bottom: 0 };
 const at = (path: string[]) => fit(sceneInfo(home, path, 'landscape').fit, vp);
 
 describe('layer dives in the zoom', () => {
@@ -14,6 +15,21 @@ describe('layer dives in the zoom', () => {
     const m = mixes(cam, vp, home, [['router~ip']], 'landscape');
     expect(m.get('router~ip')).toBeCloseTo(1);
     expect(m.get('')).toBeLessThan(0.05);
+  });
+
+  it('hides the link dives beside a layer dive, which would crowd its panel', () => {
+    const path = ['internet', 'cabinet~ethernet'], cam = at(path);
+    const m = mixes(cam, vp, home, [path], 'landscape');
+    expect(m.get('internet/cabinet~ethernet')).toBeCloseTo(1);
+    expect(m.has('internet/home-cabinet') || m.has('internet/cabinet-backhaul')).toBe(false);
+  });
+
+  it('draws a layer dive whose stack reaches past the edge of its scene', () => {
+    const path = ['internet', 'cabinet~gpon'], cam = fit(sceneInfo(home, path, 'portrait').fit, pvp);
+    const scene = sceneInfo(home, ['internet'], 'portrait').fit, dive = sceneInfo(home, path, 'portrait').fit;
+    expect(dive.y).toBeGreaterThan(scene.y + scene.h);
+    expect(mixes(cam, pvp, home, [path], 'portrait').get('internet/cabinet~gpon')).toBeCloseTo(1);
+    expect(decide(cam, pvp, home, path, 'portrait')).toBeNull();
   });
 
   it('never pinches into one, but pinches out of one', () => {

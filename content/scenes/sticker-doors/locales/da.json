@@ -1,0 +1,128 @@
+{
+  "title": "Hvilken dør er mærkaten til?",
+  "kid": "En boks læser den lille mærkat udenpå og kigger i sin opslagsbog. Den samme boks kan lære MAC-døre, holde farvede gader adskilt eller følge et motorvejsnummer. Nedenunder rejser det som et signal i kabel eller fiber.",
+  "nerd": "Et samlet lag-2/label-switching-billede: Ethernet lærer afsender-MAC'er og flooder ukendte unicasts, VLAN-tags afgrænser forwarding-domæner, og MPLS-labels styrer LFIB push/swap/pop.",
+  "ethernet": {
+    "title": "Hvilken kabeldør?",
+    "kid": "Kabel-kuverten siger, hvilken dør den er til. En switch lærer fra Fra-mærkaten; en router eller computer tager kuverten af, når Til-mærkaten er dens eget navn. Nedenunder rejser den som elektriske skub eller lysglimt.",
+    "nerd": "Ethernet-forwarding bruger opslag på modtager-MAC, læring af afsender-MAC, flooding af ukendt unicast og FCS/CRC-32-tjek før decapsulation.",
+    "role": {
+      "bridge": {
+        "title": "Boksen lærer dørene",
+        "kid": "Rammen kommer ind ad dør 1 fra din telefon. Boksen skriver “din telefon → dør 1”. Den kender ikke Til-mærkaten endnu, så den kopierer rammen ud ad de andre døre. Svaret lærer den dør 2. Nedenunder rejser den som et signal i kabel eller fiber.",
+        "nerd": "En bridge lærer source-MAC'er i en MAC-tabel, lader poster ældes efter cirka 300 s, flooder ukendte unicast-rammer undtagen på indgangsporten og sender kendte destinationer til én port. Store-and-forward-switche verificerer FCS/CRC-32 først."
+      },
+      "nat": {
+        "title": "Mærkaten er til mig",
+        "kid": "Til-mærkaten er routerens eget navn, så den tjekker rammen, tager kabel-kuverten af og råber “Hvem har 192.168.1.23?” En boks svarer “Mig!”, og en frisk mærkat kommer på. Nedenunder rejser den som elektriske skub eller lysglimt.",
+        "nerd": "Modtager-MAC'en matcher routerens interface. Efter FCS/CRC-32-validering fjernes Ethernet-headeren; ARP finder næste hops MAC-adresse (IPv6 bruger NDP), og en ny Ethernet-ramme sendes ud."
+      },
+      "router": {
+        "title": "Mærkaten er til mig",
+        "kid": "Til-mærkaten er routerens eget navn. Den tjekker rammen, tager kabel-kuverten af, spørger ARP om næste boks' MAC og sætter en ny kabelmærkat på. Nedenunder rejser den som elektriske skub eller lysglimt.",
+        "nerd": "Routeren bruger rammen, fordi den er adresseret til dens lokale MAC, validerer FCS/CRC-32, pakker payloaden ud, finder næste hop via ARP og skriver et nyt source/destination-MAC-par til det udgående link."
+      },
+      "endpoint": {
+        "title": "Mærkaten er til mig",
+        "kid": "Til-mærkaten passer på computeren. Den tjekker, at rammen ikke er smudset, tager kabel-kuverten af og sender pakken indeni opad. Når den svarer, bruger den ARP og skriver en ny mærkat. Nedenunder rejser den som elektriske skub eller lysglimt.",
+        "nerd": "En vært accepterer rammer, hvor destinationen er dens NIC-MAC (eller broadcast/multicast), verificerer FCS/CRC-32 og sender EtherType-payloaden opad. Udgående rammer bruger ARP-cachen til peerens MAC."
+      }
+    }
+  },
+  "vlan": {
+    "title": "Farvede gadedøre",
+    "kid": "Gade-mærkaten maler rammen for gade 101. Den går kun ud ad døre med den farve. Ved BNG'en fortæller hus 2042, hvilket abonnement det er, og mærkaterne tages af. Nedenunder rejser den som lysglimt i fiber.",
+    "nerd": "802.1Q bærer et 12-bit VID (1-4094 brugbare). I 802.1ad Q-in-Q peger S-VLAN 101 på skabets domæne, og C-VLAN 2042 peger på abonnentlinjen ved BNG'en.",
+    "at": {
+      "bng": {
+        "title": "Abonnementsdøren",
+        "kid": "Ved BNG'en har gade- og husmærkaten gjort deres arbejde. Hus 2042 betyder din linje, så BNG'en tager mærkaterne af og sender pakken videre. Nedenunder rejser den som lysglimt i fiber.",
+        "nerd": "BNG'en terminerer access-VLAN'erne: S-VID 101 afgrænser aggregeringssiden, C-VID 2042 vælger subscribersessionen, og Ethernet-indholdet routes eller label-switches videre."
+      }
+    }
+  },
+  "mpls": {
+    "title": "Motorvejsnumre",
+    "kid": "Inde i udbyderens net er mærkaten et motorvejsnummer. Et kryds kan bytte 24012 til 17003 og sende pakken ud ad dør 3 uden at læse den lange adresse. Nedenunder rejser den som lysglimt i fiber.",
+    "nerd": "MPLS-routere bruger en LFIB: indgående label 24012 peger på et udgående interface og label 17003. Kantroutere pusher labels; LSR'er i midten swapper; næstsidste hop kan poppe.",
+    "at": {
+      "core": {
+        "title": "Sidste motorvejskryds",
+        "kid": "Kernen er det sidste kryds før exchange her. Den popper motorvejsmærkaten af, så den næste boks kan læse den normale adresse igen. Nedenunder rejser den som lysglimt i fiber.",
+        "nerd": "Penultimate-hop popping: kernen fjerner MPLS-labelen før det Ethernet-only IXP-stykke. TC-bits bærer klasse, og TTL kopieres fra IP og tælles ned."
+      }
+    }
+  },
+  "card": {
+    "action": "Mærkat-handling",
+    "label": "Label-handling",
+    "macBook": "MAC-opslagsbog",
+    "arpBook": "ARP-bog",
+    "lanes": "Banebog",
+    "lfib": "Labelbog"
+  },
+  "mini": {
+    "ethernet": {
+      "bridge": {
+        "a": "Lær dør 1.",
+        "b": "Ukendt? flood."
+      },
+      "me": {
+        "a": "Til mig: tag af.",
+        "b": "ARP efter næste MAC."
+      }
+    },
+    "vlan": {
+      "pass": {
+        "a": "Kun gade 101.",
+        "b": "Gade 102 er adskilt."
+      },
+      "bng": {
+        "a": "Hus 2042 = dig.",
+        "b": "BNG fjerner tags."
+      }
+    },
+    "mpls": {
+      "push": {
+        "a": "Push 24012.",
+        "b": "Ind på motorvejen."
+      },
+      "swap": {
+        "a": "24012 → 17003.",
+        "b": "Intet IP-opslag her."
+      },
+      "pop": {
+        "a": "Pop labelen.",
+        "b": "Almindelig Ethernet nu."
+      }
+    }
+  },
+  "label": {
+    "phone": "din telefon",
+    "reply": "svarboks",
+    "unknown": "ukendt",
+    "whoHas": "Hvem har {ip}?",
+    "whoHasShort": "Hvem har?"
+  },
+  "book": {
+    "age": "ældning",
+    "fcs": "FCS/CRC-32",
+    "check": "tjek",
+    "drop": "smid smuds væk",
+    "owner": "Ejer",
+    "subscriber": "subscribersession",
+    "you": "dit abonnement",
+    "street": "Gade",
+    "house": "Hus",
+    "otherStreet": "Anden gade",
+    "push": "push",
+    "pop": "pop",
+    "readNext": "læs næste",
+    "door": "dør",
+    "in": "ind",
+    "out": "ud"
+  },
+  "sticker": {
+    "meShort": "MIG"
+  }
+}

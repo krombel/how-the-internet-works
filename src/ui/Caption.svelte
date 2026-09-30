@@ -4,19 +4,20 @@
   // `compact` (a short landscape screen): a one-line pill with the title that opens into the whole caption, over the
   // scene, so the scene keeps the height; it folds up again when the caption changes.
   import { loc, tr } from '../state.svelte';
-  import type { CaptionText } from './caption';
+  import type { CaptionDoor, CaptionText } from './caption';
   import Icon from './Icon.svelte';
   let { text, place, onplace, ondoor, onhot, explore, catches, oncatch, hidden, compact, el = $bindable() }: {
     text: CaptionText; place: string; onplace: () => void;
     /** Packet kinds to catch here (issue #17), and catching one. */
     catches: { kind: string; name: string }[]; oncatch: (kind: string) => void;
     /** Open a door / point at it (its badge in the scene glows) or stop pointing (null). */
-    ondoor: (id: string) => void; onhot: (id: string | null) => void;
+    ondoor: (d: CaptionDoor) => void; onhot: (id: string | null) => void;
     explore: boolean; hidden: boolean; compact: boolean; el?: HTMLElement;
   } = $props();
   let openFor = $state<string | null>(null);
   const open = $derived(compact && openFor === text.title);
-  const verbs = $derived((['dive', 'expand'] as const).map((kind) => ({ kind, doors: text.doors.filter((d) => d.kind === kind) })).filter((v) => v.doors.length));
+  const icon = { dive: 'look', expand: 'open', down: 'wave', up: 'envelope' } as const;
+  const verbs = $derived((['dive', 'expand', 'down', 'up'] as const).map((kind) => ({ kind, doors: text.doors.filter((d) => d.kind === kind) })).filter((v) => v.doors.length));
 </script>
 
 <section class="caption card" class:hide={hidden} class:compact class:open data-ui bind:this={el} aria-live="polite">
@@ -36,9 +37,9 @@
         <div class="doors" class:lit={explore}>
           {#each verbs as v (v.kind)}
             <span class="verb door-{v.kind}" role="group" aria-label={tr(`door.${v.kind}`)}>
-              <span class="verb-name" aria-hidden="true"><Icon name={v.kind === 'dive' ? 'look' : 'open'} /><span dir="auto">{tr(`door.${v.kind}`)}:</span></span>
+              <span class="verb-name" aria-hidden="true"><Icon name={icon[v.kind]} /><span dir="auto">{tr(`door.${v.kind}`)}:</span></span>
               {#each v.doors as d (d.id)}
-                <button class="btn chip door" onclick={() => ondoor(d.id)} onpointerenter={() => onhot(d.id)} onpointerleave={() => onhot(null)}
+                <button class="btn chip door" onclick={() => ondoor(d)} onpointerenter={() => onhot(d.id)} onpointerleave={() => onhot(null)}
                   onfocus={() => onhot(d.id)} onblur={() => onhot(null)}>{d.name}</button>
               {/each}
             </span>

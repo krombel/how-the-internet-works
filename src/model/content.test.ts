@@ -2,6 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { content, type Content } from './registry';
 import { loadAllPacks, packs } from './strings';
+import { resolveRoute } from './resolve';
 import { coverage, formatProblems, validate } from './validate';
 
 const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
@@ -27,6 +28,16 @@ describe('content', () => {
       for (const m of src.matchAll(/from\s+['"]([^'"]+)['"]/g))
         if (m[1].startsWith('$core/') ? !['$core/define', '$core/api'].includes(m[1]) : m[1].includes('/src/')) bad.push(`${file}: ${m[1]}`);
     expect(bad).toEqual([]);
+  });
+
+  it('goes all the way down: every link has a dive, and so does every envelope it carries', () => {
+    const missing = new Set<string>();
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places))
+      for (const l of resolveRoute({ activity, places: [place] }).links) {
+        if (!l.dive) missing.add(`link ${l.tech.id}`);
+        for (const layer of l.stack) if (!content.layers[layer].dive) missing.add(`layer ${layer}`);
+      }
+    expect([...missing]).toEqual([]);
   });
 });
 

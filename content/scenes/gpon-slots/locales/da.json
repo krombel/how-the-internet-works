@@ -1,0 +1,54 @@
+{
+  "title": "GPON: kuverter på delt fiber",
+  "kid": "En fiber kan deles af mange hjem. Hjemad hører alle huse kuverterne, men din router beholder kun den med dit husnummer. Udad skiftes husene.",
+  "nerd": "Dette er en klassisk GPON GEM-ramme på et PON. Nedstrøms sendes den ud over splitteren med AES pr. GEM-port; opstrøms bruges 125 µs TDMA-slots, som OLT'ens BWmap tildeler efter ranging.",
+  "role": {
+    "nat": {
+      "title": "Din router beholder sit husnummer",
+      "kid": "Din router hører den delte fiber, men den beholder kun lys-kuverten med Hus nr. 1127. De andre er stadig låst. Nedenunder rejser kuverten som lysglimt i en glastråd.",
+      "nerd": "Ved ONT'en/routeren kommer nedstrøms GEM-rammer til alle ONT'er fra splitteren. Denne ONT accepterer GEM-port-ID 1127, kasserer andre port-ID'er og bruger AES pr. port til privatliv."
+    },
+    "bridge": {
+      "title": "Kabinettet deler ture ud",
+      "kid": "Kabinettet bestemmer over den delte fiber. Det sender en lille køreplan, så hvert hus ved, hvornår det må tale, uden at nogen taler oven i hinanden.",
+      "nerd": "Ved OLT'en bærer downstream-headeren en BWmap. Upstream-bursts bruger Alloc-ID'er/T-CONTs, DBA-tildelinger og ranging med equalisation delay, så nære og fjerne ONT'er lander i deres slots i 125 µs-rammen."
+    }
+  },
+  "label": {
+    "everyone": "Hjemad: alle hører med",
+    "everyoneCompact": "Alle hører med",
+    "turns": "Udad: skift til at tale",
+    "turnsCompact": "Skift til at tale",
+    "cabinet": "kabinet / OLT",
+    "cabinetShort": "kabinet",
+    "splitter": "passiv splitter",
+    "splitterShort": "splitter",
+    "yourHouse": "dit hus",
+    "otherHouse": "nabo",
+    "keeps": "beholder 1127",
+    "ignores": "ignorerer",
+    "timetable": "køreplan",
+    "yourTurn": "din tur!",
+    "yourTurnShort": "Din tur!",
+    "yourTurnSlot": "din tur: slot 3",
+    "slot": "slot",
+    "burst": "dit burst",
+    "header": "GEM-header",
+    "payload": "videobytes",
+    "equalDelay": "equalisation delay",
+    "nerdGrant": "BWmap · 0x467 · ranging"
+  },
+  "field": {
+    "pli": "PLI {value}",
+    "portKid": "Hus nr. 1127",
+    "portNerd": "GEM-port-ID 1127",
+    "pti": "PTI 001",
+    "hec": "HEC {value}"
+  },
+  "tag": {
+    "down": "Broadcast · AES pr. GEM-port",
+    "up": "BWmap · Alloc-ID/T-CONT · DBA",
+    "rate": "GPON: 2,488 Gbit/s ↓ · 1,244 Gbit/s ↑",
+    "ranging": "Ranging tilføjer equalisation delay"
+  }
+}

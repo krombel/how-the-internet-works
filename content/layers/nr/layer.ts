@@ -8,6 +8,7 @@ export default defineLayer({
     { id: 'pdcpsn', bits: 12, value: { up: '1851', down: '3702' }, use: true },
     { id: 'qfi', bits: 6, value: '9', use: true },
   ],
+  dive: 'nr-grant',
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/5G_NR', title: '5G NR', level: 'nerd', lang: 'en' },
   ],

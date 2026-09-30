@@ -1,6 +1,7 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
+  dive: 'sticker-doors',
   code: { ethertype: '0x88A8 (802.1ad)' },
   fields: [
     { id: 'spcp', bits: 3, value: '0' },
@@ -14,6 +15,7 @@ export default defineLayer({
     { id: 'type', bits: 16, value: '{inner.ethertype}', use: ['router'] },
   ],
   learnMore: [
+    { url: 'https://en.wikipedia.org/wiki/IEEE_802.1Q', title: 'IEEE 802.1Q', level: 'nerd', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/IEEE_802.1ad', title: 'IEEE 802.1ad (Q-in-Q)', level: 'nerd', lang: 'en' },
   ],
 });

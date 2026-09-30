@@ -1,0 +1,69 @@
+{
+  "title": "The radio envelope",
+  "kid": "Everyone in the room can hear a Wi-Fi envelope, so it says exactly who it is for. The receiver answers, “Got it!”, and only then does the next envelope get a turn. Underneath, the envelope travels as radio waves.",
+  "nerd": "An 802.11 data frame names the receiver, transmitter and far wired-side address, protects the payload with WPA3/CCMP, and relies on CSMA/CA plus ACKs, sequence numbers and retries on shared airtime.",
+  "role": {
+    "bridge": {
+      "title": "Radio frame, cable frame",
+      "kid": "At the access point, the Wi-Fi envelope comes off. The “then to” sticker becomes the cable envelope’s “for” sticker, but the parcel still says it came from your phone. Underneath, the envelope travels as radio waves.",
+      "nerd": "At the bridge, the uplink 802.11 QoS data frame has RA=AP, TA=STA and addr3=the distribution-system destination. The AP decapsulates it, verifies CCMP/FCS, then emits an Ethernet frame toward the router; the IP packet is untouched."
+    },
+    "endpoint": {
+      "title": "A radio envelope for you",
+      "kid": "On the way back, the access point turns the cable envelope into a radio one: for your phone, from the access point, came from the router. Your phone opens it after saying “Got it!”. Underneath, the envelope travels as radio waves.",
+      "nerd": "On downlink the AP transmits an 802.11 QoS data frame with RA=STA, TA=AP and addr3=the distribution-system source. The phone verifies CCMP/FCS, ACKs after SIFS, drops duplicates by sequence number, and passes the payload up."
+    }
+  },
+  "label": {
+    "threeAddresses": "Three addresses",
+    "takingTurns": "Taking turns",
+    "radioEnvelope": "Radio envelope",
+    "cableEnvelope": "Cable envelope",
+    "radioShort": "radio",
+    "cableShort": "cable",
+    "for": "For",
+    "from": "From",
+    "ap": "access point",
+    "router": "router",
+    "thenTo": "Then to",
+    "cameFrom": "Came from",
+    "radioBecomesCable": "AP swaps the outside",
+    "cableBecomesRadio": "AP swaps it back",
+    "radioToAp": "for the AP",
+    "radioToPhone": "for your phone",
+    "listen": "listen",
+    "backoff": "backoff",
+    "difs": "DIFS",
+    "data": "data",
+    "sifsAck": "SIFS+ACK",
+    "listenKid": "listen",
+    "waitKid": "wait",
+    "sendKid": "send",
+    "gotIt": "Got it!",
+    "gotItStep": "Got it!",
+    "ackNerd": "ACK",
+    "bump": "bump!",
+    "noAck": "no ACK",
+    "retryFlag": "retry",
+    "neighbour": "neighbour",
+    "kidStrip": "Listen first. Clash? Wait and retry.",
+    "nerdStrip": "seq {seq} · retry · CCMP PN"
+  },
+  "field": {
+    "fc": "Frame Ctrl",
+    "toDs": "To DS · QoS",
+    "fromDs": "From DS · QoS",
+    "duration": "Duration",
+    "seq": "Seq"
+  },
+  "tag": {
+    "toDs": "To DS = 1",
+    "fromDs": "From DS = 1",
+    "csma": "CSMA/CA · random backoff",
+    "encrypt": "WPA3/CCMP hides the payload",
+    "sequence": "SIFS 16 µs · ACK · retry bit",
+    "everyone": "everyone hears it",
+    "gotIt": "receiver says “Got it!”",
+    "noAck": "no ACK"
+  }
+}

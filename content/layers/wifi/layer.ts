@@ -14,6 +14,7 @@ export default defineLayer({
     { id: 'snap', bits: 64, value: 'AA-AA-03 · {inner.ethertype}', use: true },
     { id: 'fcs', bits: 32, value: '{crc}', use: true },
   ],
+  dive: 'wifi-frame',
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/IEEE_802.11', title: 'IEEE 802.11', level: 'nerd', lang: 'en' },
   ],

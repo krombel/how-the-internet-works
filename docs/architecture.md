@@ -34,7 +34,7 @@ graph LR
 | **Node** | `content/nodes/<id>/` | A device or place on the path (phone, router, cell tower, CDN…). `kind` is `device` or `network` (a group, like `internet`, that unfolds into its own path scene). Its default `role` (`endpoint`, `bridge`, `router`, `nat`) decides which layers it opens and what it does to addresses. Art: `art/Device.svelte`. |
 | **Technology** | `content/technologies/<id>/` | What a link is made of (Wi‑Fi, Ethernet, GPON, 5G NR…). Its **lower layer stack**, a `look` (`radio`, `cable`, `fibre`, `trunk`: the theme draws each look), a colour, and optionally the **dive** scene that explains it. |
 | **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. Its **header schema** (`fields`: id, bits, value template, which roles use it) drives the packet model and the peek (below). `openAt` lists the roles that read it (TCP: only endpoints), `seals` makes it encrypt what's inside, and `dive` names the layer dive scene behind its magnifier. Issues #5, #8, #17. |
-| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link** (`wifi-radio`, `fibre-light`, `nr-radio`) or a **layer at one hop** (`ip-post`, `tcp-pieces`, `tls-lock`, `gtp-tunnel`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws GPON's two colours on the access fibre and DWDM elsewhere) or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
+| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws GPON's two colours on the access fibre and DWDM on metro and backbone fibre), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → IXP → CDN, with transit as a dashed side branch). Hops, links, side branches, per-hop overrides and layout. |
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
@@ -115,10 +115,16 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - A layer dive's subject is that hop's `LayerCtx`, in a canonical direction (the way the layer arrives upwards if it does, else downwards: the NAT sees the request go out, the phone the video come in), so the URL needs no direction. The scenes show the round trip anyway.
    - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth. A hop's layer panels form a **vertical stack** centred on the node, lower layers below, so stepping between them is a flight up or down.
    - `layerPath(route, hop, layer)` finds the scene in which a hop is drawn, so tapping IP in the peek at the root, for a packet at the cabinet, flies to `internet/cabinet~ip`.
+   - **All the way down (issue #13).** Every link has a dive (its signal) and so does every layer in its lower stack
+     (its envelope); a content test checks this for every place × activity. `downFrom(route, ref)` goes from a link
+     layer's dive to its link's dive (next to it when that scene draws the link: `internet/cabinet~gpon` →
+     `internet/home-cabinet`); `upFrom(route, ref)` goes from a link dive to the dives of its link's layers (at the end
+     drawn beside it, else the one receiving them going up); `linkOut` is the link a caught packet's outer envelopes
+     belong to. They become the caption's **How it travels** / **What it carries** chips and the peek's bottom row.
    - Each mounted scene gets one flat transform from the root, computed in JS doubles, so three levels deep (1000×) stays sharp. Only the scenes along the flight and their near children are mounted.
 5. **Camera** (`engine/camera.ts`, `engine/zoom.ts`). Fly zoom and semantic zoom (pinch or scroll into a child and it opens; out, and it closes) work on the current scene, its parent and its children, never on hard-coded ids.
    - Layer dives are only reached by address (the peek, the URL, stepping), never discovered by pinching into a node: `mixes` and `decide` skip layer children that aren't on the current path, so pinching into a router still does what it did.
-   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers of the same hop in stack order (▲/▼, a vertical flick, the arrow keys).
+   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ copper ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers of the same hop in stack order (▲/▼, a vertical flick, the arrow keys).
    - **Into a layer dive from the peek:** the tapped envelope's rect is noted, the catch is let go and the normal fly zoom starts; a DOM clone of the envelope is moved each frame from its peek rect to the dive panel's current on-screen rect, landing on it as the panel fades in (none with `prefers-reduced-motion`).
 6. **Packets** (`engine/packets.ts`). Each flow's packets run along every link of the scene at a per-link pace. Tapping one **catches** it (below).
 7. **Doors** (`model/doors.ts`, below). What a path scene lets you open, drawn by the theme's `Hint`, hit-tested in `App.svelte` and listed in the caption.
@@ -167,7 +173,9 @@ port rewritten, checksums fixed; the cell tower: NR off, Ethernet and a GTP‑U 
 ### The peek (`ui/PeekPanel.svelte`)
 
 The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`), chips for what changed,
-the envelopes taken off here, then the packet as it leaves as nested envelopes (`ui/Envelope.svelte`). Kids see only
+the envelopes taken off here, then the packet as it leaves as nested envelopes (`ui/Envelope.svelte`), and below them
+**How it travels: Light in a glass thread**, down to the dive of the link it leaves on (at its last hop, the one it
+arrived on; the catch is let go and the camera flies there). Kids see only
 fields with a `kid` value that matter here (used, changed, or new); nerds see every field and who owns each address.
 **Details** swaps in a protocol tree (`ui/FieldTree.svelte`): a Wireshark-style summary line per layer
 (`layer.<id>.line`), its note, an RFC-style header diagram (32 bits a row, when every field has `bits`), and every
@@ -189,6 +197,16 @@ caption and the strings (`door.*`):
 A fourth verb, **Catch**, is for packets (issue #17, above): the caption lists the flow's packet kinds ("Catch: Request ·
 Video") and a chip catches the youngest packet of that kind on screen.
 
+Dives have two more, caption chips only (issue #13), joining an envelope and the signal that carries it:
+
+| Verb | Kind | In | Opens |
+|---|---|---|---|
+| **How it travels** (wave icon) | `down` | a link layer's dive (Wi‑Fi, Ethernet, GPON, NR, VLAN, MPLS, GTP) | its link's dive, named by that scene's title ("Electricity in copper") |
+| **What it carries** (envelope icon) | `up` | a link's dive | the dive of each layer in the link's stack ("Radio envelope") |
+
+They are found by `downFrom`/`upFrom` (above), so they appear by themselves when a technology or a link layer gets a
+dive; `CaptionDoor.path` carries where they go.
+
 - `doorsOf(pathScene, root)` lists them (the swap first, then in route order). They are exactly the scene tree's
   dive and group children (a test checks this for every place × activity), so a door can't point nowhere.
 - `layoutDoors` places the badges: a mark at the door's spot; labelled (always for *Open up*, for every door while
@@ -201,7 +219,8 @@ Video") and a chip catches the youngest packet of that kind on screen.
   six seconds, or until tapped again, a tap on the scene or a scene change. If some are off screen (zoomed in on a
   stop), it steps back to the whole scene first. It's disabled where a scene has no doors (dives).
 - **Caption chips.** The caption lists the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a
-  stop, only that stop's own). They are real buttons, so they are the keyboard and screen-reader way in (the scene
+  stop, only that stop's own). Links of the same technology share one chip (the first) at scene level; walking to a
+  stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
   SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 
@@ -222,7 +241,8 @@ Packets restart on the new route, and the caption waits for the morph to finish.
   `subject.sceneLink` (the link as drawn in the parent) and `subject.route` (the whole route);
 - layer dives: `subject.layer`, `subject.ctx` (the hop's `LayerCtx`, below, at the current level), `subject.open`
   (whether the hop reads the layer, else it's sealed there) and `subject.route`. Captions look up
-  `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings.
+  `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
+  (`scene.<id>.<layer>.at.<node>` … `scene.<id>.<layer>`), for a scene serving several layers.
 
 Dive scenes load on demand (`render/dives.svelte.ts`): a scene's chunk is fetched when the flight towards it starts,
 and the peek preloads the layer dives it offers.
@@ -282,7 +302,7 @@ in the scene's own folder, so a new dive needs no theme change.
   2. the activity
   3. the item itself (`node.router`)
 - **English fallback.** Any missing string falls back to English. `npm run check:content` prints translation coverage.
-- **Bundling.** English ships in the main bundle, except the layer strings (header field names and meanings): they load as one chunk (`virtual:layer-strings`) on the first catch or layer dive (`loadLayerStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
+- **Bundling.** English ships in the main bundle, except the dive strings (the layers': header field names and meanings; the dive scenes': their captions and labels): they load as one chunk (`virtual:dive-strings`) on the first catch, on entering any dive, or at start for a link below the overview (`loadDiveStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
 - **Languages.** English and Danish, the languages we can review ourselves (issue #11).
 - **RTL.** A language's `meta.json` sets `dir`, which `setLang` puts on `<html>`: the chrome mirrors (logical CSS properties), the diagrams don't. No shipped language is right-to-left, so `src/rtl.test.ts` keeps the support working with a made-up test-only language. A reviewed RTL language comes back as content only: its locale folder, plus faces for its script in the theme's `tokens.css`.
 
@@ -344,14 +364,16 @@ CI runs `npm ci && npm test && npm run build`.
 - idle, the fly into the fibre and back out
 - the fly three levels down, then catching a packet and stepping it two hops
 - the morph to the street, the fly into 5G, and the 5G dive idle
+- the fly down to the copper cable (#18), its idle, and a link-layer dive's idle (the Wi‑Fi envelope, #13)
 - opening a layer dive from the peek (the envelope grows into the scene), its idle, a sideways step to the next
   layer, and that layer's idle
 
-Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 8 ms (the fly into
-5G; opening a layer dive is about 7 ms; it varies a few ms between runs). Door labels are measured once per language and theme, not per zoom step
+Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
+5G and down to copper, and opening a layer dive; it varies a few ms between runs). Animated scenes avoid group
+`opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 70.8 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
-prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
-peek panel (with its envelopes and protocol tree, about 4.6 kB) and the English layer strings (about 4.7 kB), which
-load on the first catch.
+Initial JS is 68.6 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
+peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
+dive scenes', about 14.6 kB), which load on the first catch or dive.

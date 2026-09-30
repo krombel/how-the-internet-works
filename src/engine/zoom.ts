@@ -38,9 +38,20 @@ export const kLimits = (r: Route, path: string[], vp: Viewport, o: Orient) => ({
   max: (fit(sceneInfo(r, path, o).fit, vp).k / DETAIL_SCALE) * 5,
 });
 
+const union = (a: Rect, b: Rect): Rect => {
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
+};
+
+/** Where a scene on the way to `path` counts as "near": its own fit, widened to the deepest scene on the path (a hop's
+ *  layer stack can reach past the edge of the scene that draws it). */
+const nearRect = (r: Route, sub: string[], path: string[], o: Orient) =>
+  union(sceneInfo(r, sub, o).fit, sceneInfo(r, path, o).fit);
+
 /** Opacity of every scene worth drawing, keyed by path ("" = root). Each path in `paths` (the current location, and
  *  during a flight the one we came from) opens its chain of levels; siblings at each level fade in as you approach.
- *  Layer dives stack on their hop, so they only show when they are on a path (you get there from the peek panel). */
+ *  Layer dives stack on their hop, so they only show when they are on a path (you get there from the peek panel), and
+ *  while one is, its siblings stay hidden. */
 export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Orient): Map<string, number> {
   const out = new Map<string, number>();
   for (const path of paths) {
@@ -49,10 +60,14 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
     for (let i = 0; i <= path.length; i++) {
       const base = path.slice(0, i), bk = keyOf(base), k0 = fit(sceneInfo(r, base, o).fit, vp).k;
       let hide = 0, next = 0;
-      for (const c of childrenOf(r, sceneInfo(r, base, o).ref, o)) {
-        if (c.kind === 'layer' && c.step !== path[i]) continue;
+      const kids = childrenOf(r, sceneInfo(r, base, o).ref, o);
+      // into a layer dive, its neighbours (link dives beside the hop) stay hidden: they'd crowd its panel
+      const intoLayer = kids.some((c) => c.kind === 'layer' && c.step === path[i]);
+      for (const c of kids) {
+        if ((c.kind === 'layer' || intoLayer) && c.step !== path[i]) continue;
         const cp = [...base, c.step];
-        const { u, prox } = progress(cam, vp, k0, sceneInfo(r, cp, o).fit);
+        const { fit: f } = sceneInfo(r, cp, o);
+        const { u, prox } = progress(cam, vp, k0, f, c.step === path[i] ? nearRect(r, cp, path, o) : f);
         const a = smoothstep(0.45, 0.8, u) * prox;
         if (c.step === path[i]) next = a;
         m.set(keyOf(cp), a * reach);
@@ -72,7 +87,7 @@ export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orie
   let p = path;
   while (p.length) {
     const parent = p.slice(0, -1);
-    const { u, prox } = progress(cam, vp, fit(sceneInfo(r, parent, o).fit, vp).k, sceneInfo(r, p, o).fit);
+    const { u, prox } = progress(cam, vp, fit(sceneInfo(r, parent, o).fit, vp).k, sceneInfo(r, p, o).fit, nearRect(r, p, path, o));
     if (u < 0.8 || prox < 0.25) p = parent;
     else break;
   }

@@ -10,7 +10,7 @@ declare module 'virtual:string-packs' {
   export default loaders;
 }
 
-declare module 'virtual:layer-strings' {
+declare module 'virtual:dive-strings' {
   type Json = { [k: string]: string | Json };
   export const folders: Record<string, Json>;
 }

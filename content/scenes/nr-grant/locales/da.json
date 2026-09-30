@@ -1,0 +1,57 @@
+{
+  "title": "5G-pladsbilletter",
+  "kid": "Din telefon får en lille pladsbillet fra masten, og bagefter bliver hver radiobid tjekket. Er en bid utydelig, siger masten eller telefonen: “igen!”",
+  "nerd": "NR-planlægning og HARQ omkring én UE: SR på PUCCH, grant-DCI på PDCCH med CRC scrambled af C-RNTI 0x4601, derefter MAC/RLC/PDCP-bidder i 30 kHz SCS og 0,5 ms slots.",
+  "role": {
+    "bridge": {
+      "title": "Masten deler radiopladser ud",
+      "kid": "Masten er klassens hjælper. Din telefon rækker hånden op, masten giver telefon nr. 4601 en tur og tjekker hver bid. Nedenunder rejser kuverten som en radiostråle.",
+      "nerd": "Ved gNB’en fører en uplink-SR på PUCCH til et UL-grant i DCI på PDCCH, hvor CRC’en er scrambled med UE’ens C-RNTI 0x4601. Scheduler tildeler slot 6, RB 20–31; HARQ ACK/NACK kommer cirka 1 ms senere, med RLC ARQ ovenover for resterende tab og PDCP-kryptering plus SN bevaret."
+    },
+    "endpoint": {
+      "title": "Telefonen leder efter sit nummer",
+      "kid": "Din telefon læser mastens liste og samler kun bidder op med telefon nr. 4601. Hvis en bid er utydelig, siger den “igen!” og beholder den tydelige kopi. Nedenunder rejser kuverten som en radiostråle.",
+      "nerd": "UE’en overvåger PDCCH-kandidater for DCI, hvis CRC kan unscrambles med C-RNTI 0x4601, og modtager derefter sin PDSCH-tildeling. Den sender HARQ ACK/NACK efter omtrent 1 ms; incremental redundancy og soft combining genskaber transportblokken, før RLC/PDCP ser den."
+    }
+  },
+  "sealed": {
+    "title": "NR passerer forbi",
+    "kid": "Dette stop bærer 5G-kuverten, men vælger ikke radiopladserne.",
+    "nerd": "NR MAC/RLC/PDCP-rammen giver kun mening ved UE- og gNB-enderne af radiolinket."
+  },
+  "card": {
+    "seat": "At bede om en plads",
+    "harq": "Kom den frem?"
+  },
+  "label": {
+    "ticketKid": "Telefon nr. {n}",
+    "ticketPortrait": "Nr. {n} · slot 6",
+    "ticketNerd": "C-RNTI 0x4601",
+    "grantKid": "slot 6",
+    "grantNerd": "slot 6 · RB 20–31",
+    "ask": "✋ må jeg sende?",
+    "schedule": "Mastens liste",
+    "phoneNo": "Telefon nr. {n}",
+    "otherTurn": "vent",
+    "myTurn": "min tur!",
+    "again": "Igen!",
+    "got": "Fik den!",
+    "check": "tjek hver bid",
+    "nack": "NACK: spørg hurtigt",
+    "combine": "to kopier samles",
+    "ack": "ACK: tydelig bid",
+    "dci": "DCI: C-RNTI · HARQ 7",
+    "harqNerd": "HARQ 7 · NDI 1 · RV 2",
+    "sn": "LCID 4 · RLC SN {rlc} · PDCP SN {pdcp} · QFI 9",
+    "snShort": "L4 · R{rlc} · P{pdcp} · Q9",
+    "snA": "LCID 4 · RLC SN {rlc}",
+    "snB": "PDCP SN {pdcp} · QFI 9"
+  },
+  "tag": {
+    "bridgeKid": "masten planlægger",
+    "endpointKid": "kun mit nummer",
+    "bridgeNerd": "SR → DCI-grant",
+    "endpointNerd": "C-RNTI-lytning",
+    "harq": "16 HARQ · soft combining · ~1 ms"
+  }
+}
