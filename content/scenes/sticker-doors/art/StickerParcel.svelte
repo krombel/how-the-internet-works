@@ -9,12 +9,18 @@
     moving = false,
     time = 0,
     smudge = false,
+    legible = (size: number) => size,
   }: {
     x: number; y: number; scale?: number; tint?: string; sticker?: string; moving?: boolean; time?: number; smudge?: boolean;
+    /** Keeps the sticker's word readable: on-screen size → the size to draw. */
+    legible?: (size: number) => number;
   } = $props();
   const step = $derived(moving ? Math.sin(time * 14) * 7 : 0);
   const blink = $derived(Math.sin(time * 3.1 + x * 0.01) > 0.94);
-  const labelSize = $derived(sticker.length <= 3 ? 56 : sticker.length <= 4 ? 40 : 32);
+  const baseSize = $derived(sticker.length <= 3 ? 56 : sticker.length <= 4 ? 40 : 32);
+  const labelSize = $derived(legible(baseSize * scale) / scale);
+  // a word drawn bigger than its base size gets a wider sticker
+  const stickerW = $derived(108 + (labelSize - baseSize) * sticker.length * 0.62);
 </script>
 
 <g transform="translate({x} {y}) scale({scale})">
@@ -25,7 +31,7 @@
   </g>
   <rect x="-76" y="-116" width="152" height="108" rx="16" fill={tint} stroke="var(--line)" stroke-width="6" />
   <path d="M-70 -110 L0 -60 L70 -110" fill="none" stroke="var(--line)" stroke-width="5" opacity="0.65" />
-  <rect x="-54" y="-68" width="108" height="42" rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
+  <rect x={-stickerW / 2} y="-68" width={stickerW} height="42" rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
   {#if smudge}
     <path d="M-45 -52 C-20 -68 5 -35 34 -56" fill="none" stroke="var(--berry)" stroke-width="10" stroke-linecap="round" opacity="0.65" />
   {:else}

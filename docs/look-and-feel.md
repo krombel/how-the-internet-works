@@ -333,6 +333,9 @@ always muted again on reload.
     camera slows past each device, a small pill there names the change ("Wi‑Fi → Cable"), and a pill at the
     bottom says where from and to. Quick repeated steps join into one, slightly quicker glide. With
     `prefers-reduced-motion` it cuts straight to the next dive.
+  - With `prefers-reduced-motion` nothing flies (issue #41): every move (stepping, zooming in and out, the
+    breadcrumb, switching places, letting a packet go) cuts there under a quick 220 ms cross-fade, and an envelope
+    opened from the peek doesn't grow into its dive. The URL and where focus goes are the same either way.
   - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
     street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
     looks different, instead of stepping through six identical "light in a glass thread" dives. The run has one
@@ -353,6 +356,9 @@ always muted again on reload.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
   its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
   the whole caption over the scene. The scene keeps about 280 of 390 px (it had 105–145).
+  - A dive fills that height, its border and flap tucked under the bars' edges (issue #33). Even so, 14 px on screen is
+    about 42 world units, so dives here use a compact layout: bigger text, fewer labels, and small detail (the rows of
+    an envelope, long MAC addresses, the nerd field list) drawn as lines or shortened. The caption still names it all.
 - **Overrides.** The layout is picked from the aspect ratio. At the tag, the lab (Layout → Landscape/Portrait,
   or `?orient=portrait`) forces either one. The slimmed prototype only picks from the aspect ratio.
 

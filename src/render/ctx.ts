@@ -6,6 +6,7 @@ import type { SLink } from '../model/layout';
 import type { Link, Route } from '../model/resolve';
 import type { LayerCtx } from '../model/stack';
 import type { Frame } from '../model/tree';
+import { themeState } from '../state.svelte';
 
 /** A scene of the tree that is drawn this frame (key = its path joined by "/"). */
 export interface Mounted { key: string; path: string[]; alpha: number }
@@ -44,3 +45,10 @@ export const setWorld = (w: WorldCtx) => setContext('world', w);
 export const getWorld = () => getContext<WorldCtx>('world');
 export const setScene = (s: SceneCtx) => setContext('scene', s);
 export const getScene = () => getContext<SceneCtx>('scene');
+
+/** Clamp for text a scene draws itself (Text does the same): `const legible = legibleSize()` while the component
+ *  initialises, then `font-size={legible(24)}` never gets smaller than the theme's labelMinPx on screen. */
+export function legibleSize() {
+  const world = getWorld(), scene = getScene();
+  return (size: number) => Math.max(size, themeState.current.labelMinPx / (world.cam.k * scene.frame.s));
+}

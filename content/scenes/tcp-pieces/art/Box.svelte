@@ -1,9 +1,16 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Text } from '$core/api';
-  let { x, y, n, size = 54, opacity = 1, scale = 1, sealed = false, glow = false, lost = false, port = '' }: {
+  import { Text, legibleSize, textBox } from '$core/api';
+  let { x, y, n, size = 54, opacity = 1, scale = 1, sealed = false, glow = false, lost = false, port = '', outer = 1 }: {
     x: number; y: number; n: number; size?: number; opacity?: number; scale?: number; sealed?: boolean; glow?: boolean; lost?: boolean; port?: string;
+    /** the scale of the group the box is drawn in, so the port sticker's text is measured as it shows */
+    outer?: number;
   } = $props();
+  // the port sticker keeps to the theme's label minimum and grows to hold its word
+  const legible = legibleSize();
+  const portPx = $derived(legible(size * 0.18 * scale * outer) / (scale * outer));
+  const portW = $derived(Math.max(size * 1.7, textBox(port, portPx, 'middle', 0.6, '--label-font').w + 24));
+  const portH = $derived(Math.max(size * 0.36, portPx * 1.4));
 </script>
 
 <g transform="translate({x} {y}) scale({scale})" opacity={opacity}>
@@ -19,9 +26,9 @@
     </g>
   {/if}
   {#if port}
-    <g transform="translate(0 {-size * 0.68}) rotate(-3)">
-      <rect x={-size * 0.85} y={-size * 0.18} width={size * 1.7} height={size * 0.36} rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
-      <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size={size * 0.18} font-weight="900" fill="var(--line)">{port}</text>
+    <g transform="translate(0 {-Math.max(size * 0.68, size / 2 + portH / 2)}) rotate(-3)">
+      <rect x={-portW / 2} y={-portH / 2} width={portW} height={portH} rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
+      <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size={portPx} font-weight="900" fill="var(--line)">{port}</text>
     </g>
   {/if}
 </g>
