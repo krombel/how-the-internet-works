@@ -3,20 +3,20 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, untrack } from 'svelte';
-  import { areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { easeInOutCubic } from './engine/motion';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { textBox } from './engine/svg';
-  import { camFor, decide, keyOf, kLimits, mixes, sceneInfo } from './engine/zoom';
+  import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
   import { hopAhead, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
-  import { hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
+  import { chainAt, chainItemAt, chainNear, chainOf, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, sidewaysTarget, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
@@ -37,11 +37,18 @@
   const hereKey = $derived(keyOf(here.path));
 
   // ------------------------------------------------------------------ camera + flights
-  interface Trans { b: Cam; t0: number; dur: number; fly: (t: number) => Cam }
+  /** A flight (eased here) or a sideways travel along a path scene's chain (it eases its own legs). */
+  interface Trans { b: Cam; t0: number; dur: number; fly: (t: number) => Cam; travel: Travel | null }
+  /** Travelling from arc `a` to `b` along the chain of the path scene `key` (`pos(t)`: how far, 0–1). */
+  interface Travel { key: string; chain: Chain; a: number; b: number; pos: (t: number) => number }
   let cam = $state.raw<Cam>({ x: 0, y: 0, k: 1 });
   let trans: Trans | null = null;
   /** During a flight: where we came from (still blended in) and where we go (mounted from the start). */
   let flight = $state.raw<{ from: string[]; to: string[] } | null>(null);
+  /** During a travel: the link or device of the path scene we're passing (it lights up as the camera glides by). */
+  let passing = $state.raw<{ key: string; stop: string } | null>(null);
+  /** Test hook: hold transitions at this t (0–1) for a frame strip. */
+  let holdT: number | null = null;
   let gestureNav = false;
 
   const target = () => camFor(route, here.path, here.stop, view.vp, view.orient);
@@ -49,20 +56,49 @@
   function startTrans(from: string[], to: string[], b: Cam, durMs?: number) {
     const fly = flyInterpolator(cam, b, view.vp);
     const dur = durMs ?? fly.duration * themeState.current.motion.speed;
-    trans = { b, t0: performance.now(), dur, fly };
+    trans = { b, t0: performance.now(), dur, fly: (t) => fly(easeInOutCubic(t)), travel: null };
     flight = { from, to };
+    passing = null;
     return dur;
   }
+  /** Sideways between two children on a path scene's chain (#36): out, along the path, in. A step during a travel
+   *  carries on from where the camera is, at the speed it's going, without snapping to the last target first; after
+   *  a travel was cut short (a finger on the stage), it sets off from where the camera stopped. */
+  function startTravel(from: string[], to: string[], tv: { parent: string[]; b: number }) {
+    const o = view.orient, key = keyOf(tv.parent), info = sceneInfo(route, tv.parent, o), speed = themeState.current.motion.speed;
+    const chain = chainOf(route, info.ref.group, o), now = performance.now();
+    const c = areaCentre(view.vp);
+    let a = chainNear(chain, toLocal(info.frame, toWorldPt(cam, c.x, c.y))), v0 = 0;
+    const T = trans?.travel?.key === key ? trans : null;
+    if (T) {
+      const t = transT(T, now), dt = 0.02, s = (x: number) => lerp(T.travel!.a, T.travel!.b, T.travel!.pos(x));
+      a = s(t);
+      v0 = (((s(Math.min(1, t + dt)) - a) * Math.sign(tv.b - a)) / (dt * T.dur)) * info.frame.s * speed;
+    }
+    const b = target(), along = (u: number) => toRoot(info.frame, chainAt(chain, lerp(a, tv.b, u)));
+    const fly = travelInterpolator(cam, b, along, Math.abs(tv.b - a) * info.frame.s, travelK(route, tv.parent, to, view.vp, o), view.vp, v0);
+    trans = { b, t0: now, dur: fly.duration * speed, fly, travel: { key, chain, a, b: tv.b, pos: fly.pos } };
+    flight = { from, to };
+  }
+  const transT = (T: Trans, now: number) => holdT ?? Math.min(1, (now - T.t0) / T.dur);
   function frameTrans(now: number) {
-    const T = trans!;
-    const t = Math.min(1, (now - T.t0) / T.dur);
-    cam = T.fly(easeInOutCubic(t));
+    const T = trans!, t = transT(T, now);
+    cam = T.fly(t);
+    if (T.travel) {
+      const stop = chainItemAt(T.travel.chain, lerp(T.travel.a, T.travel.b, T.travel.pos(t)));
+      if (passing?.stop !== stop) passing = { key: T.travel.key, stop };
+    }
     if (t >= 1) finishTrans();
   }
-  function finishTrans() {
-    cam = trans!.b;
+  /** Stop a transition where it is. */
+  function dropTrans() {
     trans = null;
     flight = null;
+    passing = null;
+  }
+  function finishTrans(b = trans!.b) {
+    cam = b;
+    dropTrans();
     showCaption = true;
   }
 
@@ -100,7 +136,17 @@
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
-    if (trans) frameTrans(trans.t0 + trans.dur);
+    const tv = switched ? null : travelOf(route, validPrefix(route, prev.path), next.path, view.orient);
+    // a flight first lands; a travel hands over from wherever its camera is
+    if (trans && !trans.travel) finishTrans();
+    if (tv) {
+      gestureNav = false;
+      sfx.swish();
+      // reduced motion: cut straight there
+      if (view.still) return finishTrans(target());
+      showCaption = false;
+      return startTravel(validPrefix(route, prev.path), next.path, tv);
+    }
     if (switched) {
       morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
       startTrans(next.path, next.path, target(), MORPH_MS);
@@ -132,10 +178,10 @@
   const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
   function step(d: -1 | 1) {
     if (caught) return stepCaught(d);
-    const { kind, steps, i, min } = stepInfo, ni = i + d;
-    if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
-    if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
-    else go({ path: [...parentPath(here.path), steps[ni]] });
+    const to = sidewaysTarget(stepInfo, d);
+    if (to === undefined) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    if (stepInfo.kind === 'stop') go({ stop: to }, true);
+    else go({ path: [...parentPath(here.path), to!] });
   }
   function up() {
     if (picker) return (picker = null);
@@ -201,8 +247,7 @@
     if (!paused) { paused = true; pausedByCatch = true; }
     view.followId = CAUGHT_ID;
     track = true;
-    trans = null;
-    flight = null;
+    dropTrans();
     sfx.pop();
   }
   // The peek panel (with its envelopes and protocol tree) loads on the first catch, to keep the first load small.
@@ -451,8 +496,7 @@
     // the scenes are laid out anew: put a caught packet back at its hop (or let it go if this scene doesn't draw it)
     const spot = caught && spotAt(here.path, caught.hop, caught.dir);
     if (spot) { ghost = spot; glide = null; } else release(true);
-    trans = null;
-    flight = null;
+    dropTrans();
     cam = target();
   }
   $effect(() => { const id = settings.style; untrack(() => { if (id !== themeState.current.id) void loadTheme(id).then(resize); }); });
@@ -491,7 +535,7 @@
     raf = requestAnimationFrame(loop);
 
     const ctl = {
-      stop() { trans = null; flight = null; },
+      stop: dropTrans,
       zoomAt(f: number, sx: number, sy: number) {
         track = false;
         const lim = kLimits(route, here.path, view.vp, view.orient);
@@ -534,6 +578,8 @@
         caught: () => caught && { hop: route.chain[caught.hop].id, dir: caught.dir },
         release: () => release(),
         setClock(t: number) { clock = t; },
+        /** Hold every transition at t (0–1), e.g. for a frame strip; null lets them run on. */
+        hold(t: number | null) { holdT = t; if (trans && t === null) trans.t0 = performance.now() - trans.dur; },
         /** Tap the magnifier of a layer's envelope in the peek panel (while a packet is caught). */
         openLayer(layer: string) {
           const b = document.querySelector<HTMLButtonElement>(`.peek .env-${layer} > .env-go`);
@@ -574,7 +620,7 @@
 <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
   <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <A.Defs />
-    <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={{ key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
+    <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
     <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
   </svg>
 </div>
@@ -588,7 +634,7 @@
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
     ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
-    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
+    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.runs.length - 1} onstep={step} {nudge} />
   {/if}
   {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}
   {#if picker}

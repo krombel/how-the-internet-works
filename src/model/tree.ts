@@ -2,7 +2,7 @@
 // "look inside" scene; and, at every hop, the layers it reads that have a dive of their own ("router~ip"). A location
 // in the tree is a path of steps (["internet", "home-cabinet"]). Each scene has a frame in root coordinates (children
 // sit at DETAIL_SCALE around their anchor), to any depth.
-import { DETAIL_SCALE, WORLD_SIZE, bezier, curveBounds, type Orient, type Pt, type Rect } from '../engine/geometry';
+import { DETAIL_SCALE, WORLD_SIZE, bezier, curveBounds, lerp, type Curve, type Orient, type Pt, type Rect } from '../engine/geometry';
 import { pathScene, type PathScene, type SLink, type SNode } from './layout';
 import type { Hop, Link, Route } from './resolve';
 
@@ -196,18 +196,124 @@ export function hopScenePath(r: Route, hop: number, o: Orient, current: string[]
 }
 
 /** Walking sideways: along a path scene's stops, between the link dives of the parent, or up and down the layers of
- *  one hop (+1 = the next stop / dive, or the layer above). `i` is where we are, `min` the lowest index allowed. */
-export interface Sideways { kind: 'stop' | 'dive' | 'layer'; steps: string[]; i: number; min: number }
+ *  one hop (+1 = the next stop / dive, or the layer above). Each sideways stop is a run of steps: at dive level,
+ *  consecutive sibling dives into the same scene with the same technology are one stretch (three backbone links are one
+ *  "backbone" stop, not three identical dives); everywhere else a run is one step. `i` is the run we're in, `min` the
+ *  lowest index allowed (-1 = no stop at all). */
+export interface Sideways { kind: 'stop' | 'dive' | 'layer'; runs: string[][]; i: number; min: number }
 export function sideways(r: Route, path: string[], stop: string | null, o: Orient): Sideways {
   const ref = sceneRef(r, path, o)!;
   if (ref.kind === 'path') {
     const steps = pathScene(r, ref.group, o).stops;
-    return { kind: 'stop', steps, i: stop ? steps.indexOf(stop) : -1, min: -1 };
+    return { kind: 'stop', runs: steps.map((x) => [x]), i: stop ? steps.indexOf(stop) : -1, min: -1 };
   }
-  const parent = sceneRef(r, parentPath(path), o)!;
+  const parent = sceneRef(r, parentPath(path), o)!, here = path[path.length - 1];
   const kids = childrenOf(r, parent, o).filter((c) => c.kind === ref.kind);
-  const steps = (ref.at ? kids.filter((c) => spots(r, parent.group, o).get(c.step)!.at.hop === ref.at!.hop) : kids).map((c) => c.step);
-  return { kind: ref.kind === 'layer' ? 'layer' : 'dive', steps, i: steps.indexOf(path[path.length - 1]), min: 0 };
+  if (ref.at) {
+    const steps = kids.filter((c) => spots(r, parent.group, o).get(c.step)!.at.hop === ref.at!.hop).map((c) => c.step);
+    return { kind: 'layer', runs: steps.map((x) => [x]), i: steps.indexOf(here), min: 0 };
+  }
+  const links = pathScene(r, parent.group, o).links, runs: string[][] = [];
+  let last = '';
+  for (const c of kids) {
+    const l = links.find((x) => x.id === c.step)!, key = `${l.dive}|${l.link.tech.id}`;
+    if (key === last) runs[runs.length - 1].push(c.step);
+    else runs.push([c.step]);
+    last = key;
+  }
+  return { kind: 'dive', runs, i: runs.findIndex((x) => x.includes(here)), min: 0 };
+}
+
+/** Where a sideways step of `d` lands: the near end of the next run (forwards its first step, backwards its last), so
+ *  the rest of a stretch is still ahead. null = no stop (back off the first stop); undefined = can't go. */
+export function sidewaysTarget(s: Sideways, d: -1 | 1): string | null | undefined {
+  const ni = s.i + d;
+  if (ni < s.min || ni >= s.runs.length) return undefined;
+  if (ni < 0) return null;
+  const run = s.runs[ni];
+  return d > 0 ? run[0] : run[run.length - 1];
+}
+
+/** A path scene's chain as one curve through its links and devices (start device → … → end device), so a camera can
+ *  travel along it. `s` is arc length; each chain item (device or link) has the arc where it sits: a link at its
+ *  midpoint (its dive's anchor), a device where the curve passes it. */
+export interface Chain { pts: Pt[]; cum: number[]; items: { id: string; s: number }[] }
+const chainMemo = new WeakMap<Route, Map<string, Chain>>();
+export function chainOf(r: Route, group: string | null, o: Orient): Chain {
+  let m = chainMemo.get(r);
+  if (!m) chainMemo.set(r, (m = new Map()));
+  const k = `${group ?? ''}|${o}`;
+  const hit = m.get(k);
+  if (hit) return hit;
+  const ps = pathScene(r, group, o), links = ps.route.map((id) => ps.links.find((l) => l.id === id)!);
+  const node = (id: string) => ps.nodes.find((n) => n.id === id)!;
+  const ch: Chain = { pts: [], cum: [], items: [] };
+  const add = (p: Pt) => {
+    const q = ch.pts[ch.pts.length - 1];
+    if (q && Math.hypot(p.x - q.x, p.y - q.y) < 1e-6) return;
+    ch.cum.push(q ? ch.cum[ch.cum.length - 1] + Math.hypot(p.x - q.x, p.y - q.y) : 0);
+    ch.pts.push(p);
+  };
+  const mark = (id: string) => ch.items.push({ id, s: ch.cum[ch.cum.length - 1] });
+  const curve = (c: Curve, n: number, from: number, to: number) => { for (let i = 0; i <= n; i++) add(bezier(c, lerp(from, to, i / n))); };
+  if (links.length) { add(node(links[0].from)); mark(links[0].from); }
+  links.forEach((l, i) => {
+    curve(l, 8, 0, 0.5);
+    mark(l.id);
+    curve(l, 8, 0.5, 1);
+    const n = node(l.to), next = links[i + 1];
+    // through the device: a curve from this link's end past its centre to the next link's start
+    if (!next) { add(n); mark(n.id); return; }
+    const via = { p0: l.p1, c: n, p1: next.p0 };
+    curve(via, 4, 0, 0.5);
+    mark(n.id);
+    curve(via, 4, 0.5, 1);
+  });
+  m.set(k, ch);
+  return ch;
+}
+
+/** The point at arc length `s` along a chain (clamped to its ends). */
+export function chainAt(ch: Chain, s: number): Pt {
+  const { pts, cum } = ch, L = cum[cum.length - 1];
+  if (s <= 0) return pts[0];
+  if (s >= L) return pts[pts.length - 1];
+  let lo = 0, hi = cum.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] <= s) lo = mid; else hi = mid; }
+  const f = (s - cum[lo]) / (cum[hi] - cum[lo] || 1);
+  return { x: lerp(pts[lo].x, pts[hi].x, f), y: lerp(pts[lo].y, pts[hi].y, f) };
+}
+
+/** The arc length of the chain point nearest `p`: where a camera that stopped part-way along it is. */
+export function chainNear(ch: Chain, p: Pt): number {
+  let best = Infinity, s = 0;
+  for (let i = 1; i < ch.pts.length; i++) {
+    const a = ch.pts[i - 1], b = ch.pts[i], dx = b.x - a.x, dy = b.y - a.y;
+    const f = Math.min(1, Math.max(0, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy)));
+    const d = (a.x + f * dx - p.x) ** 2 + (a.y + f * dy - p.y) ** 2;
+    if (d < best) { best = d; s = lerp(ch.cum[i - 1], ch.cum[i], f); }
+  }
+  return s;
+}
+
+/** The chain item nearest arc length `s`: what a camera travelling the chain is passing. */
+export function chainItemAt(ch: Chain, s: number): string {
+  let best = ch.items[0];
+  for (const it of ch.items) if (Math.abs(it.s - s) < Math.abs(best.s - s)) best = it;
+  return best.id;
+}
+
+/** A sideways move that can travel along the path: between two children of one path scene that both sit on its chain
+ *  (link dives now; device dives would too). The parent and where the target sits on its chain, else null. */
+export function travelOf(r: Route, from: string[], to: string[], o: Orient): { parent: string[]; b: number } | null {
+  if (!from.length || from.length !== to.length) return null;
+  const parent = parentPath(from);
+  if (parent.join('/') !== parentPath(to).join('/') || from[from.length - 1] === to[to.length - 1]) return null;
+  const pr = sceneRef(r, parent, o), fr = sceneRef(r, from, o), tr = sceneRef(r, to, o);
+  if (pr?.kind !== 'path' || fr?.kind !== 'dive' || tr?.kind !== 'dive') return null;
+  const ch = chainOf(r, pr.group, o), at = (step: string) => ch.items.find((x) => x.id === step)?.s;
+  const b = at(to[to.length - 1]);
+  return at(from[from.length - 1]) === undefined || b === undefined ? null : { parent, b };
 }
 
 /** Where a child nested in a node sits (a group's own path scene): a little below its centre. */

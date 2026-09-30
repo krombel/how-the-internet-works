@@ -7,22 +7,31 @@
   "mux": "Combine colours",
   "demux": "Split colours",
   "channels": "Each colour is its own channel",
-  "up": "Going up",
-  "down": "Coming home",
   "tag": {
     "dwdm": "C-band · 50 GHz grid",
-    "gpon": "1270 nm ↑ · 1577 nm ↓"
+    "gpon": "1:32 · ↑1270 ↓1577 nm",
+    "backbone": "96 λ · EDFA / 80 km"
   },
   "gpon": {
-    "kid": "This glass thread is shared by all the houses on your street. Parcels going up the street use one colour of light, parcels coming home use another.",
-    "nerd": "A passive optical network: downstream at 1577 nm is broadcast to every home on the splitter, upstream at 1270 nm takes turns in time slots (XGS-PON)."
+    "title": "Light shared by your street",
+    "kid": "This glass thread is shared by all the houses on your street. At the splitter the light coming home goes to every house, and each house keeps only its own parcels. Going up, the houses take turns, so their flashes never bump into each other.",
+    "nerd": "A passive optical network: an unpowered splitter shares one fibre among 32–64 homes. Downstream at 1577 nm is broadcast to every home, and each ONT keeps only its own (encrypted) frames. Upstream at 1270 nm is time-shared: the OLT grants each home its slots (XGS-PON).",
+    "down": "Coming home",
+    "everyone": "to every house",
+    "up": "Going up",
+    "turns": "one at a time",
+    "splitter": "Splitter",
+    "you": "Your home"
   },
   "metro-fibre": {
-    "kid": "A glass thread runs under the street from box to box, all the way to the exchange. Flashes of light carry everyone's parcels, and a few colours share the same thread.",
+    "title": "Colours sharing one thread",
+    "kid": "A glass thread runs under the street from box to box, all the way to the exchange. The light bounces along inside its core, and a few colours share the same thread without getting mixed up: each colour is its own channel.",
     "nerd": "Metro fibre: single-mode links between street cabinets, aggregation sites and the exchange, typically 10–100 Gbit/s Ethernet optics, with CWDM or DWDM putting a handful of wavelengths on one fibre pair."
   },
   "backbone": {
-    "kid": "The internet's motorways are glass threads under roads and even under the sea, thousands of kilometres long. Boosters along the way make the light bright again, and many colours travel side by side.",
-    "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers about every 80 km boost all the colours at once; submarine cables cross the oceans."
+    "title": "Light across the country",
+    "kid": "The internet's motorways are glass threads hundreds of kilometres long, under roads and even under the sea. The light gets fainter as it goes, so every 80 km or so a booster makes all the colours bright again at once.",
+    "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers about every 80 km boost all the colours at once; submarine cables cross the oceans.",
+    "booster": "Booster"
   }
 }

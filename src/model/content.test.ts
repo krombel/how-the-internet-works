@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { content, type Content } from './registry';
 import { loadAllPacks, packs } from './strings';
 import { resolveRoute } from './resolve';
+import { childrenOf, sceneRef, sideways } from './tree';
 import { coverage, formatProblems, validate } from './validate';
 
 const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
@@ -38,6 +39,33 @@ describe('content', () => {
         for (const layer of l.stack) if (!content.layers[layer].dive) missing.add(`layer ${layer}`);
       }
     expect([...missing]).toEqual([]);
+  });
+
+  it('names neighbouring stretches that dive into the same scene apart, in every language', () => {
+    const bad: string[] = [];
+    const title = (lang: string, dive: string, tech: string) =>
+      packs[lang].strings[`scene.${dive}.${tech}.title`] ?? packs[lang].strings[`scene.${dive}.title`];
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      const walk = (path: string[]): void => {
+        const ref = sceneRef(r, path)!, kids = childrenOf(r, ref);
+        for (const c of kids) if (c.kind === 'expand') walk([...path, c.step]);
+        const first = kids.find((c) => c.kind === 'dive');
+        if (!first) return;
+        const at = (step: string) => sceneRef(r, [...path, step])!;
+        const runs = sideways(r, [...path, first.step], null, 'landscape').runs.map((run) => at(run[0]));
+        for (const [i, b] of runs.entries()) {
+          const a = runs[i - 1];
+          if (!a || a.dive !== b.dive) continue;
+          for (const lang of Object.keys(packs)) {
+            const ta = title(lang, a.dive!, a.link!.link.tech.id), tb = title(lang, b.dive!, b.link!.link.tech.id);
+            if (!ta || ta === tb) bad.push(`${lang} ${place}/${activity} ${[...path, a.path.at(-1)].join('/')} → ${b.path.at(-1)}: "${tb}"`);
+          }
+        }
+      };
+      walk([]);
+    }
+    expect(bad).toEqual([]);
   });
 });
 

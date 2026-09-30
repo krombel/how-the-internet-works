@@ -288,6 +288,13 @@ always muted again on reload.
   level. A slow drag still pans. The ◀ ▶ buttons and the arrow keys do the same.
   - The overview's stops are phone → Wi-Fi → AP → cable → router → fibre → internet.
   - The sub-path's stops are its hops. At dive level, flicking moves between Wi-Fi and fibre.
+  - At dive level the camera doesn't jump from one dive to the next: it **zooms out, travels along the path and
+    zooms back in** (issue #36), so you see the device between the two links, where the medium changes. The
+    highlight hops link → device → link on the way. It's one quick move (about 0.7 s to a neighbour), and quick
+    repeated steps join into one glide. With `prefers-reduced-motion` it cuts straight to the next dive.
+  - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
+    street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
+    looks different, instead of stepping through six identical "light in a glass thread" dives.
   - The buttons point where the camera will go, so they are not mirrored in RTL.
 - **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas. The chrome buttons are
   36–40 px on a phone so they fit on two rows. That's fine for grown-ups, but a bit small for the youngest.

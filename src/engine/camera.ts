@@ -73,6 +73,48 @@ export function flyInterpolator(a: Cam, b: Cam, vp: Viewport) {
   return Object.assign(fn, { duration: Math.min(1600, Math.max(650, i.duration * 0.8)) });
 }
 
+/** Timings of a sideways travel (natural ms, before the theme's motion speed). Each leg starts when the one before it
+ *  is `overlap` done, so the move never stops at a join. */
+export const TRAVEL = { outMs: 260, inMs: 300, perScreenMs: 180, minGlideMs: 160, maxGlideMs: 520, overlap: 0.6 };
+
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const easeInOut = (t: number) => t * t * (3 - 2 * t);
+/** A cubic from 0 to 1 that leaves with slope m (0–3 keeps it monotonic) and arrives at rest. */
+const leaveAt = (t: number, m: number) => (t * t * t - 2 * t * t + t) * m + (3 - 2 * t) * t * t;
+
+/** A sideways travel along a path: zoom out to `kT` where we are, glide the view centre along the path, then zoom in to
+ *  `b`, as three overlapping legs of one continuous move. `along(u)` is the path in root coordinates (u = 0 → 1),
+ *  `length` its length. `v0` (root units per ms) is how fast we're already gliding that way (a step during a travel
+ *  carries on without a stop). The returned fn takes linear time t ∈ [0, 1] (the legs ease themselves); `pos(t)` is
+ *  how far along the path the view centre is. */
+export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, length: number, kT: number, vp: Viewport, v0 = 0) {
+  const c = areaCentre(vp), T = TRAVEL;
+  const centre = (m: Cam): Pt => ({ x: (c.x - m.x) / m.k, y: (c.y - m.y) / m.k });
+  const ca = centre(a), cb = centre(b), p0 = along(0), p1 = along(1);
+  const dA = { x: ca.x - p0.x, y: ca.y - p0.y }, dB = { x: cb.x - p1.x, y: cb.y - p1.y };
+  /** A distance in root units, as screen widths at the travel zoom. */
+  const screens = (d: number) => (d * kT) / vp.w;
+  const leg = (k: number, off: Pt, ms: number) =>
+    Math.max(ms * Math.min(1.3, Math.abs(Math.log(k / kT)) / Math.log(4)), Math.min(ms, screens(Math.hypot(off.x, off.y)) * T.perScreenMs));
+  const out = leg(a.k, dA, T.outMs), inn = leg(b.k, dB, T.inMs);
+  const glide = Math.min(T.maxGlideMs, Math.max(T.minGlideMs, screens(length) * T.perScreenMs));
+  const t1 = out * T.overlap, t2 = t1 + glide * T.overlap, duration = Math.max(t2 + inn, t1 + glide);
+  const m0 = length > 0 ? Math.min(3, Math.max(0, (v0 * glide) / length)) : 0;
+  const w = (ms: number, from: number, dur: number) => (dur > 0 ? clamp01((ms - from) / dur) : ms >= from ? 1 : 0);
+  const legs = (t: number) => {
+    const ms = t * duration;
+    return { wo: easeInOut(w(ms, 0, out)), wg: leaveAt(w(ms, t1, glide), m0), wi: easeInOut(w(ms, t2, inn)) };
+  };
+  const la = Math.log(a.k), lt = Math.log(kT), lb = Math.log(b.k);
+  const fn = (t: number): Cam => {
+    const { wo, wg, wi } = legs(t);
+    const k = Math.exp(la + (lt - la) * wo + (lb - lt) * wi), p = along(wg);
+    const x = p.x + dA.x * (1 - wo) + dB.x * wi, y = p.y + dA.y * (1 - wo) + dB.y * wi;
+    return { k, x: c.x - x * k, y: c.y - y * k };
+  };
+  return Object.assign(fn, { duration, pos: (t: number) => legs(t).wg });
+}
+
 /** Scale a camera about a screen point. */
 export function zoomAbout(cam: Cam, f: number, sx: number, sy: number): Cam {
   const k = cam.k * f;
