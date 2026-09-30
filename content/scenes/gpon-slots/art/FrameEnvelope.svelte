@@ -27,7 +27,7 @@
 </script>
 
 <g transform="translate({x} {y}) scale({scale})" opacity={muted ? 0.55 : 1}>
-  <ellipse cx="0" cy="18" rx="62" ry="12" fill="var(--line)" opacity="0.14" />
+  <ellipse cx="0" cy="18" rx="62" ry="12" fill="var(--shade)" opacity="0.14" />
   {#if walking}
     <g stroke="var(--line)" stroke-width="6" stroke-linecap="round">
       <path d="M-22 2 L{-26 + step} 16" />

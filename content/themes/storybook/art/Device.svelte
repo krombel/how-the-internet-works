@@ -37,6 +37,10 @@
   .storybook-device :global(.thin) { stroke-width: 4; opacity: .55; }
   .storybook-device :global(.wave) { stroke-width: 6; }
   .storybook-device :global(.accent), .storybook-device :global(.button) { fill: var(--sun); stroke: var(--line); stroke-width: 4; }
+  /* at night the little lights (a device's accent dots) glow: a wide soft stroke under the fill, no filters */
+  :global(:root[data-mode='night']) .storybook-device :global(.accent) {
+    stroke: color-mix(in srgb, var(--lamp) 38%, transparent); stroke-width: 12; paint-order: stroke;
+  }
   .storybook-device :global(.hi) { fill: var(--paper); opacity: .55; }
   .eye { fill: var(--line); }
 </style>

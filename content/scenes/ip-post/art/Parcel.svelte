@@ -16,7 +16,7 @@
 {/snippet}
 
 <g transform="translate({x} {y})">
-  <ellipse cx="0" cy="2" rx="62" ry="12" fill="var(--line)" opacity="0.14" />
+  <ellipse cx="0" cy="2" rx="62" ry="12" fill="var(--shade)" opacity="0.14" />
   <g stroke="var(--line)" stroke-width="7" stroke-linecap="round">
     <path d="M-22 -12 L{-26 + step} 0" />
     <path d="M22 -12 L{26 - step} 0" />

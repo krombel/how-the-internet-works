@@ -18,7 +18,7 @@
 </script>
 
 <g transform="translate({x} {y}) scale({scale})">
-  <ellipse cx="0" cy="8" rx="66" ry="14" fill="var(--line)" opacity="0.14" />
+  <ellipse cx="0" cy="8" rx="66" ry="14" fill="var(--shade)" opacity="0.14" />
   <g stroke="var(--line)" stroke-width="7" stroke-linecap="round">
     <path d="M-24 -12 L{-30 + step} 6" />
     <path d="M24 -12 L{30 - step} 6" />

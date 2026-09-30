@@ -1,6 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { pts } from '$core/api';
+  import { pts, view } from '$core/api';
   import type { SparkProps } from '../types';
   let { spark }: SparkProps = $props();
 </script>
@@ -8,6 +8,10 @@
 <!-- per-element opacity rather than a group opacity: a faded group needs its own offscreen layer every frame -->
 {#if spark.alpha > 0.02}
   {@const a = spark.alpha}
+  {#if view.mode === 'night'}
+    <polyline points={pts(spark.trail)} fill="none" stroke={spark.colour} stroke-width="46" stroke-linecap="round" stroke-linejoin="round" opacity={0.2 * a} />
+    <circle cx={spark.head.x} cy={spark.head.y} r="40" fill={spark.colour} opacity={0.24 * a} />
+  {/if}
   <polyline points={pts(spark.trail)} fill="none" stroke="var(--line)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" opacity={0.26 * a} />
   <polyline points={pts(spark.trail)} fill="none" stroke={spark.colour} stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity={0.92 * a} />
   <circle cx={spark.head.x} cy={spark.head.y} r="21" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity={a} />

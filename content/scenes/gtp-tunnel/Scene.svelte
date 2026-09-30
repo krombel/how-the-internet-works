@@ -109,7 +109,7 @@
 <!-- walking tunnel envelope -->
 {#if st.phase !== 'handover'}
   <g transform="translate({st.parcel.x} {st.parcel.y}) scale({T.parcel})">
-    <ellipse cx="0" cy="10" rx="74" ry="16" fill="var(--line)" opacity="0.14" />
+    <ellipse cx="0" cy="10" rx="74" ry="16" fill="var(--shade)" opacity="0.14" />
     <g stroke="var(--line)" stroke-width="6" stroke-linecap="round">
       <path d="M-28 -8 L-36 10" />
       <path d="M28 -8 L36 10" />

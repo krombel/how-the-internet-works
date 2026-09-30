@@ -10,6 +10,6 @@
   <path d="M-48 -4 L0 -50 L48 -4" fill={you ? 'var(--orange-bright)' : 'var(--roof-plain)'} stroke="var(--line)" stroke-width="6" stroke-linejoin="round" />
   <rect x="-38" y="-8" width="76" height="56" rx="8" fill={you ? 'var(--peach)' : 'var(--wall-plain)'} stroke="var(--line)" stroke-width="6" />
   <rect x="-10" y="16" width="20" height="32" rx="4" fill="var(--line)" opacity="0.8" />
-  <rect x="-28" y="4" width="14" height="14" rx="3" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
-  <rect x="14" y="4" width="14" height="14" rx="3" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
+  <rect x="-28" y="4" width="14" height="14" rx="3" fill="var(--window)" stroke="var(--line)" stroke-width="3" />
+  <rect x="14" y="4" width="14" height="14" rx="3" fill="var(--window)" stroke="var(--line)" stroke-width="3" />
 </g>

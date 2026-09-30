@@ -76,6 +76,10 @@
   --glass: #d9f0e9;
   --berry: #bd6b87;
   --berry-dark: #bd4f74;
+  /* Lights: plain by day, lit at night */
+  --window: var(--paper-2);
+  --room: var(--paper-2);
+  --lamp: var(--sun);
   /* What the chrome and the engine's art slots use */
   --bg: var(--sky);
   --accent-ink: var(--paper);
@@ -189,6 +193,9 @@
   --glass: #29465a;
   --berry: #b8698e;
   --berry-dark: #c86e92;
+  --window: #ffd98a;
+  --room: #b88a5e;
+  --lamp: #ffe08a;
   --btn: #3c3968;
   --btn-on: #f39a64;
   --btn-on-ink: #1c2048;
@@ -204,6 +211,22 @@
   --card-rim: color-mix(in srgb, var(--white) 10%, transparent);
   --tag-bg: #3a3460;
 }
+
+/* Day ↔ night (the engine switches inside a View Transition): night falls from the top of the sky, day comes up
+   from the horizon, over a soft edge. Without motion the switch is instant (the engine skips the transition). */
+:root[data-style='storybook']::view-transition-old(root) { animation: none; }
+:root[data-style='storybook']::view-transition-new(root) {
+  animation: 1.3s cubic-bezier(0.4, 0, 0.3, 1) both storybook-dusk;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 60%);
+  mask-size: 100% 250%;
+  mask-repeat: no-repeat;
+}
+:root[data-style='storybook'][data-mode='day']::view-transition-new(root) {
+  animation-name: storybook-dawn;
+  mask-image: linear-gradient(to top, black 40%, transparent 60%);
+}
+@keyframes storybook-dusk { from { mask-position: 0 100%; } to { mask-position: 0 0; } }
+@keyframes storybook-dawn { from { mask-position: 0 0; } to { mask-position: 0 100%; } }
 
 :root[data-style='storybook'] .card {
   outline: 2px solid var(--card-rim);

@@ -38,7 +38,7 @@
 
 <g transform="translate({x} {y}) scale({scale})">
   {#if walking}
-    <ellipse cx={0} cy="72" rx="72" ry="14" fill="var(--line)" opacity="0.14" />
+    <ellipse cx={0} cy="72" rx="72" ry="14" fill="var(--shade)" opacity="0.14" />
     <g stroke="var(--line)" stroke-width="7" stroke-linecap="round">
       <path d="M-26 58 L{-34 + step} 76" />
       <path d="M26 58 L{34 - step} 76" />
