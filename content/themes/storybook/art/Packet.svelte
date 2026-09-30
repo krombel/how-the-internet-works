@@ -7,9 +7,9 @@
 </script>
 
 <g class="courier" transform="translate({pose.x} {pose.y})">
-  {#if followed}<ellipse cx="0" cy="28" rx="40" ry="15" fill="#fff0b3" stroke="#6b3f2a" stroke-width="4" opacity="0.85" />{/if}
+  {#if followed}<ellipse cx="0" cy="28" rx="40" ry="15" fill="var(--glow-pale)" stroke="var(--line)" stroke-width="4" opacity="0.85" />{/if}
   <g transform="scale({facing} 1)">
-    <g class="legs" stroke="#6b3f2a" stroke-width="6" stroke-linecap="round">
+    <g class="legs" stroke="var(--line)" stroke-width="6" stroke-linecap="round">
       <path d="M-11 20 L-22 34" />
       <path d="M10 20 L21 34" />
     </g>
@@ -21,8 +21,8 @@
     {#if kind === 'video'}
       <g transform="translate(28 -1) rotate(-8)">
         <rect class="film" x="-3" y="-14" width="31" height="26" rx="5" />
-        <circle cx="6" cy="-2" r="5" fill="#fff7df" stroke="#6b3f2a" stroke-width="3" />
-        <path d="M18 -10 V8" stroke="#fff7df" stroke-width="4" stroke-linecap="round" />
+        <circle cx="6" cy="-2" r="5" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
+        <path d="M18 -10 V8" stroke="var(--paper)" stroke-width="4" stroke-linecap="round" />
       </g>
     {:else}
       <g transform="translate(26 -2) rotate(-8)">
@@ -34,11 +34,11 @@
 </g>
 
 <style>
-  .body, .parcel, .film { stroke: #6b3f2a; stroke-width: 5; }
-  .highlight { fill: #fff7df; opacity: .48; }
-  .eye { fill: #6b3f2a; }
-  .smile { fill: none; stroke: #6b3f2a; stroke-width: 3.4; stroke-linecap: round; }
-  .parcel { fill: #c58a54; }
-  .parcel-line { fill: none; stroke: #6b3f2a; stroke-width: 3; stroke-linecap: round; opacity: .8; }
-  .film { fill: #72b8a5; }
+  .body, .parcel, .film { stroke: var(--line); stroke-width: 5; }
+  .highlight { fill: var(--paper); opacity: .48; }
+  .eye { fill: var(--line); }
+  .smile { fill: none; stroke: var(--line); stroke-width: 3.4; stroke-linecap: round; }
+  .parcel { fill: var(--cardboard); }
+  .parcel-line { fill: none; stroke: var(--line); stroke-width: 3; stroke-linecap: round; opacity: .8; }
+  .film { fill: var(--teal); }
 </style>

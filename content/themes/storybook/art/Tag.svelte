@@ -13,7 +13,7 @@
 
 <g class="storybook-tag" transform="translate({x} {y})">
   <path d={`M${x0 + size * 0.38} ${y0} H${x0 + bw - size * 0.2} Q${x0 + bw} ${y0} ${x0 + bw} ${y0 + size * 0.28} V${y0 + bh - size * 0.28} Q${x0 + bw} ${y0 + bh} ${x0 + bw - size * 0.28} ${y0 + bh} H${x0 + size * 0.38} L${x0} ${y0 + bh / 2} Z`} fill="var(--tag-bg)" stroke="var(--tag-edge)" stroke-width={Math.max(2, size * 0.11)} stroke-linejoin="round" />
-  <circle cx={x0 + size * 0.45} cy={y0 + bh / 2} r={size * 0.16} fill="#fff7df" stroke="var(--tag-edge)" stroke-width={Math.max(1.5, size * 0.06)} />
-  <path d={`M${x0 + size * 0.44} ${y0 + bh / 2} q${-size * 0.8} ${-size * 0.5} ${-size * 1.3} ${-size * 0.05}`} fill="none" stroke="#6b3f2a" stroke-width={Math.max(1.4, size * 0.06)} stroke-linecap="round" />
+  <circle cx={x0 + size * 0.45} cy={y0 + bh / 2} r={size * 0.16} fill="var(--paper)" stroke="var(--tag-edge)" stroke-width={Math.max(1.5, size * 0.06)} />
+  <path d={`M${x0 + size * 0.44} ${y0 + bh / 2} q${-size * 0.8} ${-size * 0.5} ${-size * 1.3} ${-size * 0.05}`} fill="none" stroke="var(--line)" stroke-width={Math.max(1.4, size * 0.06)} stroke-linecap="round" />
   <text class="tag-text" font-size={size} text-anchor={anchor} fill="var(--tag-ink)" dominant-baseline="central">{text}</text>
 </g>

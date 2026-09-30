@@ -9,7 +9,7 @@
   let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.nr-radio');
   // you, and two neighbours' phones
-  const COLOURS = ['#bd6b87', '#72b8a5', '#e4a342'];
+  const COLOURS = ['var(--berry)', 'var(--teal)', 'var(--mustard)'];
   const device = $derived(subject.route.hops[subject.link.from].node.id);
   const tower = $derived(subject.route.hops[subject.link.to].node.id);
   const L = $derived(LAYOUT[view.orient]);
@@ -25,7 +25,7 @@
 </script>
 
 <!-- grid frame: frequency up, time along -->
-<rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="#fff7df" stroke="#6b3f2a" stroke-width="5" opacity="0.9" />
+<rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity="0.9" />
 <clipPath id="nr-grid-{view.orient}"><rect x={G.x} y={G.y - 4} width={COLS * G.cw} height={ROWS * G.ch + 8} /></clipPath>
 <g clip-path="url(#nr-grid-{view.orient})">
   {#each cols as c (c.slot)}
@@ -47,7 +47,7 @@
 <Node id={tower} x={L.tower.x} y={L.tower.y} size={L.tower.size} />
 {#each L.phones as p, i}
   <Node id={device} x={p.x} y={p.y} size={p.size} focused={i === 0} />
-  <circle cx={p.x + p.size * 0.36} cy={p.y - p.size * 0.4} r="14" fill={COLOURS[i]} stroke="#6b3f2a" stroke-width="4" />
+  <circle cx={p.x + p.size * 0.36} cy={p.y - p.size * 0.4} r="14" fill={COLOURS[i]} stroke="var(--line)" stroke-width="4" />
 {/each}
 <Text x={L.labels.you.x} y={L.labels.you.y} text={S('you')} size={28} kind="node" />
 <Text x={L.labels.beams.x} y={L.labels.beams.y} text={S('beams')} size={30} kind="big" colour={COLOURS[0]} />

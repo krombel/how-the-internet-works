@@ -13,6 +13,7 @@
   import Break from './art/Break.svelte';
   const S = strings('scene.fibre-light');
   const F = FIBRE, H = LONG_HAUL;
+  // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const colours = ['#e85d75', '#f08a4b', '#ffcf5d', '#a8c957', '#55bfa3', '#4aa3cf', '#7f7fd5', '#c77dbb'];
   const routes = H.lanes.map((c, i) => channelRoute(i, c));
   const pulses = $derived(fibrePulses(view.time, routes, 2));

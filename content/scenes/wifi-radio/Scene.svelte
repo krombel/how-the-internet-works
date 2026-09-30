@@ -8,7 +8,7 @@
   import Rings from './art/Rings.svelte';
   let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.wifi-radio');
-  const BIT_COLOURS = ['#72b8a5', '#f28f5b'];
+  const BIT_COLOURS = ['var(--teal)', 'var(--orange)'];
   // the device end and the radio end of the link (phone ↔ access point on the home route)
   const device = $derived(subject.route.hops[subject.link.from].node.id);
   const radio = $derived(subject.route.hops[subject.link.to].node.id);

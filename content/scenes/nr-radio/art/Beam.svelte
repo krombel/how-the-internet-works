@@ -12,5 +12,5 @@
 <g class="beam">
   <path {d} fill={colour} opacity={0.14 + 0.2 * strength} />
   <path {d} fill="none" stroke={colour} stroke-width="4" stroke-dasharray="12 10" stroke-dashoffset={-time * 40} opacity={0.4 + 0.5 * strength} />
-  {#each sparks as s}<circle cx={s.x} cy={s.y} r={7 + 3 * strength} fill={colour} stroke="#6b3f2a" stroke-width="3" opacity={s.a * (0.5 + 0.5 * strength)} />{/each}
+  {#each sparks as s}<circle cx={s.x} cy={s.y} r={7 + 3 * strength} fill={colour} stroke="var(--line)" stroke-width="3" opacity={s.a * (0.5 + 0.5 * strength)} />{/each}
 </g>

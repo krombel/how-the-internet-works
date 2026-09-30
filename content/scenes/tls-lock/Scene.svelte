@@ -41,9 +41,9 @@
   const crowRight = $derived(view.orient === 'portrait' && endpoint === 'server');
   const crowLabelX = $derived(crowRight ? crow.x + 90 : crow.x - (view.orient === 'portrait' ? 90 : 100));
   const crowLabelY = $derived(view.orient === 'portrait' ? 1084 : endpoint === 'middle' ? crow.y - 58 : crow.y + 40);
-  const brown = '#8a6043';
-  const orange = '#e97845';
-  const green = '#8fc97a';
+  const brown = 'var(--muted)';
+  const orange = 'var(--accent)';
+  const green = 'var(--leaf)';
   function roadName(h: LayerSubject['ctx']['client']) {
     if (view.orient === 'landscape') return nameOf(h);
     if (h.id === client.id || h.node.id === 'phone') return S('label.phone');
@@ -55,10 +55,10 @@
 </script>
 
 <!-- THESIS: TLS is a three-beat secret handshake: prove the server, mix a shared colour, then lock the parcel. OWN-WORLD: the IP dive family staging, pinned paper cards over a straight road, storybook ink and big props. STORY: endpoints open TLS; middle hops and the crow see only public mixes and locked parcels. FIRST VIEWPORT: phone/server/hop on the bottom road; ID card and paint-mixing cards above. FORM: issue-brief layer-dive staging with a deterministic 16s loop. -->
-<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="#f5d9a3" stroke="#6b3f2a" stroke-width="6" />
-<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="#fff7df" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
+<rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="var(--kraft)" stroke="var(--line)" stroke-width="6" />
+<path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="var(--paper)" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
 
-<Card x={cert.x} y={cert.y} w={cert.w} h={cert.h} tint="#ffcf5d" />
+<Card x={cert.x} y={cert.y} w={cert.w} h={cert.h} tint="var(--sun)" />
 <Text x={cert.x + 34} y={titleY(cert)} text={S(L.compact ? 'label.proveShort' : 'label.prove')} size={T.big} kind="big" anchor="start" />
 <g opacity={m.beat === 'id' ? 1 : 0.48}>
   {#if view.orient === 'landscape'}
@@ -73,9 +73,9 @@
     <StickerBook x={cert.x + 405} y={cert.y + 92} w={330} h={180} ok={ramp(m.u, 1.2, 2.6)} />
   {/if}
 </g>
-{#if m.beat === 'id'}<Text x={cert.x + cert.w / 2} y={cert.y + cert.h - (view.orient === 'portrait' ? 36 : L.compact ? 40 : 26)} text={S('label.tick')} size={T.text} kind="big" colour="#4f8f3a" />{/if}
+{#if m.beat === 'id'}<Text x={cert.x + cert.w / 2} y={cert.y + cert.h - (view.orient === 'portrait' ? 36 : L.compact ? 40 : 26)} text={S('label.tick')} size={T.text} kind="big" colour="var(--leaf-dark-93a)" />{/if}
 
-<Card x={mix.x} y={mix.y} w={mix.w} h={mix.h} tint="#72b8a5" />
+<Card x={mix.x} y={mix.y} w={mix.w} h={mix.h} tint="var(--teal)" />
 <Text x={mix.x + 34} y={titleY(mix)} text={S(L.compact ? 'label.paintShort' : 'label.paint')} size={T.big} kind="big" anchor="start" />
 {#if view.orient === 'landscape'}
   {@const y1 = mix.y + (L.compact ? 160 : 152)}{@const y2 = mix.y + (L.compact ? 285 : 266)}
@@ -84,13 +84,13 @@
   {@const bigPot = L.compact ? 1.1 : 1.18}
   {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + (L.compact ? 150 : 132)}{@const p2 = p1 + (L.compact ? 150 : 132)}
   <Text x={mix.x + 42} y={y1 + 13} text={phoneLabel} size={labelSize} kind="small" anchor="start" />
-  <Pot x={p0} y={y1} colour="#ffcf5d" scale={potScale} />
+  <Pot x={p0} y={y1} colour="var(--sun)" scale={potScale} />
   <Text x={p0 + (L.compact ? 84 : 72)} y={y1 + 13} text="+" size={T.big} kind="big" />
   <Pot x={p1} y={y1} colour={orange} scale={potScale} />
   <Text x={p1 + (L.compact ? 84 : 72)} y={y1 + 13} text="=" size={T.big} kind="big" />
   <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} active={m.beat === 'brown'} scale={bigPot} />
   <Text x={mix.x + 42} y={y2 + 13} text={serverLabel} size={labelSize} kind="small" anchor="start" />
-  <Pot x={p0} y={y2} colour="#ffcf5d" scale={potScale} />
+  <Pot x={p0} y={y2} colour="var(--sun)" scale={potScale} />
   <Text x={p0 + (L.compact ? 84 : 72)} y={y2 + 13} text="+" size={T.big} kind="big" />
   <Pot x={p1} y={y2} colour={green} scale={potScale} />
   <Text x={p1 + (L.compact ? 84 : 72)} y={y2 + 13} text="=" size={T.big} kind="big" />
@@ -99,21 +99,21 @@
   {@const y1 = mix.y + 168}{@const y2 = mix.y + 320}
   {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + 155}{@const p2 = p0 + 310}
   <Text x={mix.x + 54} y={y1 + 18} text={phoneLabel} size={T.text} kind="small" anchor="start" />
-  <Pot x={p0} y={y1} colour="#ffcf5d" scale={1.18} />
+  <Pot x={p0} y={y1} colour="var(--sun)" scale={1.18} />
   <Text x={p0 + 78} y={y1 + 18} text="+" size={T.big} kind="big" />
   <Pot x={p1} y={y1} colour={orange} scale={1.18} />
   <Text x={p1 + 78} y={y1 + 18} text="=" size={T.big} kind="big" />
   <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} scale={1.18} />
   <Text x={mix.x + 54} y={y2 + 18} text={serverLabel} size={T.text} kind="small" anchor="start" />
-  <Pot x={p0} y={y2} colour="#ffcf5d" scale={1.18} />
+  <Pot x={p0} y={y2} colour="var(--sun)" scale={1.18} />
   <Text x={p0 + 78} y={y2 + 18} text="+" size={T.big} kind="big" />
   <Pot x={p1} y={y2} colour={green} scale={1.18} />
   <Text x={p1 + 78} y={y2 + 18} text="=" size={T.big} kind="big" />
   <Pot x={p2} y={y2} colour={m.brown > 0.75 ? brown : green} scale={1.18} />
 {/if}
 
-{#if endpoint === 'middle'}<line x1={crow.x} x2={crow.x} y1={crow.y + 28} y2={L.road.y - 42} stroke="#6b3f2a" stroke-width="7" stroke-linecap="round" opacity="0.75" />{/if}
-<line x1={wire.x1} x2={wire.x2} y1={wire.y} y2={wire.y} stroke="#6b3f2a" stroke-width="5" stroke-linecap="round" opacity="0.65" />
+{#if endpoint === 'middle'}<line x1={crow.x} x2={crow.x} y1={crow.y + 28} y2={L.road.y - 42} stroke="var(--line)" stroke-width="7" stroke-linecap="round" opacity="0.75" />{/if}
+<line x1={wire.x1} x2={wire.x2} y1={wire.y} y2={wire.y} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.65" />
 <Crow x={crow.x} y={crow.y} look={m.swap} scale={crowScale} />
 {#if m.beat !== 'locked' && !L.compact}
   <Text x={crowLabelX} y={crowLabelY} text={S('label.crowShort')} size={crowLabelSize} kind="big" anchor={crowRight ? 'start' : 'end'} />

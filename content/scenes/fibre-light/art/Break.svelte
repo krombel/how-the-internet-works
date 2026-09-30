@@ -6,7 +6,7 @@
 </script>
 
 <g class="break">
-  <path d={`M${x - 28} ${y + h / 2 + 14} L${x + 8} ${y - h / 2 - 14} L${x + 28} ${y - h / 2 - 14} L${x - 8} ${y + h / 2 + 14} Z`} fill="#fff7df" />
-  <path d={d(-10)} stroke="#6b3f2a" stroke-width="6" stroke-linecap="round" />
-  <path d={d(10)} stroke="#6b3f2a" stroke-width="6" stroke-linecap="round" />
+  <path d={`M${x - 28} ${y + h / 2 + 14} L${x + 8} ${y - h / 2 - 14} L${x + 28} ${y - h / 2 - 14} L${x - 8} ${y + h / 2 + 14} Z`} fill="var(--paper)" />
+  <path d={d(-10)} stroke="var(--line)" stroke-width="6" stroke-linecap="round" />
+  <path d={d(10)} stroke="var(--line)" stroke-width="6" stroke-linecap="round" />
 </g>

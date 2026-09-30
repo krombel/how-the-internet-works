@@ -18,12 +18,84 @@
 
 :root[data-style='storybook'] {
   color-scheme: light;
-  --bg: #ffeccf;
+  /* The palette: every colour the art uses (content/**: var(--name), never a literal; see docs/authoring.md). */
   --sky: #ffeccf;
   --ink: #5a3827;
   --muted: #8a6043;
   --accent: #e97845;
-  --accent-ink: #fff7df;
+  --line: #6b3f2a;
+  --brick: #a65435;
+  --bark: #7b543b;
+  --wood: #9a6b45;
+  --paper: #fff7df;
+  --paper-6df: #fff6df;
+  --paper-7dc: #fff7dc;
+  --paper-6d7: #fff6d7;
+  --paper-2: #fff2d7;
+  --paper-1d1: #fff1d1;
+  --paper-white: #fffaf0;
+  --paper-white-df3: #fffdf3;
+  --white: #ffffff;
+  --kraft: #f5d9a3;
+  --kraft-edge: #e8be80;
+  --kraft-edge-d78: #e7bd78;
+  --kraft-dark: #d0a06e;
+  --flap: #fbe4b8;
+  --pavement: #f3dcb2;
+  --flap-sealed: #ecca8e;
+  --kraft-edge-sealed: #c99b5e;
+  --peach: #ffd89c;
+  --tan: #f6b56b;
+  --tan-pale: #f2c287;
+  --sand: #d9a66b;
+  --clay: #d69b62;
+  --cardboard: #c58a54;
+  --cardboard-a55: #c98a55;
+  --stone: #d9cbb4;
+  --road: #cbb29a;
+  --road-top: #f3c989;
+  --trunk: #dcb071;
+  --wall-plain: #f3e2c7;
+  --roof-plain: #c9a58a;
+  --sun: #ffcf5d;
+  --sun-36b: #ffd36b;
+  --mustard: #e4a342;
+  --mustard-33c: #e8a33c;
+  --focus-ring: #efb159;
+  --glow: #fff3c6;
+  --glow-4c5: #fff4c5;
+  --glow-pale: #fff0b3;
+  --glow-box: #fff0a6;
+  --orange: #f28f5b;
+  --orange-bright: #f08a4b;
+  --orange-soft: #f19a55;
+  --orange-soft-b55: #ed9b55;
+  --roof: #f28057;
+  --leaf: #8fc97a;
+  --leaf-978: #8fc978;
+  --leaf-dark: #4f8b41;
+  --leaf-dark-93a: #4f8f3a;
+  --leaf-ink: #315d27;
+  --leaf-pale: #dff0c8;
+  --mint: #e7f2df;
+  --meadow: #d7e7a3;
+  --hill-far: #b9d887;
+  --hill-far-58b: #b8d58b;
+  --grass-far: #acd87e;
+  --grass-near: #78bd6d;
+  --teal: #72b8a5;
+  --blue: #4aa3cf;
+  --teal-dark: #3f8f7c;
+  --teal-deep: #4f8f82;
+  --glass: #d9f0e9;
+  --glass-0ee: #d7f0ee;
+  --berry: #bd6b87;
+  --berry-f8f: #bf6f8f;
+  --berry-dark: #bd4f74;
+  --berry-dark-96e: #bd496e;
+  /* What the chrome and the engine's art slots use */
+  --bg: var(--sky);
+  --accent-ink: var(--paper);
   --ui-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --heading-font: 'Baloo 2 Variable', system-ui, sans-serif;
   --label-font: 'Baloo 2 Variable', system-ui, sans-serif;
@@ -33,21 +105,21 @@
   --heading-transform: none;
   --heading-spacing: -0.01em;
   --card: rgba(255, 247, 223, 0.94);
-  --card-edge: #6b3f2a;
+  --card-edge: var(--line);
   --card-edge-w: 3px;
   --card-radius: 24px;
   --card-shadow: 0 9px 0 rgba(107, 63, 42, 0.15), 0 16px 30px rgba(107, 63, 42, 0.12);
   --card-blur: none;
   --btn: #ffe0a9;
-  --btn-on: #e97845;
-  --btn-on-ink: #fff7df;
+  --btn-on: var(--accent);
+  --btn-on-ink: var(--paper);
   --btn-radius: 999px;
-  --env-bg: #fff2d7;
-  --env-edge: #6b3f2a;
+  --env-bg: var(--paper-2);
+  --env-edge: var(--line);
   --env-radius: 18px;
-  --env-sealed: #f5d9a3;
-  --env-name: #a65435;
-  --env-dive: #72b8a5;
+  --env-sealed: var(--kraft);
+  --env-name: var(--brick);
+  --env-dive: var(--teal);
   --door-dive: #3f8f7b;
   --door-open: #d0673a;
   --door-catch: #8a4f75;
@@ -55,29 +127,20 @@
   --env-change: #c4452a;
   --link: #c45f3c;
   --lbl-weight: 800;
-  --lbl-halo: #fff7df;
+  --lbl-halo: var(--paper);
   --lbl-halo-w: 0.22em;
-  --scene-bg: #ffeccf;
-  --panel-bg: #fff1d1;
-  --panel-edge: #6b3f2a;
-  --dev-body: #ffd89c;
-  --dev-screen: #fff1d1;
-  --dev-edge: #6b3f2a;
-  --dev-accent: #ffcf5d;
-  --box: #ffd89c;
-  --box-edge: #6b3f2a;
-  --hint: #6b3f2a;
-  --hint-bg: #fff7df;
+  --scene-bg: var(--sky);
+  --panel-bg: var(--paper-1d1);
+  --panel-edge: var(--line);
+  --dev-body: var(--peach);
+  --dev-screen: var(--paper-1d1);
+  --dev-edge: var(--line);
+  --dev-accent: var(--sun);
+  --hint: var(--line);
+  --hint-bg: var(--paper);
   --tag-bg: #fff0bd;
-  --tag-edge: #6b3f2a;
-  --tag-ink: #5a3827;
-  --wave: #72b8a5;
-  --core: #fff7df;
-  --core-edge: #72b8a5;
-  --cladding: #d9f0e9;
-  --cladding-edge: #6b3f2a;
-  --prism: #d7f0ee;
-  --prism-edge: #6b3f2a;
+  --tag-edge: var(--line);
+  --tag-ink: var(--ink);
 }
 
 :root[data-style='storybook'] .card {
@@ -86,7 +149,7 @@
 }
 
 :root[data-style='storybook'] .btn {
-  border: 2px solid #6b3f2a;
+  border: 2px solid var(--line);
   box-shadow: 0 3px 0 rgba(107, 63, 42, 0.18);
 }
 
@@ -99,17 +162,17 @@
 :root[data-style='storybook'] .controls .seg .btn.on,
 :root[data-style='storybook'] .styles .btn.on,
 :root[data-style='storybook'] .icon-btn[aria-pressed='true'] {
-  border-color: #6b3f2a;
+  border-color: var(--line);
 }
 
 :root[data-style='storybook'] .swatch {
-  border-color: #6b3f2a;
+  border-color: var(--line);
   border-radius: 10px;
 }
 
 :root[data-style='storybook'] .caption h2,
 :root[data-style='storybook'] .peek h2 {
-  color: #a65435;
+  color: var(--brick);
 }
 
 :root[data-style='storybook'] .env {

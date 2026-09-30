@@ -4,6 +4,7 @@ export interface Pt { x: number; y: number }
 export const trackMatrix = (o: Orient) => (o === 'portrait' ? 'matrix(0 -1 1 0 0 1600)' : '');
 export const toScene = (p: Pt, o: Orient): Pt => (o === 'portrait' ? { x: p.y, y: 1600 - p.x } : p);
 
+// fixed-colour: the pairs' own insulation colours (T568), the same by day and by night
 export const PAIRS = [
   { name: 'orange', colour: '#f28f5b', y: 144 },
   { name: 'green', colour: '#72b8a5', y: 194 },
@@ -60,7 +61,7 @@ export function copperSparks(t: number, still: boolean, nerd: boolean) {
       const trail: Pt[] = [];
       for (let i = 0; i < 7; i++) trail.push(wirePoint(pair, x - dir * i * 18, wire));
       const dim = nerd ? 1 : pair === 0 ? 1 : 0.28;
-      out.push({ key: `${pair}-${dir}`, pair, dir, head: trail[0], trail, colour: dir > 0 ? PAIRS[pair].colour : '#ffcf5d', alpha: smooth(Math.max(0, edge)) * dim });
+      out.push({ key: `${pair}-${dir}`, pair, dir, head: trail[0], trail, colour: dir > 0 ? PAIRS[pair].colour : 'var(--sun)', alpha: smooth(Math.max(0, edge)) * dim });
     }
   }
   return out;

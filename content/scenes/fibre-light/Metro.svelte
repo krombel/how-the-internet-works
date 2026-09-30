@@ -10,6 +10,7 @@
   import Pulse from './art/Pulse.svelte';
   const S = strings('scene.fibre-light');
   const F = FIBRE;
+  // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const colours = ['#e85d75', '#ffcf5d', '#55bfa3', '#4aa3cf'];
   const routes = DWDM.map((c, i) => channelRoute(i, c));
   const pulses = $derived(fibrePulses(view.time, routes));

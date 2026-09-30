@@ -131,7 +131,7 @@ export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: n
 });
 calm.addEventListener('change', () => (view.still = calm.matches));
 
-// ------------------------------------------------------------------ day and night (issue #43)
+// ------------------------------------------------------------------ day and night
 // The reader's mode follows the OS (prefers-color-scheme) until they pick one with the toggle; `?mode=day|night` in
 // the link wins on load. A choice that matches the OS is not stored, so the page goes back to following the OS. The
 // engine only sets `data-mode` on <html> (the theme's tokens do the rest) and `view.mode` (for art that adds

@@ -7,21 +7,21 @@
 </script>
 
 <g transform="translate({x} {y}) scale({scale})" opacity={opacity}>
-  {#if glow}<ellipse cx="0" cy="8" rx={size * 0.74} ry={size * 0.55} fill="#fff0a6" opacity="0.72" />{/if}
-  {#if lost}<path d="M{-size * 0.45} {size * 0.28} q{size * 0.18} {size * 0.22} {size * 0.36} 0 t{size * 0.36} 0 t{size * 0.36} 0" fill="none" stroke="#72b8a5" stroke-width="6" stroke-linecap="round" />{/if}
-  <rect x={-size / 2} y={-size / 2} width={size} height={size} rx={size * 0.16} fill={sealed ? '#f5d9a3' : '#fff2d7'} stroke="#6b3f2a" stroke-width="5" />
-  <path d="M{-size / 2} {-size * 0.12} H{size / 2} M{-size * 0.12} {-size / 2} V{size / 2}" stroke="#c58a54" stroke-width="3.5" stroke-linecap="round" opacity="0.72" />
-  <Text x={0} y={size * 0.16} text={`${n}`} size={size * 0.56} kind="big" colour="#6b3f2a" />
+  {#if glow}<ellipse cx="0" cy="8" rx={size * 0.74} ry={size * 0.55} fill="var(--glow-box)" opacity="0.72" />{/if}
+  {#if lost}<path d="M{-size * 0.45} {size * 0.28} q{size * 0.18} {size * 0.22} {size * 0.36} 0 t{size * 0.36} 0 t{size * 0.36} 0" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" />{/if}
+  <rect x={-size / 2} y={-size / 2} width={size} height={size} rx={size * 0.16} fill={sealed ? 'var(--kraft)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width="5" />
+  <path d="M{-size / 2} {-size * 0.12} H{size / 2} M{-size * 0.12} {-size / 2} V{size / 2}" stroke="var(--cardboard)" stroke-width="3.5" stroke-linecap="round" opacity="0.72" />
+  <Text x={0} y={size * 0.16} text={`${n}`} size={size * 0.56} kind="big" colour="var(--line)" />
   {#if sealed}
     <g transform="translate({size * 0.31} {-size * 0.29}) rotate(-11)">
-      <circle r={size * 0.22} fill="#bd496e" stroke="#6b3f2a" stroke-width="3.5" />
-      <path d="M{-size * 0.09} 0 C{-size * 0.03} {-size * 0.06} {size * 0.04} {-size * 0.06} {size * 0.09} 0 M0 {-size * 0.1} V{size * 0.1}" stroke="#fff7df" stroke-width="2.8" stroke-linecap="round" fill="none" />
+      <circle r={size * 0.22} fill="var(--berry-dark-96e)" stroke="var(--line)" stroke-width="3.5" />
+      <path d="M{-size * 0.09} 0 C{-size * 0.03} {-size * 0.06} {size * 0.04} {-size * 0.06} {size * 0.09} 0 M0 {-size * 0.1} V{size * 0.1}" stroke="var(--paper)" stroke-width="2.8" stroke-linecap="round" fill="none" />
     </g>
   {/if}
   {#if port}
     <g transform="translate(0 {-size * 0.68}) rotate(-3)">
-      <rect x={-size * 0.85} y={-size * 0.18} width={size * 1.7} height={size * 0.36} rx="8" fill="#fff7df" stroke="#6b3f2a" stroke-width="3" />
-      <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size={size * 0.18} font-weight="900" fill="#6b3f2a">{port}</text>
+      <rect x={-size * 0.85} y={-size * 0.18} width={size * 1.7} height={size * 0.36} rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
+      <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size={size * 0.18} font-weight="900" fill="var(--line)">{port}</text>
     </g>
   {/if}
 </g>
