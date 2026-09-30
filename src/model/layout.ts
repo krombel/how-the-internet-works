@@ -45,6 +45,8 @@ export interface PathScene {
   route: string[];
   /** Sideways stops, in order. */
   stops: string[];
+  /** Where owner regions put their signs, if the layout says (keyed by owner id). */
+  signs: Record<string, Pt>;
 }
 
 /** The baseline of a device's name (28 px text, centred on it), above or below its art. */
@@ -54,8 +56,8 @@ export const startNode = (ps: PathScene) => ps.nodes.find((n) => n.kind === 'hop
 
 /** Merge the layouts for one path scene: activity, then segments, then places (most specific last). */
 function mergedLayout(r: Route, key: string, o: Orient): Required<SceneLayout> {
-  const out: Required<SceneLayout> = { nodes: {}, links: {} };
-  const add = (l?: SceneLayout) => { Object.assign(out.nodes, l?.nodes); Object.assign(out.links, l?.links); };
+  const out: Required<SceneLayout> = { nodes: {}, links: {}, owners: {} };
+  const add = (l?: SceneLayout) => { Object.assign(out.nodes, l?.nodes); Object.assign(out.links, l?.links); Object.assign(out.owners, l?.owners); };
   add(r.activity.layout?.[key]?.[o]);
   for (const s of r.sources.filter((x) => x.id.startsWith('segment.'))) add(s.def.layout?.[key]?.[o]);
   for (const s of r.sources.filter((x) => x.id.startsWith('place.'))) add(s.def.layout?.[key]?.[o]);
@@ -168,7 +170,8 @@ export function pathScene(r: Route, group: string | null, o: Orient): PathScene 
     for (const a of asides) if (a.link.from === s.id) stops.push(a.hop.id);
   });
 
-  const scene: PathScene = { key, group, nodes, links, route: chainLinks.map((l) => l.id), stops };
+  const signs = Object.fromEntries(Object.entries(L.owners).map(([k, [x, y]]) => [k, { x, y }]));
+  const scene: PathScene = { key, group, nodes, links, route: chainLinks.map((l) => l.id), stops, signs };
   cache.set(mk, scene);
   return scene;
 }

@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Inde i det store net siger et hurtigt mærkat, hvilken motorvej den skal tage, så ingen behøver læse adressen.",
-    "nerd": "Label-switches gennem kernen; labelen skiftes i hver LSR og fjernes før kanten."
+    "nerd": "Label-switches gennem kernen: labelen skiftes i hver LSR og fjernes ved kanten (grænserouteren, eller hoppet før med penultimate-hop popping)."
   },
   "line": "MultiProtocol Label Switching, label: {label}, TTL: {ttl}",
   "field": {

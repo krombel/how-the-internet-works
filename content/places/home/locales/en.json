@@ -14,7 +14,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "Access network (PON/OLT), an aggregation layer (L2 backhaul to the BNG), the ISP’s MPLS core, then either settlement-free peering at an IXP or paid transit, ending at a CDN cache close to you."
+      "nerd": "Access network (PON/OLT), an aggregation layer (L2 backhaul to the BNG), the ISP’s MPLS core, then either settlement-free peering at an IXP or paid transit, ending at a CDN cache close to you. Each shaded area is one operator’s network."
     }
   }
 }

@@ -12,6 +12,9 @@ import type { Timbre } from '../engine/sound';
 
 /** Everything is in the coordinates of the scene being drawn (1600×900 or 900×1600). */
 export interface BackdropProps { kind: 'root' | 'group'; orient: Orient; w: number; h: number; time: number }
+/** Inside a group: the way the packets go through it (issue #20), under the links and devices and over the owner
+ *  regions: the entry, every hop and the links between as one path. Side branches are off it. */
+export interface RoadProps { d: string; orient: Orient; time: number }
 /** Props of a place's own backdrop (content/places/<id>/art/Backdrop.svelte), drawn over the theme's root backdrop. */
 export interface PlaceBackdropProps { orient: Orient; w: number; h: number; time: number }
 /** A node's own art (content/nodes/<id>/art/Device.svelte) draws its body in a 200×200 box; the theme's Device
@@ -55,6 +58,21 @@ export interface HintProps {
   /** Scene clock. Frozen with prefers-reduced-motion, so the badges and outlines stand still. */
   time: number;
 }
+/** An owner region (issue #20): the part of a path scene one network runs (your internet company, an exchange…).
+ *  Drawn in two parts: 'area' under the road and the devices, and 'sign' (its name) over them. */
+export interface RegionProps {
+  part: 'area' | 'sign';
+  /** Its outline, a closed path round its devices. */
+  d: string;
+  /** Its colour slot: the owner's place along the route (0 = the first), the same in every scene; cycle your own
+   *  colours. Neighbouring networks get different tones. */
+  tone: number;
+  /** Only side branches (a way the packets don't take): draw it fainter. */
+  aside: boolean;
+  /** The sign's centre, its text (the owner's name, levelled) and font size in scene units (clamped to a readable
+   *  screen size). */
+  x: number; y: number; label: string; size: number;
+}
 /** Nerd-mode callout. `size` is the font size in scene units (already clamped to a readable screen size). */
 export interface TagProps { x: number; y: number; text: string; size: number; anchor: 'start' | 'middle' | 'end'; time: number }
 /** Scene labels. The engine computes `size` (clamped to a minimum screen size); themes style via CSS or override. */
@@ -68,10 +86,12 @@ export interface OverlayProps { w: number; h: number; time: number }
 export interface ArtSlots {
   Defs: Component<Record<string, never>>;
   Backdrop: Component<BackdropProps>;
+  Road: Component<RoadProps>;
   Device: Component<DeviceProps>;
   Link: Component<LinkProps>;
   Packet: Component<PacketProps>;
   Hint: Component<HintProps>;
+  Region: Component<RegionProps>;
   Tag: Component<TagProps>;
   Label: Component<LabelProps>;
   Panel: Component<PanelProps>;

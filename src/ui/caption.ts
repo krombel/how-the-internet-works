@@ -8,6 +8,7 @@ import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
 import { diveRuns, downFrom, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
+import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or open up a group (doors of the path
@@ -54,12 +55,24 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
   return trFirst([`scene.${ref.dive}.${tech}.title`, `scene.${ref.dive}.title`]);
 }
 
-/** A dive that stands for a stretch of links: how many, and the devices on the way. */
+/** A dive that stands for a stretch of links: how many, the devices on the way, and how long it is. */
 function stretchTag(r: Route, ref: SceneRef, o: Orient): string | undefined {
   const group = sceneRef(r, parentPath(ref.path), o)!.group, links = diveRuns(r, group, o).byLink.get(ref.link!.id)!.links;
   if (links.length < 2) return undefined;
   const ps = pathScene(r, group, o), via = links.slice(0, -1).map((l) => tr(`node.${ps.nodes.find((n) => n.id === l.to)!.node.id}.name`));
-  return fill(tr('dive.stretches'), { n: links.length, via: new Intl.ListFormat(loc.lang, { type: 'conjunction' }).format(via) });
+  const km = links.reduce((s, l) => s + (l.link.km ?? 0), 0);
+  return [fill(tr('dive.stretches'), { n: links.length, via: new Intl.ListFormat(loc.lang, { type: 'conjunction' }).format(via) }),
+    km ? formatKm(km, loc.lang) : ''].filter(Boolean).join(' · ');
+}
+
+/** The scale of where you are (issue #20), from the links' km and the hops' owners: how far the whole trip goes, how
+ *  many companies a group's packets pass through, whose box a stop is and how far from you, how long a link is. */
+function scaleTag(r: Route, key: string, km: number, owners: string[] = []): string | undefined {
+  if (!km && !owners.length) return undefined;
+  const vars = { km: formatKm(km, loc.lang), light: formatLight(km, loc.lang), n: owners.length };
+  const parts = key === 'hop' ? owners.map((o) => trl(`owner.${o}.name`)) : [];
+  if (km) parts.push(fill(trl(`trip.${key}`), vars));
+  return parts.join(' · ') || undefined;
 }
 
 export function captionFor(r: Route, path: string[], stop: string | null, o: Orient): CaptionText {
@@ -94,13 +107,15 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   const doors = captionDoors(r, ps, o, path.length === 0, n || l ? stop : null);
   if (n) return {
     title: tr(`node.${n.node.id}.name`),
+    tag: n.kind === 'group' ? undefined : scaleTag(r, 'hop', kmTo(r, n.hop.index), n.hop.owner ? [n.hop.owner] : []),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),
     hint: tr(n.kind === 'group' ? 'hint.expand' : 'hint.step'),
     doors,
-    links: learnMore(n.node.learnMore ?? []),
+    links: learnMore([...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
   };
   if (l) return {
     title: tr(`tech.${l.link.tech.id}.name`),
+    tag: scaleTag(r, 'link', l.link.km ?? 0),
     body: trFirst([...routeKeys(`stop.${l.id}`), `tech.${l.link.tech.id}`], lv),
     hint: tr(l.dive ? 'hint.dive' : 'hint.step'),
     doors,
@@ -108,8 +123,10 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   };
   if (ref.group) {
     const g = r.hops[ref.group];
+    const owners = ownersOf(r, false, g.id);
     return {
       title: sceneTitle(r, path, o),
+      tag: owners.length > 1 ? scaleTag(r, 'group', groupKm(r, g.id), owners) : undefined,
       body: trFirst([...routeKeys(`inside.${g.id}`), `node.${g.node.id}.inside`], lv),
       hint: tr('hint.group'),
       doors,
@@ -119,6 +136,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   const places = r.slots.map((s) => c.places[s.place]);
   return {
     title: sceneTitle(r, [], o),
+    tag: scaleTag(r, 'trip', tripKm(r)),
     body: [tr(`activity.${r.activity.id}.${lv}`), ...places.map((p) => trFirst([`place.${p.id}`], lv))].filter(Boolean).join(' '),
     hint: tr('hint.overview'),
     doors,

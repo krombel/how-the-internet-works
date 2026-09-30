@@ -11,7 +11,7 @@ export type Json = { [k: string]: string | Json };
 export const FALLBACK = 'en';
 /** Content folder kind → string key namespace. */
 const NAMESPACE: Record<string, string> = {
-  nodes: 'node', technologies: 'tech', layers: 'layer', scenes: 'scene', segments: 'segment',
+  nodes: 'node', owners: 'owner', technologies: 'tech', layers: 'layer', scenes: 'scene', segments: 'segment',
   places: 'place', activities: 'activity', themes: 'theme',
 };
 

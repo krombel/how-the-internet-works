@@ -1,11 +1,11 @@
 {
-  "generated": "2026-09-30T19:55:58.336Z",
+  "generated": "2026-09-30T21:57:50.871Z",
   "gpu": true,
   "viewport": "perf: 390×844 @2x (portrait phone)",
   "metrics": {
     "storybook": {
       "kB": {
-        "js": 73.8,
+        "js": 76.7,
         "css": 7.5,
         "font": 71.9
       },
@@ -16,342 +16,21 @@
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 0.87
+            "cpuMsPerFrame": 0.59
           },
           "flyToFibre": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.72
-          },
-          "fibreIdle": {
-            "fps": 60,
-            "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 0.97
-          },
-          "flyOut": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.38
-          },
-          "flyToCopper": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.31
-          },
-          "copperIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.1
-          },
-          "frameIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.2
-          },
-          "flyDeep": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.09
-          },
-          "deepIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1
-          },
-          "travelInternet": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 3.38
-          },
-          "backboneIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.65
-          },
-          "metroIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.71
-          },
-          "travelRoot": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 3.28
-          },
-          "catchStep": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 33.3,
-            "cpuMsPerFrame": 1.91
-          },
-          "morphToStreet": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.48
-          },
-          "streetIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.22
-          },
-          "flyTo5G": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 3.17
-          },
-          "nrIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.97
-          },
-          "openLayer": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.9
-          },
-          "layerIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.29
-          },
-          "layerStep": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.44
-          },
-          "layerStepIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.64
-          }
-        },
-        "6x": {
-          "idle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.63
-          },
-          "flyToFibre": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 6.09
+            "cpuMsPerFrame": 1.7
           },
           "fibreIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.65
-          },
-          "flyOut": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 4.33
-          },
-          "flyToCopper": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 7.88
-          },
-          "copperIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.76
-          },
-          "frameIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.37
-          },
-          "flyDeep": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 7.43
-          },
-          "deepIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.78
-          },
-          "travelInternet": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 6.37
-          },
-          "backboneIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 3.97
-          },
-          "metroIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 2.98
-          },
-          "travelRoot": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 33.3,
-            "cpuMsPerFrame": 7.01
-          },
-          "catchStep": {
-            "fps": 59,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 50.1,
-            "cpuMsPerFrame": 4.78
-          },
-          "morphToStreet": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 3.05
-          },
-          "streetIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.52
-          },
-          "flyTo5G": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 9.26
-          },
-          "nrIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 4.84
-          },
-          "openLayer": {
-            "fps": 59,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 33.4,
-            "cpuMsPerFrame": 9.92
-          },
-          "layerIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.24
-          },
-          "layerStep": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 7.59
-          },
-          "layerStepIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.9
-          }
-        }
-      }
-    },
-    "storybook-night": {
-      "kB": {
-        "js": 73.8,
-        "css": 7.5,
-        "font": 71.9
-      },
-      "perf": {
-        "1x": {
-          "idle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 0.87
-          },
-          "flyToFibre": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.74
-          },
-          "fibreIdle": {
-            "fps": 60,
-            "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.08
+            "cpuMsPerFrame": 0.98
           },
           "flyOut": {
             "fps": 60,
@@ -365,126 +44,126 @@
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.41
+            "cpuMsPerFrame": 2.11
           },
           "copperIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.35
+            "cpuMsPerFrame": 0.91
           },
           "frameIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.8
+            "cpuMsPerFrame": 0.77
           },
           "flyDeep": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.08
+            "cpuMsPerFrame": 2.25
           },
           "deepIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.19
+            "cpuMsPerFrame": 1.18
           },
           "travelInternet": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.67
+            "cpuMsPerFrame": 3.96
           },
           "backboneIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.56
+            "cpuMsPerFrame": 1.4
           },
           "metroIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.36
+            "cpuMsPerFrame": 1.86
           },
           "travelRoot": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.54
+            "cpuMsPerFrame": 3.2
           },
           "catchStep": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 33.4,
-            "cpuMsPerFrame": 1.92
+            "cpuMsPerFrame": 1.88
           },
           "morphToStreet": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.92
+            "cpuMsPerFrame": 1.63
           },
           "streetIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
-            "worst": 16.8,
-            "cpuMsPerFrame": 1.24
+            "p95": 16.7,
+            "worst": 16.7,
+            "cpuMsPerFrame": 1.12
           },
           "flyTo5G": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 3.26
+            "cpuMsPerFrame": 3.01
           },
           "nrIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.92
+            "cpuMsPerFrame": 1.82
           },
           "openLayer": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.63
+            "cpuMsPerFrame": 3.14
           },
           "layerIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.18
+            "cpuMsPerFrame": 1.97
           },
           "layerStep": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.58
+            "cpuMsPerFrame": 2.56
           },
           "layerStepIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.3
+            "cpuMsPerFrame": 1.41
           }
         },
         "6x": {
@@ -493,154 +172,475 @@
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.86
+            "cpuMsPerFrame": 1.4
           },
           "flyToFibre": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 6.43
+            "cpuMsPerFrame": 6.89
           },
           "fibreIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.9
+            "cpuMsPerFrame": 2.07
           },
           "flyOut": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 4.72
+            "cpuMsPerFrame": 3.92
           },
           "flyToCopper": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.7,
-            "cpuMsPerFrame": 9.04
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 7.78
           },
           "copperIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 2.61
+            "cpuMsPerFrame": 2.97
           },
           "frameIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.49
+            "cpuMsPerFrame": 1.09
           },
           "flyDeep": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 33.3,
-            "cpuMsPerFrame": 8.05
+            "cpuMsPerFrame": 8.39
           },
           "deepIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 3.18
+            "cpuMsPerFrame": 2.97
           },
           "travelInternet": {
-            "fps": 60,
+            "fps": 59,
             "p50": 16.7,
-            "p95": 16.7,
-            "worst": 16.8,
-            "cpuMsPerFrame": 7.09
+            "p95": 16.8,
+            "worst": 33.4,
+            "cpuMsPerFrame": 8.05
           },
           "backboneIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 4.72
+            "cpuMsPerFrame": 3.78
           },
           "metroIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 3.55
+            "cpuMsPerFrame": 4
           },
           "travelRoot": {
-            "fps": 60,
+            "fps": 59,
             "p50": 16.7,
-            "p95": 16.7,
-            "worst": 33.3,
-            "cpuMsPerFrame": 7.58
+            "p95": 16.8,
+            "worst": 33.4,
+            "cpuMsPerFrame": 8.03
           },
           "catchStep": {
             "fps": 59,
             "p50": 16.7,
-            "p95": 16.7,
-            "worst": 50.1,
-            "cpuMsPerFrame": 5.14
+            "p95": 16.8,
+            "worst": 66.6,
+            "cpuMsPerFrame": 5.74
           },
           "morphToStreet": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 3.48
+            "cpuMsPerFrame": 4.33
           },
           "streetIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.7,
+            "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.98
+            "cpuMsPerFrame": 1.91
           },
           "flyTo5G": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 9.44
+            "cpuMsPerFrame": 10.1
           },
           "nrIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 5.33
+            "cpuMsPerFrame": 5.89
           },
           "openLayer": {
-            "fps": 58,
+            "fps": 56,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 33.3,
             "worst": 33.4,
-            "cpuMsPerFrame": 9.92
+            "cpuMsPerFrame": 10.64
           },
           "layerIdle": {
             "fps": 60,
             "p50": 16.7,
-            "p95": 16.8,
+            "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.21
+            "cpuMsPerFrame": 1.68
           },
           "layerStep": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.7,
             "worst": 16.8,
-            "cpuMsPerFrame": 7.14
+            "cpuMsPerFrame": 8.6
+          },
+          "layerStepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.72
+          }
+        }
+      }
+    },
+    "storybook-night": {
+      "kB": {
+        "js": 76.7,
+        "css": 7.5,
+        "font": 71.9
+      },
+      "perf": {
+        "1x": {
+          "idle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.48
+          },
+          "flyToFibre": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.6
+          },
+          "fibreIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.68
+          },
+          "flyOut": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.06
+          },
+          "flyToCopper": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.98
+          },
+          "copperIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.72
+          },
+          "frameIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.54
+          },
+          "flyDeep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.05
+          },
+          "deepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.86
+          },
+          "travelInternet": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.17
+          },
+          "backboneIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.76
+          },
+          "metroIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.41
+          },
+          "travelRoot": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.87
+          },
+          "catchStep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 33.3,
+            "cpuMsPerFrame": 1.42
+          },
+          "morphToStreet": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.15
+          },
+          "streetIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.52
+          },
+          "flyTo5G": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.27
+          },
+          "nrIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.27
+          },
+          "openLayer": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.51
+          },
+          "layerIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 0.45
+          },
+          "layerStep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 1.74
           },
           "layerStepIdle": {
             "fps": 60,
             "p50": 16.7,
             "p95": 16.8,
             "worst": 16.8,
-            "cpuMsPerFrame": 1.54
+            "cpuMsPerFrame": 0.55
+          }
+        },
+        "6x": {
+          "idle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.96
+          },
+          "flyToFibre": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 8.4
+          },
+          "fibreIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.97
+          },
+          "flyOut": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 6.05
+          },
+          "flyToCopper": {
+            "fps": 57,
+            "p50": 16.7,
+            "p95": 33.3,
+            "worst": 33.4,
+            "cpuMsPerFrame": 11.43
+          },
+          "copperIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.64
+          },
+          "frameIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.32
+          },
+          "flyDeep": {
+            "fps": 58,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 33.4,
+            "cpuMsPerFrame": 12.18
+          },
+          "deepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.78
+          },
+          "travelInternet": {
+            "fps": 59,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 50.1,
+            "cpuMsPerFrame": 8.31
+          },
+          "backboneIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 5.12
+          },
+          "metroIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 3.59
+          },
+          "travelRoot": {
+            "fps": 59,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 33.4,
+            "cpuMsPerFrame": 8.14
+          },
+          "catchStep": {
+            "fps": 58,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 66.7,
+            "cpuMsPerFrame": 7.14
+          },
+          "morphToStreet": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 4.11
+          },
+          "streetIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.07
+          },
+          "flyTo5G": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 10.11
+          },
+          "nrIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.8,
+            "worst": 16.8,
+            "cpuMsPerFrame": 5.46
+          },
+          "openLayer": {
+            "fps": 54,
+            "p50": 16.7,
+            "p95": 33.3,
+            "worst": 33.4,
+            "cpuMsPerFrame": 12.25
+          },
+          "layerIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.28
+          },
+          "layerStep": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 9.52
+          },
+          "layerStepIdle": {
+            "fps": 60,
+            "p50": 16.7,
+            "p95": 16.7,
+            "worst": 16.8,
+            "cpuMsPerFrame": 2.36
           }
         }
       }
