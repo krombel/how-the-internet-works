@@ -6,11 +6,19 @@ export interface Cam { x: number; y: number; k: number }
 /** Viewport in CSS px, with insets reserved for UI chrome. */
 export interface Viewport { w: number; h: number; top: number; bottom: number }
 
+/** A short landscape screen (a phone on its side): the chrome slims down to leave the scene the height. The same test
+ *  as the `(orientation: landscape) and (max-height: 499px)` media queries. */
+export const isShort = (w: number, h: number) => w > h && h < 500;
+
 /** Viewport for the stage; the insets come from the measured chrome (top bar, caption) when it is on screen. */
 export function viewportFor(el: HTMLElement, chrome?: { top?: number; bottom?: number }): Viewport {
   const w = el.clientWidth, h = el.clientHeight;
-  const small = w < 700;
-  return { w, h, top: Math.max(small ? 64 : 72, chrome?.top ?? 0), bottom: Math.max(small ? 136 : 132, chrome?.bottom ?? 0) };
+  const small = w < 700, short = isShort(w, h);
+  return {
+    w, h,
+    top: Math.max(short ? 50 : small ? 64 : 72, chrome?.top ?? 0),
+    bottom: Math.max(short ? 60 : small ? 136 : 132, chrome?.bottom ?? 0),
+  };
 }
 
 export function areaCentre(vp: Viewport): Pt {

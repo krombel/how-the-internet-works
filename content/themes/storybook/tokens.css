@@ -116,7 +116,7 @@
   box-shadow: 0 3px 0 rgba(107, 63, 42, 0.12);
 }
 
-@media (max-width: 699px) {
+@media (max-width: 699px), (orientation: landscape) and (max-height: 499px) {
   :root[data-style='storybook'] {
     --card-edge-w: 2px;
     --card-radius: 18px;

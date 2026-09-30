@@ -301,6 +301,9 @@ always muted again on reload.
   below per orientation.
 - **Chrome** fits on two rows (breadcrumb, then the controls), and the caption sits at the bottom where thumbs
   are.
+- **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
+  its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
+  the whole caption over the scene. The scene keeps about 280 of 390 px (it had 105–145).
 - **Overrides.** The layout is picked from the aspect ratio. At the tag, the lab (Layout → Landscape/Portrait,
   or `?orient=portrait`) forces either one. The slimmed prototype only picks from the aspect ratio.
 

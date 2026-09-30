@@ -1,13 +1,16 @@
 <script lang="ts">
   // Top bar: breadcrumb, "What can I explore?", pause, style switcher (only when more than one theme is installed),
-  // language, kid/nerd, sound.
+  // language, kid/nerd, sound. On a short landscape screen it is one slim row, and the breadcrumb keeps its last two
+  // steps (the rest are in a menu behind "…").
   import { languages } from '../model/strings';
   import { go } from '../router';
   import { loc, setLevel, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr } from '../state.svelte';
   import Icon from './Icon.svelte';
 
-  let { crumbs, small, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
+  let { crumbs, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
     crumbs: { title: string; path: string[] }[]; small: boolean;
+    /** A short landscape screen (a phone on its side). */
+    short: boolean;
     /** Room for the long "What can I explore?" label. */
     wide: boolean;
     /** "What can I explore?" is on / there's anything to explore in this scene. */
@@ -17,18 +20,25 @@
     /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
     quiet: boolean;
   } = $props();
-  let open = $state<'style' | null>(null);
-  const toggle = (p: 'style') => (open = open === p ? null : p);
+  let open = $state<'style' | 'crumbs' | null>(null);
+  const toggle = (p: 'style' | 'crumbs') => (open = open === p ? null : p);
+  /** How many leading crumbs are folded into the "…" menu. */
+  const cut = $derived(short && crumbs.length > 2 ? crumbs.length - 2 : 0);
+  const label = (i: number) => (i === 0 && crumbs.length > 1 ? tr('nav.home') : crumbs[i].title);
   function pick(id: string) { settings.style = id; syncUrl(); open = null; }
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && open && ((open = null), e.stopPropagation())} />
 <nav class="chrome" data-ui>
   <div class="crumbs card" class:hide={quiet} aria-hidden={quiet}>
-    {#each crumbs as c, i}
+    {#if cut}
+      <button class="btn" aria-haspopup="true" aria-expanded={open === 'crumbs'} title={tr('nav.more')} onclick={() => toggle('crumbs')}>…</button>
+    {/if}
+    {#each crumbs.slice(cut) as c, j}
+      {@const i = j + cut}
       {#if i}<span class="sep" aria-hidden="true">›</span>{/if}
       {#if i < crumbs.length - 1}
-        <button class="btn" onclick={() => go({ path: c.path })}>{i === 0 && crumbs.length > 1 ? tr('nav.home') : c.title}</button>
+        <button class="btn" onclick={() => go({ path: c.path })}>{label(i)}</button>
       {:else}<span class="here">{c.title}</span>{/if}
     {/each}
   </div>
@@ -64,6 +74,14 @@
       <button class="btn icon-btn" aria-pressed={settings.sound} title={tr(settings.sound ? 'ui.soundOn' : 'ui.soundOff')} onclick={() => setSound(!settings.sound)}><Icon name={settings.sound ? 'soundOn' : 'soundOff'} /></button>
     </div>
   </div>
+  {#if open === 'crumbs' && cut}
+    <div class="pop card crumb-menu" role="menu">
+      <h3>{tr('nav.more')}</h3>
+      {#each crumbs.slice(0, cut) as c, i}
+        <button class="btn" role="menuitem" onclick={() => { open = null; go({ path: c.path }); }}>{label(i)}</button>
+      {/each}
+    </div>
+  {/if}
   {#if open === 'style'}
     <div class="pop card styles" role="menu">
       <h3>{tr('ui.style')}</h3>
