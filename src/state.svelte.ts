@@ -108,7 +108,9 @@ export async function loadTheme(id: string) {
   }
   // Wait for this theme's fonts (declared in its tokens.css), so text measurements and first paint are right.
   // document.fonts.ready doesn't wait for faces nothing uses yet, so request them explicitly, with every language's
-  // own name as the sample text so each script's faces load.
+  // own name as the sample text so each script's faces load. The mode goes on first, so a night reader never sees
+  // the day palette while the fonts load.
+  applyMode(th);
   document.documentElement.dataset.style = id;
   const cs = getComputedStyle(document.documentElement);
   const fams = [...new Set(['--ui-font', '--heading-font', '--label-font', '--tag-font'].map((v) => cs.getPropertyValue(v).trim()).filter(Boolean))];
@@ -119,7 +121,6 @@ export async function loadTheme(id: string) {
   themeState.current = th;
   themeState.ready = true;
   sfx.timbre = th.timbre;
-  applyMode();
 }
 
 // ------------------------------------------------------------------ view (shared with scenes)
@@ -149,8 +150,8 @@ remember(asMode(q.get('mode')) ?? asMode(localStorage.getItem('mode')) ?? osMode
 /** Whether the current theme has a night (the toggle hides when it doesn't). */
 export const hasNight = () => !!themeState.current.night;
 
-function applyMode() {
-  const th = themeState.current, m: Mode = th.night ? settings.mode : 'day';
+function applyMode(th = themeState.current) {
+  const m: Mode = th.night ? settings.mode : 'day';
   const look = m === 'night' && th.night ? th.night : th;
   view.mode = m;
   document.documentElement.dataset.mode = m;

@@ -9,11 +9,15 @@ const art = import.meta.glob<string>('/content/**/*.{svelte,ts}', { eager: true,
 const definition = /^\/content\/[\w-]+\/[\w-]+\/(node|technology|layer|scene|segment|place|activity|theme)\.ts$/;
 
 const KEYWORDS = new Set(['none', 'currentcolor', 'transparent', 'inherit', 'initial', 'unset', 'context-fill', 'context-stroke']);
+const NAMED = 'aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen';
+const PROP = String.raw`\b(?:fill|stroke|stop-color|flood-color|lighting-color|color|background(?:-color)?)`;
 const LITERALS = [
   /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})(?![\w-])/gi,
   /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(/gi,
   // a named colour in an attribute (fill="white") or a style rule (fill: white;)
-  /\b(?:fill|stroke|stop-color|flood-color|lighting-color|color|background(?:-color)?)\s*(?:=\s*["']|:\s*)([a-z]+)\s*["';}]/gi,
+  new RegExp(String.raw`${PROP}\s*(?:=\s*["']|:\s*)([a-z]+)\s*["';}]`, 'gi'),
+  // a quoted named colour in an expression or object for such a property (fill={on ? 'white' : …}, { fill: 'white' })
+  new RegExp(String.raw`(?:${PROP}|\bcolour)\s*(?:=\s*\{|:)[^\n;}]*?["'\x60](${NAMED})["'\x60]`, 'gi'),
 ];
 
 function literals(src: string): string[] {
@@ -54,7 +58,8 @@ describe('art colours', () => {
 
   it('flags literals and honours fixed-colour', () => {
     expect(literals('<rect fill="#fff" />\n<path stroke="white" />\nx = rgba(0, 0, 0, 0.2)')).toHaveLength(3);
-    expect(literals('<rect fill="var(--paper)" stroke="none" />\n<path fill="currentColor" />')).toEqual([]);
+    expect(literals('<rect fill={on ? \'white\' : \'var(--x)\'} />\nconst st = { stroke: "black" };')).toHaveLength(2);
+    expect(literals('<rect fill="var(--paper)" stroke="none" />\n<path fill="currentColor" />\n<Pot colour={big ? brown : tan} active={beat === \'brown\'} />')).toEqual([]);
     expect(literals('// fixed-colour: wavelengths\nconst c = [\n  "#e85d75",\n];\n\nconst d = "#123456";')).toEqual(['6: #123456']);
     expect(literals('const c = "#e85d75"; // fixed-colour: physics\nconst d = "#123";')).toEqual(['2: #123']);
   });
