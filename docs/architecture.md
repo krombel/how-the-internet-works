@@ -364,14 +364,16 @@ CI runs `npm ci && npm test && npm run build`.
 - idle, the fly into the fibre and back out
 - the fly three levels down, then catching a packet and stepping it two hops
 - the morph to the street, the fly into 5G, and the 5G dive idle
+- the fly down to the copper cable (#18), its idle, and a link-layer dive's idle (the Wi‑Fi envelope, #13)
 - opening a layer dive from the peek (the envelope grows into the scene), its idle, a sideways step to the next
   layer, and that layer's idle
 
-Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 8 ms (the fly into
-5G; opening a layer dive is about 7 ms; it varies a few ms between runs). Door labels are measured once per language and theme, not per zoom step
+Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
+5G and down to copper, and opening a layer dive; it varies a few ms between runs). Animated scenes avoid group
+`opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 70.8 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
-prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
-peek panel (with its envelopes and protocol tree, about 4.6 kB) and the English layer strings (about 4.7 kB), which
-load on the first catch.
+Initial JS is 68.6 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
+peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
+dive scenes', about 14.6 kB), which load on the first catch or dive.
