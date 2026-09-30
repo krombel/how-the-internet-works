@@ -6,7 +6,7 @@ import { sfx } from './engine/sound';
 import { clearMeasureCache } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
-import { firstOf, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
+import { firstOf, languages, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
 import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
@@ -42,10 +42,13 @@ export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.l
 export const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
 // ------------------------------------------------------------------ where we are
-export const nav = $state<{ loc: Loc; route: Route }>({
-  loc: { lang: 'en', places: [], activity: '', path: [], stop: null },
-  route: resolveRoute({ activity: '', places: [] }),
-});
+// Raw state: the router replaces both wholesale, and a route is resolved once and cached, so `nav.route` stays the
+// same object while the route doesn't change (a deep $state would wrap it in a fresh proxy on every navigation).
+class Nav {
+  loc = $state.raw<Loc>({ lang: 'en', places: [], activity: '', path: [], stop: null });
+  route = $state.raw<Route>(resolveRoute({ activity: '', places: [] }));
+}
+export const nav = new Nav();
 /** Display name of a hop (an instance of a node). */
 export const nameOf = (h: Hop | string) => tr(`node.${typeof h === 'string' ? nav.route.hops[h]?.node.id ?? h : h.node.id}.name`);
 /** How the text refers to the reader's own device ("your phone"): the node's `yours` string, else its name. */
@@ -97,11 +100,13 @@ export async function loadTheme(id: string) {
     loaded.set(id, th);
   }
   // Wait for this theme's fonts (declared in its tokens.css), so text measurements and first paint are right.
-  // document.fonts.ready doesn't wait for faces nothing uses yet, so request them explicitly (Latin + Arabic).
+  // document.fonts.ready doesn't wait for faces nothing uses yet, so request them explicitly, with every language's
+  // own name as the sample text so each script's faces load.
   document.documentElement.dataset.style = id;
   const cs = getComputedStyle(document.documentElement);
   const fams = [...new Set(['--ui-font', '--heading-font', '--label-font', '--tag-font'].map((v) => cs.getPropertyValue(v).trim()).filter(Boolean))];
-  const loads = fams.flatMap((f) => ['Ab', 'عربي'].map((txt) => document.fonts.load(`700 20px ${f}`, txt).catch(() => [])));
+  const sample = `Ab${languages.map((l) => l.name).join('')}`;
+  const loads = fams.map((f) => document.fonts.load(`700 20px ${f}`, sample).catch(() => []));
   await Promise.race([Promise.all(loads), new Promise((r) => setTimeout(r, 1500))]);
   clearMeasureCache();
   themeState.current = th;

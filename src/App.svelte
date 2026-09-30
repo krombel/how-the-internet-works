@@ -3,7 +3,7 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, untrack } from 'svelte';
-  import { areaCentre, clampCam, fit, flyInterpolator, smoothstep, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { easeInOutCubic } from './engine/motion';
@@ -93,15 +93,13 @@
 
   // ------------------------------------------------------------------ navigation
   let shownRoute = nav.route;
-  const routeKey = (r: Route) => `${r.activity.id}/${r.slots.map((s) => s.place).join('+')}`;
   function onNav(next: Loc, prev: Loc) {
     const a = shownRoute;
     shownRoute = nav.route;
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
-    // (the route is a fresh state proxy after every navigation: compare what it is, not its identity)
-    if (caught && (routeKey(a) !== routeKey(nav.route) || !catchNav)) release(true);
+    if (caught && (switched || !catchNav)) release(true);
     if (trans) frameTrans(trans.t0 + trans.dur);
     if (switched) {
       morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
@@ -569,6 +567,7 @@
   $effect(() => { document.documentElement.style.setProperty('--cap-h', `${captionH}px`); });
   const portrait = $derived(view.orient === 'portrait');
   const small = $derived(view.vp.w < 700);
+  const short = $derived(isShort(view.vp.w, view.vp.h));
   const peekOpen = $derived(!!caught);
 </script>
 
@@ -580,14 +579,14 @@
   </svg>
 </div>
 <div class={portrait ? 'port' : 'land'}>
-  <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
+  <Chrome {crumbs} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
     {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
   {#if caught && PeekPanel}
     <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} />
   {/if}
   <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
-    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} bind:el={captionEl} />
+    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}

@@ -60,6 +60,8 @@ button { cursor: pointer; }
 .styles { display: grid; gap: 4px; }
 .styles .btn { justify-content: flex-start; border-radius: 12px; padding: 8px 10px; background: none; font-size: 15px; }
 .styles .btn.on { background: var(--btn-on); color: var(--btn-on-ink); }
+.crumb-menu { inset-inline: 12px auto; display: grid; gap: 4px; }
+.crumb-menu .btn { justify-content: flex-start; border-radius: 12px; background: none; font-size: 15px; }
 .swatch { width: 26px; height: 26px; border-radius: 8px; flex: none; border: 2px solid rgba(128, 128, 128, 0.35); }
 
 /* ---------------- caption */
@@ -87,6 +89,17 @@ button { cursor: pointer; }
 .door-dive { --door-ink: var(--door-dive, var(--accent)); }
 .door-expand { --door-ink: var(--door-open, var(--accent)); }
 .door-catch { --door-ink: var(--door-catch, var(--accent)); }
+/* compact (a short landscape screen): a one-line pill; opened, the whole caption lies over the scene (anchored at the
+   pill, so the pill's height is all the scene gives up) */
+.caption.compact { width: fit-content; max-width: min(560px, calc(100% - 20px)); padding: 2px 6px 2px 16px; }
+.caption.compact:not(.open) :is(p, .foot) { display: none; }
+.caption.compact h2 { margin: 0; font-size: 17px; }
+.cap-toggle { display: flex; align-items: center; gap: 4px; max-width: 100%; min-height: 40px; padding: 0; border: 0; background: none;
+  font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
+.cap-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cap-toggle svg { width: 22px; height: 22px; flex: none; }
+.caption.compact.open .cap-in { position: absolute; bottom: calc(-1 * var(--card-edge-w)); left: 50%; translate: -50% 0;
+  width: min(760px, calc(100vw - 20px)); max-height: calc(100vh - 20px); overflow: auto; padding: 2px 16px 12px; }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
@@ -221,5 +234,14 @@ button { cursor: pointer; }
   .caption h2 { font-size: 17px; }
   .caption p { font-size: 14px; max-height: 5.7em; }
   .step { width: 54px; height: 54px; }
+}
+/* a short landscape screen (a phone on its side, `isShort` in engine/camera.ts): one slim top row, so the scene gets
+   the height; the breadcrumb keeps its last two steps (Chrome.svelte) and cuts long names short */
+@media (orientation: landscape) and (max-height: 499px) {
+  .chrome { flex-wrap: nowrap; padding-inline: max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-right)); }
+  .crumbs { min-width: 0; }
+  .crumbs .btn, .crumbs .here { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .crumbs .btn { line-height: 20px; }
+  .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) { .env, .picker { animation: none; } .caption { transition: none; } }

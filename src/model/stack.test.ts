@@ -37,7 +37,7 @@ describe('addresses', () => {
 });
 
 describe('strings', () => {
-  beforeAll(() => Promise.all([loadPack('da'), loadPack('ar')]));
+  beforeAll(() => loadPack('da'));
   it('loads languages other than English on demand', async () => {
     expect(packs.en.strings['node.phone.name']).toBe('Phone');
     await loadPack('da');
@@ -45,8 +45,9 @@ describe('strings', () => {
   });
   it('falls back level → level-less → English', () => {
     expect(lookupLevel('da', 'node.phone.name', 'kid')).toBe('Telefon');
-    expect(lookupLevel('ar', 'node.cabinet.kid', 'kid')).toBe(lookupLevel('en', 'node.cabinet.kid', 'kid'));
     expect(lookupLevel('da', 'layer.tcp.name', 'nerd')).toBeTruthy();
+    const untranslated = { ...packs, da: { ...packs.da, strings: {} } };
+    expect(lookupLevel('da', 'node.cabinet.kid', 'kid', untranslated)).toBe(lookupLevel('en', 'node.cabinet.kid', 'kid'));
   });
   it('prefers the most specific source', () => {
     expect(firstOf('en', ['place.street.stop.phone', 'activity.watch-video.stop.phone'], 'kid')).toContain('even out here');

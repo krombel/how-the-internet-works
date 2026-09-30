@@ -36,5 +36,6 @@ export default defineConfig({
     alias: { $core: `${root}src` },
   },
   build: { target: 'es2022' },
-  test: { include: ['src/**/*.test.ts'], environment: 'node' },
+  // Tests run in Node but modules are transformed for the browser, so Svelte runes behave as in the app.
+  test: { include: ['src/**/*.test.ts'], environment: './src/test/svelte-client-env.ts' },
 });
