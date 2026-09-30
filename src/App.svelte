@@ -93,15 +93,13 @@
 
   // ------------------------------------------------------------------ navigation
   let shownRoute = nav.route;
-  const routeKey = (r: Route) => `${r.activity.id}/${r.slots.map((s) => s.place).join('+')}`;
   function onNav(next: Loc, prev: Loc) {
     const a = shownRoute;
     shownRoute = nav.route;
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
-    // (the route is a fresh state proxy after every navigation: compare what it is, not its identity)
-    if (caught && (routeKey(a) !== routeKey(nav.route) || !catchNav)) release(true);
+    if (caught && (switched || !catchNav)) release(true);
     if (trans) frameTrans(trans.t0 + trans.dur);
     if (switched) {
       morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };

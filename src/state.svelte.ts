@@ -42,10 +42,13 @@ export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.l
 export const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
 // ------------------------------------------------------------------ where we are
-export const nav = $state<{ loc: Loc; route: Route }>({
-  loc: { lang: 'en', places: [], activity: '', path: [], stop: null },
-  route: resolveRoute({ activity: '', places: [] }),
-});
+// Raw state: the router replaces both wholesale, and a route is resolved once and cached, so `nav.route` stays the
+// same object while the route doesn't change (a deep $state would wrap it in a fresh proxy on every navigation).
+class Nav {
+  loc = $state.raw<Loc>({ lang: 'en', places: [], activity: '', path: [], stop: null });
+  route = $state.raw<Route>(resolveRoute({ activity: '', places: [] }));
+}
+export const nav = new Nav();
 /** Display name of a hop (an instance of a node). */
 export const nameOf = (h: Hop | string) => tr(`node.${typeof h === 'string' ? nav.route.hops[h]?.node.id ?? h : h.node.id}.name`);
 /** How the text refers to the reader's own device ("your phone"): the node's `yours` string, else its name. */
