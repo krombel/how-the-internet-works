@@ -1,19 +1,12 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type * as Router from './router';
 import type * as State from './state.svelte';
+import { stubBrowser } from './test/stub-browser';
 
 let router: typeof Router, state: typeof State;
 
 beforeAll(async () => {
-  const url = new URL('http://localhost/');
-  const setHash = (u: string | URL | null | undefined) => { if (u) url.hash = new URL(u, url).hash; };
-  vi.stubGlobal('location', url);
-  vi.stubGlobal('history', { state: null, pushState: (_: unknown, __: string, u: string) => setHash(u), replaceState: (_: unknown, __: string, u: string) => setHash(u) });
-  vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
-  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => {} }));
-  vi.stubGlobal('window', { addEventListener: () => {} });
-  vi.stubGlobal('document', { documentElement: {} });
-  vi.stubGlobal('navigator', { language: 'en' });
+  stubBrowser();
   [router, state] = await Promise.all([import('./router'), import('./state.svelte')]);
   router.startRouter();
 });

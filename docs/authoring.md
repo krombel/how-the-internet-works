@@ -52,7 +52,7 @@ export default defineNode({
 ```
 
 ```json
-// locales/en.json (and da.json, ar.json…)
+// locales/en.json (and da.json…)
 { "name": "Laptop", "yours": "your laptop", "kid": "A computer you can fold shut…", "nerd": "An endpoint like the phone, but wired…" }
 ```
 
@@ -261,9 +261,13 @@ Strings:
 
 ## Add a language
 
-1. `content/locales/<lang>/meta.json`: `{ "name": "Dansk", "dir": "ltr" }` (`rtl` for Arabic, Hebrew…).
+1. `content/locales/<lang>/meta.json`: `{ "name": "Dansk", "dir": "ltr" }` (`rtl` for Arabic, Hebrew…). `name` is
+   written in the language itself; it also tells the theme which script's fonts to load.
 2. `content/locales/<lang>/ui.json`: the chrome strings (copy `en/ui.json`).
 3. Add `locales/<lang>.json` to any content folder you translate. Anything missing falls back to English.
+4. A new script (Arabic, Greek…) needs its font faces in the theme's `tokens.css`.
+
+We ship only languages someone has reviewed (English and Danish for now, issue #11).
 
 The language appears in the switcher at once and loads as its own small chunk. `npm run check:content` shows the coverage.
 

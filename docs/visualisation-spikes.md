@@ -23,7 +23,8 @@ picked on evidence rather than taste:
 
 All text comes from language packs (`locales/en`, `locales/da`, plus an Arabic `locales/ar` **RTL test pack**
 that deliberately omits the "for nerds" strings to exercise fallback). You can switch language and the kids/nerds
-level at runtime.
+level at runtime. (The app later dropped the Arabic pack and its screenshots, issue #11; RTL support stays, see
+[architecture](architecture.md#strings-and-languages).)
 
 **Try the kept spike:** `npm install && npm run dev`, then open http://localhost:5173/. For all four, check out the tag
 (`git checkout spikes/visualisation-v1 && npm install && npm run dev`).
@@ -48,12 +49,12 @@ To keep the comparison fair, the spikes share everything except rendering (`spik
 
 ## Screenshots
 
-| | Overview (en) | Wi‑Fi (en) | Fibre (da) | Overview (ar, RTL) | Phone, Wi‑Fi (da) |
-|---|---|---|---|---|---|
-| SVG + GSAP | ![](img/svg-gsap-overview-en.jpg) | ![](img/svg-gsap-wifi-en.jpg) | ![](img/svg-gsap-fibre-da.jpg) | ![](img/svg-gsap-overview-ar.jpg) | ![](img/svg-gsap-wifi-da-mobile.jpg) |
-| Svelte + SVG | ![](img/svelte-svg-overview-en.jpg) | ![](img/svelte-svg-wifi-en.jpg) | ![](img/svelte-svg-fibre-da.jpg) | ![](img/svelte-svg-overview-ar.jpg) | ![](img/svelte-svg-wifi-da-mobile.jpg) |
-| PixiJS | ![](img/pixi-overview-en.jpg) | ![](img/pixi-wifi-en.jpg) | ![](img/pixi-fibre-da.jpg) | ![](img/pixi-overview-ar.jpg) | ![](img/pixi-wifi-da-mobile.jpg) |
-| Three.js 2.5D | ![](img/three-25d-overview-en.jpg) | ![](img/three-25d-wifi-en.jpg) | ![](img/three-25d-fibre-da.jpg) | ![](img/three-25d-overview-ar.jpg) | ![](img/three-25d-wifi-da-mobile.jpg) |
+| | Overview (en) | Wi‑Fi (en) | Fibre (da) | Phone, Wi‑Fi (da) |
+|---|---|---|---|---|
+| SVG + GSAP | ![](img/svg-gsap-overview-en.jpg) | ![](img/svg-gsap-wifi-en.jpg) | ![](img/svg-gsap-fibre-da.jpg) | ![](img/svg-gsap-wifi-da-mobile.jpg) |
+| Svelte + SVG | ![](img/svelte-svg-overview-en.jpg) | ![](img/svelte-svg-wifi-en.jpg) | ![](img/svelte-svg-fibre-da.jpg) | ![](img/svelte-svg-wifi-da-mobile.jpg) |
+| PixiJS | ![](img/pixi-overview-en.jpg) | ![](img/pixi-wifi-en.jpg) | ![](img/pixi-fibre-da.jpg) | ![](img/pixi-wifi-da-mobile.jpg) |
+| Three.js 2.5D | ![](img/three-25d-overview-en.jpg) | ![](img/three-25d-wifi-en.jpg) | ![](img/three-25d-fibre-da.jpg) | ![](img/three-25d-wifi-da-mobile.jpg) |
 
 The screenshots and [`spike-metrics.json`](spike-metrics.json) were produced by
 [`scripts/evaluate.mjs`](https://github.com/tkjaer/how-the-internet-works/tree/spikes/visualisation-v1/scripts/evaluate.mjs) at the tag (Playwright; run `npm run build`,

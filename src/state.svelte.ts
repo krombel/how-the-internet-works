@@ -6,7 +6,7 @@ import { sfx } from './engine/sound';
 import { clearMeasureCache } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
-import { firstOf, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
+import { firstOf, languages, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
 import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
@@ -100,11 +100,13 @@ export async function loadTheme(id: string) {
     loaded.set(id, th);
   }
   // Wait for this theme's fonts (declared in its tokens.css), so text measurements and first paint are right.
-  // document.fonts.ready doesn't wait for faces nothing uses yet, so request them explicitly (Latin + Arabic).
+  // document.fonts.ready doesn't wait for faces nothing uses yet, so request them explicitly, with every language's
+  // own name as the sample text so each script's faces load.
   document.documentElement.dataset.style = id;
   const cs = getComputedStyle(document.documentElement);
   const fams = [...new Set(['--ui-font', '--heading-font', '--label-font', '--tag-font'].map((v) => cs.getPropertyValue(v).trim()).filter(Boolean))];
-  const loads = fams.flatMap((f) => ['Ab', 'عربي'].map((txt) => document.fonts.load(`700 20px ${f}`, txt).catch(() => [])));
+  const sample = `Ab${languages.map((l) => l.name).join('')}`;
+  const loads = fams.map((f) => document.fonts.load(`700 20px ${f}`, sample).catch(() => []));
   await Promise.race([Promise.all(loads), new Promise((r) => setTimeout(r, 1500))]);
   clearMeasureCache();
   themeState.current = th;

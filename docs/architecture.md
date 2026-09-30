@@ -77,7 +77,7 @@ src/                      the engine: no content ids anywhere
                           art-base/ (fallback art slots), theme-types (the theme contract)
   ui/                     Chrome (breadcrumb, language, level, pause, sound), Caption, PeekPanel, Envelope, FieldTree…
 content/
-  locales/{en,da,ar}/     meta.json ui.json
+  locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
   nodes/<id>/             node.ts  art/Device.svelte  locales/<lang>.json
   technologies/<id>/      technology.ts  locales/
@@ -283,7 +283,8 @@ in the scene's own folder, so a new dive needs no theme change.
   3. the item itself (`node.router`)
 - **English fallback.** Any missing string falls back to English. `npm run check:content` prints translation coverage.
 - **Bundling.** English ships in the main bundle, except the layer strings (header field names and meanings): they load as one chunk (`virtual:layer-strings`) on the first catch or layer dive (`loadLayerStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
-- **RTL.** Arabic is the right-to-left test pack. Content is reviewed in English and Danish; the new layer dives fall back to English in Arabic (see issue #11).
+- **Languages.** English and Danish, the languages we can review ourselves (issue #11).
+- **RTL.** A language's `meta.json` sets `dir`, which `setLang` puts on `<html>`: the chrome mirrors (logical CSS properties), the diagrams don't. No shipped language is right-to-left, so `src/rtl.test.ts` keeps the support working with a made-up test-only language. A reviewed RTL language comes back as content only: its locale folder, plus faces for its script in the theme's `tokens.css`.
 
 ## Learn more (issue #4)
 
