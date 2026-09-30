@@ -38,6 +38,8 @@
   // only the networks on the packets' way are named: a side branch is just faintly there
   const named = $derived(regions.filter((g) => !g.aside));
   const road = $derived(root ? '' : `M${pts(chainOf(route, ps.group, view.orient).pts)}`);
+  // the road is the route's final shape: during a place morph it fades in with the route's newcomers
+  const roadAlpha = $derived(Math.min(1, ...ps.links.filter((l) => ps.route.includes(l.id)).map((l) => l.alpha)));
   const signPx = $derived(Math.max(24, themeState.current.labelMinPx / (world.cam.k * scene.frame.s)));
   const doors = $derived(doorsOf(ps, root, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW));
   const doorPx = $derived(badgeSize(themeState.current.labelMinPx, world.cam.k * scene.frame.s));
@@ -73,7 +75,9 @@
   {#each regions as g (g.owner)}
     <A.Region part="area" d={g.d} tone={g.tone} aside={g.aside} x={g.sign.x} y={g.sign.y} label="" size={signPx} />
   {/each}
-  {#if road}<A.Road d={road} orient={view.orient} time={view.time} />{/if}
+  {#if road && roadAlpha > 0}
+    <g opacity={roadAlpha < 1 ? roadAlpha : undefined}><A.Road d={road} orient={view.orient} time={view.time} /></g>
+  {/if}
   {#each ps.links as l (l.id)}
     <g opacity={l.alpha < 1 ? l.alpha : undefined}>
       <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} />
