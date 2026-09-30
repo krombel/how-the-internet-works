@@ -1,7 +1,7 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
 import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
-import { fit, progress, smoothstep, type Cam, type Viewport } from './camera';
+import { TRAVEL, fit, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
@@ -41,13 +41,12 @@ export const kLimits = (r: Route, path: string[], vp: Viewport, o: Orient) => ({
 /** Zoom progress u (0 = a parent's fit, 1 = its child's) over which a child fades in, and its parent fades out. */
 const FADE_IN: [number, number] = [0.45, 0.8];
 const HIDE: [number, number] = [0.6, 0.92];
-/** A sideways travel glides at this progress: as deep into the parent as it goes before any child starts to show. */
-const TRAVEL_U = FADE_IN[0] - 0.05;
 
-/** The zoom a sideways travel between children of `parent` glides at (the child's fit sets the scale of u). */
+/** The zoom a sideways travel between children of `parent` glides at: progress `TRAVEL.u`, as deep into the parent as
+ *  it goes before any child starts to show (`FADE_IN`). The child's fit sets the scale of u. */
 export function travelK(r: Route, parent: string[], child: string[], vp: Viewport, o: Orient): number {
   const k0 = fit(sceneInfo(r, parent, o).fit, vp).k, kd = fit(sceneInfo(r, child, o).fit, vp).k;
-  return k0 * (kd / k0) ** TRAVEL_U;
+  return k0 * (kd / k0) ** TRAVEL.u;
 }
 
 const union = (a: Rect, b: Rect): Rect => {

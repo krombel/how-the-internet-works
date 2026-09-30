@@ -107,7 +107,7 @@ for (const style of STYLES) {
       r.deepIdle = await sample(p, cdp, 1500);
       // sideways at dive level: zoom out, travel the path, zoom in. Two quick steps (access → metro → backbone fibre)
       // join into one glide; then the long-haul and metro fibre idle.
-      r.travelInternet = await sample(p, cdp, 2400, async () => {
+      r.travelInternet = await sample(p, cdp, 2600, async () => {
         await p.keyboard.press('ArrowRight'); await p.waitForTimeout(350); await p.keyboard.press('ArrowRight');
       });
       await settle(p);
@@ -116,7 +116,7 @@ for (const style of STYLES) {
       r.metroIdle = await sample(p, cdp, 1500);
       // and on the overview: the Wi‑Fi dive to the copper dive, past the access point
       await go({ path: ['phone-ap'] }); await settle(p);
-      r.travelRoot = await sample(p, cdp, 1600, () => p.keyboard.press('ArrowRight'));
+      r.travelRoot = await sample(p, cdp, 1800, () => p.keyboard.press('ArrowRight'));
       await settle(p);
       await go({ path: [] }); await settle(p);
       // catch a packet (traffic pauses), then step it two hops on

@@ -73,12 +73,14 @@ export function flyInterpolator(a: Cam, b: Cam, vp: Viewport) {
   return Object.assign(fn, { duration: Math.min(1600, Math.max(650, i.duration * 0.8)) });
 }
 
-/** Timings of a sideways travel (natural ms, before the theme's motion speed). Each leg starts when the one before it
- *  is `overlap` done, so the move never stops at a join. */
-export const TRAVEL = { outMs: 260, inMs: 300, perScreenMs: 180, minGlideMs: 160, maxGlideMs: 520, overlap: 0.6 };
+/** Timings of a sideways travel (natural ms, before the theme's motion speed). `overlap` is the share of each leg that
+ *  runs under the next one, so the move reads as out, glide, in without ever stopping at a join. `u` is the travel
+ *  altitude (see `travelK`). TEMPORARY: mutable, with `ease`, while the dev tuner (src/dev/tune.ts) is in. */
+export const TRAVEL = { outMs: 650, inMs: 700, perScreenMs: 240, minGlideMs: 280, maxGlideMs: 800, overlap: 0.2, u: 0.4, ease: 'sine' as 'sine' | 'cubic' };
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-const easeInOut = (t: number) => t * t * (3 - 2 * t);
+/** Ease-in-out for the log-zoom legs: sine is the gentlest start (no sharp push off the dive). */
+const easeInOut = (t: number) => (TRAVEL.ease === 'sine' ? (1 - Math.cos(Math.PI * t)) / 2 : t * t * (3 - 2 * t));
 /** A cubic from 0 to 1 that leaves with slope m (0–3 keeps it monotonic) and arrives at rest. */
 const leaveAt = (t: number, m: number) => (t * t * t - 2 * t * t + t) * m + (3 - 2 * t) * t * t;
 
@@ -98,7 +100,7 @@ export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, len
     Math.max(ms * Math.min(1.3, Math.abs(Math.log(k / kT)) / Math.log(4)), Math.min(ms, screens(Math.hypot(off.x, off.y)) * T.perScreenMs));
   const out = leg(a.k, dA, T.outMs), inn = leg(b.k, dB, T.inMs);
   const glide = Math.min(T.maxGlideMs, Math.max(T.minGlideMs, screens(length) * T.perScreenMs));
-  const t1 = out * T.overlap, t2 = t1 + glide * T.overlap, duration = Math.max(t2 + inn, t1 + glide);
+  const t1 = out * (1 - T.overlap), t2 = t1 + glide * (1 - T.overlap), duration = Math.max(t2 + inn, t1 + glide);
   const m0 = length > 0 ? Math.min(3, Math.max(0, (v0 * glide) / length)) : 0;
   const w = (ms: number, from: number, dur: number) => (dur > 0 ? clamp01((ms - from) / dur) : ms >= from ? 1 : 0);
   const legs = (t: number) => {
