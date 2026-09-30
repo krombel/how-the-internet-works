@@ -8,7 +8,7 @@ export default definePlace({
     { link: 'nr' },
     { at: 'cell-tower', addr: '10.20.0.5' },
     // the tower tunnels your packets (GTP-U) to the mobile core over fibre
-    { link: 'metro-fibre', stack: ['ethernet', 'gtp'], dive: 'fibre-light' },
+    { link: 'metro-fibre', stack: ['ethernet', 'gtp'] },
     // carrier-grade NAT: thousands of phones share one outside address, so it hands out ports too
     { at: 'mobile-core', in: 'internet', addr: '10.20.0.1', natTo: '192.0.2.44:20517' },
     { link: 'backbone' },

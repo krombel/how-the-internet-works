@@ -1,0 +1,69 @@
+{
+  "title": "Radio-kuverten",
+  "kid": "Alle i rummet kan høre en Wi-Fi-kuvert, så den siger tydeligt, hvem den er til. Modtageren svarer “Modtaget!”, og først så får den næste kuvert tur. Nedenunder rejser kuverten som radiobølger.",
+  "nerd": "En 802.11-dataramme navngiver modtager, sender og den fjerne adresse på kabelsiden, beskytter indholdet med WPA3/CCMP og bruger CSMA/CA med ACK, sekvensnumre og gensendinger på fælles airtime.",
+  "role": {
+    "bridge": {
+      "title": "Radioramme, kabelramme",
+      "kid": "Ved adgangspunktet kommer Wi-Fi-kuverten af. “Videre til”-mærket bliver kabelkuvertens “til”-mærke, men pakken siger stadig, at den kom fra din telefon. Nedenunder rejser kuverten som radiobølger.",
+      "nerd": "I bridgen har uplinkets 802.11 QoS-dataramme RA=AP, TA=STA og adr. 3=destinationen i distributionssystemet. AP’et decapsulerer den, tjekker CCMP/FCS og sender en Ethernet-ramme mod routeren; IP-pakken røres ikke."
+    },
+    "endpoint": {
+      "title": "En radio-kuvert til dig",
+      "kid": "På vejen tilbage gør adgangspunktet kabelkuverten til en radio-kuvert: til din telefon, fra adgangspunktet, kom fra routeren. Din telefon åbner den, efter den har sagt “Modtaget!”. Nedenunder rejser kuverten som radiobølger.",
+      "nerd": "På downlink sender AP’et en 802.11 QoS-dataramme med RA=STA, TA=AP og adr. 3=kilden i distributionssystemet. Telefonen tjekker CCMP/FCS, kvitterer efter SIFS, smider dubletter væk via sekvensnummeret og afleverer indholdet opad."
+    }
+  },
+  "label": {
+    "threeAddresses": "Tre adresser",
+    "takingTurns": "Én ad gangen",
+    "radioEnvelope": "Radio-kuvert",
+    "cableEnvelope": "Kabelkuvert",
+    "radioShort": "radio",
+    "cableShort": "kabel",
+    "for": "Til",
+    "from": "Fra",
+    "ap": "adgangspunkt",
+    "router": "router",
+    "thenTo": "Videre til",
+    "cameFrom": "Kom fra",
+    "radioBecomesCable": "AP skifter ydersiden",
+    "cableBecomesRadio": "AP skifter tilbage",
+    "radioToAp": "til AP’et",
+    "radioToPhone": "til din telefon",
+    "listen": "lyt",
+    "backoff": "backoff",
+    "difs": "DIFS",
+    "data": "data",
+    "sifsAck": "SIFS+ACK",
+    "listenKid": "lyt",
+    "waitKid": "vent",
+    "sendKid": "send",
+    "gotIt": "Modtaget!",
+    "gotItStep": "OK!",
+    "ackNerd": "ACK",
+    "bump": "bump!",
+    "noAck": "ingen ACK",
+    "retryFlag": "retry",
+    "neighbour": "nabo",
+    "kidStrip": "Lyt først. Kollision? Vent og prøv igen.",
+    "nerdStrip": "sekvens {seq} · retry · CCMP PN"
+  },
+  "field": {
+    "fc": "Frame Ctrl",
+    "toDs": "To DS · QoS",
+    "fromDs": "From DS · QoS",
+    "duration": "Varighed",
+    "seq": "Sekv."
+  },
+  "tag": {
+    "toDs": "To DS = 1",
+    "fromDs": "From DS = 1",
+    "csma": "CSMA/CA · tilfældig backoff",
+    "encrypt": "WPA3/CCMP skjuler indholdet",
+    "sequence": "SIFS 16 µs · ACK · retry-bit",
+    "everyone": "alle hører den",
+    "gotIt": "modtageren siger “Modtaget!”",
+    "noAck": "ingen ACK"
+  }
+}

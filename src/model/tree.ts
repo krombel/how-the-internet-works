@@ -137,6 +137,52 @@ export function layerPath(r: Route, hop: string, layer: string): string[] | null
   return null;
 }
 
+/** Where a route link's dive lives: in the scene `near` if it draws the link (a layer dive's own scene), else the
+ *  shallowest scene that does (the GPON fibre is drawn at the root and inside the internet). Null without a dive. */
+export function linkDivePath(r: Route, link: Link, near: string[] = []): string[] | null {
+  if (!link.dive) return null;
+  const find = (ref: SceneRef | null) => {
+    if (ref?.kind !== 'path') return null;
+    const l = pathScene(r, ref.group, 'landscape').links.find((x) => x.link.id === link.id && x.dive);
+    return l ? [...ref.path, l.id] : null;
+  };
+  const hit = find(sceneRef(r, near));
+  if (hit) return hit;
+  const queue = [ROOT_REF];
+  for (const ref of queue) {
+    const p = find(ref);
+    if (p) return p;
+    for (const c of childrenOf(r, ref)) if (c.kind === 'expand') queue.push({ ...ROOT_REF, path: [...ref.path, c.step], group: c.step });
+  }
+  return null;
+}
+
+/** Down from an envelope to its signal: a layer dive of a link layer (one in its link's own stack, like Wi‑Fi or
+ *  VLAN, not IP) leads to that link's dive. */
+export function downFrom(r: Route, ref: SceneRef): string[] | null {
+  if (ref.kind !== 'layer' || !ref.at!.link.stack.includes(ref.at!.layer)) return null;
+  return linkDivePath(r, ref.at!.link, parentPath(ref.path));
+}
+
+/** Up from a signal to what it carries: a link dive leads to the dives of its link's own layers, at the end of the
+ *  link drawn beside it (else the one that receives them on the way up: the Wi‑Fi radio → the access point's frame). */
+export function upFrom(r: Route, ref: SceneRef): { layer: string; path: string[] }[] {
+  if (ref.kind !== 'dive') return [];
+  const link = ref.link!.link, here = parentPath(ref.path).join('/');
+  return link.stack.flatMap((layer) => {
+    const ends = [link.to, link.from].map((hop) => layerPath(r, hop, layer)).filter((p) => p !== null);
+    const path = ends.find((p) => parentPath(p).join('/') === here) ?? ends[0];
+    return path ? [{ layer, path }] : [];
+  });
+}
+
+/** The link a caught packet's outer envelopes belong to at chain hop `hop`: the one it leaves on, or at the end of
+ *  its path the one it arrived on. */
+export function linkOut(r: Route, hop: number, dir: 'up' | 'down'): Link | null {
+  const out = dir === 'up' ? r.links[hop] : r.links[hop - 1], came = dir === 'up' ? r.links[hop - 1] : r.links[hop];
+  return out ?? came ?? null;
+}
+
 /** The path scene that draws chain hop `hop` (the current one if it does), e.g. to show a caught packet there. */
 export function hopScenePath(r: Route, hop: number, o: Orient, current: string[]): string[] | null {
   const draws = (ref: SceneRef | null) => ref?.kind === 'path' && pathScene(r, ref.group, o).nodes.some((n) => n.kind === 'hop' && n.hop.index === hop);

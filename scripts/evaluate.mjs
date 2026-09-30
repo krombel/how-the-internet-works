@@ -94,6 +94,13 @@ for (const style of STYLES) {
       r.fibreIdle = await sample(p, cdp, 1500);
       r.flyOut = await sample(p, cdp, 1600, () => go({ path: [] }));
       await settle(p);
+      // all the way down: the copper cable's signal, then the Wi‑Fi envelope at the access point
+      r.flyToCopper = await sample(p, cdp, 1600, () => go({ path: ['ap-router'] }));
+      await settle(p);
+      r.copperIdle = await sample(p, cdp, 1500);
+      await go({ path: ['ap~wifi'] }); await settle(p);
+      r.frameIdle = await sample(p, cdp, 1500);
+      await go({ path: [] }); await settle(p);
       // three levels down: overview → inside the internet → the access fibre (GPON)
       r.flyDeep = await sample(p, cdp, 2400, () => go({ path: ['internet', 'home-cabinet'] }));
       await settle(p);
@@ -150,6 +157,16 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/router~tcp', name: `tcp-sealed-${view}` });
       shots.push({ view, where: 'home/watch-video/phone~tls', name: `tls-${view}` });
       shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
+      // all the way down (issues #13, #18): the link envelopes and the signals under them
+      shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/core-ixp', name: `backbone-${view}` });
+      shots.push({ view, where: 'home/watch-video/ap~wifi', name: `wifi-frame-${view}` });
+      shots.push({ view, where: 'home/watch-video/router~ethernet', name: `ethernet-me-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/cabinet~ethernet', name: `ethernet-bridge-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/backhaul~vlan', name: `vlan-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/core~mpls', name: `mpls-${view}` });
+      shots.push({ view, where: 'home/watch-video/router~gpon', name: `gpon-frame-${view}` });
+      shots.push({ view, where: 'street/watch-video/phone~nr', name: `nr-frame-${view}` });
     }
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
@@ -157,6 +174,9 @@ for (const style of STYLES) {
     shots.push({ view: 'phone', where: 'street/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-street-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', lang: 'ar', name: 'home-ar-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/cabinet~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', grow: 'ip', name: 'grow-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', name: 'peek-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', name: 'peek-street-phone' });

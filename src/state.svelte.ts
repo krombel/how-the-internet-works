@@ -6,7 +6,7 @@ import { sfx } from './engine/sound';
 import { clearMeasureCache } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
-import { firstOf, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
+import { firstOf, loadDiveStrings as loadDives, lookup, lookupLevel, packs } from './model/strings';
 import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
@@ -28,10 +28,10 @@ export function setLevel(l: Level) {
 const q = new URLSearchParams(location.search);
 if (q.get('level') === 'nerd' || q.get('level') === 'kid') setLevel(q.get('level') as Level);
 
-/** Bumped when more strings arrive (the English layer strings), so text that asked for them too early updates. */
+/** Bumped when more strings arrive (the English dive strings), so text that asked for them too early updates. */
 const more = $state({ n: 0 });
-let layers: Promise<void> | null = null;
-export const loadLayerStrings = () => (layers ??= loadLayers().then(() => { more.n++; }));
+let dives: Promise<void> | null = null;
+export const loadDiveStrings = () => (dives ??= loadDives().then(() => { more.n++; }));
 /** A UI or content string in the current language (English fallback; the key itself if missing everywhere). */
 export const tr = (key: string) => (more.n, lookup(loc.lang, key) ?? key);
 /** Level-aware: `key.kid` / `key.nerd`, falling back to `key`. */

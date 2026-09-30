@@ -65,7 +65,7 @@ export default definePlace({
   order: 3,                                                  // position in "Where are you?"
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
-    { link: 'ethernet' },                                    // an existing technology: its stack, look and colour
+    { link: 'ethernet' },                                    // an existing technology: its stack, look, colour and dive (copper)
     { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'gpon' },                                        // its dive (the fibre scene in GPON mode) comes along
     { at: 'cabinet', in: 'internet' },                       // `in`: shown when the internet is unfolded
@@ -128,6 +128,8 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 - `stack` holds the **lower** layers, outermost first; the activity's flow adds IP and above. A link can override it (`{ link: 'metro-fibre', stack: ['ethernet', 'gtp'] }`).
 - `look` picks how every theme draws the link, so a new technology needs no theme change.
 - Strings: `name` (the link label), `kid`/`nerd`, and optionally `tag`.
+- Every technology needs a `dive` (its signal: an existing scene with per-technology strings, or a new one), and every
+  layer in its `stack` a layer dive, so a reader can always go all the way down (a content test checks this).
 
 ## Add a layer (issue #5)
 
@@ -174,8 +176,11 @@ bridge passing a frame on, a tunnel starting). The validator names unknown facts
 
 ## Add a dive scene
 
-A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, fibre, 5G) or a layer at one hop
+A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, copper, fibre, 5G) or a layer at one hop
 (`explains: 'layer'`, next section). Technologies and links may only point at link scenes, layers only at layer scenes.
+A link scene is the **signal world**: no envelopes, only bits as waves, light or electricity; *how do the bits
+move?* A layer scene is the **paper world** of envelopes and stickers; *who is this for, how is the road shared,
+did it arrive intact?* Keep that split so the two don't become near-duplicates.
 
 `content/scenes/<id>/`:
 - `scene.ts`: `defineScene({ learnMore })`.
@@ -186,6 +191,9 @@ A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, fibre, 5G)
   - `TagAt`
   - its own `art/*.svelte` and maths files
 - Strings: `title` (required) and `kid`/`nerd`. Per-technology variants such as `gpon.title` or `gpon.kid` win when the subject is that technology.
+- The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
+  the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it
+  say what the signal is ("Electricity in copper").
 
 Point a technology's `dive` at it, or a single link's `dive`.
 
@@ -220,8 +228,14 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   3. `sealed` (when this hop can't open the layer)
   4. the plain `title`/`kid`/`nerd`
 
+  Each is looked up first under the layer (`<layer>.at.<node id>`, `<layer>.role.<role>`, `<layer>.sealed`,
+  `<layer>`), so **one scene can serve several layers** by switching on `subject.layer` (`sticker-doors` is
+  Ethernet, VLAN and MPLS: the same box of doors with a different book).
   `{hop}` (this hop's name), `{yours}` ("your phone") and `{layer}` are filled in. Scene labels are your own keys,
   read with `strings('scene.<id>')`; nerd callouts conventionally live under `tag.*`.
+- A link layer (one in a technology's `stack`: Wi‑Fi, Ethernet, GPON…) is the envelope for one stretch; its dive
+  gets a **How it travels** chip down to that link's signal by itself. End kid texts with a line bridging down
+  ("Underneath, it travels as flashes of light").
 
 Then set `dive: '<id>'` in `content/layers/<layer>/layer.ts`. The layer panels of a hop stack vertically around it in
 its path scene, so nothing else needs a layout. Dive scenes are loaded on demand, so they cost nothing at start-up.
@@ -285,5 +299,6 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
 - [ ] `locales/en.json` has the required strings; `da.json` if you can.
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes).
+- [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).

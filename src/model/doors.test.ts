@@ -12,9 +12,9 @@ const list = (ds: { kind: string; id: string }[]) => ds.map((d) => `${d.kind}:${
 
 describe('doors', () => {
   it('lists what the root and a group open, swap first, then in route order', () => {
-    expect(list(doorsOf(pathScene(home, null, 'landscape'), true))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:router-internet', 'expand:internet']);
+    expect(list(doorsOf(pathScene(home, null, 'landscape'), true))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
     expect(list(doorsOf(pathScene(street, null, 'portrait'), true))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
-    expect(list(doorsOf(pathScene(home, 'internet', 'landscape'), false))).toEqual(['dive:home-cabinet']);
+    expect(list(doorsOf(pathScene(home, 'internet', 'landscape'), false))).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:backhaul-bng', 'dive:bng-core', 'dive:core-ixp', 'dive:ixp-cdn']);
   });
 
   it('puts badges where the art draws them: mid-link, above a group, beside the start device', () => {

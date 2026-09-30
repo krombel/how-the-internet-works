@@ -1,0 +1,128 @@
+{
+  "title": "Which door is this sticker for?",
+  "kid": "A box reads the little sticker on the outside and checks its lookup book. The same box can learn MAC doors, keep coloured street lanes apart, or follow a motorway number. Underneath, it travels as a signal down the cable or fibre.",
+  "nerd": "A unified layer-2/label-switching view: Ethernet learns source MACs and floods unknown unicasts, VLAN tags constrain forwarding domains, and MPLS labels drive LFIB push/swap/pop decisions.",
+  "ethernet": {
+    "title": "Which cable door?",
+    "kid": "The cable envelope says which door it is for. A switch learns from the From sticker; a router or computer peels the envelope off when the For sticker is its own name. Underneath, it travels as pushes of electricity or flashes of light.",
+    "nerd": "Ethernet forwarding uses destination MAC lookup, source MAC learning, unknown-unicast flooding, and an FCS/CRC-32 check before decapsulation.",
+    "role": {
+      "bridge": {
+        "title": "Learning the doors",
+        "kid": "The frame comes in door 1 from your phone. The box writes “your phone → door 1”. It does not know the For sticker yet, so it copies the frame out of the other doors. The reply teaches door 2. Underneath, it travels as a signal down the cable or fibre.",
+        "nerd": "A bridge learns source MACs into a MAC table, ages entries after about 300 s, floods unknown unicast frames except the ingress port, then forwards known destinations to one port. Store-and-forward switches verify FCS/CRC-32 first."
+      },
+      "nat": {
+        "title": "This sticker is for me",
+        "kid": "The For sticker is the router’s own name, so it checks the frame, peels the cable envelope off, and asks everyone “Who has 192.168.1.23?” One box answers “Me!”, and a fresh sticker goes on. Underneath, it travels as pushes of electricity or flashes of light.",
+        "nerd": "The destination MAC matches the router interface. After FCS/CRC-32 validation the Ethernet header is stripped; ARP resolves the next-hop IP to a MAC address (IPv6 uses NDP), then a new Ethernet frame is emitted."
+      },
+      "router": {
+        "title": "This sticker is for me",
+        "kid": "The For sticker is this router’s own name. It checks the frame, peels the cable envelope off, asks ARP for the next box’s MAC, and puts on a new cable sticker. Underneath, it travels as pushes of electricity or flashes of light.",
+        "nerd": "The router consumes the frame addressed to its local MAC, validates FCS/CRC-32, decapsulates the payload, resolves the next hop through ARP, and writes a new source/destination MAC pair for the outgoing link."
+      },
+      "endpoint": {
+        "title": "This sticker is for me",
+        "kid": "The For sticker matches this computer. It checks that the frame is not smudged, peels the cable envelope off, and hands the packet inside upward. When it sends back, it uses ARP and writes a new sticker. Underneath, it travels as pushes of electricity or flashes of light.",
+        "nerd": "A host accepts frames whose destination is its NIC MAC (or broadcast/multicast), verifies FCS/CRC-32, and passes the EtherType payload upward. Outgoing frames use the ARP cache for the peer MAC."
+      }
+    }
+  },
+  "vlan": {
+    "title": "Coloured street doors",
+    "kid": "The street sticker paints the frame for street 101. It only leaves by doors with that colour. At the BNG, house 2042 says which subscription this is, and the stickers come off. Underneath, it travels as flashes of light in fibre.",
+    "nerd": "802.1Q carries a 12-bit VID (1–4094 usable). In 802.1ad Q-in-Q, S-VLAN 101 identifies the cabinet domain and C-VLAN 2042 identifies the subscriber line at the BNG.",
+    "at": {
+      "bng": {
+        "title": "The subscription door",
+        "kid": "At the BNG the street tag and house tag have done their job. House 2042 means your line, so the BNG takes the stickers off and sends the packet onward. Underneath, it travels as flashes of light in fibre.",
+        "nerd": "The BNG terminates the access VLANs: S-VID 101 scopes the aggregation side, C-VID 2042 selects the subscriber session, then the Ethernet payload is routed or label-switched onward."
+      }
+    }
+  },
+  "mpls": {
+    "title": "Motorway numbers",
+    "kid": "Inside the provider network the sticker is a motorway number. A junction can swap 24012 for 17003 and send the parcel out door 3 without reading the long address. Underneath, it travels as flashes of light in fibre.",
+    "nerd": "MPLS routers use an LFIB: incoming label 24012 maps to an outgoing interface and label 17003. Edge routers push labels; intermediate LSRs swap; the penultimate hop may pop.",
+    "at": {
+      "core": {
+        "title": "Last motorway junction",
+        "kid": "The core is the last junction before the exchange here. It pops the motorway sticker off, so the next box can read the normal address again. Underneath, it travels as flashes of light in fibre.",
+        "nerd": "Penultimate-hop popping: the core removes the MPLS label before the Ethernet-only IXP segment. TC bits carry class, and TTL is copied from IP and decremented."
+      }
+    }
+  },
+  "card": {
+    "action": "Sticker action",
+    "label": "Label action",
+    "macBook": "MAC lookup book",
+    "arpBook": "ARP book",
+    "lanes": "Lane book",
+    "lfib": "Label book"
+  },
+  "mini": {
+    "ethernet": {
+      "bridge": {
+        "a": "Learn door 1.",
+        "b": "Unknown? flood."
+      },
+      "me": {
+        "a": "For me: peel.",
+        "b": "ARP for the next MAC."
+      }
+    },
+    "vlan": {
+      "pass": {
+        "a": "Street 101 only.",
+        "b": "Street 102 is separate."
+      },
+      "bng": {
+        "a": "House 2042 = you.",
+        "b": "BNG removes the tags."
+      }
+    },
+    "mpls": {
+      "push": {
+        "a": "Push 24012.",
+        "b": "Enter the motorway."
+      },
+      "swap": {
+        "a": "24012 → 17003.",
+        "b": "No IP lookup here."
+      },
+      "pop": {
+        "a": "Pop the label.",
+        "b": "Plain Ethernet next."
+      }
+    }
+  },
+  "label": {
+    "phone": "your phone",
+    "reply": "reply box",
+    "unknown": "unknown",
+    "whoHas": "Who has {ip}?",
+    "whoHasShort": "Who has?"
+  },
+  "book": {
+    "age": "ageing",
+    "fcs": "FCS/CRC-32",
+    "check": "check",
+    "drop": "drop smudge",
+    "owner": "Owner",
+    "subscriber": "subscriber session",
+    "you": "your subscription",
+    "street": "Street",
+    "house": "House",
+    "otherStreet": "Other street",
+    "push": "push",
+    "pop": "pop",
+    "readNext": "read next",
+    "door": "door",
+    "in": "in",
+    "out": "out"
+  },
+  "sticker": {
+    "meShort": "ME"
+  }
+}

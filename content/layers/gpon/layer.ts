@@ -8,6 +8,7 @@ export default defineLayer({
     { id: 'pti', bits: 3, value: '001 (last fragment)' },
     { id: 'hec', bits: 13, value: '{sum}', use: true },
   ],
+  dive: 'gpon-slots',
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/GPON', title: 'GPON', level: 'nerd', lang: 'en' },
   ],

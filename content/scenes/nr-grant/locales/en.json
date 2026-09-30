@@ -1,0 +1,57 @@
+{
+  "title": "5G seat tickets",
+  "kid": "Your phone gets a tiny seat ticket from the tower, then each radio piece is checked. If one is smudged, the tower or phone says “again!”",
+  "nerd": "NR scheduling and HARQ around one UE: SR on PUCCH, grant DCI on PDCCH with CRC scrambled by C-RNTI 0x4601, then MAC/RLC/PDCP pieces on 30 kHz SCS, 0.5 ms slots.",
+  "role": {
+    "bridge": {
+      "title": "The tower hands out radio seats",
+      "kid": "The tower is the classroom helper. Your phone raises its hand, the tower gives phone no. 4601 a turn, and then checks every piece. Underneath, the envelope travels as a radio beam.",
+      "nerd": "At the gNB, an uplink SR on PUCCH leads to an UL grant in DCI on PDCCH, CRC-scrambled with the UE’s C-RNTI 0x4601. The scheduler assigns slot 6, RB 20–31; HARQ ACK/NACK arrives about 1 ms later, with RLC ARQ above for residual loss and PDCP ciphering plus SN preserved."
+    },
+    "endpoint": {
+      "title": "The phone looks for its number",
+      "kid": "Your phone reads the tower’s list and only picks up pieces marked phone no. 4601. If one is smudged, it says “again!” and keeps the clear copy. Underneath, the envelope travels as a radio beam.",
+      "nerd": "The UE monitors PDCCH candidates for DCI whose CRC unscrambles with C-RNTI 0x4601, then receives its PDSCH allocation. It reports HARQ ACK/NACK within roughly 1 ms; incremental redundancy and soft combining recover the transport block before RLC/PDCP see it."
+    }
+  },
+  "sealed": {
+    "title": "NR passes by",
+    "kid": "This stop carries the 5G envelope but does not make the radio-seat choices.",
+    "nerd": "The NR MAC/RLC/PDCP frame is meaningful only at the UE and gNB ends of the radio link."
+  },
+  "card": {
+    "seat": "Asking for a seat",
+    "harq": "Did it arrive?"
+  },
+  "label": {
+    "ticketKid": "Phone no. {n}",
+    "ticketPortrait": "No. {n} · slot 6",
+    "ticketNerd": "C-RNTI 0x4601",
+    "grantKid": "slot 6",
+    "grantNerd": "slot 6 · RB 20–31",
+    "ask": "✋ may I send?",
+    "schedule": "Tower schedule",
+    "phoneNo": "Phone no. {n}",
+    "otherTurn": "wait",
+    "myTurn": "my turn!",
+    "again": "Again!",
+    "got": "Got it!",
+    "check": "check each piece",
+    "nack": "NACK: ask quickly",
+    "combine": "two copies combine",
+    "ack": "ACK: clear piece",
+    "dci": "DCI: C-RNTI · HARQ 7",
+    "harqNerd": "HARQ 7 · NDI 1 · RV 2",
+    "sn": "LCID 4 · RLC SN {rlc} · PDCP SN {pdcp} · QFI 9",
+    "snShort": "L4 · R{rlc} · P{pdcp} · Q9",
+    "snA": "LCID 4 · RLC SN {rlc}",
+    "snB": "PDCP SN {pdcp} · QFI 9"
+  },
+  "tag": {
+    "bridgeKid": "tower scheduler",
+    "endpointKid": "only my number",
+    "bridgeNerd": "SR → DCI grant",
+    "endpointNerd": "C-RNTI watch",
+    "harq": "16 HARQ · soft combining · ~1 ms"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Strøm i kobber",
+  "kid": "Ethernet sender små spændingsskub gennem snoede kobberpar. Snoningen hjælper støj med at udligne sig, og kablet kan tale begge veje på én gang. Efter cirka 100 m bliver skubbene for svage og udtværede. Sådan rejser kabel-kuverten.",
+  "nerd": "1000BASE-T bruger differential signalering på alle fire Cat 5e-par. Hvert par kører 125 MBd med PAM-5-niveauer tæt på ±1 V, hybrider og ekkoudligning gør hvert par fuld duplex, og standarden budgetterer cirka 100 m til tab og krydstale.",
+  "pairs": "Fire snoede par i ét kabel",
+  "pairsShort": "Fire snoede par",
+  "bothWays": "Lysende skub løber begge veje på én gang",
+  "twistTitle": "Snoningen",
+  "twistKid1": "Den ene tråd skubber op,",
+  "twistKid2": "den anden skubber ned.",
+  "mirror": "Differentialpar: +V og −V",
+  "noise": "Samme støj rammer begge tråde",
+  "difference": "modtageren trækker fra",
+  "clean": "bumpet forsvinder",
+  "pushTitle": "Spændingsskub",
+  "pushKid1": "Bits er små skub,",
+  "pushKid2": "ikke elektroner der ræser hele vejen.",
+  "hundred": "Cirka 100 m, så falmer skubbene",
+  "pamTitle": "PAM-5-symboler",
+  "eyeTitle": "Åbent øje = læsbart",
+  "preamble": "10101010 × 7 → 10101011: vågn op, synkronisér uret",
+  "preambleShort": "præamblen synkroniserer uret",
+  "tag": {
+    "speed": "1000BASE-T · 4 par × 125 MBd × 2 bit = 1 Gbit/s",
+    "duplex": "hybrider + ekkoudligning: begge veje på hvert par",
+    "cat": "Cat 5e-kanal · standardens budget: 100 m",
+    "speedShort": "1000BASE-T · 1 Gbit/s",
+    "duplexShort": "fuld duplex",
+    "catShort": "100 m"
+  },
+  "twistLine": "Støj forsvinder.",
+  "twistLineNerd": "Differentialpar: +V og −V.",
+  "pushLine": "Spændingsskub.",
+  "pamLine": "5 niveauer pr. symbol.",
+  "eyeLine": "Åbent øje = rent.",
+  "hundredShort": "Ca. 100 m, så bliver de for svage",
+  "hundredA": "Ca. 100 m,",
+  "hundredB": "så bliver de for svage"
+}

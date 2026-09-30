@@ -1,0 +1,43 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Electricity in copper",
+  "kid": "Ethernet sends tiny voltage pushes down twisted copper pairs. The twists help noise cancel out, and the cable can talk both ways at once. After about 100 m the pushes get too faint and smeared. This is how the cable envelope travels.",
+  "nerd": "1000BASE-T uses differential signalling on all four Cat 5e pairs. Each pair runs 125 MBd with PAM-5 levels near ±1 V, hybrids and echo cancellation make every pair full duplex, and the standard budgets about 100 m for loss and crosstalk.",
+  "pairs": "Four twisted pairs inside one cable",
+  "pairsShort": "Four twisted pairs",
+  "bothWays": "Glowing pushes travel both ways at once",
+  "twistTitle": "The twist",
+  "twistKid1": "One wire pushes up,",
+  "twistKid2": "the other pushes down.",
+  "mirror": "Differential pair: +V and −V",
+  "noise": "Same noise hits both wires",
+  "difference": "receiver subtracts",
+  "clean": "the bump cancels",
+  "pushTitle": "Voltage pushes",
+  "pushKid1": "Bits are little pushes,",
+  "pushKid2": "not electrons racing end to end.",
+  "hundred": "About 100 m, then the pushes fade",
+  "pamTitle": "PAM-5 symbols",
+  "eyeTitle": "Open eye = readable",
+  "preamble": "10101010 × 7 → 10101011: wake up, sync clock",
+  "preambleShort": "preamble wakes the clock",
+  "tag": {
+    "speed": "1000BASE-T · 4 pairs × 125 MBd × 2 bits = 1 Gbit/s",
+    "duplex": "hybrids + echo cancelling: both ways on every pair",
+    "cat": "Cat 5e channel · standard budget: 100 m",
+    "speedShort": "1000BASE-T · 1 Gbit/s",
+    "duplexShort": "full duplex",
+    "catShort": "100 m"
+  },
+  "twistLine": "Noise cancels.",
+  "twistLineNerd": "Differential pair: +V and −V.",
+  "pushLine": "Voltage pushes.",
+  "pamLine": "5 levels per symbol.",
+  "eyeLine": "Open eye = clean.",
+  "hundredShort": "About 100 m, then too faint",
+  "hundredA": "About 100 m,",
+  "hundredB": "then too faint"
+}

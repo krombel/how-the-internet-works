@@ -12,4 +12,6 @@ export const ICON = {
   pause: 'M9 6v12 M15 6v12',
   catch: 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z',
   play: 'M8 5.5v13l10.5-6.5z',
+  wave: 'M2 12c2-6 4-6 5 0s3 6 5 0 3-6 5 0 3 6 5 0',
+  envelope: 'M3 6h18v12H3z M3 6l9 7 9-7',
 };

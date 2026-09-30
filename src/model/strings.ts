@@ -41,18 +41,18 @@ function buildPacks(meta: Record<string, LocaleMeta>, ui: Record<string, Json>, 
   return packs;
 }
 
-// English (the fallback) ships in the main bundle, but for its layer strings (`loadLayerStrings`); other languages
+// English (the fallback) ships in the main bundle, but for its dive strings (layers and dive scenes: `loadDiveStrings`); other languages
 // load when first chosen, one chunk each (the `virtual:string-packs` plugin in vite.config.ts), so adding a language
 // costs nothing for everyone else.
 export const packs = buildPacks(
   import.meta.glob<LocaleMeta>('/content/locales/*/meta.json', { eager: true, import: 'default' }),
   import.meta.glob<Json>('/content/locales/en/ui.json', { eager: true, import: 'default' }),
-  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json'], { eager: true, import: 'default' }),
+  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json', '!/content/scenes/*/locales/en.json'], { eager: true, import: 'default' }),
 );
-let layersEn: Promise<void> | null = null;
-/** Load the English layer strings (once): before showing a caught packet or a layer dive. */
-export function loadLayerStrings(): Promise<void> {
-  return (layersEn ??= import('virtual:layer-strings').then(({ folders }) => {
+let divesEn: Promise<void> | null = null;
+/** Load the English dive strings (once): the layers' and the dive scenes', before showing a caught packet or a dive. */
+export function loadDiveStrings(): Promise<void> {
+  return (divesEn ??= import('virtual:dive-strings').then(({ folders }) => {
     Object.assign(packs[FALLBACK].strings, buildPacks({ [`/content/locales/${FALLBACK}/meta.json`]: packs[FALLBACK].meta }, {}, folders)[FALLBACK].strings);
   }));
 }
@@ -72,7 +72,7 @@ export function loadPack(lang: string): Promise<void> {
   }
   return p;
 }
-export const loadAllPacks = () => Promise.all([loadLayerStrings(), ...Object.keys(packs).map(loadPack)]).then(() => packs);
+export const loadAllPacks = () => Promise.all([loadDiveStrings(), ...Object.keys(packs).map(loadPack)]).then(() => packs);
 
 export const languages = Object.keys(packs)
   .sort((a, b) => (a === FALLBACK ? -1 : b === FALLBACK ? 1 : a.localeCompare(b)))

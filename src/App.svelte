@@ -21,7 +21,7 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadLayerStrings, loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
+  import { loadDiveStrings, loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
   import Caption from './ui/Caption.svelte';
   import { captionFor, sceneTitle } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
@@ -210,9 +210,9 @@
   // The peek panel (with its envelopes and protocol tree) loads on the first catch, to keep the first load small.
   let PeekPanel = $state.raw<typeof PeekPanelT | null>(null);
   $effect(() => {
-    if (caught && !PeekPanel) Promise.all([import('./ui/PeekPanel.svelte'), loadLayerStrings()]).then(([m]) => (PeekPanel = m.default));
+    if (caught && !PeekPanel) Promise.all([import('./ui/PeekPanel.svelte'), loadDiveStrings()]).then(([m]) => (PeekPanel = m.default));
   });
-  $effect(() => { if (stepInfo.kind === 'layer') void loadLayerStrings(); });
+  $effect(() => { if (stepInfo.kind !== 'stop') void loadDiveStrings(); });
   /** Catch the youngest packet of a kind in the scene on screen (the caption's "Catch" chips). */
   function catchKind(kind: string) {
     const list = (packets.get(hereKey) ?? []).filter((k) => k.id !== CAUGHT_ID);
@@ -583,11 +583,11 @@
   <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
     {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
   {#if caught && PeekPanel}
-    <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} />
+    <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
   {/if}
   <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
-    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} bind:el={captionEl} />
+    ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} bind:el={captionEl} />
   {#if !peekOpen}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
