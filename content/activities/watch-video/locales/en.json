@@ -7,8 +7,8 @@
     "video": "Video"
   },
   "peek": {
-    "request": "Following a request",
-    "video": "Following a piece of video"
+    "request": "Caught: a request",
+    "video": "Caught: a piece of video"
   },
   "stop": {
     "phone": {

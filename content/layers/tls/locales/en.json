@@ -10,5 +10,20 @@
   "sealed": {
     "kid": "Locked. Nobody on the way can read what’s inside.",
     "nerd": "Ciphertext: intermediate hops can’t read or change it."
+  },
+  "line": "Transport Layer Security: Application Data, length {length}",
+  "field": {
+    "type": {
+      "name": "Content type",
+      "about": "23 = encrypted application data (the handshake is over)."
+    },
+    "version": {
+      "name": "Version",
+      "about": "Always 0x0303 on the wire for compatibility, even in TLS 1.3."
+    },
+    "length": {
+      "name": "Length",
+      "about": "Bytes of ciphertext that follow, including the authentication tag."
+    }
   }
 }

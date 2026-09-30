@@ -6,5 +6,46 @@
   "note": {
     "kid": "Den får et farvet mærke, så udbyderen ved, hvilken gade og hvilket hus den kom fra.",
     "nerd": "Dobbelt-tagget (Q-in-Q): en S-VLAN pr. skab og en C-VLAN pr. kunde, mod BNG’en."
+  },
+  "line": "802.1ad Q-in-Q, S-VLAN {svid}, C-VLAN {cvid}",
+  "field": {
+    "spcp": {
+      "name": "S-PCP",
+      "about": "Prioritet for det ydre tag."
+    },
+    "sdei": {
+      "name": "S-DEI",
+      "about": "Må smides væk først, når der er travlt."
+    },
+    "svid": {
+      "name": {
+        "kid": "Gade nr.",
+        "nerd": "S-VLAN-ID"
+      },
+      "about": "Det ydre tag: hvilket gadeskab den kom igennem."
+    },
+    "ctpid": {
+      "name": "C-TPID",
+      "about": "Siger, at et indre (kunde-)tag følger."
+    },
+    "cpcp": {
+      "name": "C-PCP",
+      "about": "Prioritet for det indre tag."
+    },
+    "cdei": {
+      "name": "C-DEI",
+      "about": "Må smides væk først, når der er travlt."
+    },
+    "cvid": {
+      "name": {
+        "kid": "Hus nr.",
+        "nerd": "C-VLAN-ID"
+      },
+      "about": "Det indre tag: hvilken kundelinje. BNG’en kender dit abonnement på den."
+    },
+    "type": {
+      "name": "EtherType",
+      "about": "Hvad der er inden for taggene."
+    }
   }
 }

@@ -1,8 +1,9 @@
 // Content validation for authors: every definition against its schema, every cross-reference, required English
-// strings and the presence of each folder's component. Runs in dev (errors go to the Vite overlay and the console),
+// strings (a layer's header fields too) and the presence of each scene's component. Runs in dev (errors go to the Vite overlay and the console),
 // in `npm run check:content` and in the tests. Never in the production bundle.
 import type { z } from 'zod';
 import * as S from './schema';
+import { FACT, FACTS } from './packet';
 import { isLink } from './resolve';
 import type { Content } from './registry';
 import { FALLBACK, type Pack } from './strings';
@@ -26,7 +27,7 @@ function suggest(bad: string, known: string[]) {
 export interface ValidateInput {
   content: Content;
   packs: Record<string, Pack>;
-  /** Paths of the component files that exist (e.g. "/content/layers/ip/Layer.svelte"). */
+  /** Paths of the component files that exist (e.g. "/content/scenes/ip-post/Scene.svelte"). */
   files: string[];
 }
 
@@ -75,10 +76,29 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     need(t.file, `tech.${t.id}.name`);
     learnMore(t.file, t.learnMore);
   }
+  /** Codes layers give themselves for the layer outside them ({inner.ethertype}). */
+  const codes = new Set(Object.values(c.layers).flatMap((l) => Object.keys(l.code ?? {})));
   for (const l of Object.values(c.layers)) {
     schema(l.file, S.layer, strip(l));
-    if (!has(`/content/layers/${l.id}/Layer.svelte`)) add(l.file, 'component', `add content/layers/${l.id}/Layer.svelte (the envelope drawn in the peek panel)`);
     needLevelled(l.file, `layer.${l.id}.name`);
+    needLevelled(l.file, `layer.${l.id}.note`);
+    need(l.file, `layer.${l.id}.line`);
+    const seen = new Set<string>();
+    l.fields?.forEach((f, i) => {
+      const where = `fields[${i}]`;
+      if (seen.has(f.id)) add(l.file, where, `"${f.id}" is already a field of this layer`);
+      seen.add(f.id);
+      needLevelled(l.file, `layer.${l.id}.field.${f.id}.name`);
+      const tpls = [f.value, typeof f.kid === 'object' || typeof f.kid === 'string' ? f.kid : ''].flatMap((v) => (typeof v === 'string' ? [v] : [v.up, v.down]));
+      for (const t of tpls) {
+        if (t.startsWith('@')) { needLevelled(l.file, `layer.${l.id}.value.${t.slice(1)}`); continue; }
+        for (const [, name] of t.matchAll(new RegExp(FACT, 'g'))) {
+          if ((FACTS as readonly string[]).includes(name.replace(/[+-]\d+$/, ''))) continue;
+          if (name.startsWith('inner.') && codes.has(name.slice(6))) continue;
+          add(l.file, `${where}.value`, `"{${name}}" is not a fact.${suggest(name, [...FACTS, ...[...codes].map((k) => `inner.${k}`)])}`);
+        }
+      }
+    });
     dive(l.file, 'dive', l.dive, 'layer');
     learnMore(l.file, l.learnMore);
   }

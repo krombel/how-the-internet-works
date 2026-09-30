@@ -1,5 +1,4 @@
 {
-  "to": "Til",
   "name": {
     "kid": "Kabel-kuvert",
     "nerd": "Ethernet-ramme"
@@ -7,5 +6,30 @@
   "note": {
     "kid": "Hver boks på vejen tager kuverten af og sætter en ny på til det næste kabel.",
     "nerd": "Kun lokalt: der skrives en ny ramme med nye MAC-adresser for hvert hop."
+  },
+  "line": "Ethernet II, afs.: {src}, modt.: {dst}",
+  "field": {
+    "dst": {
+      "name": {
+        "kid": "Til",
+        "nerd": "Modtager-MAC"
+      },
+      "about": "Den næste boks på kablet. Hver router skriver en ny ramme til det næste link."
+    },
+    "src": {
+      "name": {
+        "kid": "Fra",
+        "nerd": "Afsender-MAC"
+      },
+      "about": "Boksen der sendte rammen på kablet. Switche og adgangspunkter giver den uændret videre."
+    },
+    "type": {
+      "name": "EtherType",
+      "about": "Hvad der er indeni: 0x0800 IPv4, 0x88A8 VLAN-tags, 0x8847 MPLS."
+    },
+    "fcs": {
+      "name": "Frame check sequence",
+      "about": "En CRC over hele rammen: en beskadiget ramme smides væk."
+    }
   }
 }

@@ -4,8 +4,10 @@
   import { loc, tr } from '../state.svelte';
   import type { CaptionText } from './caption';
   import Icon from './Icon.svelte';
-  let { text, place, onplace, ondoor, onhot, explore, hidden, el = $bindable() }: {
+  let { text, place, onplace, ondoor, onhot, explore, catches, oncatch, hidden, el = $bindable() }: {
     text: CaptionText; place: string; onplace: () => void;
+    /** Packet kinds to catch here (issue #17), and catching one. */
+    catches: { kind: string; name: string }[]; oncatch: (kind: string) => void;
     /** Open a door / point at it (its badge in the scene glows) or stop pointing (null). */
     ondoor: (id: string) => void; onhot: (id: string | null) => void;
     explore: boolean; hidden: boolean; el?: HTMLElement;
@@ -17,7 +19,7 @@
   <h2 dir="auto">{text.title}</h2>
   <p dir="auto">{text.body}</p>
   <div class="foot">
-    {#if verbs.length}
+    {#if verbs.length || catches.length}
       <div class="doors" class:lit={explore}>
         {#each verbs as v (v.kind)}
           <span class="verb door-{v.kind}" role="group" aria-label={tr(`door.${v.kind}`)}>
@@ -28,6 +30,12 @@
             {/each}
           </span>
         {/each}
+        {#if catches.length}
+          <span class="verb door-catch" role="group" aria-label={tr('door.catch')}>
+            <span class="verb-name" aria-hidden="true"><Icon name="catch" /><span dir="auto">{tr('door.catch')}:</span></span>
+            {#each catches as c (c.kind)}<button class="btn chip door" onclick={() => oncatch(c.kind)}>{c.name}</button>{/each}
+          </span>
+        {/if}
       </div>
     {/if}
     <button class="btn chip" onclick={onplace}>{place} · <u>{tr('ui.change')}</u></button>

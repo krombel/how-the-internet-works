@@ -1,48 +1,82 @@
 <script lang="ts">
-  // Peek inside the followed packet: its nested envelopes for the link it is on right now. Each envelope is a reusable
-  // layer component (content/layers/<id>) that decides what to show from its context (issue #5). A layer with a dive
-  // gets a magnifier: tap it to fly into that layer at the hop reading the packet (issue #8).
-  import type { LivePacket } from '../engine/packets';
-  import { layerViews } from '../model/components';
+  // The caught packet at one hop (issue #17). Traffic is paused; ◀ ▶ step the packet along its path. The panel shows
+  // what this hop does, the envelopes taken off here, then the packet as it leaves: every layer sealed, closed or
+  // opened, the fields the hop uses marked and the ones it changed as old → new. "Details" swaps the envelopes for
+  // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8).
+  import { hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
-  import { layerCtx, stackOf } from '../model/stack';
   import { layerPath } from '../model/tree';
-  import { setPeekDives } from '../render/ctx';
   import { loadDive } from '../render/dives.svelte';
-  import { fill, loc, nameOf, tr } from '../state.svelte';
+  import { fill, loc, nameOf, tr, trFirst, trl, yours } from '../state.svelte';
+  import Envelope from './Envelope.svelte';
+  import FieldTree from './FieldTree.svelte';
   import Icon from './Icon.svelte';
-  let { packet, route, onclose, ondive }: {
-    packet: LivePacket; route: Route; onclose: () => void; ondive: (path: string[], env: HTMLElement) => void;
+  let { route, flow, kind, dir, hop, onstep, onclose, ondive }: {
+    route: Route; flow: string; kind: string; dir: Dir; hop: number;
+    onstep: (d: -1 | 1) => void; onclose: () => void; ondive: (path: string[], env: HTMLElement) => void;
   } = $props();
-  const link = $derived(packet.pose.link.link);
-  const ctx = $derived(layerCtx(route, link, packet.flow, packet.kind, packet.dir, loc.level));
-  const flowStack = $derived(route.activity.flows.find((f) => f.id === packet.flow)?.stack ?? []);
-  const stack = $derived(stackOf(route, link, flowStack, ctx.role));
-  // re-mount (and re-animate the unwrap/rewrap) whenever the packet moves onto a new link
-  const sig = $derived(`${link.id}:${packet.dir}`);
-  const dives = $derived(new Map(stack.flatMap((e) => {
-    const p = layerPath(route, ctx.to.id, e.id);
-    return p ? [[e.id, p] as const] : [];
+  let detail = $state(false);
+  const v = $derived(hopView(route, flow, dir, hop));
+  const client = $derived(route.chain[0]);
+  const n = $derived(route.chain.length);
+  const at = $derived(v.hop);
+  const last = $derived(dir === 'up' ? n - 1 : 0);
+  const first = $derived(dir === 'up' ? 0 : n - 1);
+  const role = $derived(hop === first ? 'start' : hop === last ? 'end' : at.natTo ? `nat.${dir}` : at.role);
+  const says = $derived(fill(trFirst([`node.${at.node.id}.peek.${dir}`, `node.${at.node.id}.peek`, `peek.role.${role}`], loc.level), { hop: at === client ? yours(at) : nameOf(at) }));
+  const off = $derived(v.layers.filter((l) => l.change === 'removed'));
+  const kept = $derived(v.layers.filter((l) => l.change !== 'removed'));
+  // what changed here (kids: only the fields they are shown)
+  const changed = $derived(kept.flatMap((l) => l.fields.filter((f) => f.before && (loc.level === 'nerd' || f.kid)).map((f) => trl(`layer.${l.id}.field.${f.id}.name`))));
+  const dives = $derived(new Map(v.layers.flatMap((l) => {
+    const p = layerPath(route, at.id, l.id);
+    return p ? [[l.id, p] as const] : [];
   })));
   $effect(() => { for (const id of dives.keys()) void loadDive(route.content.layers[id].dive!); });
-  setPeekDives({ can: (id) => dives.has(id), open: (id, env) => ondive(dives.get(id)!, env) });
+  const dive = (l: LayerView) => (dives.has(l.id) ? (env: HTMLElement) => ondive(dives.get(l.id)!, env) : undefined);
+  const lname = (id: string) => trl(`layer.${id}.name`);
 </script>
 
-<aside class="peek card" data-ui aria-live="polite">
+<aside class="peek card" class:wide={detail} data-ui aria-live="polite">
   <header>
-    <h2>{tr(`activity.${route.activity.id}.peek.${packet.kind}`)}</h2>
+    <h2>{tr(`activity.${route.activity.id}.peek.${kind}`)}</h2>
+    <button class="btn chip" class:on={detail} aria-pressed={detail} onclick={() => (detail = !detail)}>{tr('peek.detail')}</button>
     <button class="btn" onclick={onclose} aria-label={tr('peek.close')}><Icon name="close" /></button>
   </header>
-  <p class="where">{fill(tr('peek.where'), { from: nameOf(ctx.from.node.id), to: nameOf(ctx.to.node.id) })}</p>
-  {#if dives.size}<p class="where dive-hint">{tr('peek.dive')}</p>{/if}
-  {#key sig}
-    {@render nest(0)}
-  {/key}
+  <nav class="hopnav">
+    <button class="btn" onclick={() => onstep(-1)} disabled={stepHop(route, hop, dir, -1) === null} aria-label={tr('peek.prev')}><Icon name="chevron" rotate={180} /></button>
+    <p><strong>{at === client ? yours(at) : nameOf(at)}</strong><small>{fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n })}</small></p>
+    <button class="btn" onclick={() => onstep(1)} disabled={stepHop(route, hop, dir, 1) === null} aria-label={tr('peek.next')}><Icon name="chevron" /></button>
+  </nav>
+  <p class="where" dir="auto">{says}</p>
+  {#if off.length || changed.length || v.layers.some((l) => l.change === 'added' && v.arrive)}
+    <ul class="chips" aria-label={tr('peek.changed')}>
+      {#each off as l}<li class="chip-off">− {lname(l.id)}</li>{/each}
+      {#each kept.filter((l) => l.change === 'added' && v.arrive) as l}<li class="chip-on">+ {lname(l.id)}</li>{/each}
+      {#each changed as c}<li class="chip-edit">✎ {c}</li>{/each}
+    </ul>
+  {/if}
+  {#if dives.size && !detail}<p class="where dive-hint">{tr('peek.dive')}</p>{/if}
+  <div class="peek-body">
+    {#if detail}
+      <FieldTree {v} {route} />
+    {:else}
+      {#key `${hop}:${dir}`}
+        {#if off.length}
+          <p class="off-label">{tr('peek.off')}</p>
+          <div class="off-row">
+            {#each off as l, i (l.id)}<Envelope layer={l} {client} depth={i} off dive={dive(l)} />{/each}
+          </div>
+        {/if}
+        {@render nest(0)}
+      {/key}
+    {/if}
+  </div>
 </aside>
 
 {#snippet nest(i: number)}
-  {@const L = layerViews[stack[i]?.id]}
-  {#if L}
-    <L {ctx} open={stack[i].open} depth={i}>{#if i + 1 < stack.length}{@render nest(i + 1)}{/if}</L>
-  {:else if i + 1 < stack.length}{@render nest(i + 1)}{/if}
+  {@const l = kept[i]}
+  {#if l}
+    <Envelope layer={l} {client} depth={i} dive={dive(l)}>{#if i + 1 < kept.length}{@render nest(i + 1)}{/if}</Envelope>
+  {/if}
 {/snippet}

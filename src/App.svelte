@@ -1,29 +1,31 @@
 <script lang="ts">
-  // Orchestration: one rAF loop drives the scene clock, packets, the camera (eased zoom flights, follow) and the morph
-  // between places. Everything is generic over the scene tree; scenes and art only render what this computes.
+  // Orchestration: one rAF loop drives the scene clock, packets, the camera (eased zoom flights, tracking a caught
+  // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
+  // this computes.
   import { onMount, untrack } from 'svelte';
   import { areaCentre, clampCam, fit, flyInterpolator, smoothstep, toScreen, toWorldPt, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { easeInOutCubic } from './engine/motion';
-  import { livePackets, specsFor, type LivePacket } from './engine/packets';
+  import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
+  import { hopAhead, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
-  import { parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
+  import { hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, validPrefix } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
+  import { loadLayerStrings, loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
   import Caption from './ui/Caption.svelte';
   import { captionFor, sceneTitle } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
-  import PeekPanel from './ui/PeekPanel.svelte';
+  import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
   import StepButtons from './ui/StepButtons.svelte';
 
@@ -91,13 +93,15 @@
 
   // ------------------------------------------------------------------ navigation
   let shownRoute = nav.route;
+  const routeKey = (r: Route) => `${r.activity.id}/${r.slots.map((s) => s.place).join('+')}`;
   function onNav(next: Loc, prev: Loc) {
     const a = shownRoute;
     shownRoute = nav.route;
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
-    if (follow) endFollow(false, true);
+    // (the route is a fresh state proxy after every navigation: compare what it is, not its identity)
+    if (caught && (routeKey(a) !== routeKey(nav.route) || !catchNav)) release(true);
     if (trans) frameTrans(trans.t0 + trans.dur);
     if (switched) {
       morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
@@ -129,7 +133,7 @@
   let nudge = $state({ dir: 0, n: 0 });
   const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
   function step(d: -1 | 1) {
-    if (follow) endFollow(false);
+    if (caught) return stepCaught(d);
     const { kind, steps, i, min } = stepInfo, ni = i + d;
     if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
     if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
@@ -137,7 +141,7 @@
   }
   function up() {
     if (picker) return (picker = null);
-    if (follow) return endFollow(false);
+    if (caught) return release();
     if (here.stop) return go({ stop: null }, true);
     if (here.path.length) go({ path: parentPath(here.path) });
   }
@@ -155,44 +159,134 @@
     return [...keys].map(([key, alpha]) => ({ key, path: key ? key.split('/') : [], alpha })).sort((a, b) => a.path.length - b.path.length);
   });
 
-  // ------------------------------------------------------------------ packets + follow
+  // ------------------------------------------------------------------ packets, pause + the caught packet
+  // Catching a packet pauses the traffic (issue #17). The caught packet waits at a hop (just before it, on the link it
+  // arrives by) and ◀ ▶ step it along its path, gliding from hop to hop; the peek panel shows its layers at that hop.
+  interface Caught { flow: string; kind: string; dir: Dir; colour?: string; spec: LivePacket['spec']; hop: number; hide: string }
+  interface Spot { key: string; link: SLink; t: number }
   let packets = $state.raw(new Map<string, LivePacket[]>());
   let prevIds = new Map<string, Map<string, LivePacket>>();
-  let follow = $state.raw<{ id: string; key: string } | null>(null);
-  let followed = $state.raw<LivePacket | null>(null);
+  let paused = $state(false);
+  let pausedByCatch = false;
+  let caught = $state.raw<Caught | null>(null);
+  /** Where the caught packet is drawn, and its glide to the next spot (`then`: jump there once the glide ends). */
+  let ghost: Spot | null = null;
+  let glide: { a: number; b: number; t0: number; then: Spot | null } | null = null;
+  /** The camera keeps the caught packet in view until the user pans or zooms. */
+  let track = false, catchNav = false;
   let timeScale = 1, clock = 0;
-  const FOLLOW_SCALE = 0.3;
+  const GLIDE_MS = 600, CAUGHT_ID = 'caught';
 
-  function startFollow(p: LivePacket, key: string) {
-    follow = { id: p.id, key };
-    view.followId = p.id;
-    followed = p;
+  function togglePause() {
+    if (paused && caught) return release();
+    paused = !paused;
+    pausedByCatch = false;
+  }
+  /** The spot at chain hop `h` in the scene at `path` (null if that scene doesn't draw the link). */
+  function spotAt(path: string[], h: number, dir: Dir): Spot | null {
+    const ref = sceneRef(route, path, view.orient);
+    if (ref?.kind !== 'path') return null;
+    const s = caughtSpot(pathScene(route, ref.group, view.orient), h, dir);
+    return s && { key: keyOf(path), ...s };
+  }
+  function catchPacket(p: LivePacket, key: string) {
+    const path = key ? key.split('/') : [];
+    const drawn = (h: number) => keyOf(hopScenePath(route, h, view.orient, path) ?? []) === key;
+    const hop = hopAhead(p.pose.link.link.index, p.dir, drawn);
+    const spot = spotAt(path, hop, p.dir);
+    if (!spot) return;
+    caught = { flow: p.flow, kind: p.kind, dir: p.dir, colour: p.colour, spec: p.spec, hop, hide: p.id };
+    // glide from where it was caught to its hop (back to the start of its link if the hop ahead isn't drawn here)
+    const t = tOf(p), same = p.pose.link.id === spot.link.id;
+    ghost = { key, link: p.pose.link, t };
+    glide = { a: t, b: same ? spot.t : p.dir === 'up' ? 0 : 1, t0: performance.now(), then: same ? null : spot };
+    if (!paused) { paused = true; pausedByCatch = true; }
+    view.followId = CAUGHT_ID;
+    track = true;
     trans = null;
     flight = null;
     sfx.pop();
   }
-  function endFollow(arrived: boolean, silent = false) {
-    if (!follow) return;
-    if (arrived && followed) sfx.blip(true, followed.dir);
-    follow = null; followed = null; view.followId = null;
+  // The peek panel (with its envelopes and protocol tree) loads on the first catch, to keep the first load small.
+  let PeekPanel = $state.raw<typeof PeekPanelT | null>(null);
+  $effect(() => {
+    if (caught && !PeekPanel) Promise.all([import('./ui/PeekPanel.svelte'), loadLayerStrings()]).then(([m]) => (PeekPanel = m.default));
+  });
+  $effect(() => { if (stepInfo.kind === 'layer') void loadLayerStrings(); });
+  /** Catch the youngest packet of a kind in the scene on screen (the caption's "Catch" chips). */
+  function catchKind(kind: string) {
+    const list = (packets.get(hereKey) ?? []).filter((k) => k.id !== CAUGHT_ID);
+    const p = list.filter((k) => k.kind === kind).sort((x, y) => x.age / x.spec.duration - y.age / y.spec.duration)[0] ?? list[0];
+    if (p) catchPacket(p, hereKey);
+    return !!caught;
+  }
+  /** The packet kinds to catch here, named (path scenes only). */
+  const catchable = $derived(stepInfo.kind === 'stop'
+    ? [...new Set(route.activity.flows.flatMap((f) => f.packets.map((k) => k.kind)))].map((kind) => ({ kind, name: tr(`activity.${route.activity.id}.packet.${kind}`) }))
+    : []);
+  /** A live packet's position along its scene link (0–1, the link's own direction). */
+  function tOf(p: LivePacket) {
+    const l = p.pose.link;
+    let best = 0, d = Infinity;
+    for (let i = 0; i <= 40; i++) { const b = bezier(l, i / 40), e = Math.hypot(b.x - p.pose.x, b.y - p.pose.y); if (e < d) { d = e; best = i / 40; } }
+    return best;
+  }
+  function stepCaught(d: -1 | 1) {
+    const C = caught!, g = ghost!, next = stepHop(route, C.hop, C.dir, d);
+    if (next === null) { sfx.bump(); return; }
+    const up = C.dir === 'up', from = up ? 0 : 1;
+    const path = hopScenePath(route, next, view.orient, here.path) ?? here.path;
+    const spot = spotAt(path, next, C.dir);
+    if (!spot) return;
+    caught = { ...C, hop: next };
+    track = true;
+    sfx.blip(true, C.dir);
+    if (spot.key !== g.key) {
+      ghost = spot;
+      glide = null;
+      catchNav = true;
+      go({ path });
+      catchNav = false;
+      return;
+    }
+    const now = performance.now();
+    if (spot.link.id === g.link.id) glide = { a: g.t, b: spot.t, t0: now, then: null };
+    else if (d > 0) { ghost = spot; glide = { a: from, b: spot.t, t0: now, then: null }; }
+    else glide = { a: g.t, b: from, t0: now, then: spot };
+  }
+  function release(silent = false) {
+    if (!caught) return;
+    caught = null; ghost = null; glide = null; view.followId = null;
+    if (pausedByCatch) paused = false;
+    pausedByCatch = false;
     if (!silent) startTrans(here.path, here.path, target(), 800);
   }
+  function ghostPose(now: number) {
+    if (glide) {
+      const u = Math.min(1, (now - glide.t0) / GLIDE_MS);
+      ghost = { ...ghost!, t: lerp(glide.a, glide.b, easeInOutCubic(u)) };
+      if (u >= 1) { ghost = glide.then ?? ghost; glide = null; }
+    }
+    const g = ghost!, ref = sceneRef(route, g.key ? g.key.split('/') : [], view.orient);
+    return ref?.kind === 'path' ? poseOn(pathScene(route, ref.group, view.orient), g.link, g.t, caught!.dir) : null;
+  }
 
-  function framePackets() {
+  function framePackets(now: number) {
     const next = new Map<string, LivePacket[]>(), o = view.orient;
+    const pose = caught && ghost ? ghostPose(now) : null;
     for (const m of mounted) {
       if (m.alpha <= 0.002) continue;
       const ref = sceneInfo(route, m.path, o).ref;
       if (ref.kind !== 'path') continue;
       const own = pathScene(route, ref.group, o), shown = morphScenes.get(m.key) ?? own;
-      const list = livePackets(specsFor(own, route.activity.flows), shown.links, view.time, m.key);
+      let list = livePackets(specsFor(own, route.activity.flows), shown.links, view.time, m.key);
       const ids = new Map(list.map((p) => [p.id, p]));
-      for (const [id, p] of prevIds.get(m.key) ?? []) {
-        if (ids.has(id)) continue;
-        if (follow?.id === id) endFollow(true);
-        else if (m.key === hereKey && p.age > p.spec.duration * 0.85) sfx.blip(false, p.dir);
-      }
+      for (const [id, p] of prevIds.get(m.key) ?? []) if (!ids.has(id) && m.key === hereKey && p.age > p.spec.duration * 0.85) sfx.blip(false, p.dir);
       prevIds.set(m.key, ids);
+      if (caught) {
+        list = list.filter((p) => p.id !== caught!.hide);
+        if (pose && m.key === ghost!.key) list.push({ id: CAUGHT_ID, kind: caught.kind, flow: caught.flow, dir: caught.dir, colour: caught.colour, age: 0, spec: caught.spec, pose });
+      }
       next.set(m.key, list);
     }
     packets = next;
@@ -254,9 +348,9 @@
   function onTap(sx: number, sy: number) {
     const hit = hitAt(sx, sy);
     setExplore(false);
-    if (hit && 'packet' in hit) return startFollow(hit.packet, hereKey);
-    if (follow) return endFollow(false);
-    if (!hit) { if (here.stop) go({ stop: null }, true); return; }
+    if (hit && 'packet' in hit && hit.packet.id !== CAUGHT_ID) return catchPacket(hit.packet, hereKey);
+    if (caught) return release();
+    if (!hit || 'packet' in hit) { if (here.stop) go({ stop: null }, true); return; }
     if ('door' in hit) return openDoor(hit.door);
     sfx.pop();
     if ('link' in hit) return go({ stop: hit.link.id }, true);
@@ -296,7 +390,7 @@
   let growEl = $state<HTMLDivElement>();
   function openLayer(path: string[], env: HTMLElement) {
     const head = env.querySelector('.env-head')?.cloneNode(true) ?? null, sealed = env.classList.contains('sealed');
-    endFollow(false, true);
+    release(true);
     go({ path });
     grow = head && trans && !matchMedia('(prefers-reduced-motion: reduce)').matches ? { from: env.getBoundingClientRect(), head, sealed, path } : null;
   }
@@ -343,8 +437,8 @@
 
   // ------------------------------------------------------------------ frame loop, gestures, resize
   const orientFor = (w: number, h: number): Orient => (h > w * 1.1 ? 'portrait' : 'landscape');
-  /** Keep the followed packet in the part of the screen the peek panel doesn't cover. */
-  function followCentre() {
+  /** Keep the caught packet in the part of the screen the peek panel doesn't cover. */
+  function trackCentre() {
     const c = areaCentre(view.vp), r = document.querySelector('.peek')?.getBoundingClientRect();
     if (!r) return c;
     if (view.orient === 'portrait') return { x: c.x, y: (view.vp.top + r.top) / 2 };
@@ -356,7 +450,9 @@
     view.vp = viewportFor(stage, { top: bar ? bar.bottom + 8 : 0, bottom: captionEl ? captionEl.offsetHeight + 22 : 0 });
     const o = orientFor(view.vp.w, view.vp.h);
     if (o !== view.orient) { view.orient = o; prevIds = new Map(); }
-    if (follow) endFollow(false, true);
+    // the scenes are laid out anew: put a caught packet back at its hop (or let it go if this scene doesn't draw it)
+    const spot = caught && spotAt(here.path, caught.hop, caught.dir);
+    if (spot) { ghost = spot; glide = null; } else release(true);
     trans = null;
     flight = null;
     cam = target();
@@ -369,19 +465,21 @@
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      timeScale += ((follow ? FOLLOW_SCALE : 1) - timeScale) * Math.min(1, dt * 5);
+      // pause freezes the traffic of path scenes; dives keep their own animations going
+      const frozen = paused && stepInfo.kind === 'stop';
+      timeScale += ((frozen ? 0 : 1) - timeScale) * Math.min(1, dt * 5);
+      if (frozen && timeScale < 0.002) timeScale = 0;
       clock += dt * timeScale;
       view.real = now / 1000;
       view.time = clock;
       if (morph) frameMorph(now);
-      framePackets();
-      if (follow) {
-        const p = packets.get(follow.key)?.find((k) => k.id === follow!.id);
+      framePackets(now);
+      if (caught && track && !trans && ghost) {
+        const p = packets.get(ghost.key)?.find((k) => k.id === CAUGHT_ID);
         if (p) {
-          followed = p;
-          const info = sceneInfo(route, follow.key ? follow.key.split('/') : [], view.orient);
+          const info = sceneInfo(route, ghost.key ? ghost.key.split('/') : [], view.orient);
           const w = toRoot(info.frame, p.pose), k = fit(info.fit, view.vp).k * (view.orient === 'portrait' ? 1.6 : 1.8);
-          const c = followCentre(), a = 1 - Math.exp(-dt * 4);
+          const c = trackCentre(), a = 1 - Math.exp(-dt * 4);
           const tk = cam.k * Math.pow(k / cam.k, a);
           const cur = toWorldPt(cam, c.x, c.y);
           const wc = { x: cur.x + (w.x - cur.x) * a, y: cur.y + (w.y - cur.y) * a };
@@ -397,13 +495,13 @@
     const ctl = {
       stop() { trans = null; flight = null; },
       zoomAt(f: number, sx: number, sy: number) {
-        if (follow) endFollow(false, true);
+        track = false;
         const lim = kLimits(route, here.path, view.vp, view.orient);
         const k = clampCam({ ...cam, k: cam.k * f }, view.vp, lim.min, lim.max).k;
         cam = zoomAbout(cam, k / cam.k, sx, sy);
       },
       panBy(dx: number, dy: number) {
-        if (follow) endFollow(false, true);
+        track = false;
         cam = { ...cam, x: cam.x + dx, y: cam.y + dy };
       },
     };
@@ -432,14 +530,13 @@
     Object.assign(window, {
       __app: {
         go, loc: () => nav.loc, busy: () => !!trans || !!morph || divesLoading(),
-        follow(kind = 'video') {
-          const list = packets.get(hereKey) ?? [];
-          const p = list.filter((k) => k.kind === kind).sort((x, y) => x.age / x.spec.duration - y.age / y.spec.duration)[0] ?? list[0];
-          if (p) startFollow(p, hereKey);
-          return !!p;
-        },
+        /** Catch the youngest packet of a kind in the scene on screen; then `step` it (±1 hop). */
+        catch: (kind = 'video') => catchKind(kind),
+        step(d: -1 | 1) { if (caught) stepCaught(d); },
+        caught: () => caught && { hop: route.chain[caught.hop].id, dir: caught.dir },
+        release: () => release(),
         setClock(t: number) { clock = t; },
-        /** Tap the magnifier of a layer's envelope in the peek panel (while following a packet). */
+        /** Tap the magnifier of a layer's envelope in the peek panel (while a packet is caught). */
         openLayer(layer: string) {
           const b = document.querySelector<HTMLButtonElement>(`.peek .env-${layer} > .env-go`);
           b?.click();
@@ -464,7 +561,7 @@
     const ro = new ResizeObserver(() => {
       captionH = el.offsetHeight;
       // the caption grew past the reserved inset (first measure, longer text): refit while idle
-      if (!trans && !follow && Math.abs(view.vp.bottom - (captionH + 22)) > 30) resize();
+      if (!trans && !caught && Math.abs(view.vp.bottom - (captionH + 22)) > 30) resize();
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -472,7 +569,7 @@
   $effect(() => { document.documentElement.style.setProperty('--cap-h', `${captionH}px`); });
   const portrait = $derived(view.orient === 'portrait');
   const small = $derived(view.vp.w < 700);
-  const peekOpen = $derived(!!followed);
+  const peekOpen = $derived(!!caught);
 </script>
 
 <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
@@ -483,13 +580,15 @@
   </svg>
 </div>
 <div class={portrait ? 'port' : 'land'}>
-  <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore} />
-  {#if followed}
-    <PeekPanel packet={followed} {route} onclose={() => endFollow(false)} ondive={openLayer} />
+  <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
+    {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
+  {#if caught && PeekPanel}
+    <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} />
   {/if}
-  <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore}
-    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || (peekOpen && portrait)} bind:el={captionEl} />
-  {#if !(peekOpen && portrait)}
+  <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
+  <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
+    ondoor={(id) => { const d = hereDoors.find((k) => k.id === id); if (d) openDoor(d); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} bind:el={captionEl} />
+  {#if !peekOpen}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
   {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}

@@ -2,5 +2,15 @@
   "name": "Mobile core",
   "kid": "The mobile company’s control room. It checks your SIM card, unpacks your parcels from the tower’s tunnel and gives them an internet address.",
   "nerd": "The 5G core (5GC): AMF/SMF handle sign-in and sessions; the UPF ends the GTP-U tunnel, applies policy and does carrier-grade NAT towards the internet.",
-  "tag": "5GC · UPF · CGNAT"
+  "tag": "5GC · UPF · CGNAT",
+  "peek": {
+    "up": {
+      "kid": "The mobile core opens the tunnel envelope, then swaps your phone’s address and door number for its own, shared with lots of phones.",
+      "nerd": "The UPF ends the GTP-U tunnel (by TEID), then carrier-grade NAT rewrites source address and port, fixes the checksums and routes on (TTL − 1)."
+    },
+    "down": {
+      "kid": "The mobile core looks up which phone asked, changes the address back and puts the parcel in the tunnel to the right tower.",
+      "nerd": "CGNAT reverse (address and port from the mapping table), then the UPF tunnels it in GTP-U to the phone’s gNB (TEID)."
+    }
+  }
 }

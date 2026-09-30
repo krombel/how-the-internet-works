@@ -3,12 +3,32 @@
     "kid": "Brevet",
     "nerd": "HTTP-besked"
   },
-  "request": {
-    "kid": "“Send mig lige det næste stykke af kattevideoen!”",
-    "nerd": "En forespørgsel på det næste videosegment."
+  "note": {
+    "kid": "Selve beskeden, inde i den låste kasse.",
+    "nerd": "Applikationsbeskeden: en forespørgsel på det næste videosegment eller et stykke af svaret."
   },
-  "video": {
-    "kid": "“Her er det næste stykke af kattevideoen!”",
-    "nerd": "Et svar med cirka 1 MB video."
+  "line": "Hypertext Transfer Protocol: {start}",
+  "value": {
+    "ask": {
+      "kid": "“Send mig lige det næste stykke af kattevideoen!”",
+      "nerd": "En forespørgsel på det næste videosegment."
+    },
+    "send": {
+      "kid": "“Her er det næste stykke af kattevideoen!”",
+      "nerd": "Et svar: det næste videosegment."
+    }
+  },
+  "field": {
+    "start": {
+      "name": {
+        "kid": "Brevet siger",
+        "nerd": "Startlinje"
+      },
+      "about": "Forespørgslen (metode og sti) eller svarets status."
+    },
+    "header": {
+      "name": "Header",
+      "about": "Én af flere headerlinjer; resten af headerne og indholdet følger."
+    }
   }
 }

@@ -1,5 +1,4 @@
 {
-  "to": "For",
   "name": {
     "kid": "Cable envelope",
     "nerd": "Ethernet frame"
@@ -7,5 +6,30 @@
   "note": {
     "kid": "Each box on the way takes off this envelope and puts on a new one for the next cable.",
     "nerd": "Link-local only: a new frame with new MAC addresses is written for every hop."
+  },
+  "line": "Ethernet II, Src: {src}, Dst: {dst}",
+  "field": {
+    "dst": {
+      "name": {
+        "kid": "For",
+        "nerd": "Destination MAC"
+      },
+      "about": "The next box on this cable. Every router writes a new frame for the next link."
+    },
+    "src": {
+      "name": {
+        "kid": "From",
+        "nerd": "Source MAC"
+      },
+      "about": "The box that put this frame on the cable. Switches and access points pass it on unchanged."
+    },
+    "type": {
+      "name": "EtherType",
+      "about": "What is inside: 0x0800 IPv4, 0x88A8 VLAN tags, 0x8847 MPLS."
+    },
+    "fcs": {
+      "name": "Frame check sequence",
+      "about": "A CRC over the whole frame: a damaged frame is dropped."
+    }
   }
 }

@@ -59,6 +59,9 @@
   --env-dive: #72b8a5;
   --door-dive: #3f8f7b;
   --door-open: #d0673a;
+  --door-catch: #8a4f75;
+  --env-used: rgba(255, 207, 93, 0.55);
+  --env-change: #c4452a;
   --link: #c45f3c;
   --lbl-weight: 800;
   --lbl-halo: #fff7df;

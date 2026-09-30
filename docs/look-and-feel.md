@@ -259,6 +259,11 @@ tokens, so they restyle with each style for free (see the peek screenshots).
 
 Tapping the × button, pressing Esc or tapping empty space ends the follow, and the camera flies back.
 
+> **Since issue #17** following is replaced by **pause, catch and step**: pause freezes the traffic, a tapped packet
+> waits at a hop, and ◀ ▶ step it along its path. The peek shows the packet as it leaves that hop, with what the hop
+> used (soft yellow, `--env-used`) and changed (struck-through old value → new, `--env-change`), kid fields only or
+> every header field for nerds, and a Details protocol tree. See [architecture](architecture.md#pause-catch-and-step-issue-17).
+
 ### Sound (🔈, muted by default)
 
 All sounds are **synthesised with the Web Audio API**, so there are no audio files and no licences to track:

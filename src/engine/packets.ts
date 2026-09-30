@@ -35,6 +35,22 @@ export function specsFor(ps: PathScene, flows: FlowDef[]): PacketSpec[] {
   return s;
 }
 
+/** A packet at `t` along a scene link (0–1 in the link's own, upward direction). */
+export function poseOn(ps: PathScene, link: SLink, t: number, dir: 'up' | 'down'): Pose {
+  const p = bezier(link, t), reverse = dir === 'down';
+  return { x: p.x, y: p.y, angle: bezierAngle(link, t) + (reverse ? Math.PI : 0), link, seg: Math.max(0, ps.route.indexOf(link.id)), reverse };
+}
+
+const NEAR = 0.96;
+/** Where a caught packet waits at chain hop `hop`: just before it on the link it arrives on (or just after it on the
+ *  link it leaves by, at the start). Null if the scene draws neither. */
+export function caughtSpot(ps: PathScene, hop: number, dir: 'up' | 'down'): { link: SLink; t: number } | null {
+  const up = dir === 'up', on = (i: number) => ps.links.find((l) => l.link.index === i && ps.route.includes(l.id));
+  const arrive = on(up ? hop - 1 : hop);
+  if (arrive) return { link: arrive, t: up ? NEAR : 1 - NEAR };
+  const leave = on(up ? hop : hop - 1);
+  return leave ? { link: leave, t: up ? 1 - NEAR : NEAR } : null;
+}
 function pose(spec: PacketSpec, links: Map<string, SLink>, age: number): Pose | null {
   const f = age / spec.duration;
   if (f < 0 || f >= 1) return null;

@@ -4,7 +4,7 @@ import { content, type Content } from './registry';
 import { loadAllPacks, packs } from './strings';
 import { coverage, formatProblems, validate } from './validate';
 
-const files = Object.keys(import.meta.glob(['/content/*/*/Layer.svelte', '/content/*/*/Scene.svelte']));
+const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
 
 describe('content', () => {
   beforeAll(loadAllPacks);
@@ -52,10 +52,25 @@ describe('validation messages', () => {
     expect(msg).toContain('layout.overview.landscape.nodes.phnoe: "phnoe" is not a hop in any route of "watch-video". Did you mean "phone"?');
   });
 
-  it('asks for missing English strings and components', () => {
+  it('asks for missing English strings', () => {
     const msg = broken((c) => { c.nodes.gizmo = { ...c.nodes.phone, id: 'gizmo', file: 'content/nodes/gizmo/node.ts' }; c.layers.zip = { ...c.layers.ip, id: 'zip', file: 'content/layers/zip/layer.ts' }; });
     expect(msg).toContain('content/nodes/gizmo/node.ts › strings: missing English string "node.gizmo.name" (in content/nodes/gizmo/locales/en.json)');
-    expect(msg).toContain('content/layers/zip/layer.ts › component: add content/layers/zip/Layer.svelte');
+    expect(msg).toContain('content/layers/zip/layer.ts › strings: missing English string "layer.zip.field.ttl.name" or "layer.zip.field.ttl.name.kid"');
+  });
+
+  it('checks header fields: unique ids, known facts and codes', () => {
+    const msg = broken((c) => {
+      const f = c.layers.ip.fields;
+      f.push({ ...f[0] });
+      f[1] = { ...f[1], value: '{sorce}' };
+      f[2] = { ...f[2], value: 'x {inner.ethertipe}' };
+      c.layers.tcp.fields = [];
+    });
+    expect(msg).toContain('content/layers/ip/layer.ts › fields[13]: "version" is already a field of this layer');
+    expect(msg).toContain('content/layers/ip/layer.ts › fields[1].value: "{sorce}" is not a fact. Did you mean "src"?');
+    expect(msg).toContain('fields[2].value: "{inner.ethertipe}" is not a fact. Did you mean "inner.ethertype"?');
+    expect(msg).toContain('content/layers/tcp/layer.ts › fields:');
+    expect(broken((c) => { c.layers.ip.fields[0].use = ['routr' as 'router']; })).toContain('content/layers/ip/layer.ts › fields[0].use');
   });
 
   it('checks layer dives: they exist and explain a layer', () => {

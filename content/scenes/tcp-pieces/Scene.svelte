@@ -6,7 +6,7 @@
   import Pothole from './art/Pothole.svelte';
   import RoadBox from './art/RoadBox.svelte';
   import Ticket from './art/Ticket.svelte';
-  import { ackTicket, ackX, cardGap, handshakeTicket, layoutFor, outsidePort, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
+  import { ackTicket, ackX, cardGap, handshakeTicket, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.tcp-pieces');
@@ -24,8 +24,7 @@
   const moving = $derived(travellingBox(view.time));
   const ack = $derived(ackTicket(view.time));
   const win = $derived(windowStart(view.time));
-  const natPort = $derived(ctx.nat ? outsidePort(ctx.nat.outside) : 0);
-  const natSticker = $derived(ctx.nat ? `51034↔${natPort}` : '');
+  const natSticker = $derived(ctx.nat ? `${ctx.nat.insidePort}↔${ctx.nat.outsidePort}` : '');
   const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? S('tag.dupAck') : beat === 'resend' ? S('tag.fast') : S('tag.order'));
   const tagB = $derived(ctx.nat ? (nerd ? S('tag.nat').replace('{nat}', natSticker) : S('label.port')) : S('tag.seal'));
   const shelfStatus = $derived(beat === 'ready' ? S('label.ready') : shelfFilled(view.time, 6) && !shelfFilled(view.time, 5) ? S('label.gap') : '');

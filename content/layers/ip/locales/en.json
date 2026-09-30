@@ -6,24 +6,72 @@
     "kid": "Address label",
     "nerd": "IP packet (IPv4)"
   },
-  "nat": {
-    "kid": "{name} swaps the sender address for its own outside address, and remembers who asked.",
-    "nerd": "NAT: source {inside}:51034 is rewritten to {outside}:51034 and stored in the connection table."
+  "note": {
+    "kid": "The address label: who it’s from and who it’s for. Every router on the way reads it.",
+    "nerd": "Best-effort delivery between any two addresses on the internet: routers forward it on the destination address, hop by hop."
   },
-  "unnat": {
-    "kid": "{name} looks up who asked for this and changes the address back to {yours}.",
-    "nerd": "NAT reverse: destination {outside} is rewritten back to {inside} from the connection table."
-  },
-  "bridge": {
-    "kid": "{name} doesn’t read the address. It just passes the parcel on.",
-    "nerd": "{name} doesn’t route: it swaps the link frame for the next one and leaves this IP packet untouched."
-  },
-  "read": {
-    "kid": "This box reads the address and picks the best way onwards.",
-    "nerd": "Routed: longest-prefix match in the FIB, TTL − 1, a new link frame for the next hop."
-  },
-  "arrived": {
-    "kid": "Arrived! This is the right address.",
-    "nerd": "Destination reached: hand the payload up to TCP."
+  "line": "Internet Protocol Version 4, Src: {src}, Dst: {dst}",
+  "field": {
+    "version": {
+      "name": "Version",
+      "about": "Which IP this is: 4 (IPv6 packets say 6)."
+    },
+    "ihl": {
+      "name": "Header length",
+      "about": "In 32-bit words; 5 means no options."
+    },
+    "dscp": {
+      "name": "DSCP",
+      "about": "Traffic class, for networks that give some traffic priority."
+    },
+    "ecn": {
+      "name": "ECN",
+      "about": "Lets a busy router mark the packet instead of dropping it."
+    },
+    "length": {
+      "name": "Total length",
+      "about": "Bytes in this packet, header and all."
+    },
+    "id": {
+      "name": "Identification",
+      "about": "Ties fragments together if the packet is ever split."
+    },
+    "flags": {
+      "name": "Flags",
+      "about": "DF: don’t fragment. Too big for a link? Drop it and say so (path MTU discovery)."
+    },
+    "frag": {
+      "name": "Fragment offset",
+      "about": "Where this fragment belongs; 0 when not split."
+    },
+    "ttl": {
+      "name": {
+        "kid": "Steps left",
+        "nerd": "Time to live"
+      },
+      "about": "Every router takes one off and drops the packet at 0, so a routing loop can’t keep it forever."
+    },
+    "proto": {
+      "name": "Protocol",
+      "about": "What is inside: 6 = TCP. Routers hash it with the addresses and ports (the 5-tuple) to pick one of several equal paths (ECMP)."
+    },
+    "checksum": {
+      "name": "Header checksum",
+      "about": "Checked by every router, and rewritten because the TTL changed."
+    },
+    "src": {
+      "name": {
+        "kid": "From",
+        "nerd": "Source address"
+      },
+      "about": "Who sent it, as seen here: a NAT rewrites it to its own outside address."
+    },
+    "dst": {
+      "name": {
+        "kid": "To",
+        "nerd": "Destination address"
+      },
+      "about": "Where it’s going: routers look it up in their forwarding table (longest prefix match)."
+    }
   }
 }

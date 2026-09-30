@@ -1,16 +1,60 @@
 {
-  "ports": "Ports",
-  "seq": "Seq",
-  "piece": "Piece no.",
   "name": {
     "kid": "Numbered piece",
     "nerd": "TCP segment"
+  },
+  "note": {
+    "kid": "The video is cut into numbered pieces, so nothing gets lost or mixed up.",
+    "nerd": "A reliable, ordered byte stream between two ports: sequence numbers, acknowledgements, retransmits, flow and congestion control."
   },
   "sealed": {
     "kid": "Sealed. Only {yours} and the server open this: they check that no pieces are missing.",
     "nerd": "Not inspected on the way: end-to-end between the two ends (ordering, retransmits, congestion control)."
   },
-  "peek": {
-    "nerd": "The NAT peeks at the port numbers (and may rewrite the source port) but leaves the rest sealed."
+  "line": "Transmission Control Protocol, Src Port: {sport}, Dst Port: {dport}, Seq: {seq}, Ack: {ack}",
+  "field": {
+    "sport": {
+      "name": "Source port",
+      "about": "Which conversation on the sender. A carrier-grade NAT rewrites it so many customers can share one address."
+    },
+    "dport": {
+      "name": "Destination port",
+      "about": "Which service on the receiver: 443 = HTTPS."
+    },
+    "seq": {
+      "name": {
+        "kid": "Piece no.",
+        "nerd": "Sequence number"
+      },
+      "about": "Where this data sits in the byte stream, so the receiver can put pieces in order."
+    },
+    "ack": {
+      "name": "Acknowledgement",
+      "about": "The next byte the sender expects from the other side: everything before it arrived."
+    },
+    "offset": {
+      "name": "Data offset",
+      "about": "Header length in 32-bit words."
+    },
+    "reserved": {
+      "name": "Reserved",
+      "about": "Always 0."
+    },
+    "flags": {
+      "name": "Flags",
+      "about": "SYN, ACK, PSH, FIN, RST…: what this segment does in the conversation."
+    },
+    "window": {
+      "name": "Window",
+      "about": "How much more the sender can take in right now (flow control)."
+    },
+    "checksum": {
+      "name": "Checksum",
+      "about": "Covers the addresses and ports too, so a NAT must fix it when it rewrites them."
+    },
+    "urgent": {
+      "name": "Urgent pointer",
+      "about": "Practically unused."
+    }
   }
 }

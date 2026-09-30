@@ -1,6 +1,13 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
+  fields: [
+    // written fresh for every link: the MAC addresses of this stretch of cable
+    { id: 'dst', bits: 48, value: '{mac.dst}', use: true, kid: true },
+    { id: 'src', bits: 48, value: '{mac.src}', use: true, kid: true },
+    { id: 'type', bits: 16, value: '{inner.ethertype}', use: true },
+    { id: 'fcs', bits: 32, value: '{crc}', use: true },
+  ],
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Ethernet_frame', title: 'Ethernet frame', level: 'nerd', lang: 'en' },
   ],

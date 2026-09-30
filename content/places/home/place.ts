@@ -8,7 +8,7 @@ export default definePlace({
     { link: 'wifi' },
     { at: 'ap' },
     { link: 'ethernet' },
-    { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7' },
+    { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'gpon' },
     { at: 'cabinet', in: 'internet' },
     { link: 'metro-fibre', stack: ['ethernet', 'vlan'] },

@@ -40,16 +40,7 @@ export interface LayerSubject {
 }
 export type Subject = LinkSubject | LayerSubject;
 
-/** Set by the peek panel: which envelopes open a layer dive at the hop reading the packet, and how to go there. */
-export interface PeekDives {
-  can(layer: string): boolean;
-  /** `env` is the envelope's element (it grows into the dive). */
-  open(layer: string, env: HTMLElement): void;
-}
-
 export const setWorld = (w: WorldCtx) => setContext('world', w);
 export const getWorld = () => getContext<WorldCtx>('world');
 export const setScene = (s: SceneCtx) => setContext('scene', s);
 export const getScene = () => getContext<SceneCtx>('scene');
-export const setPeekDives = (d: PeekDives) => setContext('peek-dives', d);
-export const getPeekDives = () => getContext<PeekDives | undefined>('peek-dives');

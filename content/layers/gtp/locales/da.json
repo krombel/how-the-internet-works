@@ -1,6 +1,4 @@
 {
-  "from": "Fra",
-  "to": "Til",
   "name": {
     "kid": "Tunnel-kuvert",
     "nerd": "GTP-U-tunnel (ydre IP/UDP)"
@@ -8,5 +6,97 @@
   "note": {
     "kid": "Masten putter din pakke ind i en større, adresseret til mobilnettets kerne, så nettet kan finde din telefon, hvor du end går.",
     "nerd": "gNB’en pakker telefonens egen IP-pakke ind i IP/UDP/GTP-U (port 2152) til UPF’en; TEID’en angiver telefonens session."
+  },
+  "line": "GTP-U, {osrc} → {odst}, TEID {teid}",
+  "field": {
+    "ovhl": {
+      "name": "Ydre version, IHL",
+      "about": "Den ydre IPv4-header begynder: version 4, 20 bytes."
+    },
+    "otos": {
+      "name": "Ydre DSCP/ECN",
+      "about": "Tunnelpakkens trafikklasse."
+    },
+    "olen": {
+      "name": "Ydre samlet længde",
+      "about": "Tunnelpakken med hele din pakke indeni."
+    },
+    "oid": {
+      "name": "Ydre identifikation",
+      "about": "Til fragmenter; ikke brugt her."
+    },
+    "ofrag": {
+      "name": "Ydre flag, offset",
+      "about": "Fragmentér ikke."
+    },
+    "ottl": {
+      "name": "Ydre TTL",
+      "about": "Tæller routere inde i operatørens net; din pakkes egen TTL røres ikke."
+    },
+    "oproto": {
+      "name": "Ydre protokol",
+      "about": "17 = UDP."
+    },
+    "osum": {
+      "name": "Ydre checksum",
+      "about": "Over den ydre header."
+    },
+    "osrc": {
+      "name": {
+        "kid": "Fra",
+        "nerd": "Ydre afsender"
+      },
+      "about": "Den ene ende af tunnelen."
+    },
+    "odst": {
+      "name": {
+        "kid": "Til",
+        "nerd": "Ydre modtager"
+      },
+      "about": "Den anden ende: masten på vej ned, kernen (UPF) på vej op."
+    },
+    "usport": {
+      "name": "UDP-afsenderport",
+      "about": "2152, GTP-U-porten."
+    },
+    "udport": {
+      "name": "UDP-modtagerport",
+      "about": "2152 siger, at en GTP-U-header følger."
+    },
+    "ulen": {
+      "name": "UDP-længde",
+      "about": "UDP-header og alt indeni."
+    },
+    "usum": {
+      "name": "UDP-checksum",
+      "about": "0: bruges ikke (den indre pakke har sin egen)."
+    },
+    "flags": {
+      "name": "GTP-flag",
+      "about": "Version 1, GTP (ikke GTP′), en extension-header følger."
+    },
+    "type": {
+      "name": "Beskedtype",
+      "about": "255 = G-PDU: en brugerpakke indeni."
+    },
+    "length": {
+      "name": "GTP-længde",
+      "about": "Bytes efter de første 8 i GTP-headeren."
+    },
+    "teid": {
+      "name": {
+        "kid": "Billet nr.",
+        "nerd": "TEID"
+      },
+      "about": "Tunnel endpoint ID: hvilken telefons session det er. Hver ende vælger den TEID, den vil modtage."
+    },
+    "seqext": {
+      "name": "Sekvens, N-PDU, næste ext.",
+      "about": "Valgfrie felter; 0x85 = en PDU session container følger."
+    },
+    "pdu": {
+      "name": "PDU session container",
+      "about": "Pakkens retning og QoS-flow (QFI), svarende til radiosiden."
+    }
   }
 }
