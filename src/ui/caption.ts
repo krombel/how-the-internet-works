@@ -8,7 +8,7 @@ import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
 import { diveRuns, downFrom, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
-import { fill, loc, nameOf, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
+import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
@@ -20,7 +20,7 @@ export interface CaptionText { title: string; tag?: string; body: string; hint: 
  *  Dives of the same technology name share one chip (the first); their badges on the map open the others. */
 function captionDoors(r: Route, ps: PathScene, o: Orient, root: boolean, stop: string | null): CaptionDoor[] {
   const out: CaptionDoor[] = [];
-  for (const d of doorsOf(ps, root, diveRuns(r, ps.group, o).byLink)) {
+  for (const d of doorsOf(ps, root, diveRuns(r, ps.group, o).byLink, o, nameW)) {
     if (d.kind === 'swap' || (stop && d.id !== stop && !d.links.includes(stop))) continue;
     const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
     const name = l ? tr(`tech.${l.link.tech.id}.name`) : tr(`node.${ps.nodes.find((k) => k.id === d.id)!.node.id}.name`);

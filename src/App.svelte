@@ -21,7 +21,7 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadDiveStrings, loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
+  import { loadDiveStrings, loadTheme, nameW, nav, settings, themeState, tr, view } from './state.svelte';
   import Caption from './ui/Caption.svelte';
   import { captionFor, sceneTitle } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
@@ -391,7 +391,7 @@
     if (!at) return null;
     const { info, ps } = at;
     const sk = cam.k * info.frame.s, w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
-    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink), size = badgeSize(themeState.current.labelMinPx, sk);
+    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW), size = badgeSize(themeState.current.labelMinPx, sk);
     const badges = layoutDoors(doors, size, explore, chipHot ?? pointed, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
     const onBadge = (pad: number) => badges.findIndex((b) => Math.abs(b.x - w.x) < b.w / 2 + pad && Math.abs(b.y - w.y) < b.h / 2 + pad);
     // right on a badge beats a packet passing under it; near one, the packet wins
@@ -448,7 +448,7 @@
   // "What can I explore?": every door in the scene lights up with its label, for a few seconds or until tapped again.
   const hereDoors = $derived.by(() => {
     const at = hereScene();
-    return at ? doorsOf(at.ps, here.path.length === 0, diveRuns(route, at.ps.group, view.orient).byLink) : [];
+    return at ? doorsOf(at.ps, here.path.length === 0, diveRuns(route, at.ps.group, view.orient).byLink, view.orient, nameW) : [];
   });
   let explore = $state(false), exploreTimer = 0;
   function setExplore(on: boolean) {

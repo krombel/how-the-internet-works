@@ -298,7 +298,7 @@ always muted again on reload.
   - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
     street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
     looks different, instead of stepping through six identical "light in a glass thread" dives. The run has one
-    magnifier in its middle, and its caption says what it covers ("3 stretches · via ISP core and Internet exchange").
+    magnifier, on its links and never over a device or its name (the run's glow shows what it covers), and its caption says what it covers ("3 stretches · via ISP core and Internet exchange").
   - The buttons point where the camera will go, so they are not mirrored in RTL.
 - **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas. The chrome buttons are
   36–40 px on a phone so they fit on two rows. That's fine for grown-ups, but a bit small for the youngest.
