@@ -14,7 +14,6 @@
   "type": "module",
   "dependencies": {
     "@fontsource-variable/baloo-2": "^5.3.0",
-    "@fontsource-variable/baloo-bhaijaan-2": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "d3-interpolate": "^3.0.1"
   },
