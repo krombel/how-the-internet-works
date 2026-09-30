@@ -50,7 +50,7 @@ export interface HintProps {
   size: number;
   /** Pointed at (mouse over it, or its caption chip focused) or lit by "What can I explore?". */
   hot: boolean;
-  /** What it opens: a node (centre and size) or a link (its path). */
+  /** What it opens: a node (a group, or a device to look inside; centre and size) or a link (its path). */
   target: { x: number; y: number; size: number } | { d: string };
   /** Scene clock. Frozen with prefers-reduced-motion, so the badges and outlines stand still. */
   time: number;

@@ -27,7 +27,7 @@
     <!-- a warm glow with a dashed ring round the thing that opens, breathing slowly; brighter when pointed at -->
     <g transform="translate({node.x} {node.y + node.size * 0.05})" pointer-events="none">
       <ellipse rx={node.size * (0.42 + 0.02 * breathe)} ry={node.size * (0.36 + 0.02 * breathe)} fill="var(--glow)" opacity={hot ? 0.75 : 0.25 + 0.2 * breathe} />
-      <ellipse rx={node.size * (0.42 + 0.02 * breathe)} ry={node.size * (0.36 + 0.02 * breathe)} fill="none" stroke="var(--orange)"
+      <ellipse rx={node.size * (0.42 + 0.02 * breathe)} ry={node.size * (0.36 + 0.02 * breathe)} fill="none" stroke={fill}
         stroke-width={size * 0.22} stroke-dasharray="{size * 0.7} {size * 0.55}" stroke-linecap="round" opacity={hot ? 0.95 : 0.35 + 0.35 * breathe} />
     </g>
   {/if}

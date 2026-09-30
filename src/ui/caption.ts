@@ -7,10 +7,10 @@ import { doorsOf } from '../model/doors';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
-import { diveRuns, downFrom, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
+import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
 import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
-/** A door to open from the caption, by verb: look inside a link's technology or open up a group (doors of the path
+/** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
 /** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). */
@@ -50,12 +50,12 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
     return trFirst([...routeKeys(`inside.${g.id}.title`), `node.${g.node.id}.inside.title`, `node.${g.node.id}.name`]);
   }
   if (ref.kind === 'layer') return layerText(r, ref, 'title');
-  const tech = ref.link!.link.tech.id;
-  return trFirst([`scene.${ref.dive}.${tech}.title`, `scene.${ref.dive}.title`]);
+  return trFirst([`scene.${ref.dive}.${diveSubject(ref)}.title`, `scene.${ref.dive}.title`]);
 }
 
 /** A dive that stands for a stretch of links: how many, and the devices on the way. */
 function stretchTag(r: Route, ref: SceneRef, o: Orient): string | undefined {
+  if (!ref.link) return undefined;
   const group = sceneRef(r, parentPath(ref.path), o)!.group, links = diveRuns(r, group, o).byLink.get(ref.link!.id)!.links;
   if (links.length < 2) return undefined;
   const ps = pathScene(r, group, o), via = links.slice(0, -1).map((l) => tr(`node.${ps.nodes.find((n) => n.id === l.to)!.node.id}.name`));
@@ -78,14 +78,13 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     };
   }
   if (ref.kind === 'dive') {
-    const tech = ref.link!.link.tech;
     return {
       title: sceneTitle(r, path, o),
       tag: stretchTag(r, ref, o),
-      body: trFirst([`scene.${ref.dive}.${tech.id}`, `scene.${ref.dive}`], lv),
+      body: trFirst([`scene.${ref.dive}.${diveSubject(ref)}`, `scene.${ref.dive}`], lv),
       hint: tr('hint.zoomOut'),
       doors: upFrom(r, ref).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
-      links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(tech.learnMore ?? [])]),
+      links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
     };
   }
   const ps = pathScene(r, ref.group, o);
@@ -95,7 +94,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   if (n) return {
     title: tr(`node.${n.node.id}.name`),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),
-    hint: tr(n.kind === 'group' ? 'hint.expand' : 'hint.step'),
+    hint: tr(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore(n.node.learnMore ?? []),
   };

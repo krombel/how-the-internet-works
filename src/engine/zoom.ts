@@ -1,7 +1,7 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
 import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
-import { TRAVEL, fit, progress, smoothstep, type Cam, type Viewport } from './camera';
+import { TRAVEL, areaCentre, fit, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
@@ -41,6 +41,8 @@ export const kLimits = (r: Route, path: string[], vp: Viewport, o: Orient) => ({
 /** Zoom progress u (0 = a parent's fit, 1 = its child's) over which a child fades in, and its parent fades out. */
 const FADE_IN: [number, number] = [0.45, 0.8];
 const HIDE: [number, number] = [0.6, 0.92];
+/** A device dive's opacity over which the dives beside it fade out. */
+const CROWD: [number, number] = [0.1, 0.4];
 
 /** The zoom a sideways travel between children of `parent` glides at: progress `TRAVEL.u`, as deep into the parent as
  *  it goes before any child starts to show (`FADE_IN`). The child's fit sets the scale of u. */
@@ -89,6 +91,20 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
     }
     for (const [k, v] of m) out.set(k, Math.max(out.get(k) ?? 0, v));
   }
+  // a device's dive sits between the dives of the links either side, so they crowd: of a device dive and its sibling
+  // dives, the one nearer the view centre fades the others out as it shows (nor do we pay for drawing both). Same
+  // camera, same fade, on any path.
+  const mid = areaCentre(vp), unit = Math.min(vp.w, vp.h) / 2;
+  const off = (f: Rect) => Math.hypot((f.x + f.w / 2) * cam.k + cam.x - mid.x, (f.y + f.h / 2) * cam.k + cam.y - mid.y) / unit;
+  for (const base of new Set(paths.flatMap((p) => p.map((_, i) => keyOf(p.slice(0, i))).concat(keyOf(p))))) {
+    const kids = childrenOf(r, sceneInfo(r, base ? base.split('/') : [], o).ref, o).filter((c) => c.kind === 'dive')
+      .map((c) => { const path = [...(base ? base.split('/') : []), c.step], s = sceneInfo(r, path, o); return { key: keyOf(path), device: !!s.ref.node, d: off(s.fit) }; });
+    const shown = new Map(kids.map((c) => [c, smoothstep(...CROWD, out.get(c.key) ?? 0)]));
+    for (const c of kids) {
+      const keep = kids.reduce((m, o) => (o === c || !(o.device || c.device) ? m : m * (1 - shown.get(o)! * smoothstep(0.1, 0.5, c.d - o.d))), 1);
+      if (keep < 1) for (const [k, v] of out) if (k === c.key || k.startsWith(`${c.key}/`)) out.set(k, v * keep);
+    }
+  }
   return out;
 }
 
@@ -103,14 +119,19 @@ export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orie
     else break;
   }
   if (p.length === path.length) {
+    // down into the child nearest the view centre (a device's dive sits close to the dives of the links either side)
+    const mid = areaCentre(vp);
     for (let found = true; found; ) {
       found = false;
       const k0 = fit(sceneInfo(r, p, o).fit, vp).k;
+      let best = Infinity, step = '';
       for (const c of childrenOf(r, sceneInfo(r, p, o).ref, o)) {
         if (c.kind === 'layer') continue;
-        const { u, prox } = progress(cam, vp, k0, sceneInfo(r, [...p, c.step], o).fit);
-        if (u > 0.55 && prox > 0.5) { p = [...p, c.step]; found = true; break; }
+        const f = sceneInfo(r, [...p, c.step], o).fit, { u, prox } = progress(cam, vp, k0, f);
+        const d = Math.hypot((f.x + f.w / 2) * cam.k + cam.x - mid.x, (f.y + f.h / 2) * cam.k + cam.y - mid.y);
+        if (u > 0.55 && prox > 0.5 && d < best) { best = d; step = c.step; }
       }
+      if (step) { p = [...p, step]; found = true; }
     }
   }
   return keyOf(p) === keyOf(path) ? null : p;

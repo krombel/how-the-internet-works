@@ -318,17 +318,20 @@ always muted again on reload.
 
 ### Touch, sideways and big targets
 
-- **Tap** a door to go down a level: a magnifier (*Look inside*) or the *Open up* door. Tapping a device or link
-  selects it as the current stop and shows its caption. The caption lists the doors as chips, and *What can I
+- **Tap** a door to go down a level: a magnifier (*Look inside*) or the *Open up* door. Tapping a link or a device
+  that has a door opens it too (the home router and the cell tower have a magnifier on their corner: look inside a
+  device, issue #9); tapping any other device or link selects it as the current stop and shows its caption. The caption lists the doors as chips, and *What can I
   explore?* lights them all up with their labels (see "Doors" in [architecture.md](architecture.md)).
 - **Pinch or scroll** is continuous zoom. Zooming far enough out goes back up a level, as does the round ⌃
   button, Esc, the breadcrumb or browser Back.
 - **Flick** left or right, or up and down in portrait, to step to the previous or next stop at the current
   level. A slow drag still pans. The ◀ ▶ buttons and the arrow keys do the same.
   - The overview's stops are phone → Wi-Fi → AP → cable → router → fibre → internet.
-  - The sub-path's stops are its hops. At dive level, flicking moves between Wi-Fi and fibre.
+  - The sub-path's stops are its hops. At dive level, flicking moves between the dives in route order: Wi‑Fi →
+    cable → inside the home router → fibre (issue #38).
   - At dive level the camera doesn't jump from one dive to the next: it **zooms out, travels along the path and
-    zooms back in** (issue #36), so you see the device between the two links, where the medium changes. The
+    zooms back in** (issue #36), so you see the device between the two links, where the medium changes; from a link into the device's own dive
+    and on to the next link it travels half as far each time. The
     highlight hops link → device → link on the way. It's calm on purpose (about 3 s to a neighbour): the
     camera slows past each device, a small pill there names the change ("Wi‑Fi → Cable"), and a pill at the
     bottom says where from and to. Quick repeated steps join into one, slightly quicker glide. With

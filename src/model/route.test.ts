@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normaliseChoice, resolveRoute } from './resolve';
 import { morphScene, pathScene } from './layout';
-import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, downFrom, frameOf, layerPath, linkDivePath, linkOut, sceneRef, sideways, travelOf, upFrom, validPrefix } from './tree';
+import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, downFrom, frameOf, layerPath, layerStep, linkDivePath, linkOut, nodeAnchor, sceneRef, sideways, travelOf, upFrom, validPrefix } from './tree';
 import { DETAIL_SCALE, WORLD_SIZE, bezier } from '../engine/geometry';
 import { formatHash, normaliseLoc, parseHash } from './location';
 import { content, type Content } from './registry';
@@ -109,9 +109,10 @@ const allLayerDives = () => {
 describe('scene tree', () => {
   it('lists children in route order', () => {
     expect(notLayers(home, [])).toEqual([
-      { step: 'phone-ap', kind: 'dive' }, { step: 'ap-router', kind: 'dive' }, { step: 'router-internet', kind: 'dive' }, { step: 'internet', kind: 'expand' },
+      { step: 'phone-ap', kind: 'dive' }, { step: 'ap-router', kind: 'dive' }, { step: 'router', kind: 'dive' }, { step: 'router-internet', kind: 'dive' },
+      { step: 'internet', kind: 'expand' },
     ]);
-    expect(notLayers(street, []).map((c) => c.step)).toEqual(['phone-cell-tower', 'cell-tower-internet', 'internet']);
+    expect(notLayers(street, []).map((c) => c.step)).toEqual(['phone-cell-tower', 'cell-tower', 'cell-tower-internet', 'internet']);
     // the backbone links are one stretch, one dive
     expect(notLayers(street, ['internet']).map((c) => c.step)).toEqual(['cell-tower-mobile-core', 'mobile-core-core']);
   });
@@ -122,6 +123,35 @@ describe('scene tree', () => {
     expect(ref.dive).toBe('fibre-light');
     expect(ref.link?.link.tech.id).toBe('gpon');
     expect(sceneRef(street, ['phone-cell-tower'])?.dive).toBe('nr-radio');
+  });
+
+  it('dives into a device with a dive of its own, on the device (#9)', () => {
+    const ref = sceneRef(home, ['router'])!;
+    expect(ref).toMatchObject({ kind: 'dive', dive: home.content.nodes.router.dive, link: null });
+    expect(ref.node?.id).toBe('router');
+    for (const o of ['landscape', 'portrait'] as const) {
+      const n = pathScene(home, null, o).nodes.find((x) => x.id === 'router')!, a = nodeAnchor(n);
+      const pf = frameOf(home, [], o), f = frameOf(home, ['router'], o), W = WORLD_SIZE[o];
+      expect(f.x).toBeCloseTo(pf.x + (a.x - (W.w * DETAIL_SCALE) / 2) * pf.s, 6);
+      expect(f.y).toBeCloseTo(pf.y + (a.y - (W.h * DETAIL_SCALE) / 2) * pf.s, 6);
+    }
+    // only a hop on the chain: not the stand-in for the group it opens (the cell tower inside the internet)
+    expect(sceneRef(street, ['internet', 'cell-tower'])).toBeNull();
+    expect(validPrefix(street, ['router'])).toEqual([]);
+  });
+
+  it('stacks the layer dives of a device with a dive of its own above that one', () => {
+    const c: Content = structuredClone(content);
+    for (const l of Object.values(c.layers)) l.dive = Object.values(c.scenes).find((s) => s.explains === 'layer')!.id;
+    const h = resolveRoute({ activity: 'watch-video', places: ['home'] }, c);
+    for (const o of ['landscape', 'portrait'] as const) {
+      const [dev, ip, tcp] = ['router', 'router~ip', 'router~tcp'].map((x) => frameOf(h, [x], o));
+      expect(ip.x).toBeCloseTo(dev.x);
+      expect(tcp.y).toBeLessThan(ip.y);
+      const lowest = frameOf(h, [layerSteps(h, []).find((x) => x.startsWith(layerStep('router', '')))!], o);
+      expect(lowest.y).toBeLessThan(dev.y);
+      expect(dev.y - lowest.y).toBeCloseTo(ip.y - tcp.y);
+    }
   });
 
   it('nests frames at any depth', () => {
@@ -179,9 +209,26 @@ describe('scene tree', () => {
     const { home: h } = layerDives();
     expect(sideways(h, [], 'ap', 'landscape')).toMatchObject({ kind: 'stop', i: 2, min: -1 });
     expect(sideways(h, [], null, 'landscape').steps).toEqual(pathScene(h, null, 'landscape').stops);
-    expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router-internet'], i: 2, min: 0 });
+    expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 3, min: 0 });
     expect(sideways(h, ['router~ip'], null, 'portrait')).toEqual({ kind: 'layer', steps: ['router~ip', 'router~tcp'], i: 0, min: 0 });
     expect(sideways(h, ['internet', 'core~tcp'], null, 'landscape')).toEqual({ kind: 'layer', steps: ['core~ip', 'core~tcp'], i: 1, min: 0 });
+  });
+
+  it('walks link → device → link, travelling along the chain (#38)', () => {
+    for (const o of ['landscape', 'portrait'] as const) {
+      const ch = chainOf(home, null, o), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
+      expect(sideways(home, ['router'], null, o)).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 2, min: 0 });
+      expect(travelOf(home, ['ap-router'], ['router'], o)).toEqual({ parent: [], b: s('router') });
+      expect(travelOf(home, ['router'], ['router-internet'], o)).toEqual({ parent: [], b: s('router-internet') });
+    }
+  });
+
+  it('ends a stretch at a device with a dive of its own, and only there', () => {
+    const c: Content = structuredClone(content);
+    c.nodes.backhaul.dive = c.nodes.router.dive;
+    const h = resolveRoute({ activity: 'watch-video', places: ['home'] }, c);
+    expect(diveRuns(h, 'internet', 'landscape').runs.map((x) => x.links.map((l) => l.id))).toEqual([['home-cabinet'], ['cabinet-backhaul'], ['backhaul-bng'], ['bng-core', 'core-ixp', 'ixp-cdn']]);
+    expect(notLayers(h, ['internet']).map((x) => x.step)).toEqual(['home-cabinet', 'cabinet-backhaul', 'backhaul', 'backhaul-bng', 'bng-core']);
   });
 
   it('makes a stretch of consecutive links into the same scene with the same technology one dive', () => {
@@ -288,6 +335,8 @@ describe('scene tree', () => {
     expect(up(h, ['internet', 'bng-core']).map((u) => u.path)).toEqual([['internet', 'core~ethernet'], ['internet', 'core~mpls']]);
     expect(up(s, ['cell-tower-internet']).map((u) => u.path)).toEqual([['cell-tower~ethernet'], ['cell-tower~gtp']]);
     expect(up(h, ['router~ip'])).toEqual([]);
+    // a device: the envelopes of the links either side, at the device
+    expect(up(h, ['router'])).toEqual([{ layer: 'ethernet', path: ['router~ethernet'] }, { layer: 'gpon', path: ['router~gpon'] }]);
   });
 
   it('finds the link a caught packet leaves on, or arrived on at the end', () => {
@@ -312,6 +361,12 @@ describe('location', () => {
     const l = parseHash(h);
     expect(l).toEqual({ lang: 'da', places: ['street'], activity: 'watch-video', path: ['internet'], stop: 'mobile-core' });
     expect(formatHash(l)).toBe(h);
+    expect(normaliseLoc(l)).toEqual(l);
+  });
+
+  it('round-trips device dives', () => {
+    const l = parseHash('#/en/home/watch-video/router');
+    expect(l.path).toEqual(['router']);
     expect(normaliseLoc(l)).toEqual(l);
   });
 

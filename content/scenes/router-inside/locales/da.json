@@ -1,0 +1,63 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inde i hjemmerouteren",
+  "kid": "Hjemmerouteren er fire små rum i én kasse. Din pakke kommer ind gennem et stik, og hjernen bytter din enheds navn på den ud med dit hjems, så svaret kan finde tilbage. Så gør lysboksen bittene til lysglimt i glastråden op ad gaden.",
+  "nerd": "En hjemme-gateway er flere kasser i én: en Ethernet-switch, en Wi‑Fi-radio, en router der laver NAT (den bytter den private afsenderadresse og port ud med sin ene offentlige adresse og husker parret, så svarene kommer ind igen) og en ONT der sender rammerne som GPON-lysglimt.",
+  "from": "Fra: {who}",
+  "outside": "Hjem",
+  "switch": {
+    "title": {
+      "kid": "Kabelstik",
+      "nerd": "Switch"
+    },
+    "line": {
+      "kid": "Strøm → bits",
+      "nerd": "4 × 1 Gbit/s porte"
+    },
+    "idle": {
+      "kid": "Hviler",
+      "nerd": "Ikke brugt her"
+    }
+  },
+  "wifi": {
+    "title": {
+      "kid": "Wi‑Fi-radio",
+      "nerd": "Wi‑Fi-radio"
+    },
+    "line": {
+      "kid": "Radio ↔ bits",
+      "nerd": "802.11ax-radio"
+    },
+    "idle": {
+      "kid": "Hviler",
+      "nerd": "Ikke brugt her"
+    }
+  },
+  "brain": {
+    "title": {
+      "kid": "Hjernen",
+      "nerd": "Router + NAT"
+    },
+    "line": {
+      "kid": "Bytter afsender",
+      "nerd": "Skriver afsender om"
+    }
+  },
+  "ont": {
+    "title": {
+      "kid": "Lysboksen",
+      "nerd": "ONT"
+    },
+    "line": {
+      "kid": "Bits → lys",
+      "nerd": "GPON · 1310/1490 nm"
+    },
+    "idle": {
+      "kid": "Hviler",
+      "nerd": "Ikke brugt her"
+    }
+  }
+}

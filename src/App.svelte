@@ -411,7 +411,8 @@
     }
     for (const n of ps.nodes) {
       if (Math.hypot(n.x - w.x, n.y - w.y) > Math.max(n.size * 0.55, minR)) continue;
-      const d = doors.find((k) => k.kind === 'expand' && k.id === n.id);
+      // a group opens up, a device with a dive of its own opens it (its door has its id; a link dive's door a link's)
+      const d = doors.find((k) => k.kind !== 'swap' && k.id === n.id);
       if (d) return { door: d };
       if (n.kind === 'entry' || ps.stops.includes(n.id)) return { node: n };
     }

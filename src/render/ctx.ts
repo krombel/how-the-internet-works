@@ -2,8 +2,8 @@
 // root coordinates), so text can clamp to a readable on-screen size and backdrop layers can do depth parallax.
 import { getContext, setContext } from 'svelte';
 import type { Cam } from '../engine/camera';
-import type { SLink } from '../model/layout';
-import type { Link, Route } from '../model/resolve';
+import type { SLink, SNode } from '../model/layout';
+import type { Hop, Link, Route } from '../model/resolve';
 import type { LayerCtx } from '../model/stack';
 import type { Frame } from '../model/tree';
 
@@ -28,6 +28,20 @@ export interface LinkSubject {
   sceneLink: SLink;
   route: Route;
 }
+/** What a device dive explains: the hop it was opened at, as drawn in its parent, and the links either side (null at
+ *  the ends of the route). Scenes use them to adapt, e.g. the home router lights the port its cable arrives on, or its
+ *  Wi‑Fi radio when the phone is on Wi‑Fi. */
+export interface NodeSubject {
+  kind: 'node';
+  /** The hop (its node definition, role and addresses). */
+  hop: Hop;
+  /** The device as drawn in the parent scene. */
+  sceneNode: SNode;
+  /** The link it arrives on and the one it leaves on, towards the server. */
+  in: Link | null;
+  out: Link | null;
+  route: Route;
+}
 /** What a layer dive explains: one layer as one hop sees it (`ctx.to`, with its `role`), e.g. IP at a NAT or TCP
  *  sealed at a router. The same context the layer's envelope gets in the peek panel. */
 export interface LayerSubject {
@@ -38,7 +52,7 @@ export interface LayerSubject {
   open: boolean;
   route: Route;
 }
-export type Subject = LinkSubject | LayerSubject;
+export type Subject = LinkSubject | NodeSubject | LayerSubject;
 
 export const setWorld = (w: WorldCtx) => setContext('world', w);
 export const getWorld = () => getContext<WorldCtx>('world');

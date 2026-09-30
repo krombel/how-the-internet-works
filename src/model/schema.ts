@@ -24,6 +24,8 @@ export const node = z.strictObject({
   kind: z.enum(['device', 'network', 'place']),
   /** What it does to passing packets (a hop can override it). Default: router. */
   role: role.optional(),
+  /** The "look inside" scene for this device, at every hop on a route (a scene with `explains: 'node'`). */
+  dive: id.optional(),
   learnMore: learnMoreList,
 });
 
@@ -73,8 +75,8 @@ export const layer = z.strictObject({
 });
 
 export const scene = z.strictObject({
-  /** What the scene is a dive into: a link (its technology) or a layer (at one hop). Default: link. */
-  explains: z.enum(['link', 'layer']).optional(),
+  /** What the scene is a dive into: a link (its technology), a device (a node) or a layer (at one hop). Default: link. */
+  explains: z.enum(['link', 'node', 'layer']).optional(),
   learnMore: learnMoreList,
 });
 

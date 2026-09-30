@@ -1,0 +1,51 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inde i mobilmasten",
+  "kid": "Masten er fire små rum: to oppe på masten, to i skabet ved foden. Antennerne fanger din radiobølge, radioenheden laver den til bits, sortereren lægger pakken i en tunnelkuvert, og fiberen sender den videre som lys.",
+  "nerd": "En 5G-gNB er delt i to: antenner og RU på masten, DU/CU-baseband i skabet. Pakken pakkes i GTP-U til mobilkernen og fortsætter på metrofiber.",
+  "antenna": {
+    "title": {
+      "kid": "Antenner",
+      "nerd": "Massive MIMO"
+    },
+    "line": {
+      "kid": "Fanger radiobølger",
+      "nerd": "Beamformet NR-panel"
+    }
+  },
+  "radio": {
+    "title": {
+      "kid": "Radioenhed",
+      "nerd": "Radioenhed (RU)"
+    },
+    "line": {
+      "kid": "Radio ↔ bits",
+      "nerd": "RF ↔ digital · eCPRI"
+    }
+  },
+  "baseband": {
+    "title": {
+      "kid": "Sortereren",
+      "nerd": "Baseband DU/CU"
+    }
+  },
+  "fibre": {
+    "title": {
+      "kid": "Fiber ud",
+      "nerd": "Metrofiber"
+    },
+    "line": {
+      "kid": "Bits → lys",
+      "nerd": "GTP-U på lys"
+    }
+  },
+  "tunnel": {
+    "title": "Tunnelkuvert",
+    "for": "Til: {who}",
+    "from": "GTP-U {addr}",
+    "to": "→ {addr}"
+  }
+}
