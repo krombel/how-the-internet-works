@@ -14,6 +14,7 @@ export default defineTheme({
   id: 'storybook',
   themeColor: '#ffeccf',
   scheme: 'light',
+  night: { themeColor: '#1c2048', scheme: 'dark' },
   labelMinPx: 14,
   motion: { speed: 1 },
   timbre: { wave: 'triangle', blip: 660, noise: { freq: 820, q: 0.75 }, gain: 0.28, detune: 4, decay: 0.22 },

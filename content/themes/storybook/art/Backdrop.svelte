@@ -9,7 +9,7 @@
 <!-- THESIS: teach networks as a warm picture-book journey, not a glowing tech diagram. OWN-WORLD: peach sky, rolling green paper hills, chunky brown outlines, smiling devices, luggage tags. STORY: packets run from where you are (a place's own backdrop: the cut-away home, the street) through roads, radio, fibre and a smiling-cloud internet. FIRST VIEWPORT: the place sits low/left, the internet cloud beyond the hills, labels float like painted signs. FORM: brief-pinned flat storybook world, springy motion, no SVG filters. -->
 
 {#if kind === 'root'}
-  <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky, var(--sky))" />
+  <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky)" />
   <Depth d={0.35}>
     <circle cx={portrait ? 170 : 1320} cy={portrait ? 170 : 150} r={portrait ? 62 : 70} fill="var(--sun)" stroke="var(--line)" stroke-width="6" />
     <path d={portrait ? 'M500 185 C535 135 615 145 628 198 C690 194 720 235 692 275 H485 C450 252 456 203 500 185 Z' : 'M160 130 C194 86 268 96 282 145 C340 142 368 178 342 214 H146 C112 193 123 145 160 130 Z'} fill="var(--paper)" stroke="var(--line)" stroke-width="6" />
@@ -27,7 +27,7 @@
     </g>
   </Depth>
 {:else}
-  <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky, var(--sky))" />
+  <rect x={-w} y={-h} width={w * 3} height={h * 3} fill="var(--sky)" />
   <Depth d={0.42}>
     <circle cx={portrait ? 730 : 1360} cy={portrait ? 120 : 115} r="56" fill="var(--sun)" stroke="var(--line)" stroke-width="6" />
     <path d={portrait ? 'M-80 650 C170 500 340 680 560 540 C720 438 920 545 1020 475 L1020 1760 H-80 Z' : 'M-100 430 C210 270 430 470 680 340 C950 200 1180 420 1500 250 C1640 190 1760 250 1780 340 L1780 1050 H-100 Z'} fill="var(--grass-far)" stroke="var(--line)" stroke-width="7" />

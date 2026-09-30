@@ -24,6 +24,7 @@
   --muted: #7f583e;
   --accent: #e97845;
   --line: #6b3f2a;
+  --shade: #6b3f2a;
   --brick: #a65435;
   --bark: #7b543b;
   --wood: #9a6b45;
@@ -87,11 +88,12 @@
   --heading-weight: 800;
   --heading-transform: none;
   --heading-spacing: -0.01em;
-  --card: rgba(255, 247, 223, 0.94);
+  --card: color-mix(in srgb, var(--paper) 94%, transparent);
   --card-edge: var(--line);
   --card-edge-w: 3px;
   --card-radius: 24px;
-  --card-shadow: 0 9px 0 rgba(107, 63, 42, 0.15), 0 16px 30px rgba(107, 63, 42, 0.12);
+  --card-shadow: 0 9px 0 color-mix(in srgb, var(--shade) 15%, transparent), 0 16px 30px color-mix(in srgb, var(--shade) 12%, transparent);
+  --card-rim: color-mix(in srgb, var(--white) 42%, transparent);
   --card-blur: none;
   --btn: #ffe0a9;
   --btn-on: #c24c17;
@@ -106,7 +108,7 @@
   --door-dive: #377c6c;
   --door-open: #b4542b;
   --door-catch: #8a4f75;
-  --env-used: rgba(255, 207, 93, 0.55);
+  --env-used: color-mix(in srgb, var(--sun) 55%, transparent);
   --env-change: #ab3c25;
   --link: #b35636;
   --lbl-weight: 800;
@@ -126,14 +128,91 @@
   --tag-ink: var(--ink);
 }
 
+/* Night: the same picture book by moonlight. Deep indigo sky, dark paper, pale moonlit outlines and ink, and the
+   warm lights (sun-yellow, lamps, glows) stay warm. Overrides only; everything else follows the day tokens. */
+:root[data-style='storybook'][data-mode='night'] {
+  color-scheme: dark;
+  --sky: #1c2048;
+  --ink: #f6ead2;
+  --muted: #c9bddf;
+  --accent: #f39a64;
+  --line: #e2d4bc;
+  --shade: #05041a;
+  --brick: #f2a07a;
+  --bark: #c7a489;
+  --wood: #a9835f;
+  --paper: #2b2a55;
+  --paper-2: #33315f;
+  --paper-white: #3a3868;
+  --white: #d9d4f2;
+  --kraft: #5c4b52;
+  --kraft-edge: #806656;
+  --kraft-dark: #8e6f55;
+  --flap: #4c4159;
+  --flap-sealed: #6a5758;
+  --kraft-edge-sealed: #9c7d5d;
+  --peach: #5e4a74;
+  --tan: #a2704f;
+  --tan-pale: #7e6156;
+  --sand: #7d5f4b;
+  --clay: #8a6049;
+  --cardboard: #7a5a45;
+  --stone: #585671;
+  --road: #3b3a5c;
+  --road-top: #5b5063;
+  --trunk: #6d5749;
+  --wall-plain: #464169;
+  --roof-plain: #69556f;
+  --sun: #ffcf5d;
+  --mustard: #d99a3a;
+  --focus-ring: #f0b860;
+  --glow: #ffe8a3;
+  --glow-pale: #f5de9c;
+  --glow-box: #ffe28a;
+  --orange: #e5855a;
+  --orange-bright: #ee8a4e;
+  --orange-soft: #d58a55;
+  --roof: #b25f50;
+  --leaf: #3f7a5f;
+  --leaf-dark: #2b5a48;
+  --leaf-ink: #b3e0a6;
+  --leaf-pale: #2d4b45;
+  --mint: #2a4545;
+  --meadow: #34544d;
+  --hill-far: #2e4e5c;
+  --grass-far: #2c4f55;
+  --grass-near: #274a46;
+  --teal: #4c9f90;
+  --blue: #4a93c9;
+  --teal-dark: #2f7667;
+  --teal-deep: #3b7c73;
+  --glass: #29465a;
+  --berry: #b8698e;
+  --berry-dark: #c86e92;
+  --btn: #3c3968;
+  --btn-on: #f39a64;
+  --btn-on-ink: #1c2048;
+  --heading: #f5ac86;
+  --env-name: #f8bc9c;
+  --door-dive: #7fd3bf;
+  --door-open: #f7a577;
+  --door-catch: #e3a4d3;
+  --env-used: color-mix(in srgb, var(--sun) 16%, transparent);
+  --env-dive: var(--door-dive);
+  --env-change: #ff9f86;
+  --link: #ffb48c;
+  --card-rim: color-mix(in srgb, var(--white) 10%, transparent);
+  --tag-bg: #3a3460;
+}
+
 :root[data-style='storybook'] .card {
-  outline: 2px solid rgba(255, 255, 255, 0.42);
+  outline: 2px solid var(--card-rim);
   outline-offset: -7px;
 }
 
 :root[data-style='storybook'] .btn {
   border: 2px solid var(--line);
-  box-shadow: 0 3px 0 rgba(107, 63, 42, 0.18);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--shade) 18%, transparent);
 }
 
 :root[data-style='storybook'] .seg .btn {
@@ -154,14 +233,14 @@
 }
 
 :root[data-style='storybook'] .env {
-  box-shadow: 0 3px 0 rgba(107, 63, 42, 0.12);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--shade) 12%, transparent);
 }
 
 @media (max-width: 699px), (orientation: landscape) and (max-height: 499px) {
   :root[data-style='storybook'] {
     --card-edge-w: 2px;
     --card-radius: 18px;
-    --card-shadow: 0 4px 0 rgba(107, 63, 42, 0.13), 0 8px 18px rgba(107, 63, 42, 0.10);
+    --card-shadow: 0 4px 0 color-mix(in srgb, var(--shade) 13%, transparent), 0 8px 18px color-mix(in srgb, var(--shade) 10%, transparent);
   }
 
   :root[data-style='storybook'] .chrome {
