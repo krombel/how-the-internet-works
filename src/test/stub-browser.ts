@@ -6,7 +6,7 @@ export function stubBrowser() {
   const setHash = (u: string) => { url.hash = new URL(u, url).hash; };
   vi.stubGlobal('location', url);
   vi.stubGlobal('history', { state: null, pushState: (_: unknown, __: string, u: string) => setHash(u), replaceState: (_: unknown, __: string, u: string) => setHash(u) });
-  vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
+  vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
   vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => {} }));
   vi.stubGlobal('window', { addEventListener: () => {} });
   vi.stubGlobal('document', { documentElement: {} });

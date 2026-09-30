@@ -254,7 +254,7 @@
   let glide: { a: number; b: number; t0: number; then: Spot | null } | null = null;
   /** The camera keeps the caught packet in view until the user pans or zooms. */
   let track = false, catchNav = false;
-  let timeScale = 1, clock = 0;
+  let timeScale = 1, clock = 0, clockHeld = false;
   const GLIDE_MS = 600, CAUGHT_ID = 'caught';
 
   function togglePause() {
@@ -547,7 +547,7 @@
       const frozen = paused && stepInfo.kind === 'stop';
       timeScale += ((frozen ? 0 : 1) - timeScale) * Math.min(1, dt * 5);
       if (frozen && timeScale < 0.002) timeScale = 0;
-      clock += dt * timeScale;
+      if (!clockHeld) clock += dt * timeScale;
       view.real = now / 1000;
       view.time = clock;
       if (morph) frameMorph(now);
@@ -613,7 +613,8 @@
         step(d: -1 | 1) { if (caught) stepCaught(d); },
         caught: () => caught && { hop: route.chain[caught.hop].id, dir: caught.dir },
         release: () => release(),
-        setClock(t: number) { clock = t; },
+        /** Set the scene clock; `hold` keeps it there (stable frames for pixel diffs). */
+        setClock(t: number, hold = false) { clock = t; clockHeld = hold; },
         /** Hold every transition at t (0–1), e.g. for a frame strip; null lets them run on. */
         hold(t: number | null) { holdT = t; if (trans && t === null) trans.t0 = performance.now() - trans.dur; },
         /** Tap the magnifier of a layer's envelope in the peek panel (while a packet is caught). */

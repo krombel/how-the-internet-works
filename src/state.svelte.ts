@@ -1,6 +1,8 @@
 // Reactive app state: language/level, the current location + resolved route, style + sound settings (the style is
-// synced to the URL query), the active theme, and the view (viewport, orientation, clock) shared with scenes.
-import type { Level, Orient } from './define';
+// synced to the URL query), the active theme, day or night, and the view (viewport, orientation, clock, mode) shared
+// with scenes.
+import { tick } from 'svelte';
+import type { Level, Mode, Orient } from './define';
 import type { Viewport } from './engine/camera';
 import { sfx } from './engine/sound';
 import { clearMeasureCache, textBox } from './engine/svg';
@@ -67,17 +69,20 @@ const metaOf = (id: string) => themeMeta[`/content/themes/${id}/meta.json`] ?? {
 export const THEME_IDS = Object.keys(themeModules).map(idOf).sort((a, b) => metaOf(a).order - metaOf(b).order || a.localeCompare(b));
 export const themeSwatches: Record<string, string> = Object.fromEntries(THEME_IDS.map((id) => [id, metaOf(id).swatch]));
 
-export interface Settings { style: string; sound: boolean }
+export interface Settings { style: string; sound: boolean; mode: Mode }
 const pick = <T extends string>(v: string | null, ok: readonly T[], d: T): T => (v && (ok as readonly string[]).includes(v) ? (v as T) : d);
 export const settings = $state<Settings>({
   style: pick(q.get('style'), THEME_IDS, pick(localStorage.getItem('style'), THEME_IDS, THEME_IDS[0])),
   sound: false, // always muted on load
+  mode: 'day', // set below
 });
 
-/** Write the style back into the query string (hash is left alone); only needed once there is a choice. */
+/** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode`
+ *  already in the query is kept in step with the reader's choice. */
 export function syncUrl() {
   const p = new URLSearchParams(location.search);
   if (THEME_IDS.length > 1) p.set('style', settings.style);
+  if (p.has('mode')) p.set('mode', settings.mode);
   const qs = p.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`;
   if (url !== location.pathname + location.search + location.hash) history.replaceState(history.state, '', url);
@@ -114,14 +119,52 @@ export async function loadTheme(id: string) {
   themeState.current = th;
   themeState.ready = true;
   sfx.timbre = th.timbre;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', th.themeColor);
-  document.documentElement.style.colorScheme = th.scheme;
+  applyMode();
 }
 
 // ------------------------------------------------------------------ view (shared with scenes)
 const calm = matchMedia('(prefers-reduced-motion: reduce)');
 /** `still`: the reader prefers reduced motion (decorative motion, like the doors' breathing, stands still). */
-export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean }>({
-  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches,
+/** `mode`: day or night (always day when the theme has no night). */
+export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean; mode: Mode }>({
+  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches, mode: 'day',
 });
 calm.addEventListener('change', () => (view.still = calm.matches));
+
+// ------------------------------------------------------------------ day and night (issue #43)
+// The reader's mode follows the OS (prefers-color-scheme) until they pick one with the toggle; `?mode=day|night` in
+// the link wins on load. A choice that matches the OS is not stored, so the page goes back to following the OS. The
+// engine only sets `data-mode` on <html> (the theme's tokens do the rest) and `view.mode` (for art that adds
+// night-only things); a theme without `night` stays in day.
+const dark = matchMedia('(prefers-color-scheme: dark)');
+const osMode = (): Mode => (dark.matches ? 'night' : 'day');
+const asMode = (v: string | null): Mode | null => (v === 'day' || v === 'night' ? v : null);
+function remember(m: Mode) {
+  settings.mode = m;
+  if (m === osMode()) localStorage.removeItem('mode');
+  else localStorage.setItem('mode', m);
+}
+remember(asMode(q.get('mode')) ?? asMode(localStorage.getItem('mode')) ?? osMode());
+
+/** Whether the current theme has a night (the toggle hides when it doesn't). */
+export const hasNight = () => !!themeState.current.night;
+
+function applyMode() {
+  const th = themeState.current, m: Mode = th.night ? settings.mode : 'day';
+  const look = m === 'night' && th.night ? th.night : th;
+  view.mode = m;
+  document.documentElement.dataset.mode = m;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', look.themeColor);
+  document.documentElement.style.colorScheme = look.scheme;
+}
+
+/** Switch day ↔ night: a cross-fade of the whole page (a View Transition, styled by the theme), or at once with
+ *  prefers-reduced-motion or where View Transitions aren't supported. */
+export function setMode(m: Mode) {
+  remember(m);
+  syncUrl();
+  if (view.mode === (hasNight() ? m : 'day')) return;
+  if (view.still || !document.startViewTransition) return applyMode();
+  document.startViewTransition(async () => { applyMode(); await tick(); });
+}
+dark.addEventListener('change', () => { if (!localStorage.getItem('mode')) setMode(osMode()); });

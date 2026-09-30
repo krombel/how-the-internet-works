@@ -24,6 +24,8 @@ export type ActivityDef = z.infer<typeof S.activity>;
 export type LocaleMeta = z.infer<typeof S.localeMeta>;
 export type Level = 'kid' | 'nerd';
 export type Orient = 'landscape' | 'portrait';
+/** Day or night (issue #43): the page's `data-mode`, and `view.mode` for art. */
+export type Mode = 'day' | 'night';
 
 export const defineNode = (d: NodeDef) => d;
 export const defineTechnology = (d: TechDef) => d;
