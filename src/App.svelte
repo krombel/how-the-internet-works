@@ -21,11 +21,11 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
+  import { loadLayerStrings, loadTheme, nav, settings, themeState, tr, view } from './state.svelte';
   import Caption from './ui/Caption.svelte';
   import { captionFor, sceneTitle } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
-  import PeekPanel from './ui/PeekPanel.svelte';
+  import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
   import StepButtons from './ui/StepButtons.svelte';
 
@@ -207,6 +207,12 @@
     flight = null;
     sfx.pop();
   }
+  // The peek panel (with its envelopes and protocol tree) loads on the first catch, to keep the first load small.
+  let PeekPanel = $state.raw<typeof PeekPanelT | null>(null);
+  $effect(() => {
+    if (caught && !PeekPanel) Promise.all([import('./ui/PeekPanel.svelte'), loadLayerStrings()]).then(([m]) => (PeekPanel = m.default));
+  });
+  $effect(() => { if (stepInfo.kind === 'layer') void loadLayerStrings(); });
   /** Catch the youngest packet of a kind in the scene on screen (the caption's "Catch" chips). */
   function catchKind(kind: string) {
     const list = (packets.get(hereKey) ?? []).filter((k) => k.id !== CAUGHT_ID);
@@ -576,7 +582,7 @@
 <div class={portrait ? 'port' : 'land'}>
   <Chrome {crumbs} {small} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
     {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
-  {#if caught}
+  {#if caught && PeekPanel}
     <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} />
   {/if}
   <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->

@@ -41,13 +41,21 @@ function buildPacks(meta: Record<string, LocaleMeta>, ui: Record<string, Json>, 
   return packs;
 }
 
-// English (the fallback) ships in the main bundle; other languages load when first chosen, one chunk each (the
-// `virtual:string-packs` plugin in vite.config.ts), so adding a language costs nothing for everyone else.
+// English (the fallback) ships in the main bundle, but for its layer strings (`loadLayerStrings`); other languages
+// load when first chosen, one chunk each (the `virtual:string-packs` plugin in vite.config.ts), so adding a language
+// costs nothing for everyone else.
 export const packs = buildPacks(
   import.meta.glob<LocaleMeta>('/content/locales/*/meta.json', { eager: true, import: 'default' }),
   import.meta.glob<Json>('/content/locales/en/ui.json', { eager: true, import: 'default' }),
-  import.meta.glob<Json>('/content/*/*/locales/en.json', { eager: true, import: 'default' }),
+  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json'], { eager: true, import: 'default' }),
 );
+let layersEn: Promise<void> | null = null;
+/** Load the English layer strings (once): before showing a caught packet or a layer dive. */
+export function loadLayerStrings(): Promise<void> {
+  return (layersEn ??= import('virtual:layer-strings').then(({ folders }) => {
+    Object.assign(packs[FALLBACK].strings, buildPacks({ [`/content/locales/${FALLBACK}/meta.json`]: packs[FALLBACK].meta }, {}, folders)[FALLBACK].strings);
+  }));
+}
 const loading = new Map<string, Promise<void>>([[FALLBACK, Promise.resolve()]]);
 
 /** Load a language's strings (once). Unknown languages resolve at once (they fall back to English). */
@@ -64,7 +72,7 @@ export function loadPack(lang: string): Promise<void> {
   }
   return p;
 }
-export const loadAllPacks = () => Promise.all(Object.keys(packs).map(loadPack)).then(() => packs);
+export const loadAllPacks = () => Promise.all([loadLayerStrings(), ...Object.keys(packs).map(loadPack)]).then(() => packs);
 
 export const languages = Object.keys(packs)
   .sort((a, b) => (a === FALLBACK ? -1 : b === FALLBACK ? 1 : a.localeCompare(b)))

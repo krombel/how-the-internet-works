@@ -9,3 +9,8 @@ declare module 'virtual:string-packs' {
   const loaders: Record<string, () => Promise<{ ui: Record<string, Json>; folders: Record<string, Json> }>>;
   export default loaders;
 }
+
+declare module 'virtual:layer-strings' {
+  type Json = { [k: string]: string | Json };
+  export const folders: Record<string, Json>;
+}

@@ -116,6 +116,7 @@ for (const style of STYLES) {
       // a layer dive: tap IP in the peek (the envelope grows into the dive), idle there, step up the stack
       await go({ places: ['home'], path: [], stop: null }); await settle(p);
       await p.evaluate(() => window.__app.catch('video'));
+      await p.waitForSelector('.peek');
       await p.waitForTimeout(600);
       r.openLayer = await sample(p, cdp, 1600, () => p.evaluate(() => window.__app.openLayer('ip')));
       await settle(p);
@@ -172,6 +173,7 @@ for (const style of STYLES) {
       await p.evaluate(() => window.__app.setClock(5.2));
       if (s.catch) {
         await p.evaluate((k) => window.__app.catch(k), s.catch);
+        await p.waitForSelector('.peek');
         for (let i = 0; i < (s.steps ?? 0); i++) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
         if (s.detail) await p.click('.peek header .chip');
         await p.waitForTimeout(1500);

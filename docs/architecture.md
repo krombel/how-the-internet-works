@@ -287,7 +287,7 @@ in the scene's own folder, so a new dive needs no theme change.
   2. the activity
   3. the item itself (`node.router`)
 - **English fallback.** Any missing string falls back to English. `npm run check:content` prints translation coverage.
-- **Bundling.** English ships in the main bundle. Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
+- **Bundling.** English ships in the main bundle, except the layer strings (header field names and meanings): they load as one chunk (`virtual:layer-strings`) on the first catch or layer dive (`loadLayerStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
 - **RTL.** Arabic is the right-to-left test pack. Content is reviewed in English and Danish; the new layer dives fall back to English in Arabic (see issue #11).
 
 ## Learn more (issue #4)
@@ -355,6 +355,7 @@ Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame
 5G; opening a layer dive is about 7 ms; it varies a few ms between runs). Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is JSGZ kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
-prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so
-adding dives doesn't grow the first load.
+Initial JS is 71.8 kB gz (64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+prototype. Layer dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
+peek panel (with its envelopes and protocol tree, about 4.6 kB) and the English layer strings (about 4.7 kB), which
+load on the first catch.

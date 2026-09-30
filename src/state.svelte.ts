@@ -6,7 +6,7 @@ import { sfx } from './engine/sound';
 import { clearMeasureCache } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
-import { firstOf, lookup, lookupLevel, packs } from './model/strings';
+import { firstOf, loadLayerStrings as loadLayers, lookup, lookupLevel, packs } from './model/strings';
 import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
@@ -28,12 +28,16 @@ export function setLevel(l: Level) {
 const q = new URLSearchParams(location.search);
 if (q.get('level') === 'nerd' || q.get('level') === 'kid') setLevel(q.get('level') as Level);
 
+/** Bumped when more strings arrive (the English layer strings), so text that asked for them too early updates. */
+const more = $state({ n: 0 });
+let layers: Promise<void> | null = null;
+export const loadLayerStrings = () => (layers ??= loadLayers().then(() => { more.n++; }));
 /** A UI or content string in the current language (English fallback; the key itself if missing everywhere). */
-export const tr = (key: string) => lookup(loc.lang, key) ?? key;
+export const tr = (key: string) => (more.n, lookup(loc.lang, key) ?? key);
 /** Level-aware: `key.kid` / `key.nerd`, falling back to `key`. */
-export const trl = (key: string, level: Level = loc.level) => lookupLevel(loc.lang, key, level) ?? key;
+export const trl = (key: string, level: Level = loc.level) => (more.n, lookupLevel(loc.lang, key, level) ?? key);
 /** The first of several keys (most specific first) that has a string. */
-export const trFirst = (keys: string[], level?: Level) => firstOf(loc.lang, keys, level) ?? '';
+export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.lang, keys, level) ?? '');
 /** Fill {placeholders}. */
 export const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
