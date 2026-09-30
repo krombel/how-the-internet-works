@@ -14,6 +14,7 @@
   "ui.soundOff": "Lyd fra – tryk for at slå til",
   "hint.zoomOut": "Knib eller scroll ud for at gå tilbage",
   "hint.overview": "Tryk på en pakke for at fange den. Swipe for at gå videre.",
+  "dive.stretches": "{n} strækninger · via {via}",
   "hint.dive": "Tryk på forstørrelsesglasset for at se indeni",
   "hint.expand": "Tryk på den for at åbne den og se, hvad der er indeni",
   "hint.step": "Swipe eller brug pilene for at gå langs vejen",

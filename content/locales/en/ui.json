@@ -14,6 +14,7 @@
   "ui.soundOff": "Sound off – tap to turn on",
   "hint.zoomOut": "Pinch or scroll out to go back",
   "hint.overview": "Tap a parcel to catch it. Swipe to walk along.",
+  "dive.stretches": "{n} stretches · via {via}",
   "hint.dive": "Tap the magnifier to look inside",
   "hint.expand": "Tap it to open it up and see what’s inside",
   "hint.step": "Swipe or use the arrows to walk along",

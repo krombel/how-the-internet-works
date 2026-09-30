@@ -130,8 +130,8 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 - Strings: `name` (the link label), `kid`/`nerd`, and optionally `tag`.
 - Every technology needs a `dive` (its signal: an existing scene with per-technology strings, or a new one), and every
   layer in its `stack` a layer dive, so a reader can always go all the way down (a content test checks this).
-- Consecutive links with the same technology (and the same dive) are **one sideways stop** at dive level: stepping
-  lands on the first and travels along the rest (issue #34). To make a stretch its own stop, give it its own technology
+- Consecutive links with the same technology (and the same dive) are **one sideways stop** at dive level: they are one
+  dive, with one magnifier mid-run and a "2 stretches · via …" line in its caption (issue #34). To make a stretch its own stop, give it its own technology
   or its own `dive` (the undersea cable would be a `submarine` technology, not a backbone link with a note).
 
 ## Add a layer (issue #5)

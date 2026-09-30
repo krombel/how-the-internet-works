@@ -5,13 +5,15 @@
 import type { Cam, Viewport } from '../engine/camera';
 import { bezier, type Pt } from '../engine/geometry';
 import { startNode, type PathScene } from './layout';
-import { toRoot, type Frame } from './tree';
+import { toRoot, type DiveRun, type Frame } from './tree';
 
 export type DoorKind = 'dive' | 'expand' | 'swap';
 export interface Door {
   kind: DoorKind;
   /** The link or node it belongs to. For 'dive' and 'expand' this is also the child step it opens. */
   id: string;
+  /** A dive's links: one, or a stretch of them that is one dive (they glow together and each opens it). */
+  links: string[];
   /** Where its badge sits, in scene coordinates. */
   at: Pt;
 }
@@ -48,17 +50,20 @@ export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: stri
   return boxes;
 }
 
-/** A scene's doors: the swap badge first (root only), then the dives and groups in route order. Items still fading
- *  in or out while switching place have none. */
-export function doorsOf(ps: PathScene, root: boolean): Door[] {
+/** A scene's doors: the swap badge first (root only), then the dives and groups in route order. A stretch of links
+ *  that is one dive (`runs`, by link: see `diveRuns`) has one badge, in its middle. Items still fading in or out while
+ *  switching place have none (a link only the other place has, isn't in `runs` either: it stands alone). */
+export function doorsOf(ps: PathScene, root: boolean, runs: Map<string, DiveRun>): Door[] {
   const out: Door[] = [];
   const start = root ? startNode(ps) : undefined;
-  if (start && start.alpha > 0.5) out.push({ kind: 'swap', id: start.id, at: { x: start.x + start.size * 0.36, y: start.y - start.size * 0.36 } });
+  if (start && start.alpha > 0.5) out.push({ kind: 'swap', id: start.id, links: [], at: { x: start.x + start.size * 0.36, y: start.y - start.size * 0.36 } });
   for (const id of ps.stops) {
     const n = ps.nodes.find((k) => k.id === id);
-    if (n?.kind === 'group' && n.alpha > 0.5) out.push({ kind: 'expand', id, at: { x: n.x, y: n.y - n.size * 0.36 } });
-    const l = n ? null : ps.links.find((k) => k.id === id);
-    if (l?.dive && l.alpha > 0.5) out.push({ kind: 'dive', id, at: bezier(l, 0.5) });
+    if (n?.kind === 'group' && n.alpha > 0.5) out.push({ kind: 'expand', id, links: [], at: { x: n.x, y: n.y - n.size * 0.36 } });
+    const l = n ? null : ps.links.find((k) => k.id === id), run = runs.get(id);
+    if (!l?.dive || l.alpha <= 0.5 || (run && run.step !== id)) continue;
+    const many = run && run.links.length > 1;
+    out.push({ kind: 'dive', id, links: many ? run.links.map((k) => k.id) : [id], at: many ? run.at : bezier(l, 0.5) });
   }
   return out;
 }

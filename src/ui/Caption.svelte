@@ -31,6 +31,7 @@
     {:else}
       <h2 dir="auto">{text.title}</h2>
     {/if}
+    {#if text.tag}<div class="tag" dir="auto">{text.tag}</div>{/if}
     <p dir="auto">{text.body}</p>
     <div class="foot">
       {#if verbs.length || catches.length}

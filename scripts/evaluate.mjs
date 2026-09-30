@@ -107,7 +107,7 @@ for (const style of STYLES) {
       r.deepIdle = await sample(p, cdp, 1500);
       // sideways at dive level: zoom out, travel the path, zoom in. Two quick steps (access → metro → backbone fibre)
       // join into one glide; then the long-haul and metro fibre idle.
-      r.travelInternet = await sample(p, cdp, 3800, async () => {
+      r.travelInternet = await sample(p, cdp, 4200, async () => {
         await p.keyboard.press('ArrowRight'); await p.waitForTimeout(350); await p.keyboard.press('ArrowRight');
       });
       await settle(p);
@@ -116,7 +116,7 @@ for (const style of STYLES) {
       r.metroIdle = await sample(p, cdp, 1500);
       // and on the overview: the Wi‑Fi dive to the copper dive, past the access point
       await go({ path: ['phone-ap'] }); await settle(p);
-      r.travelRoot = await sample(p, cdp, 2800, () => p.keyboard.press('ArrowRight'));
+      r.travelRoot = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
       await settle(p);
       await go({ path: [] }); await settle(p);
       // catch a packet (traffic pauses), then step it two hops on
@@ -172,7 +172,7 @@ for (const style of STYLES) {
       shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
       // all the way down (issues #13, #18): the link envelopes and the signals under them
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
-      shots.push({ view, where: 'home/watch-video/internet/core-ixp', name: `backbone-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/bng-core', name: `backbone-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/cabinet-backhaul', name: `metro-${view}` });
       shots.push({ view, where: 'home/watch-video/ap~wifi', name: `wifi-frame-${view}` });
       shots.push({ view, where: 'home/watch-video/router~ethernet', name: `ethernet-me-${view}` });
@@ -184,7 +184,7 @@ for (const style of STYLES) {
     }
     // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
     for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
-      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/core-ixp', 'backbone']])
+      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone']])
       shots.push({ view: 'short', where, name: `${name}-short` });
     shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=nerd', name: 'backbone-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=nerd', name: 'gpon-nerd-phone' });

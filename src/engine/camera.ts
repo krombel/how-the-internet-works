@@ -78,16 +78,15 @@ export function flyInterpolator(a: Cam, b: Cam, vp: Viewport) {
  *  purpose (the reader should see where they go from and to, and what's in between): at least `minGlideMs`, longer
  *  for each more device it passes and with distance on screen. A glide that carries on from another (a quick double
  *  step) runs at `chained` of that. Passing a device it slows to `slow` of its speed, within `slowR` screens of it
- *  (`chainWarp`). `u` is the travel altitude (see `travelK`).
- *  TEMPORARY: mutable, with `ease`, while the dev tuner (src/dev/tune.ts) is in. */
+ *  (`chainWarp`). `u` is the travel altitude (see `travelK`). Tuned by eye with the user (PR #37). */
 export const TRAVEL = {
-  outMs: 650, inMs: 700, minGlideMs: 1500, perDeviceMs: 600, perScreenMs: 900, maxGlideMs: 3000, chained: 0.75,
-  overlap: 0.2, slow: 0.45, slowR: 0.2, u: 0.4, ease: 'sine' as 'sine' | 'cubic',
-};
+  outMs: 650, inMs: 700, minGlideMs: 2000, perDeviceMs: 600, perScreenMs: 800, maxGlideMs: 4000, chained: 0.75,
+  overlap: 0.15, slow: 0.35, slowR: 0.25, u: 0.4,
+} as const;
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-/** Ease-in-out for the log-zoom legs: sine is the gentlest start (no sharp push off the dive). */
-const easeInOut = (t: number) => (TRAVEL.ease === 'sine' ? (1 - Math.cos(Math.PI * t)) / 2 : t * t * (3 - 2 * t));
+/** Sine ease-in-out for the log-zoom legs: the gentlest start (no sharp push off the dive). */
+const easeInOut = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 /** A cubic from 0 to 1 that leaves with slope m (0–3 keeps it monotonic) and arrives at rest. */
 const leaveAt = (t: number, m: number) => (t * t * t - 2 * t * t + t) * m + (3 - 2 * t) * t * t;
 

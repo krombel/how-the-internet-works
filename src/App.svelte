@@ -14,9 +14,9 @@
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
-  import { hopAhead, stepHop, type Dir } from './model/packet';
+  import { hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
-  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, sidewaysTarget, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
+  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
@@ -55,6 +55,7 @@
   /** Test hook: hold transitions at this t (0–1) for a frame strip. */
   let holdT: number | null = null;
   let gestureNav = false;
+  let gestures: ReturnType<typeof attachGestures> | undefined;
 
   const target = () => camFor(route, here.path, here.stop, view.vp, view.orient);
 
@@ -163,6 +164,8 @@
   // ------------------------------------------------------------------ navigation
   let shownRoute = nav.route;
   function onNav(next: Loc, prev: Loc) {
+    // whatever moves the camera now, the rest of a scroll's momentum or a drag must not take it back
+    gestures?.interrupt();
     const a = shownRoute;
     shownRoute = nav.route;
     const switched = a !== nav.route;
@@ -210,11 +213,11 @@
   let nudge = $state({ dir: 0, n: 0 });
   const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
   function step(d: -1 | 1) {
-    if (caught) return stepCaught(d);
-    const to = sidewaysTarget(stepInfo, d);
-    if (to === undefined) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
-    if (stepInfo.kind === 'stop') go({ stop: to }, true);
-    else go({ path: [...parentPath(here.path), to!] });
+    if (caught) return stepCaught(hopStepFor(caught.dir, d));
+    const { kind, steps, i, min } = stepInfo, ni = i + d;
+    if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
+    else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
     if (picker) return (picker = null);
@@ -388,7 +391,7 @@
     if (!at) return null;
     const { info, ps } = at;
     const sk = cam.k * info.frame.s, w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
-    const doors = doorsOf(ps, here.path.length === 0), size = badgeSize(themeState.current.labelMinPx, sk);
+    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink), size = badgeSize(themeState.current.labelMinPx, sk);
     const badges = layoutDoors(doors, size, explore, chipHot ?? pointed, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
     const onBadge = (pad: number) => badges.findIndex((b) => Math.abs(b.x - w.x) < b.w / 2 + pad && Math.abs(b.y - w.y) < b.h / 2 + pad);
     // right on a badge beats a packet passing under it; near one, the packet wins
@@ -445,7 +448,7 @@
   // "What can I explore?": every door in the scene lights up with its label, for a few seconds or until tapped again.
   const hereDoors = $derived.by(() => {
     const at = hereScene();
-    return at ? doorsOf(at.ps, here.path.length === 0) : [];
+    return at ? doorsOf(at.ps, here.path.length === 0, diveRuns(route, at.ps.group, view.orient).byLink) : [];
   });
   let explore = $state(false), exploreTimer = 0;
   function setExplore(on: boolean) {
@@ -582,7 +585,7 @@
     };
     stage.addEventListener('pointermove', onHover);
     stage.addEventListener('pointerleave', () => { pointed = null; stage.style.cursor = ''; });
-    attachGestures(stage, ctl, {
+    gestures = attachGestures(stage, ctl, {
       onTap, onFlick,
       onEnd() {
         const next = decide(cam, view.vp, route, here.path, view.orient);
@@ -661,13 +664,13 @@
   <Chrome {crumbs} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
     {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
   {#if caught && PeekPanel}
-    <PeekPanel {route} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
+    <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
   {/if}
   <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
     ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
-    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.runs.length - 1} onstep={step} {nudge} />
+    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
   {#if trip}
     <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>

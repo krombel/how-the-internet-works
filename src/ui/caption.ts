@@ -7,20 +7,21 @@ import { doorsOf } from '../model/doors';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
-import { downFrom, sceneRef, upFrom, type SceneRef } from '../model/tree';
+import { diveRuns, downFrom, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
 import { fill, loc, nameOf, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
-export interface CaptionText { title: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
+/** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). */
+export interface CaptionText { title: string; tag?: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
 
 /** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip.
- *  Links of the same technology share one chip (the first); their badges on the map open the others. */
-function captionDoors(ps: PathScene, root: boolean, stop: string | null): CaptionDoor[] {
+ *  Dives of the same technology name share one chip (the first); their badges on the map open the others. */
+function captionDoors(r: Route, ps: PathScene, o: Orient, root: boolean, stop: string | null): CaptionDoor[] {
   const out: CaptionDoor[] = [];
-  for (const d of doorsOf(ps, root)) {
-    if (d.kind === 'swap' || (stop && d.id !== stop)) continue;
+  for (const d of doorsOf(ps, root, diveRuns(r, ps.group, o).byLink)) {
+    if (d.kind === 'swap' || (stop && d.id !== stop && !d.links.includes(stop))) continue;
     const l = d.kind === 'dive' ? ps.links.find((k) => k.id === d.id) : null;
     const name = l ? tr(`tech.${l.link.tech.id}.name`) : tr(`node.${ps.nodes.find((k) => k.id === d.id)!.node.id}.name`);
     if (out.some((o) => o.kind === d.kind && o.name === name)) continue;
@@ -53,6 +54,14 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
   return trFirst([`scene.${ref.dive}.${tech}.title`, `scene.${ref.dive}.title`]);
 }
 
+/** A dive that stands for a stretch of links: how many, and the devices on the way. */
+function stretchTag(r: Route, ref: SceneRef, o: Orient): string | undefined {
+  const group = sceneRef(r, parentPath(ref.path), o)!.group, links = diveRuns(r, group, o).byLink.get(ref.link!.id)!.links;
+  if (links.length < 2) return undefined;
+  const ps = pathScene(r, group, o), via = links.slice(0, -1).map((l) => tr(`node.${ps.nodes.find((n) => n.id === l.to)!.node.id}.name`));
+  return fill(tr('dive.stretches'), { n: links.length, via: new Intl.ListFormat(loc.lang, { type: 'conjunction' }).format(via) });
+}
+
 export function captionFor(r: Route, path: string[], stop: string | null, o: Orient): CaptionText {
   const ref = sceneRef(r, path, o);
   const lv = loc.level;
@@ -72,6 +81,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     const tech = ref.link!.link.tech;
     return {
       title: sceneTitle(r, path, o),
+      tag: stretchTag(r, ref, o),
       body: trFirst([`scene.${ref.dive}.${tech.id}`, `scene.${ref.dive}`], lv),
       hint: tr('hint.zoomOut'),
       doors: upFrom(r, ref).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
@@ -81,7 +91,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   const ps = pathScene(r, ref.group, o);
   const n = stop ? ps.nodes.find((k) => k.id === stop) : null;
   const l = stop && !n ? ps.links.find((k) => k.id === stop) : null;
-  const doors = captionDoors(ps, path.length === 0, n || l ? stop : null);
+  const doors = captionDoors(r, ps, o, path.length === 0, n || l ? stop : null);
   if (n) return {
     title: tr(`node.${n.node.id}.name`),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),

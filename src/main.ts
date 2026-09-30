@@ -10,8 +10,6 @@ import { loadDiveStrings, loadTheme, settings } from './state.svelte';
 if (import.meta.env.DEV) {
   const { validateAll } = await import('./model/validate-all');
   await validateAll();
-  // TEMPORARY (PR #37): live tuning of the sideways travel timings with `?tune`; remove before merge
-  if (new URLSearchParams(location.search).has('tune')) await import('./dev/tune');
 }
 // The first theme is loaded before mounting so the first paint already has the right art and fonts.
 // Switching later re-renders in place (see the style effect in App.svelte).

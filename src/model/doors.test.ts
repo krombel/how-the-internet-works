@@ -4,21 +4,37 @@ import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './doors
 import { morphScene, pathScene } from './layout';
 import { content } from './registry';
 import { resolveRoute } from './resolve';
-import { childrenOf, fitRectLocal, frameOf, sceneRef, stopRectLocal, rectToRoot } from './tree';
+import { chainAt, chainOf, childrenOf, diveRuns, fitRectLocal, frameOf, sceneRef, stopRectLocal, rectToRoot } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
 const list = (ds: { kind: string; id: string }[]) => ds.map((d) => `${d.kind}:${d.id}`);
+/** A scene's doors, with its runs of links. */
+const doorsIn = (r: typeof home, group: string | null, o: 'landscape' | 'portrait', root = group === null) =>
+  doorsOf(pathScene(r, group, o), root, diveRuns(r, group, o).byLink);
 
 describe('doors', () => {
   it('lists what the root and a group open, swap first, then in route order', () => {
-    expect(list(doorsOf(pathScene(home, null, 'landscape'), true))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
-    expect(list(doorsOf(pathScene(street, null, 'portrait'), true))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
-    expect(list(doorsOf(pathScene(home, 'internet', 'landscape'), false))).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:backhaul-bng', 'dive:bng-core', 'dive:core-ixp', 'dive:ixp-cdn']);
+    expect(list(doorsIn(home, null, 'landscape'))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
+    expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
+    // a stretch of same-technology links is one dive: one badge, and it lights up all of them
+    const inside = doorsIn(home, 'internet', 'landscape');
+    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core']);
+    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-ixp', 'ixp-cdn']]);
+  });
+
+  it('puts a stretch\'s badge in its middle, on the path: on the device between two links, on the middle one of three', () => {
+    const o = 'landscape', ps = pathScene(home, 'internet', o), ch = chainOf(home, 'internet', o), d = doorsIn(home, 'internet', o);
+    const arc = (id: string) => ch.items.find((x) => x.id === id)!.s;
+    const metro = d.find((k) => k.id === 'cabinet-backhaul')!, backbone = d.find((k) => k.id === 'bng-core')!;
+    expect(metro.at).toEqual(chainAt(ch, (arc('cabinet-backhaul') + arc('backhaul-bng')) / 2));
+    const sw = ps.nodes.find((n) => n.id === ps.links.find((l) => l.id === 'cabinet-backhaul')!.to)!;
+    expect(Math.hypot(metro.at.x - sw.x, metro.at.y - sw.y)).toBeLessThan(sw.size);
+    expect(backbone.at).toEqual(chainAt(ch, (arc('bng-core') + arc('ixp-cdn')) / 2));
   });
 
   it('puts badges where the art draws them: mid-link, above a group, beside the start device', () => {
-    const ps = pathScene(home, null, 'landscape'), d = doorsOf(ps, true);
+    const ps = pathScene(home, null, 'landscape'), d = doorsIn(home, null, 'landscape');
     const n = (id: string) => ps.nodes.find((k) => k.id === id)!;
     expect(d.find((k) => k.kind === 'expand')!.at).toEqual({ x: n('internet').x, y: n('internet').y - n('internet').size * 0.36 });
     expect(d[0].at.x).toBeGreaterThan(n('phone').x);
@@ -28,8 +44,9 @@ describe('doors', () => {
   it('has no doors on things still fading in or out while switching place', () => {
     const a = pathScene(home, null, 'landscape'), b = pathScene(street, null, 'landscape');
     // the phone and the cloud glide over; the 5G link and its dive only fade in
-    expect(list(doorsOf(morphScene(a, b, 0.2), true))).toEqual(['swap:phone', 'expand:internet']);
-    expect(list(doorsOf(morphScene(a, b, 1), true))).toEqual(list(doorsOf(b, true)));
+    const runs = diveRuns(street, null, 'landscape').byLink;
+    expect(list(doorsOf(morphScene(a, b, 0.2), true, runs))).toEqual(['swap:phone', 'expand:internet']);
+    expect(list(doorsOf(morphScene(a, b, 1), true, runs))).toEqual(list(doorsOf(b, true, runs)));
   });
 
   // generic: holds for whatever content exists
@@ -41,7 +58,7 @@ describe('doors', () => {
           const ref = sceneRef(r, path, o)!;
           if (ref.kind !== 'path') return;
           const kids = childrenOf(r, ref, o).filter((c) => c.kind !== 'layer');
-          const doors = doorsOf(pathScene(r, ref.group, o), path.length === 0).filter((d) => d.kind !== 'swap');
+          const doors = doorsIn(r, ref.group, o, path.length === 0).filter((d) => d.kind !== 'swap');
           expect(doors.map((d) => `${d.kind}:${d.id}`), `${place} × ${activity} ${o} /${path.join('/')}`).toEqual(kids.map((c) => `${c.kind}:${c.step}`));
           for (const c of kids) walk([...path, c.step]);
         };
@@ -52,7 +69,7 @@ describe('doors', () => {
 
   it('knows which badges are on screen', () => {
     const vp = { w: 390, h: 844, top: 90, bottom: 250 }, o = 'portrait' as const;
-    const ps = pathScene(home, null, o), doors = doorsOf(ps, true), frame = frameOf(home, [], o);
+    const ps = pathScene(home, null, o), doors = doorsIn(home, null, o), frame = frameOf(home, [], o);
     const whole = fit(rectToRoot(frame, fitRectLocal(sceneRef(home, [], o)!, o)), vp);
     expect(list(doorsInView(doors, frame, whole, vp))).toEqual(list(doors));
     // zoomed in on the phone: the cloud's "Open up" is off screen
@@ -65,9 +82,9 @@ describe('doors', () => {
   it('labels a door when pointed at or lit, and keeps lit labels from covering each other', () => {
     const size = 22, textW = () => 100;
     const doors: Door[] = [
-      { kind: 'swap', id: 'a', at: { x: 0, y: 10 } },
-      { kind: 'dive', id: 'b', at: { x: 20, y: 0 } },
-      { kind: 'expand', id: 'c', at: { x: 500, y: 0 } },
+      { kind: 'swap', id: 'a', links: [], at: { x: 0, y: 10 } },
+      { kind: 'dive', id: 'b', links: [], at: { x: 20, y: 0 } },
+      { kind: 'expand', id: 'c', links: [], at: { x: 500, y: 0 } },
     ];
     const rest = layoutDoors(doors, size, false, null, textW);
     expect(rest.map((b) => b.labelled)).toEqual([false, false, false]);

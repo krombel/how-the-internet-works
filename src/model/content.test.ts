@@ -53,7 +53,7 @@ describe('content', () => {
         const first = kids.find((c) => c.kind === 'dive');
         if (!first) return;
         const at = (step: string) => sceneRef(r, [...path, step])!;
-        const runs = sideways(r, [...path, first.step], null, 'landscape').runs.map((run) => at(run[0]));
+        const runs = sideways(r, [...path, first.step], null, 'landscape').steps.map(at);
         for (const [i, b] of runs.entries()) {
           const a = runs[i - 1];
           if (!a || a.dive !== b.dive) continue;

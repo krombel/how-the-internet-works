@@ -1,10 +1,11 @@
 <script lang="ts">
-  // The caught packet at one hop (issue #17). Traffic is paused; ◀ ▶ step the packet along its path. The panel shows
+  // The caught packet at one hop (issue #17). Traffic is paused; ◀ ▶ step the packet along its path, spatially: the
+  // button pointing the way it moves on screen (a response: ◀; portrait: ▲ / ▼) takes it on, and is the filled one. The panel shows
   // what this hop does, the envelopes taken off here, then the packet as it leaves: every layer sealed, closed or
   // opened, the fields the hop uses marked and the ones it changed as old → new. "Details" swaps the envelopes for
   // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8), and below the
   // envelopes, the link they leave on leads down to how it carries them (issue #13).
-  import { hopView, stepHop, type Dir, type LayerView } from '../model/packet';
+  import { hopStepFor, hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/dives.svelte';
@@ -13,8 +14,8 @@
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
   import Icon from './Icon.svelte';
-  let { route, flow, kind, dir, hop, onstep, onclose, ondive, ondown }: {
-    route: Route; flow: string; kind: string; dir: Dir; hop: number;
+  let { route, portrait, flow, kind, dir, hop, onstep, onclose, ondive, ondown }: {
+    route: Route; portrait: boolean; flow: string; kind: string; dir: Dir; hop: number;
     onstep: (d: -1 | 1) => void; onclose: () => void; ondive: (path: string[], env: HTMLElement) => void;
     ondown: (path: string[]) => void;
   } = $props();
@@ -51,9 +52,14 @@
     <button class="btn" onclick={onclose} aria-label={tr('peek.close')}><Icon name="close" /></button>
   </header>
   <nav class="hopnav">
-    <button class="btn" onclick={() => onstep(-1)} disabled={stepHop(route, hop, dir, -1) === null} aria-label={tr('peek.prev')}><Icon name="chevron" rotate={180} /></button>
+    {#snippet stepper(s: -1 | 1)}
+      {@const d = hopStepFor(dir, s)}
+      <button class="btn" class:fwd={d > 0} onclick={() => onstep(d)} disabled={stepHop(route, hop, dir, d) === null}
+        aria-label={tr(d > 0 ? 'peek.next' : 'peek.prev')}><Icon name="chevron" rotate={portrait ? -90 * s : s > 0 ? 0 : 180} /></button>
+    {/snippet}
+    {@render stepper(-1)}
     <p><strong>{at === client ? yours(at) : nameOf(at)}</strong><small>{fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n })}</small></p>
-    <button class="btn" onclick={() => onstep(1)} disabled={stepHop(route, hop, dir, 1) === null} aria-label={tr('peek.next')}><Icon name="chevron" /></button>
+    {@render stepper(1)}
   </nav>
   <p class="where" dir="auto">{says}</p>
   {#if off.length || changed.length || v.layers.some((l) => l.change === 'added' && v.arrive)}
