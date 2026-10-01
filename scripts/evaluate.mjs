@@ -78,9 +78,23 @@ async function open(view, url) {
   await p.evaluate(() => document.fonts.ready);
   return { ctx, p };
 }
-/** Wait for the camera to land. The a11y run allows longer: it doesn't time anything, and a software-rendered
- *  (SWIFTSHADER) flight at night on a CI runner can take over 8 s. */
-const settle = (p, timeout = ONLY === 'a11y' ? 30000 : 8000) => p.waitForFunction(() => !window.__app.busy(), null, { timeout }).then(() => p.waitForTimeout(400));
+/** Wait for the camera to land. */
+const settle = (p) => p.waitForFunction(() => !window.__app.busy(), null, { timeout: 8000 }).then(() => p.waitForTimeout(400));
+/** Wait until the page stands still: the camera has landed (not `busy`) and no CSS animation or transition is running
+ *  (`document.getAnimations()`), two frames after the last one ended. The a11y pass checks settled states only: a
+ *  fixed wait let axe see the caught packet's envelopes mid fade-in on a slow (SWIFTSHADER) runner (#70). It allows
+ *  30 s: it doesn't time anything, and a software-rendered flight at night on a CI runner can take over 8 s. */
+const still = (p) => p.evaluate(async () => {
+  const frames = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  for (const end = performance.now() + 30000; performance.now() < end;) {
+    await frames();
+    if (window.__app.busy()) continue;
+    const moving = document.getAnimations().filter((a) => a.playState === 'running' && Number.isFinite(a.effect?.getComputedTiming().endTime));
+    if (!moving.length) return;
+    await Promise.all(moving.map((a) => a.finished.catch(() => {})));
+  }
+  throw new Error('still moving after 30 s');
+});
 /** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
 const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
 
@@ -166,13 +180,14 @@ async function a11y(style) {
   const fail = (where, what) => { fails.push(`${where}: ${what}`); console.log(`  ✗ ${where}: ${what}`); };
   const prep = async (s, view) => {
     const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''));
-    await settle(p);
-    if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); await p.waitForTimeout(800); }
-    if (s.detail) { await p.click('.peek header .chip'); await p.waitForTimeout(300); }
-    if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForTimeout(500); }
-    if (s.ladder) { await p.click('.crumbs .here'); await p.waitForTimeout(300); }
+    await still(p);
+    if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); }
+    if (s.detail) await p.click('.peek header .chip');
+    if (s.picker) await p.evaluate(() => window.__app.picker(true));
+    if (s.ladder) await p.click('.crumbs .here');
     if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
     if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
+    await still(p);
     return { ctx, p };
   };
   // 1. axe on every state
@@ -200,25 +215,25 @@ async function a11y(style) {
   }
   // 3. journeys: focus comes back after a door, a catch, letting go, and the picker
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
-  await settle(p);
+  await still(p);
   const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
-  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await settle(p); await check('a door from the caption');
-  await p.keyboard.press('Escape'); await settle(p);
-  await p.focus('.caption .door-catch .door'); await p.keyboard.press('Enter'); await p.waitForSelector('.peek'); await p.waitForTimeout(300);
+  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await still(p); await check('a door from the caption');
+  await p.keyboard.press('Escape'); await still(p);
+  await p.focus('.caption .door-catch .door'); await p.keyboard.press('Enter'); await p.waitForSelector('.peek'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.id === 'peek-title'))) fail('journey: catch', 'focus is not on the peek panel');
   await p.keyboard.press('Tab'); await check('Tab in the peek panel');
-  await p.keyboard.press('Escape'); await settle(p); await check('letting go');
+  await p.keyboard.press('Escape'); await still(p); await check('letting go');
   await p.focus('.more-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.menu');
   if (!(await p.evaluate(() => !!document.activeElement?.closest('.menu')))) fail('journey: ⋯', 'focus is not in the menu');
   await p.keyboard.press('Escape'); await p.waitForTimeout(100);
   if (!(await p.evaluate(() => document.activeElement?.matches('.more-btn')))) fail('journey: ⋯', 'focus is not back on ⋯');
-  await p.focus('.caption .foot > .chip'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+  await p.focus('.caption .foot > .chip'); await p.keyboard.press('Enter'); await still(p);
   for (let i = 0; i < 12; i++) {
     await p.keyboard.press('Tab');
     const at = await p.evaluate(() => (document.activeElement === document.body ? 'browser' : document.activeElement?.closest('.picker') ? 'dialog' : 'page'));
     if (at === 'page') { fail('journey: picker', 'Tab reaches the page behind the dialog'); break; }
   }
-  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  await p.keyboard.press('Escape'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
   await ctx.close();
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
