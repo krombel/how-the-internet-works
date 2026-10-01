@@ -1,6 +1,6 @@
 // What lies below where you are, for the depth ladder in the chrome (issues #22, #14, #32). Built only on the scene
 // tree, so it holds for scenes and kinds of child that don't exist yet: a path scene's doors further down, or the
-// stack of envelopes on one link at a layer dive's hop, down to that link's signal.
+// stack of envelopes on one link at a layer dive's (or a device dive's) hop, down to that link's signal.
 import type { Orient } from '../engine/geometry';
 import type { Hop, Link, Route } from './resolve';
 import { opens } from './stack';
@@ -46,8 +46,9 @@ const stretchOf = (r: Route, ref: SceneRef, o: Orient) =>
   diveRuns(r, sceneRef(r, parentPath(ref.path), o)!.group, o).byLink.get(ref.link!.id)!.links.map((l) => l.link);
 
 /** What a signal carries all along it: its link's envelopes that every link of its stretch carries (a layer only some
- *  of them carry is left out), each at the hop that reads it. */
+ *  of them carry is left out), each at the hop that reads it. For a device (#9): its links' envelopes, one each side. */
 export function carriedBy(r: Route, ref: SceneRef, o: Orient): { layer: string; path: string[] }[] {
+  if (ref.node) return upFrom(r, ref);
   const run = stretchOf(r, ref, o);
   return upFrom(r, ref).filter((u) => run.every((l) => l.stack.includes(u.layer)));
 }
@@ -63,6 +64,16 @@ export function belowOf(r: Route, path: string[], o: Orient, via: string | null 
     const link = linkFor(r, ref.at!, via), rungs = stackAt(r, path, link.stack, o), sig = linkDivePath(r, link, parentPath(path));
     if (sig) rungs.push({ path: sig, layer: null, sealed: false });
     return { kind: 'stack', hop: ref.at!.hop, link: link.id, rungs, here: rungs.findIndex((g) => g.path.join('/') === path.join('/')) };
+  }
+  if (ref.node) {
+    // a device (#9): the stack it handles on one of its links (the one you came by, else the one it sends on), down to
+    // that link's signal; none is lit, the device is not one of them
+    const hop = ref.node.hop, up = upFrom(r, ref), near = linksAt(r, hop);
+    if (!up.length || !near.length) return null;
+    const link = near.find((l) => l.id === via) ?? linkOut(r, hop.index, 'up')!;
+    const rungs = stackAt(r, up[0].path, link.stack, o), sig = linkDivePath(r, link, parentPath(path));
+    if (sig) rungs.push({ path: sig, layer: null, sealed: false });
+    return { kind: 'stack', hop: hop.id, link: link.id, rungs, here: -1 };
   }
   // a signal: the envelopes carried all along it, then what they carry, at the hop where the first is read
   const up = carriedBy(r, ref, o), carried = up.map((u) => u.layer);

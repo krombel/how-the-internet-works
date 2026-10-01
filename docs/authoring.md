@@ -179,8 +179,9 @@ bridge passing a frame on, a tunnel starting). The validator names unknown facts
 
 ## Add a dive scene
 
-A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, copper, fibre, 5G) or a layer at one hop
-(`explains: 'layer'`, next section). Technologies and links may only point at link scenes, layers only at layer scenes.
+A dive scene explains a link (`explains: 'link'`, the default: Wi-Fi, copper, fibre, 5G), a device (`explains:
+'node'`, see "Add a device dive") or a layer at one hop (`explains: 'layer'`). Technologies and links may only point at
+link scenes, devices only at device scenes, layers only at layer scenes.
 A link scene is the **signal world**: no envelopes, only bits as waves, light or electricity; *how do the bits
 move?* A layer scene is the **paper world** of envelopes and stickers; *who is this for, how is the road shared,
 did it arrive intact?* Keep that split so the two don't become near-duplicates.
@@ -205,6 +206,38 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   say what the signal is ("Electricity in copper").
 
 Point a technology's `dive` at it, or a single link's `dive`.
+
+## Add a device dive
+
+A device dive looks inside one device on the route (issue #9): the home router's switch, Wi‑Fi radio, routing and NAT
+"brain" and fibre ONT; the cell tower's antennas, radio unit and baseband. Its story is the **medium conversion**:
+what comes in on one link (a radio wave, electric pushes, light) is plain bits inside, is handled, and leaves on the
+next link as something else. Readers get there by the magnifier on the device's corner, by tapping or pinching into
+the device, or by stepping sideways from the link before or after it (link → device → link, issue #38); its URL step
+is the hop id (`#/en/home/watch-video/router`).
+
+- `content/nodes/<id>/node.ts`: `dive: '<scene id>'`. Only `kind: 'device'` nodes have one (a network is a group,
+  which opens up into its own path instead), and only where the device is on the route's chain (not as a group's
+  stand-in entry or on a side branch).
+- `content/scenes/<id>/scene.ts`: `defineScene({ explains: 'node', learnMore })`.
+- `Scene.svelte`: gets `{ subject }`, a `NodeSubject` (`import type { NodeSubject } from '$core/api'`):
+  - `subject.hop`: the hop (its `node`, `role`, `addr`, `natTo`); `subject.sceneNode`: the device as drawn;
+  - `subject.in` / `subject.out`: the route links arriving and leaving (null at an end of the route), with `tech`
+    (`look`, `colour`, `id`), `stack` and their `from`/`to` hops; `subject.route`: the whole route.
+  Draw the device opened up, with the devices before and after (`Node`, `nameOf`) and the links in their
+  technologies' colours, and adapt to the links either side by their `tech.look`, not by device ids: the router
+  scene lights the room the parcel comes in by (the switch for a cable, the Wi‑Fi radio for radio, the ONT for
+  fibre) and veils the rest.
+- Wrap the scene in `<g text-rendering="geometricPrecision">`. The camera rescales a device dive on every frame of the
+  zoom out to the next stop, and Chrome lays hinted SVG text out again each time (this cost frames at 6× CPU).
+- A phone on its side, as for layer dives: no text under 14 px (`legibleSize()`, about 42 world units there), so the
+  router and the cell tower have a compact layout with wider rooms, their titles only and no device names.
+- Strings: `title` and `kid`/`nerd`, or per device (`<node id>.title`, `<node id>.kid`…) for a scene serving several.
+  The caption adds **What it carries** chips by itself: the envelopes of the links either side that have a dive, at
+  this device; the depth ladder shows the envelopes it handles on one of its links, over that link's signal.
+- A device with a dive of its own **ends a stretch**: two links of the same technology either side of it become two
+  sideways stops, with the device between them. A device without one stays inside the stretch.
+- Its layer dives (the peek) stack above it, as upper floors.
 
 ## Add a layer dive
 

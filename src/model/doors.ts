@@ -1,18 +1,18 @@
-// Doors: the things a reader can open from a path scene, each with its own verb and mark. A link with a dive can be
-// looked inside ('dive'), a group node opened up into its own path ('expand'), and at the root the start device
+// Doors: the things a reader can open from a path scene, each with its own verb and mark. A link or device with a dive
+// can be looked inside ('dive'), a group node opened up into its own path ('expand'), and at the root the start device
 // changes where you are and what you do ('swap'). The scene art, the tap/hover targets, "What can I explore?" and the
 // caption's door chips all read this one list, so a badge is always where its tap target is.
 import type { Cam, Viewport } from '../engine/camera';
 import { bezier, type Orient, type Pt, type Rect } from '../engine/geometry';
 import { labelY, startNode, type PathScene, type SNode } from './layout';
-import { toRoot, type DiveRun, type Frame } from './tree';
+import { nodeDive, toRoot, type DiveRun, type Frame } from './tree';
 
 export type DoorKind = 'dive' | 'expand' | 'swap';
 export interface Door {
   kind: DoorKind;
   /** The link or node it belongs to. For 'dive' and 'expand' this is also the child step it opens. */
   id: string;
-  /** A dive's links: one, or a stretch of them that is one dive (they glow together and each opens it). */
+  /** A link dive's links: one, or a stretch of them that is one dive (they glow together and each opens it). */
   links: string[];
   /** Where its badge sits, in scene coordinates. */
   at: Pt;
@@ -52,7 +52,8 @@ export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: stri
 
 /** A scene's doors: the swap badge first (root only), then the dives and groups in route order. A stretch of links
  *  that is one dive (`runs`, by link: see `diveRuns`) has one badge, on its links clear of the devices between them
- *  (`stretchSpot`; `nameW` measures a device's name). Items still fading in or out while switching place have none (a
+ *  (`stretchSpot`; `nameW` measures a device's name). A device's dive has its badge on the device's left corner away
+ *  from its name (the start device's swap badge is on its top right). Items still fading in or out while switching place have none (a
  *  link only the other place has, isn't in `runs` either: it stands alone). */
 export function doorsOf(ps: PathScene, root: boolean, runs: Map<string, DiveRun>, o: Orient, nameW: (n: SNode) => number): Door[] {
   const out: Door[] = [];
@@ -61,6 +62,7 @@ export function doorsOf(ps: PathScene, root: boolean, runs: Map<string, DiveRun>
   for (const id of ps.stops) {
     const n = ps.nodes.find((k) => k.id === id);
     if (n?.kind === 'group' && n.alpha > 0.5) out.push({ kind: 'expand', id, links: [], at: { x: n.x, y: n.y - n.size * 0.36 } });
+    if (n && nodeDive(n) && n.alpha > 0.5) out.push({ kind: 'dive', id, links: [], at: { x: n.x - n.size * 0.36, y: n.y + n.size * (n.label === 'above' ? 0.36 : -0.36) } });
     const l = n ? null : ps.links.find((k) => k.id === id), run = runs.get(id);
     if (!l?.dive || l.alpha <= 0.5 || (run && run.step !== id)) continue;
     const many = run && run.links.length > 1;

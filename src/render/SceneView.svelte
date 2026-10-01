@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // One scene of the tree at its frame: a path scene (nodes, links, packets) or a dive (content/scenes/<id>/Scene.svelte)
-  // into a link or into a layer at one hop. Nested scenes sit on the theme's Panel, clipped to their world.
+  // into a link, a device or a layer at one hop. Nested scenes sit on the theme's Panel, clipped to their world.
   import { WORLD_SIZE } from '../engine/geometry';
   import type { LivePacket } from '../engine/packets';
   import { fit } from '../engine/camera';
@@ -33,6 +33,10 @@
   const Dive = $derived(ref.dive ? diveView(ref.dive) : null);
   const subject = $derived.by((): Subject | null => {
     if (ref.link) return { kind: 'link', link: ref.link.link, sceneLink: ref.link, route };
+    if (ref.node) {
+      const hop = ref.node.hop;
+      return { kind: 'node', hop, sceneNode: ref.node, in: route.links[hop.index - 1] ?? null, out: route.links[hop.index] ?? null, route };
+    }
     const at = ref.at;
     if (!at) return null;
     const ctx = layerCtx(route, at.link, at.flow, at.kind, at.dir, loc.level);

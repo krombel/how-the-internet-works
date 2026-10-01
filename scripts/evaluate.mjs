@@ -148,6 +148,12 @@ for (const style of STYLES) {
       await go({ path: ['phone-ap'] }); await settle(p);
       r.travelRoot = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
       await settle(p);
+      // a device dive (#9, #38): copper → inside the home router, its idle, and on to the fibre
+      r.travelToRouter = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
+      await settle(p);
+      r.routerIdle = await sample(p, cdp, 1500);
+      r.travelFromRouter = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
+      await settle(p);
       await go({ path: [] }); await settle(p);
       // catch a packet (traffic pauses), then step it two hops on
       r.catchStep = await sample(p, cdp, 2400, async () => {
@@ -211,10 +217,14 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/internet/core~mpls', name: `mpls-${view}` });
       shots.push({ view, where: 'home/watch-video/router~gpon', name: `gpon-frame-${view}` });
       shots.push({ view, where: 'street/watch-video/phone~nr', name: `nr-frame-${view}` });
+      // device dives (#9): inside the home router and the cell tower
+      shots.push({ view, where: 'home/watch-video/router', name: `router-${view}` });
+      shots.push({ view, where: 'street/watch-video/cell-tower', name: `tower-${view}` });
     }
     // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
     for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
-      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone']])
+      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone'],
+      ['home/watch-video/router', 'router'], ['street/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
     shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=nerd', name: 'backbone-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=nerd', name: 'gpon-nerd-phone' });
@@ -226,6 +236,8 @@ for (const style of STYLES) {
     shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/cabinet~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=nerd', name: 'router-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'street/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', grow: 'ip', name: 'grow-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', name: 'peek-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', name: 'peek-street-phone' });

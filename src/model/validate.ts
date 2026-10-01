@@ -55,7 +55,7 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
   const has = (path: string) => files.includes(path);
   /** A dive must point at a scene that explains that kind of thing. */
-  const dive = (file: string, where: string, id: string | undefined, kind: 'link' | 'layer') => {
+  const dive = (file: string, where: string, id: string | undefined, kind: 'link' | 'node' | 'layer') => {
     if (id === undefined) return;
     const s = c.scenes[id];
     if (!s) return ref(file, where, 'scenes', id, 'a scene');
@@ -67,6 +67,8 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
   for (const n of Object.values(c.nodes)) {
     schema(n.file, S.node, strip(n));
     need(n.file, `node.${n.id}.name`);
+    dive(n.file, 'dive', n.dive, 'node');
+    if (n.dive && n.kind !== 'device') add(n.file, 'dive', `only a device has a dive (a ${n.kind} is drawn as a group, which opens up instead).`);
     learnMore(n.file, n.learnMore);
   }
   for (const o of Object.values(c.owners)) {

@@ -1,5 +1,5 @@
-// The scene tree: the root path scene; group nodes that expand into their own path scene; links that dive into a
-// "look inside" scene; and, at every hop, the layers it reads that have a dive of their own ("router~ip"). A location
+// The scene tree: the root path scene; group nodes that expand into their own path scene; links and devices that dive
+// into a "look inside" scene; and, at every hop, the layers it reads that have a dive of their own ("router~ip"). A location
 // in the tree is a path of steps (["internet", "home-cabinet"]). Each scene has a frame in root coordinates (children
 // sit at DETAIL_SCALE around their anchor), to any depth.
 import { DETAIL_SCALE, WORLD_SIZE, bezier, curveBounds, lerp, type Curve, type Orient, type Pt, type Rect } from '../engine/geometry';
@@ -21,17 +21,25 @@ export interface SceneRef {
   kind: 'path' | 'dive' | 'layer';
   /** Path scenes: the expanded group (null at the root). */
   group: string | null;
-  /** Dives (of links and layers): the scene id. */
+  /** Dives (of links, devices and layers): the scene id. */
   dive: string | null;
   /** Link dives: the link it explains (as drawn in the parent). */
   link: SLink | null;
+  /** Device dives: the device it explains (as drawn in the parent). */
+  node: SNode | null;
   /** Layer dives: the layer and the hop it is seen at. */
   at: LayerAt | null;
 }
 export interface Frame { x: number; y: number; s: number }
 export interface Child { step: string; kind: 'dive' | 'expand' | 'layer' }
 
-const ROOT_REF: SceneRef = { path: [], kind: 'path', group: null, dive: null, link: null, at: null };
+const ROOT_REF: SceneRef = { path: [], kind: 'path', group: null, dive: null, link: null, node: null, at: null };
+
+/** A device's dive scene, where it has one: a hop on the chain (not a group, entry or side branch). */
+export const nodeDive = (n: SNode | undefined) => (n?.kind === 'hop' && n.hop.index >= 0 && n.node.dive) || null;
+
+/** What a link or device dive explains, for its strings (a scene may serve several): the technology, or the device. */
+export const diveSubject = (ref: SceneRef) => (ref.link ? ref.link.link.tech.id : ref.node!.node.id);
 
 /** The step of a layer dive: "<hop>~<layer>". */
 export const layerStep = (hop: string, layer: string) => `${hop}~${layer}`;
@@ -78,7 +86,7 @@ function spots(r: Route, group: string | null, o: Orient): Map<string, Spot> {
 }
 
 const childMemo = new WeakMap<Route, Map<string, Child[]>>();
-/** Children of a scene, in route order (a hop's layer dives follow it, bottom of the stack first). */
+/** Children of a scene, in route order (a device's own dive, then its layer dives, bottom of the stack first). */
 export function childrenOf(r: Route, ref: SceneRef, o: Orient = 'landscape'): Child[] {
   if (ref.kind !== 'path') return [];
   let m = childMemo.get(r);
@@ -91,6 +99,7 @@ export function childrenOf(r: Route, ref: SceneRef, o: Orient = 'landscape'): Ch
   for (const id of ps.stops) {
     const n = ps.nodes.find((x) => x.id === id);
     if (n?.kind === 'group') out.push({ step: id, kind: 'expand' });
+    if (nodeDive(n)) out.push({ step: id, kind: 'dive' });
     for (const [step, s] of layers) if (s.node === n) out.push({ step, kind: 'layer' });
     if (runs.get(id)?.step === id) out.push({ step: id, kind: 'dive' });
   }
@@ -105,13 +114,14 @@ export function sceneRef(r: Route, path: string[], o: Orient = 'landscape'): Sce
     const c = childrenOf(r, ref, o).find((k) => k.step === step);
     if (!c) return null;
     const next = path.slice(0, i + 1);
-    if (c.kind === 'expand') ref = { path: next, kind: 'path', group: step, dive: null, link: null, at: null };
+    const ps = pathScene(r, ref.group, o);
+    if (c.kind === 'expand') ref = { ...ROOT_REF, path: next, group: step };
     else if (c.kind === 'layer') {
       const { at } = spots(r, ref.group, o).get(step)!;
-      ref = { path: next, kind: 'layer', group: null, dive: r.content.layers[at.layer].dive!, link: null, at };
+      ref = { ...ROOT_REF, path: next, kind: 'layer', dive: r.content.layers[at.layer].dive!, at };
     } else {
-      const link = pathScene(r, ref.group, o).links.find((l) => l.id === step)!;
-      ref = { path: next, kind: 'dive', group: null, dive: link.dive, link, at: null };
+      const link = ps.links.find((l) => l.id === step), node = link ? null : ps.nodes.find((n) => n.id === step)!;
+      ref = { ...ROOT_REF, path: next, kind: 'dive', dive: link ? link.dive : node!.node.dive!, link: link ?? null, node };
     }
   }
   return ref;
@@ -164,10 +174,19 @@ export function downFrom(r: Route, ref: SceneRef): string[] | null {
 }
 
 /** Up from a signal to what it carries: a link dive leads to the dives of its link's own layers, at the end of the
- *  link drawn beside it (else the one that receives them on the way up: the Wi‑Fi radio → the access point's frame). */
+ *  link drawn beside it (else the one that receives them on the way up: the Wi‑Fi radio → the access point's frame).
+ *  A device dive leads to the envelopes it takes off and puts on: those of the links on either side, at the device. */
 export function upFrom(r: Route, ref: SceneRef): { layer: string; path: string[] }[] {
   if (ref.kind !== 'dive') return [];
-  const link = ref.link!.link, here = parentPath(ref.path).join('/');
+  const here = parentPath(ref.path).join('/');
+  if (ref.node) {
+    const hop = ref.node.hop, links = [r.links[hop.index - 1], r.links[hop.index]].filter((l) => l !== undefined);
+    return [...new Set(links.flatMap((l) => l.stack))].flatMap((layer) => {
+      const path = layerPath(r, hop.id, layer);
+      return path ? [{ layer, path }] : [];
+    });
+  }
+  const link = ref.link!.link;
   return link.stack.flatMap((layer) => {
     const ends = [link.to, link.from].map((hop) => layerPath(r, hop, layer)).filter((p) => p !== null);
     const path = ends.find((p) => parentPath(p).join('/') === here) ?? ends[0];
@@ -194,8 +213,8 @@ export function hopScenePath(r: Route, hop: number, o: Orient, current: string[]
   return null;
 }
 
-/** Walking sideways: along a path scene's stops, between the link dives of the parent (a stretch of same-technology
- *  links is one dive, see `diveRuns`), or up and down the layers of one hop (+1 = the next stop / dive, or the layer
+/** Walking sideways: along a path scene's stops, between the link and device dives of the parent (a stretch of
+ *  same-technology links is one dive, see `diveRuns`), or up and down the layers of one hop (+1 = the next stop / dive, or the layer
  *  above). `min` is the lowest index allowed (-1 = no stop at all). */
 export interface Sideways { kind: 'stop' | 'dive' | 'layer'; steps: string[]; i: number; min: number }
 export function sideways(r: Route, path: string[], stop: string | null, o: Orient): Sideways {
@@ -250,9 +269,10 @@ export function chainOf(r: Route, group: string | null, o: Orient): Chain {
 }
 
 /** A path scene's link dives. Consecutive links into the same scene with the same technology are one stretch, and one
- *  dive: three backbone links are one "backbone" dive, not three identical ones. `step` is its first link (the child
- *  step and the door), `links` all of them, `s` where it sits on the chain (the middle of the stretch; a single link
- *  at its midpoint) and `at` that point. */
+ *  dive: three backbone links are one "backbone" dive, not three identical ones. A device with a dive of its own ends a
+ *  stretch (walking sideways goes link → device → link); devices without one stay inside it. `step` is its first link
+ *  (the child step and the door), `links` all of them, `s` where it sits on the chain (the middle of the stretch; a
+ *  single link at its midpoint) and `at` that point. */
 export interface DiveRun { step: string; links: SLink[]; s: number; at: Pt }
 const runMemo = new WeakMap<Route, Map<string, { runs: DiveRun[]; byLink: Map<string, DiveRun> }>>();
 export function diveRuns(r: Route, group: string | null, o: Orient): { runs: DiveRun[]; byLink: Map<string, DiveRun> } {
@@ -266,7 +286,10 @@ export function diveRuns(r: Route, group: string | null, o: Orient): { runs: Div
   let last = '';
   for (const id of ps.stops) {
     const l = ps.links.find((x) => x.id === id);
-    if (!l) continue;
+    if (!l) {
+      if (nodeDive(ps.nodes.find((n) => n.id === id))) last = '';
+      continue;
+    }
     const key = l.dive ? `${l.dive}|${l.link.tech.id}` : '';
     if (key && key === last) runs[runs.length - 1].links.push(l);
     else if (key) runs.push({ step: l.id, links: [l], s: 0, at: { x: 0, y: 0 } });
@@ -335,15 +358,16 @@ export function chainItemAt(ch: Chain, s: number): string {
   return best.id;
 }
 
-/** A sideways move that can travel along the path: between two children of one path scene that both sit on its chain
- *  (link dives now; device dives would too). The parent and where the target sits on its chain, else null. */
+/** A sideways move that can travel along the path: between two dives (of links or devices) of one path scene, which
+ *  all sit on its chain. The parent and where the target sits on its chain, else null. */
 export function travelOf(r: Route, from: string[], to: string[], o: Orient): { parent: string[]; b: number } | null {
   if (!from.length || from.length !== to.length) return null;
   const parent = parentPath(from);
   if (parent.join('/') !== parentPath(to).join('/') || from[from.length - 1] === to[to.length - 1]) return null;
   const pr = sceneRef(r, parent, o), fr = sceneRef(r, from, o), tr = sceneRef(r, to, o);
   if (pr?.kind !== 'path' || fr?.kind !== 'dive' || tr?.kind !== 'dive') return null;
-  const runs = diveRuns(r, pr.group, o).byLink, at = (step: string) => runs.get(step)?.s;
+  const runs = diveRuns(r, pr.group, o).byLink, ch = chainOf(r, pr.group, o);
+  const at = (step: string) => runs.get(step)?.s ?? ch.items.find((x) => x.id === step)?.s;
   const b = at(to[to.length - 1]);
   return at(from[from.length - 1]) === undefined || b === undefined ? null : { parent, b };
 }
@@ -351,12 +375,13 @@ export function travelOf(r: Route, from: string[], to: string[], o: Orient): { p
 /** Where a child nested in a node sits (a group's own path scene): a little below its centre. */
 export const nodeAnchor = (n: SNode): Pt => ({ x: n.x, y: n.y + n.size * 0.06 });
 
-/** Where a child sits in its parent's coordinates. A hop's layer dives stack on it: lower layers below, upper above. */
+/** Where a child sits in its parent's coordinates. A hop's layer dives stack on it: lower layers below, upper above;
+ *  or, on a device with a dive of its own (which sits on it, like a group's scene), all above that one. */
 function anchorOf(r: Route, parent: SceneRef, step: string, o: Orient): Pt {
   const spot = spots(r, parent.group, o).get(step);
   if (spot) {
     const a = nodeAnchor(spot.node), gap = WORLD_SIZE[o].h * DETAIL_SCALE * 1.15;
-    return { x: a.x, y: a.y - (spot.i - (spot.n - 1) / 2) * gap };
+    return { x: a.x, y: a.y - (nodeDive(spot.node) ? spot.i + 1 : spot.i - (spot.n - 1) / 2) * gap };
   }
   const ps = pathScene(r, parent.group, o);
   const n = ps.nodes.find((k) => k.id === step);

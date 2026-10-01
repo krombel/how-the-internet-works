@@ -1,0 +1,51 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inside the cell tower",
+  "kid": "The tower is four little rooms: two up the mast, two in the cabinet at its foot. Antennas catch your radio wave, the radio unit turns it into bits, the sorter puts your parcel in a tunnel envelope, and fibre sends it on as light.",
+  "nerd": "A 5G gNB is split in two: antennas and an RU on the mast, DU/CU baseband in the cabinet. The packet is wrapped in GTP-U to the mobile core, then leaves on metro fibre.",
+  "antenna": {
+    "title": {
+      "kid": "Antennas",
+      "nerd": "Massive MIMO"
+    },
+    "line": {
+      "kid": "Catches radio waves",
+      "nerd": "Beamformed NR panel"
+    }
+  },
+  "radio": {
+    "title": {
+      "kid": "Radio unit",
+      "nerd": "Radio unit (RU)"
+    },
+    "line": {
+      "kid": "Radio ↔ bits",
+      "nerd": "RF ↔ digital · eCPRI"
+    }
+  },
+  "baseband": {
+    "title": {
+      "kid": "The sorter",
+      "nerd": "Baseband DU/CU"
+    }
+  },
+  "fibre": {
+    "title": {
+      "kid": "Fibre out",
+      "nerd": "Metro fibre"
+    },
+    "line": {
+      "kid": "Bits → light",
+      "nerd": "GTP-U on light"
+    }
+  },
+  "tunnel": {
+    "title": "Tunnel envelope",
+    "for": "For: {who}",
+    "from": "GTP-U {addr}",
+    "to": "→ {addr}"
+  }
+}

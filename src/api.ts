@@ -3,9 +3,10 @@
 export type { Level, Mode, Orient } from './define';
 export type { Pt } from './engine/geometry';
 export type { LayerCtx } from './model/stack';
-export type { LayerSubject, LinkSubject } from './render/ctx';
+export type { LayerSubject, LinkSubject, NodeSubject } from './render/ctx';
 export type * from './render/theme-types';
 
+export { along, lengths } from './engine/geometry';
 export { pts, textBox } from './engine/svg';
 export { fakeLabel, fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';

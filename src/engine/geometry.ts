@@ -44,3 +44,15 @@ export function curveBounds(l: Curve, pad = 0): Rect {
 }
 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/** How far along a polyline each of its points is: 0 at the first, its whole length at the last. */
+export const lengths = (pts: Pt[]) => pts.reduce<number[]>((c, q, i) => [...c, i ? c[i - 1] + Math.hypot(q.x - pts[i - 1].x, q.y - pts[i - 1].y) : 0], []);
+
+/** The point at fraction f (0–1) of a polyline's length, and which segment it is on. */
+export function along(pts: Pt[], f: number): { p: Pt; seg: number } {
+  const cum = lengths(pts), d = Math.min(1, Math.max(0, f)) * cum[cum.length - 1];
+  let i = 0;
+  while (i < pts.length - 2 && cum[i + 1] < d) i++;
+  const u = (d - cum[i]) / (cum[i + 1] - cum[i] || 1);
+  return { p: { x: lerp(pts[i].x, pts[i + 1].x, u), y: lerp(pts[i].y, pts[i + 1].y, u) }, seg: i };
+}

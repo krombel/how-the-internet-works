@@ -61,11 +61,41 @@ describe('layer dives in the zoom', () => {
   });
 });
 
+describe('device dives in the zoom', () => {
+  it('pinches into a device\'s dive, and not from a stop on it', () => {
+    for (const [o, v] of [['landscape', vp], ['portrait', pvp]] as const) {
+      expect(decide(fit(sceneInfo(home, ['router'], o).fit, v), v, home, [], o)).toEqual(['router']);
+      // standing at the router: its dive stays shut until pinched further in
+      const stop = camFor(home, [], 'router', v, o);
+      expect(decide(stop, v, home, [], o)).toBeNull();
+      expect(mixes(stop, v, home, [[]], o).get('router') ?? 0).toBe(0);
+    }
+  });
+
+  it('shows one panel at a time between a device\'s dive and the link dive beside it, whichever path it is on', () => {
+    for (const [o, v] of [['landscape', vp], ['portrait', pvp]] as const) {
+      const a = fit(sceneInfo(home, ['ap-router'], o).fit, v), b = fit(sceneInfo(home, ['router'], o).fit, v);
+      for (const t of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
+        const cam = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, k: a.k + (b.k - a.k) * t };
+        const [near, far] = t < 0.5 ? ['ap-router', 'router'] : ['router', 'ap-router'];
+        for (const paths of [[['router']], [['ap-router']]]) {
+          const m = mixes(cam, v, home, paths, o);
+          expect(m.get(near)).toBeCloseTo(1);
+          expect(m.get(far) ?? 0).toBeLessThan(0.01);
+        }
+      }
+    }
+  });
+});
+
 describe('sideways travel in the zoom', () => {
   it('glides over the path scene with no dive showing, and lands in the next dive', () => {
     for (const [o, v, from, to] of [
       ['landscape', vp, ['phone-ap'], ['router-internet']],
       ['portrait', pvp, ['internet', 'home-cabinet'], ['internet', 'bng-core']],
+      // past a device with a dive of its own, which stays shut; and into one
+      ['landscape', vp, ['ap-router'], ['router-internet']],
+      ['portrait', pvp, ['ap-router'], ['router']],
     ] as const) {
       const tv = travelOf(home, [...from], [...to], o)!, info = sceneInfo(home, tv.parent, o), ch = chainOf(home, info.ref.group, o);
       const kT = travelK(home, tv.parent, [...to], v, o), a = fit(sceneInfo(home, [...from], o).fit, v), b = fit(sceneInfo(home, [...to], o).fit, v);

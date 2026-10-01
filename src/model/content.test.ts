@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { content, type Content } from './registry';
 import { loadAllPacks, packs } from './strings';
 import { resolveRoute } from './resolve';
-import { childrenOf, sceneRef, sideways } from './tree';
+import { childrenOf, diveSubject, sceneRef, sideways } from './tree';
 import { coverage, formatProblems, validate } from './validate';
 
 const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
@@ -41,10 +41,22 @@ describe('content', () => {
     expect([...missing]).toEqual([]);
   });
 
+  it('gives every child of a scene its own step', () => {
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      const walk = (path: string[]): void => {
+        const steps = childrenOf(r, sceneRef(r, path)!).map((c) => c.step);
+        expect(new Set(steps).size, `${place}/${activity} /${path.join('/')}`).toBe(steps.length);
+        for (const c of childrenOf(r, sceneRef(r, path)!)) if (c.kind === 'expand') walk([...path, c.step]);
+      };
+      walk([]);
+    }
+  });
+
   it('names neighbouring stretches that dive into the same scene apart, in every language', () => {
     const bad: string[] = [];
-    const title = (lang: string, dive: string, tech: string) =>
-      packs[lang].strings[`scene.${dive}.${tech}.title`] ?? packs[lang].strings[`scene.${dive}.title`];
+    const title = (lang: string, dive: string, what: string) =>
+      packs[lang].strings[`scene.${dive}.${what}.title`] ?? packs[lang].strings[`scene.${dive}.title`];
     for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (path: string[]): void => {
@@ -58,7 +70,7 @@ describe('content', () => {
           const a = runs[i - 1];
           if (!a || a.dive !== b.dive) continue;
           for (const lang of Object.keys(packs)) {
-            const ta = title(lang, a.dive!, a.link!.link.tech.id), tb = title(lang, b.dive!, b.link!.link.tech.id);
+            const ta = title(lang, a.dive!, diveSubject(a)), tb = title(lang, b.dive!, diveSubject(b));
             if (!ta || ta === tb) bad.push(`${lang} ${place}/${activity} ${[...path, a.path.at(-1)].join('/')} → ${b.path.at(-1)}: "${tb}"`);
           }
         }
@@ -130,7 +142,14 @@ describe('validation messages', () => {
     expect(broken((c) => { c.layers.tcp.dive = 'wifi-radio'; })).toContain('content/layers/tcp/layer.ts › dive: "wifi-radio" explains a link; this needs a scene with `explains: \'layer\'`.');
     expect(broken((c) => { c.technologies.wifi.dive = layerScene; })).toContain(`content/technologies/wifi/technology.ts › dive: "${layerScene}" explains a layer; this needs a scene with \`explains: 'link'\`. Known: `);
     expect(broken((c) => { c.places.street.hops[3] = { link: 'metro-fibre', dive: layerScene }; })).toContain('place.ts › hops[3].dive: ');
-    expect(broken((c) => { (c.scenes[layerScene] as { explains: string }).explains = 'node'; })).toContain(`content/scenes/${layerScene}/scene.ts › explains:`);
+    expect(broken((c) => { (c.scenes[layerScene] as { explains: string }).explains = 'device'; })).toContain(`content/scenes/${layerScene}/scene.ts › explains:`);
+  });
+
+  it('checks device dives: they explain a device, and only a device has one', () => {
+    const nodeScene = Object.values(content.scenes).find((s) => s.explains === 'node')!.id;
+    expect(broken((c) => { c.nodes.phone.dive = 'wifi-radio'; })).toContain('content/nodes/phone/node.ts › dive: "wifi-radio" explains a link; this needs a scene with `explains: \'node\'`.');
+    expect(broken((c) => { c.nodes.internet.dive = nodeScene; })).toContain('content/nodes/internet/node.ts › dive: only a device has a dive (a network is drawn as a group, which opens up instead).');
+    expect(broken((c) => { c.technologies.wifi.dive = nodeScene; })).toContain(`content/technologies/wifi/technology.ts › dive: "${nodeScene}" explains a node; this needs a scene with \`explains: 'link'\`.`);
   });
 
   it('checks schemas and learn-more links', () => {

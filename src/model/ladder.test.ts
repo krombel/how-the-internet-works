@@ -19,10 +19,11 @@ describe('depth ladder (#22)', () => {
       const b = belowOf(r, path, 'landscape');
       return b?.kind === 'doors' ? b.doors.map((d) => `${d.kind}:${d.path.join('/')}`) : b;
     };
-    expect(doors(home, [])).toEqual(['dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
+    // a device with a dive (#9) is a door between its links
+    expect(doors(home, [])).toEqual(['dive:phone-ap', 'dive:ap-router', 'dive:router', 'dive:router-internet', 'expand:internet']);
     // a stretch of links is one door
     expect(doors(home, ['internet'])).toEqual(['dive:internet/home-cabinet', 'dive:internet/cabinet-backhaul', 'dive:internet/bng-core', 'dive:internet/border-ixp']);
-    expect(doors(street, [])).toEqual(['dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
+    expect(doors(street, [])).toEqual(['dive:phone-cell-tower', 'dive:cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     expect(belowOf(home, ['no-such-step'], 'landscape')).toBeNull();
   });
 });
@@ -57,6 +58,18 @@ describe('layer ladder (#14, #32)', () => {
     expect(carriedBy(home, sceneRef(home, ['internet', 'border-ixp'], 'landscape')!, 'landscape').map((u) => u.path.join('/'))).toEqual(['internet/ixp~ethernet']);
   });
 
+  it('stacks what a device handles on one of its links, the one you came by or else the one it sends on (#9)', () => {
+    // none lit: you're at the device, not one of its envelopes
+    const out = belowOf(home, ['router'], 'landscape');
+    expect(stack(out)).toEqual(['router~tls!', 'router~tcp!', 'router~ip', 'router~gpon', '~router-internet']);
+    expect(out?.kind === 'stack' && [out.hop, out.link]).toEqual(['router', 'router-cabinet']);
+    expect(stack(belowOf(home, ['router'], 'landscape', 'ap-router'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', 'router~ethernet', '~ap-router']);
+    // a link that isn't at the device can't hold it
+    expect(stack(belowOf(home, ['router'], 'landscape', 'phone-ap'))?.at(-1)).toBe('~router-internet');
+    // and its caption's What it carries is its links' envelopes, one each side
+    expect(carriedBy(home, sceneRef(home, ['router'], 'landscape')!, 'landscape').map((u) => u.layer)).toEqual(['ethernet', 'gpon']);
+  });
+
   // generic: whatever content exists, every scene of every place × activity, both orientations
   it('holds everywhere: rungs resolve, the one you\'re on is marked, and every stack ends in a signal', () => {
     let stacks = 0;
@@ -75,7 +88,9 @@ describe('layer ladder (#14, #32)', () => {
           if (b?.kind !== 'stack') return;
           stacks++;
           for (const g of b.rungs) expect(sceneRef(r, g.path, o), `${at} → ${g.path.join('/')}`).not.toBeNull();
-          expect(b.rungs[b.here].path, at).toEqual(path);
+          // a device (#9) is not one of its envelopes
+          if (ref.node) expect(b.here, at).toBe(-1);
+          else expect(b.rungs[b.here].path, at).toEqual(path);
           const last = b.rungs.at(-1)!;
           expect(last.layer, at).toBeNull();
           expect(sceneRef(r, last.path, o)!.kind, at).toBe('dive');
@@ -100,6 +115,18 @@ describe('layer ladder (#14, #32)', () => {
           const at = `${place} × ${activity} ${o} /${path.join('/')}`;
           const linkLayers = (b: Below, hop: string) => b.kind === 'stack'
             ? b.rungs.filter((g) => g.layer && near(hop).some((l) => l.stack.includes(g.layer!))).map((g) => g.layer!) : [];
+          if (ref.node) {
+            // a device (#9): on each of its links, that link's envelopes over its signal, and climbing keeps the ladder
+            for (const link of near(ref.node.hop.id)) {
+              const b = belowOf(r, path, o, link.id), on = `${at} on ${link.id}`;
+              if (b?.kind !== 'stack') throw new Error(`no stack: ${on}`);
+              expect(b.link, on).toBe(link.id);
+              expect(b.rungs.at(-1)!.path, on).toEqual(linkDivePath(r, link, parentPath(path)));
+              for (const g of b.rungs.slice(0, -1)) expect(stack(belowOf(r, g.path, o, b.link)), `${on} → ${g.path.join('/')}`).toEqual(
+                stack({ ...b, here: b.rungs.indexOf(g) }));
+            }
+            return;
+          }
           if (ref.kind === 'dive') {
             // a signal: its envelopes are on every link of its stretch, read at one end of it
             const run = diveRuns(r, sceneRef(r, parentPath(path), o)!.group, o).byLink.get(ref.link!.id)!.links.map((l) => l.link);

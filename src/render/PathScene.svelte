@@ -53,7 +53,7 @@
   const labelW = (d: Door) => perPx[d.kind] * doorPx;
   const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW));
   const doorTarget = (d: Door) => {
-    if (d.kind === 'dive') return { d: d.links.map((id) => curvePath(ps.links.find((k) => k.id === id)!)).join(' ') };
+    if (d.links.length) return { d: d.links.map((id) => curvePath(ps.links.find((k) => k.id === id)!)).join(' ') };
     const n = ps.nodes.find((k) => k.id === d.id)!;
     return { x: n.x, y: n.y, size: n.size };
   };

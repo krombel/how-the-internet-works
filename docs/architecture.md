@@ -34,7 +34,7 @@ graph LR
 | **Node** | `content/nodes/<id>/` | A device or place on the path (phone, router, cell tower, CDN…). `kind` is `device` or `network` (a group, like `internet`, that unfolds into its own path scene). Its default `role` (`endpoint`, `bridge`, `router`, `nat`) decides which layers it opens and what it does to addresses. Art: `art/Device.svelte`. |
 | **Technology** | `content/technologies/<id>/` | What a link is made of (Wi‑Fi, Ethernet, GPON, 5G NR…). Its **lower layer stack**, a `look` (`radio`, `cable`, `fibre`, `trunk`: the theme draws each look), a colour, and optionally the **dive** scene that explains it. |
 | **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. Its **header schema** (`fields`: id, bits, value template, which roles use it) drives the packet model and the peek (below). `openAt` lists the roles that read it (TCP: only endpoints), `seals` makes it encrypt what's inside, and `dive` names the layer dive scene behind its magnifier. Issues #5, #8, #17. |
-| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared GPON thread with its splitter on the access fibre, DWDM colours on metro fibre and the exchange's short cross-connects, and boosters every 80 km on the backbone), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
+| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared GPON thread with its splitter on the access fibre, DWDM colours on metro fibre and the exchange's short cross-connects, and boosters every 80 km on the backbone), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → border router → IXP → CDN, with transit as a dashed side branch off the border router). Hops, links, side branches, per-hop overrides and layout. |
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
@@ -114,22 +114,25 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - Placement comes from the place, segment and activity `layout`, per orientation. Unplaced nodes are spread along the spine.
    - Links are routed from their end nodes, with a `bend` or a hand-drawn `curve`.
 4. **Scene tree** (`model/tree.ts`).
-   - A path scene's children, in route order, are its expandable groups, its links that have a dive, and its **layer dives**: for every hop drawn in the scene (not groups, entries or asides), every layer with a `dive` on the links arriving at it. The step is `<hop>~<layer>`.
+   - A path scene's children, in route order, are its expandable groups, its links that have a dive, its **device dives** (issue #9: a device on the chain whose node has a `dive`; the step is the hop id, `home/watch-video/router`), and its **layer dives**: for every hop drawn in the scene (not groups, entries or asides), every layer with a `dive` on the links arriving at it. The step is `<hop>~<layer>`.
    - A layer dive's subject is that hop's `LayerCtx`, in a canonical direction (the way the layer arrives upwards if it does, else downwards: the NAT sees the request go out, the phone the video come in), so the URL needs no direction. The scenes show the round trip anyway.
-   - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth. A hop's layer panels form a **vertical stack** centred on the node, lower layers below, so stepping between them is a flight up or down.
+   - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth. A hop's layer panels form a **vertical stack** centred on the node, lower layers below, so stepping between them is a flight up or down. On a device with a dive of its own, that dive sits on the device (like a group's scene) and the layer stack sits all above it, as upper floors.
    - `layerPath(route, hop, layer)` finds the scene in which a hop is drawn, so tapping IP in the peek at the root, for a packet at the cabinet, flies to `internet/cabinet~ip`.
    - **All the way down (issue #13).** Every link has a dive (its signal) and so does every layer in its lower stack
      (its envelope); a content test checks this for every place × activity. `downFrom(route, ref)` goes from a link
      layer's dive to its link's dive (next to it when that scene draws the link: `internet/cabinet~gpon` →
      `internet/home-cabinet`); `upFrom(route, ref)` goes from a link dive to the dives of its link's layers (at the end
-     drawn beside it, else the one receiving them going up); `linkOut` is the link a caught packet's outer envelopes
+     drawn beside it, else the one receiving them going up), and from a device dive to the dives of the layers of the links either side, at that device (the router: its Ethernet and GPON envelopes); `linkOut` is the link a caught packet's outer envelopes
      belong to. They become the caption's **How it travels** / **What it carries** chips and the peek's bottom row.
    - Each mounted scene gets one flat transform from the root, computed in JS doubles, so three levels deep (1000×) stays sharp. Only the scenes along the flight and their near children are mounted.
 5. **Camera** (`engine/camera.ts`, `engine/zoom.ts`). Fly zoom and semantic zoom (pinch or scroll into a child and it opens; out, and it closes) work on the current scene, its parent and its children, never on hard-coded ids.
+   - Pinching or scrolling in opens the child that fills enough of the view nearest its centre (`decide`), so a device's dive and the link dives either side of it don't compete: whichever you zoom at wins. Standing at a device's stop leaves its dive shut; zoom in further to open it.
    - Layer dives are only reached by address (the peek, the URL, stepping), never discovered by pinching into a node: `mixes` and `decide` skip layer children that aren't on the current path, so pinching into a router still does what it did.
-   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ copper ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers carried on the link you're on at that hop, in stack order (▲/▼, a vertical flick, the arrow keys: the depth ladder's rungs, below); ▼ from the lowest goes on down to that link's signal (the ladder's bottom rung).
-   - **Stretches (issue #34).** At dive level a sideways stop is a *run* of consecutive sibling link dives into the same scene with the same technology: the three backbone links inside the internet are one "backbone" stop, not three identical dives. The key is (dive scene, technology) because that is already what makes a dive different (its subject, its `scene.<id>.<tech>` title and captions); the scene alone would merge access, metro and backbone fibre, and adding the layer stack would split the backbone in two (MPLS vs plain Ethernet) for the same picture. It lives in the engine, so it needs no authoring and holds for every place; a link that should be its own stop gets its own technology or `dive`. A run is **one child dive** of the path scene (`diveRuns`): its step (and URL) is its first link, it has one magnifier badge, on one of its links as near the run's middle as it can be while clear of every device and its name at the biggest they are drawn (`doors.ts`: names are measured in the current language and allowed to grow to 1.7× on a phone and 1.9× in short landscape, as they do at rest; the whole-run glow shows what it covers), and tapping any of its links, or pinching into any of them, opens it; the other links of the run are not steps of their own (an old URL naming one falls back to the parent). Stepping then moves one place at a time everywhere, and the travel into or out of a run lands at its middle, gliding past the devices inside it. Its caption says what it stands for under the title ("2 stretches · via Backhaul switch", the device names joined with the language's `Intl.ListFormat`). When #38 gives each device between links its own step, the devices inside a run become stops too.
-   - **Sideways travel (issue #36).** Between two sibling link dives of one path scene (`travelOf`, from the previous and next paths in `onNav`, so Back/Forward and URL edits travel too) the camera doesn't fly straight across: it zooms out to `travelK`, glides along the path, and zooms into the next dive, as three overlapping legs of one move (`travelInterpolator` in `engine/camera.ts`).
+   - **One panel at a time around a device (issue #9).** A device's dive sits between the dives of the links either side, so near it two or three panels would show at once (untidy, and at 6× CPU the second panel's text cost frames). `mixes` ends with a *crowd* fade: of a device dive and its sibling dives, the one nearer the view centre fades the others (and their children) out as it shows itself (`CROWD` in `engine/zoom.ts`). It depends only on the camera, not on the path, so nothing pops when `decide` changes path mid-pinch; levels without device dives are untouched.
+   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link and device dives in route order (Wi‑Fi ↔ copper ↔ the home router ↔ fibre at home; 5G ↔ the cell tower ↔ fibre on the street; issue #38), or, in a layer dive, the layers carried on the link you're on at that hop, in stack order (▲/▼, a vertical flick, the arrow keys: the depth ladder's rungs, below); ▼ from the lowest goes on down to that link's signal (the ladder's bottom rung).
+   - **Stretches (issue #34).** At dive level a sideways stop is a *run* of consecutive sibling link dives into the same scene with the same technology: the three backbone links inside the internet are one "backbone" stop, not three identical dives. The key is (dive scene, technology) because that is already what makes a dive different (its subject, its `scene.<id>.<tech>` title and captions); the scene alone would merge access, metro and backbone fibre, and adding the layer stack would split the backbone in two (MPLS vs plain Ethernet) for the same picture. It lives in the engine, so it needs no authoring and holds for every place; a link that should be its own stop gets its own technology or `dive`. A run is **one child dive** of the path scene (`diveRuns`): its step (and URL) is its first link, it has one magnifier badge, on one of its links as near the run's middle as it can be while clear of every device and its name at the biggest they are drawn (`doors.ts`: names are measured in the current language and allowed to grow to 1.7× on a phone and 1.9× in short landscape, as they do at rest; the whole-run glow shows what it covers), and tapping any of its links, or pinching into any of them, opens it; the other links of the run are not steps of their own (an old URL naming one falls back to the parent). Stepping then moves one place at a time everywhere, and the travel into or out of a run lands at its middle, gliding past the devices inside it. Its caption says what it stands for under the title ("2 stretches · via Backhaul switch", the device names joined with the language's `Intl.ListFormat`).
+   - **Devices between links (issue #38).** A device with a dive of its own is a sideways stop between the links either side, so stepping goes link → device → link. It also **ends a run**: two same-technology links either side of it are two stops, each side of the device, because the reader should be able to stop at the device and a stretch "via" a device you can look inside would hide it. Devices without a dive stay inside runs, passed on the glide as before (the backhaul switch inside the metro fibre). With today's content no run is split: the home router and the cell tower sit between different technologies.
+   - **Sideways travel (issue #36).** Between two sibling dives (of links or devices) of one path scene (`travelOf`, from the previous and next paths in `onNav`, so Back/Forward and URL edits travel too) the camera doesn't fly straight across: it zooms out to `travelK`, glides along the path, and zooms into the next dive, as three overlapping legs of one move (`travelInterpolator` in `engine/camera.ts`).
      - `travelK` is as deep into the parent as the camera can be before any dive panel starts to fade in (`TRAVEL.u` = 0.4, just under `FADE_IN` in `engine/zoom.ts`, which `mixes` uses), so the reader sees the devices and links in between, never a half-faded dive.
      - The legs (`TRAVEL`): out about 650 ms and in about 700 ms (scaled by how far the zoom changes), eased with a sine ease-in-out on log zoom; each leg overlaps the next by 15 %, so out, glide and in each read. The theme's `motion.speed` scales it all.
      - The glide is slow on purpose: the reader should see where they go from and to, and what's in between. It takes at least 2 s, 0.6 s more for each further device it passes (or 0.8 s per screen width at `travelK`, if longer), up to 4 s. A step between neighbours takes about 3 s. These values were tuned by eye with the user on PR #37.
@@ -140,7 +143,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
      - Any navigation ends a wheel or touch gesture still in progress (`interrupt()` from `attachGestures`): a trackpad's momentum scroll still arriving when a step starts would otherwise, once it ended, read the mid-glide camera as a zoom gesture and jump to the parent or settle it in a quick flight.
      - With `prefers-reduced-motion` a sideways step cuts straight to the next dive under a short cross-fade (below).
      - Layer ▲/▼ stepping keeps its short direct flight (the panels are stacked on one hop, with no path between them), and so do up, down, doors and chips.
-     - **For #9:** the travel works on any two chain items (`chain.items` holds devices as well as links), so node dives only need to become siblings in `sideways`; stepping link → node → link then travels half as far each time.
+     - A device dive sits on the chain at its device (`chain.items` holds devices as well as links), so stepping link → device → link travels half as far each time, slowing past the device where the medium changes.
    - **Into a layer dive from the peek:** the tapped envelope's rect is noted, the catch is let go and the normal fly zoom starts; a DOM clone of the envelope is moved each frame from its peek rect to the dive panel's current on-screen rect, landing on it as the panel fades in (none with `prefers-reduced-motion`: there is no flight for it to ride on).
    - **Reduced motion (issue #41).** With `prefers-reduced-motion` no navigation moves the camera. `onNav` asks `moveFor` (`engine/motion.ts`) how to get there: `'fly'`, `'travel'` or `'morph'`, or, when `view.still`, always `'fade'`: the camera cuts to the target and a still copy of the old picture (a clone of the stage SVG, taken in `onNav` before Svelte redraws) fades out over it in `FADE_MS` (220 ms, `fadeOver`). A place switch cuts to the new route, with no morph. Settling after a gesture and letting a caught packet go cut the same way (`settleTo`). The URL, history, focus, caption and sounds are the same as with motion; only the camera's path differs.
    - **A phone on its side (issue #33).** A dive's wide panel fits the height between the top bar and the caption pill, not the width, so it got about half the screen. There `camFor` uses `diveFit` (`engine/zoom.ts`): the panel's top and bottom rims (`DIVE_RIM`, shares of its height that hold only its border and flap) may run under the bars' edges, and it keeps 80 px clear each side for the ◀ ▶ buttons. That is about 1.2× bigger; path scenes and other screens are fitted as before.
@@ -211,7 +214,7 @@ caption and the strings (`door.*`):
 
 | Verb | Kind | On | Opens | Mark (Storybook) |
 |---|---|---|---|---|
-| **Look inside** | `dive` | a link with a dive | the link's dive scene | teal round lens with a magnifier, pulsing |
+| **Look inside** | `dive` | a link with a dive, or a device with one (issue #9) | its dive scene | teal round lens with a magnifier, pulsing; on a device, at its corner away from its name, with a dashed teal ring round it |
 | **Open up** | `expand` | a group node (`kind: network`) | its own path scene | orange lens with a door (its label shows when pointed at or lit); a breathing dashed ring round the group |
 | **Change** | `swap` | the start device (root only) | the place / activity picker | berry rounded square with arrows |
 
@@ -223,7 +226,7 @@ Dives have two more, caption chips only (issue #13), joining an envelope and the
 | Verb | Kind | In | Opens |
 |---|---|---|---|
 | **How it travels** (wave icon) | `down` | a link layer's dive (Wi‑Fi, Ethernet, GPON, NR, VLAN, MPLS, GTP) | its link's dive, named by that scene's title ("Electricity in copper") |
-| **What it carries** (envelope icon) | `up` | a link's dive | the dive of each layer in the link's stack ("Radio envelope") |
+| **What it carries** (envelope icon) | `up` | a link's or a device's dive | the dive of each layer in the link's stack ("Radio envelope"); for a device, those of the links either side, at the device ("Cable envelope", "Light envelope") |
 
 They are found by `downFrom`/`upFrom` (above), so they appear by themselves when a technology or a link layer gets a
 dive; `CaptionDoor.path` carries where they go.
@@ -267,6 +270,10 @@ each rung tappable to go back up. The rung you're on says what lies below it, an
   core), and the ladder stands on the stretch's link at that hop with the fewest envelopes of its own, so climbing on
   doesn't put MPLS back (`carriedBy`, which the caption's *What it carries* chips use too). There is no ▲ out of it: in portrait ▲/▼ already walk between the sibling dives, so the way
   back up is a rung (or *What it carries*).
+- **A device's dive (#9)**: the envelopes it handles on one of its links, over that link's signal, none lit (the device
+  is not one of them): the link you came by (`via`, so stepping copper → router → IP keeps the copper's ladder), else
+  the one it sends on (`linkOut`). Its *What it carries* chips are both links' own envelopes (Ethernet and GPON at the
+  home router), where the stack crosses from one medium to the next.
 While folded, a pip per rung on the current rung shows where you are in the stack.
 
 The model is `model/ladder.ts` (`belowOf`, `linkFor`, `carriedBy`), built only on the scene tree (`childrenOf`, `sceneRef`,
@@ -290,9 +297,14 @@ Packets restart on the new route, and the caption waits for the morph to finish.
 
 ## The context that content gets
 
-**Dive scenes** (`Scene.svelte`) get `{ subject }`, a `LinkSubject` or a `LayerSubject` (`subject.kind`):
+**Dive scenes** (`Scene.svelte`) get `{ subject }`, a `LinkSubject`, a `NodeSubject` or a `LayerSubject` (`subject.kind`):
 - link dives: `subject.link` (the route link it explains, with `tech`, `stack`, and the `from`/`to` hops),
   `subject.sceneLink` (the link as drawn in the parent) and `subject.route` (the whole route);
+- device dives: `subject.hop` (the route hop, with its node, role and addresses), `subject.sceneNode` (as drawn in the
+  parent), `subject.in` / `subject.out` (the route links arriving and leaving, or null at an end) and `subject.route`.
+  A scene adapts to the links either side (their `tech.look` and colours), never to device ids, so one scene can serve
+  every device of a kind (a data centre, #35, gets its own). Captions look up `scene.<id>.<node>` then `scene.<id>`
+  (and `….title` likewise);
 - layer dives: `subject.layer`, `subject.ctx` (the hop's `LayerCtx`, below, at the current level), `subject.open`
   (whether the hop reads the layer, else it's sealed there) and `subject.route`. Captions look up
   `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
@@ -399,7 +411,8 @@ zod never reaches the production bundle.
 - that each scene folder has its component
 - layer header fields: unique ids, a name string per field (kid and nerd), known facts in value templates (with "did
   you mean"), `{inner.<code>}` codes that some layer declares, `@key` values that have a string
-- that technology and link dives point at link scenes, and layer dives at layer scenes
+- that technology and link dives point at link scenes, device dives at device scenes (and only devices have one),
+  and layer dives at layer scenes
 
 In dev, problems go to the console and the Vite overlay:
 
@@ -419,10 +432,15 @@ Vitest (`npm test`) covers:
 - doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
   place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
+- device dives (#9, #38): validation, the child and its frame on the device, its layer stack above it, the badge
+  away from the name, stepping and travelling link → device → link with no dive panel showing on the glide, a device
+  with a dive ending a stretch, its **What it carries** chips, pinching into it (not from its stop), unique child
+  steps everywhere, and the router scene's layout and parcel timing (`model/device-scenes.test.ts`)
 - the layer stacks, roles, NAT/CGNAT and GTP per hop
 - the depth ladder (`belowOf`): doors below path scenes, each hop's stack with its seals and its signal, the stack
   seen from a signal, for every place × activity × orientation; and for every link at every hop, that the ladder
-  holds only that link's envelopes (all of them), its own signal, and the same rungs from each of them (a stable climb)
+  holds only that link's envelopes (all of them), its own signal, and the same rungs from each of them (a stable climb);
+  the same from a device's dive on each of its links
 - the packet model: every value on every link resolves; NAT and CGNAT rewrites, the TTL count-down, MAC continuity
   across bridges, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
   router, core, tower, mobile core, both ends); catching and stepping (`hopAhead`, `stepHop`, `caughtSpot`,
@@ -451,6 +469,7 @@ CI runs `npm ci && npm test && npm run build`.
   layer, and that layer's idle
 - sideways travel (#36): two quick steps inside the internet (access → metro → backbone fibre, one joined glide), the
   long-haul and metro fibre idles, and Wi‑Fi → copper on the overview
+- node dives (#9, #38): copper → the home router's dive → fibre, stepping, and the router dive's idle
 
 `--mode=night` runs the same shots and phases at night. The results go to `app-<style>-night-*.jpg`, and the metrics
 under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× (the halos in the long-haul fibre) and
@@ -460,9 +479,11 @@ to show that a change leaves the day untouched.
 Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
 5G and down to copper, and opening a layer dive; it varies a few ms between runs). Animated scenes avoid group
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
-(measuring text every frame of a flight cost more than the doors themselves).
+(measuring text every frame of a flight cost more than the doors themselves). The device dives draw their text with
+`text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
+made the zoom out of the router's dive miss frames at 6×; geometric text is scaled as drawn.
 
-Initial JS is 79.2 kB gz (about 3.2 kB of it the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is about 80.2 kB gz (about 1.0 kB of it the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

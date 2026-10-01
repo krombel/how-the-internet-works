@@ -19,12 +19,22 @@ const nameW = () => 170;
 
 describe('doors', () => {
   it('lists what the root and a group open, swap first, then in route order', () => {
-    expect(list(doorsIn(home, null, 'landscape'))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
-    expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
+    expect(list(doorsIn(home, null, 'landscape'))).toEqual(['swap:phone', 'dive:phone-ap', 'dive:ap-router', 'dive:router', 'dive:router-internet', 'expand:internet']);
+    expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     // a stretch of same-technology links is one dive: one badge, and it lights up all of them
     const inside = doorsIn(home, 'internet', 'landscape');
     expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core', 'dive:border-ixp']);
     expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp', 'ixp-cdn']]);
+  });
+
+  it('badges a device\'s dive on its corner away from its name, and it opens the device', () => {
+    for (const o of ['landscape', 'portrait'] as const) {
+      const ps = pathScene(home, null, o), n = ps.nodes.find((x) => x.id === 'router')!;
+      const d = doorsIn(home, null, o).find((x) => x.id === 'router')!;
+      expect(d).toMatchObject({ kind: 'dive', links: [] });
+      expect(d.at.x).toBeLessThan(n.x);
+      expect(Math.sign(d.at.y - n.y)).toBe(n.label === 'above' ? 1 : -1);
+    }
   });
 
   // generic: holds for whatever content exists, in every language (names about as wide as the label font draws them)
