@@ -2,8 +2,12 @@
 // layer dives, languages and a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
-// Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf] [--style=id]
+// Usage: npm run build && npx vite preview --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
+//   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
+//                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
+//                        ring; focus comes back after a door, a catch and the picker). Prints what fails, exits 1 if
+//                        anything does; writes nothing.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
 //                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
 //                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
@@ -11,6 +15,7 @@
 import { chromium } from 'playwright';
 import { gzipSync } from 'node:zlib';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 const args = process.argv.slice(2);
 const flag = (k) => args.find((a) => a.startsWith(`--${k}=`))?.split('=')[1];
@@ -86,8 +91,103 @@ async function sample(p, cdp, ms, during) {
   return { fps: Math.round((d.length * 1000) / d.reduce((a, b) => a + b, 0)), p50: q(0.5), p95: q(0.95), worst: q(1), cpuMsPerFrame: +(((b1 - b0) * 1000) / d.length).toFixed(2) };
 }
 
+// ------------------------------------------------------------------ accessibility (--only=a11y)
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
+const A11Y_STATES = [
+  { name: 'overview', where: 'home/watch-video', views: ['desktop', 'phone', 'short'] },
+  { name: 'internet', where: 'home/watch-video/internet', views: ['desktop'] },
+  { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short'] },
+  { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
+  { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone'] },
+  { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=nerd', views: ['desktop'] },
+  { name: 'caught', where: 'home/watch-video', catch: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: true, detail: true, views: ['desktop'] },
+  { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone'] },
+  { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short'] },
+];
+/** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
+ *  null. */
+function focusProblem() {
+  const e = document.activeElement;
+  if (!e || e === document.body) return 'focus on the page';
+  const name = `${e.tagName.toLowerCase()}${e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).join('.') : ''} "${(e.getAttribute('aria-label') || e.textContent || '').trim().slice(0, 30)}"`;
+  if (e.closest('[inert]')) return `${name} is inert`;
+  let o = 1;
+  for (let a = e; a; a = a.parentElement) {
+    const cs = getComputedStyle(a);
+    if (cs.visibility === 'hidden' || cs.display === 'none') return `${name} is hidden`;
+    o *= +cs.opacity;
+  }
+  const r = e.getBoundingClientRect();
+  if (o < 0.2 || r.width < 1 || r.height < 1 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return `${name} can't be seen`;
+  if (e.matches(':focus-visible')) {
+    const cs = getComputedStyle(e);
+    if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) < 2) return `${name} has no focus ring`;
+  }
+  return null;
+}
+async function a11y(style) {
+  const axe = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
+  const fails = [];
+  const fail = (where, what) => { fails.push(`${where}: ${what}`); console.log(`  ✗ ${where}: ${what}`); };
+  const prep = async (s, view) => {
+    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''));
+    await settle(p);
+    if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); await p.waitForTimeout(800); }
+    if (s.detail) { await p.click('.peek header .chip'); await p.waitForTimeout(300); }
+    if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForTimeout(500); }
+    if (s.ladder) { await p.click('.crumbs .here'); await p.waitForTimeout(300); }
+    return { ctx, p };
+  };
+  // 1. axe on every state
+  for (const s of A11Y_STATES)
+    for (const view of s.views) {
+      const { ctx, p } = await prep(s, view);
+      await p.addScriptTag({ content: axe });
+      const r = await p.evaluate((tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), AXE_TAGS);
+      for (const v of r.violations)
+        for (const n of v.nodes) fail(`${s.name} ${view}`, `${v.id} (${v.impact}) ${n.target.join(' ')}: ${n.failureSummary.split('\n').slice(1).join(' ').trim()}`);
+      await ctx.close();
+    }
+  // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
+  //    the browser's own controls, which the page sees as focus on <body>: that ends the round.
+  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da')) {
+    const { ctx, p } = await prep(s, 'desktop');
+    for (let i = 1; i <= 60; i++) {
+      await p.keyboard.press('Tab');
+      const bad = await p.evaluate(focusProblem);
+      if (bad === 'focus on the page') { if (i < 3) fail(`${s.name} Tab ${i}`, 'nothing to Tab to'); break; }
+      if (bad) fail(`${s.name} Tab ${i}`, bad);
+      if (i === 60) fail(s.name, 'Tab never gets round');
+    }
+    await ctx.close();
+  }
+  // 3. journeys: focus comes back after a door, a catch, letting go, and the picker
+  const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
+  await settle(p);
+  const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
+  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await settle(p); await check('a door from the caption');
+  await p.keyboard.press('Escape'); await settle(p);
+  await p.focus('.caption .door-catch .door'); await p.keyboard.press('Enter'); await p.waitForSelector('.peek'); await p.waitForTimeout(300);
+  if (!(await p.evaluate(() => document.activeElement?.id === 'peek-title'))) fail('journey: catch', 'focus is not on the peek panel');
+  await p.keyboard.press('Tab'); await check('Tab in the peek panel');
+  await p.keyboard.press('Escape'); await settle(p); await check('letting go');
+  await p.focus('.caption .foot > .chip'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+  for (let i = 0; i < 12; i++) {
+    await p.keyboard.press('Tab');
+    const at = await p.evaluate(() => (document.activeElement === document.body ? 'browser' : document.activeElement?.closest('.picker') ? 'dialog' : 'page'));
+    if (at === 'page') { fail('journey: picker', 'Tab reaches the page behind the dialog'); break; }
+  }
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
+  await ctx.close();
+  console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
+  if (fails.length) process.exitCode = 1;
+}
+
 for (const style of STYLES) {
   console.log(style);
+  if (ONLY === 'a11y') { await a11y(style); continue; }
   const key = MODE === 'night' ? `${style}-night` : style;
   const m = (metrics[key] = { ...(metrics[key] ?? {}) });
 
@@ -299,5 +399,5 @@ for (const style of STYLES) {
     console.log(`  ${shots.length} screenshots`);
   }
 }
-if (!DIFF) writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
+if (!DIFF && ONLY !== 'a11y') writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
 await browser.close();

@@ -2,11 +2,11 @@
   // Orchestration: one rAF loop drives the scene clock, packets, the camera (eased zoom flights, tracking a caught
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
-  import { onMount, untrack } from 'svelte';
+  import { onMount, tick, untrack } from 'svelte';
   import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
-  import { FADE_MS, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
+  import { FADE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { textBox } from './engine/svg';
@@ -22,7 +22,9 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadDiveStrings, loadTheme, nameW, nav, settings, themeState, tr, view } from './state.svelte';
+  import { loadDiveStrings, loadTheme, loc, nameW, nav, setPaused, settings, themeState, tr, view } from './state.svelte';
+  import { announce, arrival } from './ui/announce.svelte';
+  import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
   import { captionFor, sceneTitle } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
@@ -181,6 +183,7 @@
     shownRoute = nav.route;
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
+    navigated = true;
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
     const from = validPrefix(route, prev.path), tv = switched ? null : travelOf(route, from, next.path, view.orient);
@@ -231,7 +234,7 @@
     else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
-    if (picker) return (picker = null);
+    if (picker) return closePicker();
     if (caught) return release();
     if (here.stop) return go({ stop: null }, true);
     if (here.path.length) go({ path: parentPath(here.path) });
@@ -251,15 +254,15 @@
   });
 
   // ------------------------------------------------------------------ packets, pause + the caught packet
-  // Catching a packet pauses the traffic (issue #17). The caught packet waits at a hop (just before it, on the link it
+  // Pause stops all motion, everywhere (#53, WCAG 2.2.2): everything that moves runs on the scene clock. Catching a
+  // packet pauses it too, while it's held (issue #17). The caught packet waits at a hop (just before it, on the link it
   // arrives by) and ◀ ▶ step it along its path, gliding from hop to hop; the peek panel shows its layers at that hop.
   interface Caught { flow: string; kind: string; dir: Dir; colour?: string; spec: LivePacket['spec']; hop: number; hide: string }
   interface Spot { key: string; link: SLink; t: number }
   let packets = $state.raw(new Map<string, LivePacket[]>());
   let prevIds = new Map<string, Map<string, LivePacket>>();
-  let paused = $state(false);
-  let pausedByCatch = false;
   let caught = $state.raw<Caught | null>(null);
+  const paused = $derived(settings.paused || !!caught);
   /** Where the caught packet is drawn, and its glide to the next spot (`then`: jump there once the glide ends). */
   let ghost: Spot | null = null;
   let glide: { a: number; b: number; t0: number; then: Spot | null } | null = null;
@@ -269,9 +272,8 @@
   const GLIDE_MS = 600, CAUGHT_ID = 'caught';
 
   function togglePause() {
-    if (paused && caught) return release();
-    paused = !paused;
-    pausedByCatch = false;
+    if (caught) return release();
+    setPaused(!settings.paused);
   }
   /** The spot at chain hop `h` in the scene at `path` (null if that scene doesn't draw the link). */
   function spotAt(path: string[], h: number, dir: Dir): Spot | null {
@@ -286,12 +288,12 @@
     const hop = hopAhead(p.pose.link.link.index, p.dir, drawn);
     const spot = spotAt(path, hop, p.dir);
     if (!spot) return;
+    if (!caught) catchFrom = document.activeElement;
     caught = { flow: p.flow, kind: p.kind, dir: p.dir, colour: p.colour, spec: p.spec, hop, hide: p.id };
     // glide from where it was caught to its hop (back to the start of its link if the hop ahead isn't drawn here)
     const t = tOf(p), same = p.pose.link.id === spot.link.id;
     ghost = { key, link: p.pose.link, t };
     glide = { a: t, b: same ? spot.t : p.dir === 'up' ? 0 : 1, t0: performance.now(), then: same ? null : spot };
-    if (!paused) { paused = true; pausedByCatch = true; }
     view.followId = CAUGHT_ID;
     track = true;
     dropTrans();
@@ -347,8 +349,7 @@
   function release(silent = false) {
     if (!caught) return;
     caught = null; ghost = null; glide = null; view.followId = null;
-    if (pausedByCatch) paused = false;
-    pausedByCatch = false;
+    void tick().then(() => keepFocus(catchFrom));
     if (!silent) settleTo(target(), 800);
   }
   function ghostPose(now: number) {
@@ -388,7 +389,16 @@
     for (let i = 0; i <= 24; i++) { const b = bezier(l, i / 24); best = Math.min(best, Math.hypot(b.x - p.x, b.y - p.y)); }
     return best;
   };
-  let picker = $state<{ slot: number } | null>(null);
+  let picker = $state<{ slot: number } | null>(null), pickFrom: Element | null = null;
+  /** The picker is a modal dialog: the rest of the page is inert while it's open, and focus goes back after. */
+  function openPicker(slot: number) {
+    pickFrom = document.activeElement;
+    picker = { slot };
+  }
+  function closePicker() {
+    picker = null;
+    void tick().then(() => keepFocus(pickFrom));
+  }
   /** The current path scene as drawn (mid-morph while switching place), or null in a dive. */
   const hereScene = () => {
     const info = sceneInfo(route, here.path, view.orient);
@@ -434,7 +444,7 @@
     sfx.pop();
     if (d.kind !== 'swap') return go({ path: [...here.path, d.id] });
     const n = hereScene()?.ps.nodes.find((k) => k.id === d.id);
-    picker = { slot: n?.hop.slot ?? 0 };
+    openPicker(n?.hop.slot ?? 0);
   }
   function onTap(sx: number, sy: number) {
     const hit = hitAt(sx, sy);
@@ -504,7 +514,7 @@
   }
 
   function pick(p: { places?: string[]; activity?: string }) {
-    picker = null;
+    closePicker();
     if (p.activity && p.activity !== here.activity) go({ activity: p.activity, path: [] });
     else if (p.places) go({ places: p.places });
   }
@@ -526,6 +536,29 @@
     [{ title: sceneTitle(route, [], view.orient), path: [] as string[] }],
   ));
   const placeName = $derived(route.slots.map((s) => tr(`place.${s.place}.name`)).join(' + '));
+
+  // ------------------------------------------------------------------ focus + what a screen reader hears (#53)
+  // Focus never falls to the page or stays on something hidden: when a navigation lands (or a caught packet is let
+  // go) and focus was on what went away, it goes to the caption's title; otherwise focus stays put (◀ ▶, a crumb)
+  // and the announcer says where you are.
+  let navigated = false;
+  let catchFrom: Element | null = null;
+  const focusable = (e: Element | null): e is HTMLElement => !!e && e !== document.body && e.isConnected && !e.closest('[inert]');
+  function keepFocus(prefer: Element | null = null) {
+    if (focusable(document.activeElement)) return false;
+    (focusable(prefer) ? prefer : captionEl?.querySelector<HTMLElement>('h2'))?.focus();
+    return true;
+  }
+  $effect(() => {
+    if (!showCaption || caught) return;
+    const { title, body } = caption;
+    untrack(() => {
+      if (!navigated) return;
+      navigated = false;
+      if (!keepFocus()) announce(arrival(title, body, loc.lang));
+    });
+  });
+  $effect(() => { document.title = `${caption.title} · ${tr('app.title')}`; });
 
   // ------------------------------------------------------------------ frame loop, gestures, resize
   const orientFor = (w: number, h: number): Orient => (h > w * 1.1 ? 'portrait' : 'landscape');
@@ -556,10 +589,7 @@
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      // pause freezes the traffic of path scenes; dives keep their own animations going
-      const frozen = paused && stepInfo.kind === 'stop';
-      timeScale += ((frozen ? 0 : 1) - timeScale) * Math.min(1, dt * 5);
-      if (frozen && timeScale < 0.002) timeScale = 0;
+      timeScale = clockRate(timeScale, paused, dt);
       if (!clockHeld) clock += dt * timeScale;
       view.real = now / 1000;
       view.time = clock;
@@ -610,6 +640,8 @@
     ro.observe(stage);
     const keys = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker) return;
+      // a focused text that scrolls takes its arrow keys
+      if (e.key !== 'Escape' && (e.target as Element).closest?.('[data-scroll]')) return;
       if (e.key === 'Escape') up();
       else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') step(1);
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') step(-1);
@@ -636,7 +668,7 @@
           b?.click();
           return !!b;
         },
-        picker(open = true) { picker = open ? { slot: 0 } : null; },
+        picker(open = true) { if (open) openPicker(0); else closePicker(); },
         /** A door's badge on screen (in the current scene), e.g. to point the mouse at it. */
         doorAt(id: string) {
           const d = hereDoors.find((k) => k.id === id), info = sceneInfo(route, here.path, view.orient);
@@ -674,35 +706,39 @@
   });
 </script>
 
-<div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
-  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <A.Defs />
-    <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
-    <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
-  </svg>
-</div>
-<div class={portrait ? 'port' : 'land'}>
+<div class={portrait ? 'port' : 'land'} inert={!!picker}>
   <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
-    {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
-  {#if caught && PeekPanel}
-    <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
-  {/if}
-  <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
-  <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
-    ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
-  {#if !peekOpen}
-    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
-      canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
-  {/if}
-  {#if trip}
-    <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
-  {/if}
-  {#if change}
-    <div class="change" aria-hidden="true" style:opacity={change.alpha}
-      style:transform="translate({change.x}px, {change.y}px) translate(-50%, {change.below ? 0 : -100}%)">{change.text}</div>
-  {/if}
-  {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}
-  {#if picker}
-    <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={() => (picker = null)} />
-  {/if}
+    {paused} onpause={togglePause} quiet={peekOpen} />
+  <main>
+    <h1 class="sr">{tr('app.title')}</h1>
+    <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <A.Defs />
+        <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
+        <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
+      </svg>
+    </div>
+    {#if caught && PeekPanel}
+      <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
+    {/if}
+    <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
+    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} {explore} catches={catchable} oncatch={catchKind}
+      ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
+    {#if !peekOpen}
+      <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
+        canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
+    {/if}
+    {#if trip}
+      <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
+    {/if}
+    {#if change}
+      <div class="change" aria-hidden="true" style:opacity={change.alpha}
+        style:transform="translate({change.x}px, {change.y}px) translate(-50%, {change.below ? 0 : -100}%)">{change.text}</div>
+    {/if}
+    {#if grow}<div class="env grow" class:sealed={grow.sealed} bind:this={growEl} aria-hidden="true"></div>{/if}
+  </main>
 </div>
+<Announcer />
+{#if picker}
+  <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={closePicker} />
+{/if}
