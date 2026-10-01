@@ -64,4 +64,4 @@ How the Internet Works is © 2026 Thomas Kjær Aabo and free software under the
   without any AGPL obligations.
 
 The name and logo are not licensed for other uses, and dependencies keep their own licenses. Contributions are
-welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). To report a security problem, see [SECURITY.md](SECURITY.md).
