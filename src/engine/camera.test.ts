@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TRAVEL, isShort, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
+import { TRAVEL, isShort, slideCams, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
 
 const stage = (w: number, h: number) => ({ clientWidth: w, clientHeight: h }) as HTMLElement;
 
@@ -76,5 +76,33 @@ describe('sideways travel', () => {
     expect(going.pos(0.05)).toBeGreaterThan(still.pos(0.05) * 2);
     expect(going(0).x).toBeCloseTo(mid.x);
     expect(going(1).x).toBeCloseTo(b.x);
+  });
+});
+
+describe('slide between rungs (#62)', () => {
+  // two panels of a stack, of different scales and far apart in the root scene
+  const fa = { x: 100, y: 200, s: 0.05 }, fb = { x: 900, y: -400, s: 0.02 };
+  const panel = (c: Cam, f: typeof fa) => ({ x: c.x + f.x * c.k, y: c.y + f.y * c.k, s: c.k * f.s });
+  const a: Cam = { k: 30, x: -2000, y: -5000 }, b: Cam = { k: 60, x: -53000, y: 24100 };
+
+  it('keeps both scenes\' panels in one place on screen all along, from where the old one was to the new fit', () => {
+    const at = slideCams(a, b, fa, fb);
+    for (const e of [0, 0.25, 0.5, 0.75, 1]) {
+      const { a: ca, b: cb } = at(e), pa = panel(ca, fa), pb = panel(cb, fb);
+      for (const q of ['x', 'y', 's'] as const) expect(pa[q]).toBeCloseTo(pb[q], 6);
+    }
+    for (const q of ['x', 'y', 'k'] as const) {
+      expect(at(0).a[q]).toBeCloseTo(a[q], 6);
+      expect(at(1).b[q]).toBeCloseTo(b[q], 6);
+    }
+  });
+
+  it('never zooms out on the way: the panel only eases from one size to the other', () => {
+    const at = slideCams(a, b, fa, fb), s0 = panel(a, fa).s, s1 = panel(b, fb).s;
+    for (let e = 0; e <= 1; e += 0.05) {
+      const s = panel(at(e).b, fb).s;
+      expect(s).toBeGreaterThanOrEqual(Math.min(s0, s1) - 1e-9);
+      expect(s).toBeLessThanOrEqual(Math.max(s0, s1) + 1e-9);
+    }
   });
 });

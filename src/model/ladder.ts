@@ -86,3 +86,12 @@ export function belowOf(r: Route, path: string[], o: Orient, via: string | null 
   rungs.push({ path, layer: null, sealed: false });
   return { kind: 'stack', hop: null, link: link.id, rungs, here: rungs.length - 1 };
 }
+
+/** A step between two rungs of the ladder seen from `from` (#62): 1 down the stack (towards the signal), -1 up, or 0
+ *  when `from` isn't a rung (a path scene, a device's dive) or `to` isn't one of its rungs. */
+export function rungStep(r: Route, from: string[], to: string[], o: Orient, via: string | null = null): -1 | 0 | 1 {
+  const b = belowOf(r, from, o, via);
+  if (b?.kind !== 'stack' || b.here < 0) return 0;
+  const i = b.rungs.findIndex((g) => g.path.join('/') === to.join('/'));
+  return i < 0 || i === b.here ? 0 : i > b.here ? 1 : -1;
+}

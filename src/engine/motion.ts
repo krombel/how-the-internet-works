@@ -7,13 +7,14 @@ export interface MotionPreset {
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 /** How the camera gets to a new location (issue #41): a sideways `travel` between sibling dives, the `morph` to another
- *  place, a `fly` (van Wijk) for everything else (up, down, doors, chips, layer ▲/▼, Back), or, when the reader prefers
+ *  place, a `slide` in place between two rungs of one stack (`rung`: layer ▲/▼, a ladder rung, down to the signal and
+ *  back, issue #62), a `fly` (van Wijk) for everything else (up, down, doors, chips, Back), or, when the reader prefers
  *  reduced motion, a `fade` for all of them: the camera cuts there under a short cross-fade of the old picture, with no
  *  zoom, pan or morph. The URL, history and focus are the same whichever it is. */
-export type Move = 'travel' | 'morph' | 'fly' | 'fade';
-export function moveFor({ switched, travel, still }: { switched: boolean; travel: boolean; still: boolean }): Move {
+export type Move = 'travel' | 'morph' | 'slide' | 'fly' | 'fade';
+export function moveFor({ switched, travel, rung, still }: { switched: boolean; travel: boolean; rung: boolean; still: boolean }): Move {
   if (still) return 'fade';
-  return switched ? 'morph' : travel ? 'travel' : 'fly';
+  return switched ? 'morph' : rung ? 'slide' : travel ? 'travel' : 'fly';
 }
 
 /** The scene clock's rate (1 = running) eased towards `frozen ? 0 : 1` over `dt` seconds: everything that moves
@@ -24,6 +25,8 @@ export function clockRate(rate: number, frozen: boolean, dt: number) {
   return frozen && next < 0.002 ? 0 : next;
 }
 
+/** How long a `slide` takes (ms, before the theme's motion speed). */
+export const SLIDE_MS = 480;
 /** How long a `fade` takes (ms). */
 export const FADE_MS = 220;
 /** A `fade`: a still copy of `pic` (the stage's SVG, as it is before the cut) laid over it, fading out on the compositor

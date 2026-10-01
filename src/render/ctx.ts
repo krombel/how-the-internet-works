@@ -8,8 +8,10 @@ import type { LayerCtx } from '../model/stack';
 import type { Frame } from '../model/tree';
 import { themeState } from '../state.svelte';
 
-/** A scene of the tree that is drawn this frame (key = its path joined by "/"). */
-export interface Mounted { key: string; path: string[]; alpha: number }
+/** A scene of the tree that is drawn this frame (key = its path joined by "/"). During a slide between rungs of a stack
+ *  (#62) the two scenes share one panel on screen: `cam` puts this one's there (else the World's), its back and content
+ *  move down by `shift` panel heights inside it, and only the scene sliding in draws the panel's `edge`. */
+export interface Mounted { key: string; path: string[]; alpha: number; slide?: { cam?: Cam; shift: number; edge: boolean } }
 
 export interface WorldCtx { readonly cam: Cam }
 export interface SceneCtx {
