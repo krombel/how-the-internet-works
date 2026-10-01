@@ -9,7 +9,7 @@
   {#each [[54, 54], [122, 98], [w - 76, 58], [w - 132, 132]] as s, i}
     <g transform="translate({s[0]} {s[1]}) rotate({i % 2 ? -8 : 8})">
       <circle r="26" fill={i === 2 ? 'var(--sun)' : 'var(--kraft)'} stroke="var(--line)" stroke-width="4" />
-      <path d="M-12 1 L-2 12 L15 -12" fill="none" stroke="var(--line)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity={i === 2 ? Math.max(0.28, ok) : 0.28} />
+      <path d="M-12 1 L-2 12 L15 -12" fill="none" stroke={i === 2 ? 'var(--face)' : 'var(--line)'} stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity={i === 2 ? Math.max(0.28, ok) : 0.28} />
     </g>
   {/each}
 </g>

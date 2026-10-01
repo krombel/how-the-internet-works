@@ -17,6 +17,6 @@
     <circle cx={x} cy={y} r="33" fill="var(--paper)" stroke="var(--line)" stroke-width="5" />
     <circle cx={x} cy={y} r="25" fill={colour} opacity="0.88" />
     <path d={`M${x - 11} ${y - 17} Q${x} ${y - 28} ${x + 13} ${y - 17}`} stroke="var(--paper)" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.75" />
-    <text class="bit-digit" {x} y={y + 1} fill="var(--line)" font-size="36" font-weight="800" text-anchor="middle" dominant-baseline="central">{bit}</text>
+    <text class="bit-digit" {x} y={y + 1} fill="var(--line)" stroke="var(--paper)" stroke-width="7" stroke-linejoin="round" paint-order="stroke" font-size="36" font-weight="800" text-anchor="middle" dominant-baseline="central">{bit}</text>
   </g>
 </g>

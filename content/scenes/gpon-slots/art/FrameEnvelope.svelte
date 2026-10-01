@@ -35,7 +35,7 @@
     </g>
   {/if}
   <rect x="-64" y="-74" width="128" height="86" rx="13" fill={kept ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={kept ? 7 : 5} />
-  <path d="M-59 -68 L0 -26 L59 -68" fill="none" stroke="var(--line)" stroke-width="4" opacity="0.65" />
+  <path d="M-59 -68 L0 -26 L59 -68" fill="none" stroke={kept ? 'var(--face)' : 'var(--line)'} stroke-width="4" opacity="0.65" />
   <rect x="-43" y="-33" width="86" height="32" rx="8" fill="var(--paper)" stroke="var(--line)" stroke-width="3.5" />
   <text x="0" y="-10" text-anchor="middle" font-size="23" font-family="ui-rounded, system-ui, sans-serif" font-weight="800" fill="var(--line)">{label}</text>
   {#if locked}

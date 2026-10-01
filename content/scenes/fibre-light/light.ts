@@ -27,6 +27,10 @@ export const FIBRE = {
 
 /** A light channel: its lane at the lasers, and whether it runs right → left (GPON's "coming home" colour). */
 export interface Channel { y: number; reverse: boolean }
+/** Each channel's number at its laser and at its detector (upright, in scene coordinates), so you can match the two
+ *  ends without telling the colours apart. `s`: the emitters' size. */
+export const laneNumbers = (lanes: Channel[], o: Orient, s = 1) =>
+  lanes.flatMap((c, i) => [FIBRE.laserX - 16 * s, FIBRE.detectorX + 21 * s].map((x) => ({ ...toScene({ x, y: c.y }, o), n: i + 1 })));
 export const DWDM: Channel[] = [270, 390, 510, 630].map((y) => ({ y, reverse: false }));
 
 const PERIODS = [210, 260, 170, 300, 230, 190, 280, 250];

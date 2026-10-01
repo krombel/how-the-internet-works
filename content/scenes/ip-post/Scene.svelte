@@ -145,12 +145,12 @@
     {#if on > 0}
       <g opacity={on} transform="translate({(1 - on) * 50} 0)">
         <rect x={valueX - 16} y={y - T.text * 0.72} width={w} height={T.text * 1.44} rx="12" fill={NEW} stroke="var(--line)" stroke-width="4" />
-        <Text x={valueX} y={y + T.text * 0.35} text={r.v} size={T.text} kind="node" anchor="start" />
+        <Text x={valueX} y={y + T.text * 0.35} text={r.v} size={T.text} kind="node" anchor="start" colour="var(--face)" on={NEW} />
       </g>
     {/if}
   {:else}
     <rect x={valueX - 16} y={y - T.text * 0.72} width={w} height={T.text * 1.44} rx="12" fill={r.lit ? UP : 'var(--paper-2)'} stroke="var(--line)" stroke-width={r.lit ? 5 : 3} />
-    <Text x={valueX} y={y + T.text * 0.35} text={r.typed === undefined ? r.v : r.v.slice(0, Math.ceil(r.v.length * r.typed))} size={T.text} kind="node" anchor="start" />
+    <Text x={valueX} y={y + T.text * 0.35} text={r.typed === undefined ? r.v : r.v.slice(0, Math.ceil(r.v.length * r.typed))} size={T.text} kind="node" anchor="start" colour={r.lit ? 'var(--face)' : undefined} on={r.lit ? UP : undefined} />
   {/if}
 {/each}
 {#if mode === 'bridge'}
@@ -169,7 +169,7 @@
     {@const y = card.y + h * (i + 0.5)}
     {@const on = i === lit ? (m.phase === 'act' ? ramp(m.p, 0.35, 0.6) : m.phase === 'out' ? 1 : 0) : 0}
     <Sign x={card.x + card.w / 2} {y} w={card.w * 0.92} h={Math.min(h * 0.78, T.text * 2)} to={s.to} lit={on} />
-    <Text x={card.x + card.w / 2 + (s.to === 'back' ? 14 : -14)} y={y + T.text * 0.35} text={nerd ? s.prefix : s.name ?? S('elsewhere')} size={T.text} kind="node" />
+    <Text x={card.x + card.w / 2 + (s.to === 'back' ? 14 : -14)} y={y + T.text * 0.35} text={nerd ? s.prefix : s.name ?? S('elsewhere')} size={T.text} kind="node" colour={on > 0.5 ? 'var(--face)' : undefined} on={on > 0.5 ? 'var(--sun)' : undefined} />
   {/each}
 {:else}
   <Card x={card.x} y={card.y} w={card.w} h={cardH} tint={mode === 'nat' ? NEW : mode === 'bridge' ? OLD : 'var(--leaf)'} />
@@ -180,8 +180,8 @@
       {@const on = r.you && m.leg === 1 && m.phase === 'act'}
       <g opacity={r.you ? written : 1}>
         {#if r.you}<rect x={card.x + 18} y={y - T.text * 0.75} width={card.w - 36} height={T.text * 1.45} rx="12" fill={on ? UP : 'var(--paper-2)'} stroke="var(--line)" stroke-width={on ? 5 : 0} />{/if}
-        <Text x={card.x + 34} y={y + T.text * 0.35} text={nerd ? r.inside : r.name} size={T.text * (nerd ? 0.85 : 1)} kind={r.you ? 'node' : 'small'} anchor="start" />
-        <Text x={card.x + card.w - 34} y={y + T.text * 0.35} text={nerd ? `:${r.port}` : fill(S('ticket'), { n: String(r.port) })} size={T.text * (nerd ? 0.85 : 1)} kind={r.you ? 'node' : 'small'} anchor="end" />
+        <Text x={card.x + 34} y={y + T.text * 0.35} text={nerd ? r.inside : r.name} size={T.text * (nerd ? 0.85 : 1)} kind={r.you ? 'node' : 'small'} anchor="start" colour={on ? 'var(--face)' : undefined} on={on ? UP : undefined} />
+        <Text x={card.x + card.w - 34} y={y + T.text * 0.35} text={nerd ? `:${r.port}` : fill(S('ticket'), { n: String(r.port) })} size={T.text * (nerd ? 0.85 : 1)} kind={r.you ? 'node' : 'small'} anchor="end" colour={on ? 'var(--face)' : undefined} on={on ? UP : undefined} />
       </g>
     {/each}
   {:else if mode === 'bridge'}
@@ -191,7 +191,7 @@
       {#if l.head}
         <g transform="translate({card.x + 60} {y})">
           <rect x="-26" y="-18" width="52" height="36" rx="7" fill={wrapColours[l.on === up ? 1 : 0]} stroke="var(--line)" stroke-width="4" />
-          <path d="M-22 -14 L0 2 L22 -14" fill="none" stroke="var(--line)" stroke-width="3" />
+          <path d="M-22 -14 L0 2 L22 -14" fill="none" stroke="var(--face)" stroke-width="3" />
           <circle cx="24" cy="-18" r="14" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
           <path d={l.on ? 'M16 -18 H32 M24 -26 V-10' : 'M16 -18 H32'} stroke="var(--line)" stroke-width="4" stroke-linecap="round" />
         </g>
@@ -202,10 +202,10 @@
     {@const py = card.y + 84 + T.big * 0.55 + T.text * 0.9}
     {@const sy = card.y + cardH - 45}
     <rect x={card.x + 30} y={py - T.text * 0.9} width={card.w - 60} height={T.text * 1.8} rx="14" fill="var(--mustard)" stroke="var(--line)" stroke-width="5" />
-    <circle cx={card.x + 50} cy={py} r="6" fill="var(--line)" /><circle cx={card.x + card.w - 50} cy={py} r="6" fill="var(--line)" />
-    <Text x={card.x + card.w / 2} y={py + T.text * 0.35} text={plate} size={T.text} kind="node" />
+    <circle cx={card.x + 50} cy={py} r="6" fill="var(--face)" /><circle cx={card.x + card.w - 50} cy={py} r="6" fill="var(--face)" />
+    <Text x={card.x + card.w / 2} y={py + T.text * 0.35} text={plate} size={T.text} kind="node" colour="var(--face)" on="var(--mustard)" />
     {#if m.leg === 0 && act > 0.35}
-      <Text x={card.x + card.w / 2} y={sy} text={act > 0.6 && above ? fill(S('up'), { layer: LN(`${above}.name`, ctx.level) }) : S('match')} size={T.text} kind="big" colour="var(--leaf-dark)" />
+      <Text x={card.x + card.w / 2} y={sy} text={act > 0.6 && above ? fill(S('up'), { layer: LN(`${above}.name`, ctx.level) }) : S('match')} size={T.text} kind="big" colour="var(--leaf-ink)" />
     {:else if m.leg === 1 && m.phase !== 'rest'}
       <Text x={card.x + card.w / 2} y={sy} text={S('write')} size={T.text} kind="big" colour="var(--brick)" />
     {/if}
