@@ -72,10 +72,10 @@ src/                      the engine: no content ids anywhere
   engine/                 camera (semantic zoom), gestures, motion, packets, sound, svg, geometry, zoom
   model/                  registry (content globs), components (Svelte globs), strings, schema + validate (zod),
                           resolve (route), layout (path scenes), tree (scene tree), packet (the packet model),
-                          stack (LayerCtx), location (URL)
+                          stack (LayerCtx), ladder (what lies below a scene), location (URL)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
-  ui/                     Chrome (breadcrumb, language, level, pause, sound), Caption, PeekPanel, Envelope, FieldTree…
+  ui/                     Chrome (language, level, pause, sound), Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -124,7 +124,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - Each mounted scene gets one flat transform from the root, computed in JS doubles, so three levels deep (1000×) stays sharp. Only the scenes along the flight and their near children are mounted.
 5. **Camera** (`engine/camera.ts`, `engine/zoom.ts`). Fly zoom and semantic zoom (pinch or scroll into a child and it opens; out, and it closes) work on the current scene, its parent and its children, never on hard-coded ids.
    - Layer dives are only reached by address (the peek, the URL, stepping), never discovered by pinching into a node: `mixes` and `decide` skip layer children that aren't on the current path, so pinching into a router still does what it did.
-   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ copper ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers of the same hop in stack order (▲/▼, a vertical flick, the arrow keys).
+   - Sideways stepping (`sideways` in `model/tree.ts`) walks the stops of a path scene, the sibling link dives in route order (Wi‑Fi ↔ copper ↔ fibre at home; 5G ↔ fibre on the street), or, in a layer dive, the layers carried on the link you're on at that hop, in stack order (▲/▼, a vertical flick, the arrow keys: the depth ladder's rungs, below); ▼ from the lowest goes on down to that link's signal (the ladder's bottom rung).
    - **Stretches (issue #34).** At dive level a sideways stop is a *run* of consecutive sibling link dives into the same scene with the same technology: the three backbone links inside the internet are one "backbone" stop, not three identical dives. The key is (dive scene, technology) because that is already what makes a dive different (its subject, its `scene.<id>.<tech>` title and captions); the scene alone would merge access, metro and backbone fibre, and adding the layer stack would split the backbone in two (MPLS vs plain Ethernet) for the same picture. It lives in the engine, so it needs no authoring and holds for every place; a link that should be its own stop gets its own technology or `dive`. A run is **one child dive** of the path scene (`diveRuns`): its step (and URL) is its first link, it has one magnifier badge, on one of its links as near the run's middle as it can be while clear of every device and its name at the biggest they are drawn (`doors.ts`: names are measured in the current language and allowed to grow to 1.7× on a phone and 1.9× in short landscape, as they do at rest; the whole-run glow shows what it covers), and tapping any of its links, or pinching into any of them, opens it; the other links of the run are not steps of their own (an old URL naming one falls back to the parent). Stepping then moves one place at a time everywhere, and the travel into or out of a run lands at its middle, gliding past the devices inside it. Its caption says what it stands for under the title ("2 stretches · via Backhaul switch", the device names joined with the language's `Intl.ListFormat`). When #38 gives each device between links its own step, the devices inside a run become stops too.
    - **Sideways travel (issue #36).** Between two sibling link dives of one path scene (`travelOf`, from the previous and next paths in `onNav`, so Back/Forward and URL edits travel too) the camera doesn't fly straight across: it zooms out to `travelK`, glides along the path, and zooms into the next dive, as three overlapping legs of one move (`travelInterpolator` in `engine/camera.ts`).
      - `travelK` is as deep into the parent as the camera can be before any dive panel starts to fade in (`TRAVEL.u` = 0.4, just under `FADE_IN` in `engine/zoom.ts`, which `mixes` uses), so the reader sees the devices and links in between, never a half-faded dive.
@@ -240,6 +240,39 @@ dive; `CaptionDoor.path` carries where they go.
   stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
   SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
+
+### The depth ladder: where you are and what lies below (issues #22, #14, #32)
+
+The breadcrumb is a **depth ladder** (`ui/Ladder.svelte`): Home ▸ Inside the internet ▸ Light shared by your street,
+each rung tappable to go back up. The rung you're on says what lies below it, and tapping it opens the list:
+- **A path scene**: a small ladder and how many doors lead further down ("4 doors lead further down"), and the list of
+  them with their verb's icon, named by their scenes' titles. Pointing at or focusing one lights its badge in the
+  scene, as a caption chip does. They are the scene tree's children, bar the layer dives (those are reached by
+  address, see *Camera*), so a new kind of child (a node dive) shows up by itself.
+- **A layer dive**: the envelopes carried on **the link you're on** at that hop, top first, the one you're in lit and
+  the ones this hop can't open (`opens`, `model/stack.ts`) with a lock. A hop joins two links, and each carries its own
+  envelopes: at the home router the copper carries Ethernet and the fibre GPON, so the ladder on the copper is TLS,
+  TCP, IP, Ethernet and never GPON. A link envelope stands on its own link; a layer both sides carry (IP and above)
+  on the side you came from (the ladder remembers its link, `via`), else the side the packet leaves on (`linkOut`, as
+  the peek's bottom row). The bottom rung is that link's **signal** (#32, what *How it travels* opens). ▲/▼ in a layer
+  dive climb this ladder rather than the hop's whole stack, so ▼ from the lowest envelope steps down onto the signal
+  and climbing never jumps to the other link.
+- **A signal (a link's dive)**: the same ladder seen from the bottom: the envelopes it carries (`upFrom`) and the
+  layers above them at that hop, the signal lit. A stretch of links (#34) keeps only the envelopes **every** link of
+  it carries: the backbone stretch inside the internet is plain Ethernet, as MPLS rides only its first link (into the
+  core), and the ladder stands on the stretch's link at that hop with the fewest envelopes of its own, so climbing on
+  doesn't put MPLS back (`carriedBy`, which the caption's *What it carries* chips use too). There is no ▲ out of it: in portrait ▲/▼ already walk between the sibling dives, so the way
+  back up is a rung (or *What it carries*).
+While folded, a pip per rung on the current rung shows where you are in the stack.
+
+The model is `model/ladder.ts` (`belowOf`, `linkFor`, `carriedBy`), built only on the scene tree (`childrenOf`, `sceneRef`,
+`sideways`, `upFrom`, `linkDivePath`, `linkOut`, `diveRuns`), so it holds for every place and for scenes that don't exist yet.
+
+**Space.** It lives in the top bar, not the caption, so it never competes with the caption's chips. It is folded by
+default, except a stack on a screen with room beside the scene (`roomy` in `App.svelte`: a gutter of 180 px or more
+next to the fitted scene and 820 px of height, so it ends above ▼), where it stays open, narrow, until folded. On a phone
+and in short landscape it opens as a menu over the scene (tighter rungs in short landscape, scrolling if need be).
+The breadcrumb keeps its last two steps on a short screen (the rest behind "…").
 
 ### The place morph
 
@@ -381,6 +414,9 @@ Vitest (`npm test`) covers:
   place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - the layer stacks, roles, NAT/CGNAT and GTP per hop
+- the depth ladder (`belowOf`): doors below path scenes, each hop's stack with its seals and its signal, the stack
+  seen from a signal, for every place × activity × orientation; and for every link at every hop, that the ladder
+  holds only that link's envelopes (all of them), its own signal, and the same rungs from each of them (a stable climb)
 - the packet model: every value on every link resolves; NAT and CGNAT rewrites, the TTL count-down, MAC continuity
   across bridges, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
   router, core, tower, mobile core, both ends); catching and stepping (`hopAhead`, `stepHop`, `caughtSpot`,
@@ -420,7 +456,7 @@ Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves).
 
-Initial JS is 73.5 kB gz (72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is 75.7 kB gz (about 2.0 kB of it the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

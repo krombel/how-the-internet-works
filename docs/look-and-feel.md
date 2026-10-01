@@ -352,7 +352,9 @@ always muted again on reload.
 - **Labels** are counter-scaled with a minimum on-screen size per style (13–14 px). Some labels flip above or
   below per orientation.
 - **Chrome** fits on two rows (breadcrumb, then the controls), and the caption sits at the bottom where thumbs
-  are.
+  are. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies below (a
+  ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; only a roomy
+  desktop keeps a layer stack open beside the scene.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
   its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
   the whole caption over the scene. The scene keeps about 280 of 390 px (it had 105–145).
