@@ -1,0 +1,27 @@
+# Weekly version updates, grouped into one PR per ecosystem, on Monday morning (not overnight while lanes run).
+# Security updates come separately, as soon as an advisory lands.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Copenhagen
+    open-pull-requests-limit: 3
+    groups:
+      dev-dependencies:
+        dependency-type: development
+      dependencies:
+        dependency-type: production
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Copenhagen
+    groups:
+      actions:
+        patterns: ['*']
