@@ -32,7 +32,7 @@ activities, languages, themes and learn-more links are each **added as a folder*
 - [docs/architecture.md](docs/architecture.md): the model, the scene tree, and the context scenes and layers get
 - [docs/authoring.md](docs/authoring.md): how to add each kind of thing (with the laptop as a worked example)
 
-`npm run evaluate` (with `npx vite preview --port 5318` running on a fresh build) regenerates the screenshots in
+`npm run evaluate` (with `npx vite preview --host 127.0.0.1 --port 5318` running on a fresh build) regenerates the screenshots in
 `docs/img/app-*` and the frame-time metrics in [docs/app-metrics.json](docs/app-metrics.json); `npm run evaluate --
 --only=a11y` checks accessibility ([docs/accessibility.md](docs/accessibility.md)).
 

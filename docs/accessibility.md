@@ -51,7 +51,7 @@ chips and the ladder are the way in), the scene can't be walked by keyboard stop
 ## How to check
 
 ```sh
-npm run build && npx vite preview --port 5318 &
+npm run build && npx vite preview --host 127.0.0.1 --port 5318 &
 npm run evaluate -- --only=a11y               # day
 npm run evaluate -- --only=a11y --mode=night  # night
 ```
