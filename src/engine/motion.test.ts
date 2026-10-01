@@ -3,17 +3,24 @@ import { clockRate, moveFor } from './motion';
 
 describe('moveFor (how onNav moves the camera)', () => {
   const kinds = [
-    { switched: false, travel: false, natural: 'fly' },
-    { switched: false, travel: true, natural: 'travel' },
-    { switched: true, travel: false, natural: 'morph' },
+    { switched: false, travel: false, rung: false, natural: 'fly' },
+    { switched: false, travel: true, rung: false, natural: 'travel' },
+    { switched: true, travel: false, rung: false, natural: 'morph' },
+    { switched: false, travel: false, rung: true, natural: 'slide' },
   ] as const;
 
-  it('flies, travels sideways or morphs to another place', () => {
-    for (const { switched, travel, natural } of kinds) expect(moveFor({ switched, travel, still: false })).toBe(natural);
+  it('flies, travels sideways, slides between rungs of a stack or morphs to another place', () => {
+    for (const { natural, ...k } of kinds) expect(moveFor({ ...k, still: false })).toBe(natural);
+  });
+
+  it('slides rung to rung, never out through the scene (#62)', () => {
+    expect(moveFor({ switched: false, travel: false, rung: true, still: false })).toBe('slide');
+    // a step that is both (none today) stays in its stack
+    expect(moveFor({ switched: false, travel: true, rung: true, still: false })).toBe('slide');
   });
 
   it('fades every one of them with prefers-reduced-motion', () => {
-    for (const { switched, travel } of kinds) expect(moveFor({ switched, travel, still: true })).toBe('fade');
+    for (const { natural: _, ...k } of kinds) expect(moveFor({ ...k, still: true })).toBe('fade');
   });
 });
 

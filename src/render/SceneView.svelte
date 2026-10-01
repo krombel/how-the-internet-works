@@ -10,15 +10,18 @@
   import type { Route } from '../model/resolve';
   import { layerCtx, opens } from '../model/stack';
   import { loc, themeState, view } from '../state.svelte';
-  import { getWorld, setScene, type Subject } from './ctx';
+  import { getWorld, setScene, setWorld, type Mounted, type Subject } from './ctx';
   import { diveView } from './dives.svelte';
   import PathScene from './PathScene.svelte';
 
-  let { route, path, alpha, packets, scene, places, focus, hot, lit }: {
-    route: Route; path: string[]; alpha: number; packets: LivePacket[]; scene?: PS; focus: string | null; hot: string | null; lit: boolean;
+  let { route, path, alpha, slide, packets, scene, places, focus, hot, lit }: {
+    route: Route; path: string[]; alpha: number; slide?: Mounted['slide']; packets: LivePacket[]; scene?: PS; focus: string | null; hot: string | null; lit: boolean;
     places?: { id: string; alpha: number; dx: number }[];
   } = $props();
-  const world = getWorld();
+  const outer = getWorld();
+  // a scene sliding out of a shared panel (#62) has a camera of its own, for its text sizes too
+  const world = { get cam() { return slide?.cam ?? outer.cam; } };
+  setWorld(world);
   const info = $derived(sceneInfo(route, path, view.orient));
   const fitK = $derived(fit(info.fit, view.vp).k);
   setScene({ get path() { return path; }, get frame() { return info.frame; }, get fitK() { return fitK; } });
@@ -53,10 +56,12 @@
   {:else}
     <clipPath id={clip}><rect width={W.w} height={W.h} rx="60" /></clipPath>
     <g clip-path="url(#{clip})">
-      <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
-      {#if ps}<PathScene {route} {ps} {packets} {focus} {hot} {lit} root={false} />
-      {:else if Dive && subject}<Dive {subject} />{/if}
+      <g transform={slide ? `translate(0 ${slide.shift * W.h})` : undefined}>
+        <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
+        {#if ps}<PathScene {route} {ps} {packets} {focus} {hot} {lit} root={false} />
+        {:else if Dive && subject}<Dive {subject} />{/if}
+      </g>
     </g>
-    <A.Panel part="edge" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
+    {#if slide?.edge !== false}<A.Panel part="edge" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />{/if}
   {/if}
 </g>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { belowOf, carriedBy, type Below } from './ladder';
+import { belowOf, carriedBy, rungStep, type Below } from './ladder';
 import { content } from './registry';
 import { resolveRoute, type Route } from './resolve';
 import { childrenOf, diveRuns, layersAt, linkDivePath, parentPath, sceneRef } from './tree';
@@ -158,5 +158,48 @@ describe('layer ladder (#14, #32)', () => {
       }
     }
     expect(links).toBeGreaterThan(200);
+  });
+});
+
+describe('rung to rung (#62)', () => {
+  it('steps down the stack towards the signal (1) or up (-1), between rungs of the ladder you see', () => {
+    expect(rungStep(home, ['phone~tls'], ['phone~tcp'], 'landscape')).toBe(1);
+    expect(rungStep(home, ['phone~tcp'], ['phone~tls'], 'landscape')).toBe(-1);
+    // down onto the signal and back up from it
+    expect(rungStep(home, ['router~ip'], ['router-internet'], 'landscape')).toBe(1);
+    expect(rungStep(home, ['phone-ap'], ['ap~wifi'], 'landscape')).toBe(-1);
+    // the ladder you came by: on the copper the router's signal is the copper's
+    expect(rungStep(home, ['router~ip'], ['ap-router'], 'landscape', 'ap-router')).toBe(1);
+    expect(rungStep(home, ['router~ip'], ['ap-router'], 'landscape')).toBe(0);
+  });
+
+  it('is no step from a path scene, a device\'s dive, to another hop or to where you are', () => {
+    expect(rungStep(home, [], ['phone-ap'], 'landscape')).toBe(0);
+    expect(rungStep(home, ['router'], ['router~ip'], 'landscape')).toBe(0);
+    expect(rungStep(home, ['phone~ip'], ['ap~ip'], 'landscape')).toBe(0);
+    expect(rungStep(home, ['phone~ip'], ['phone~ip'], 'landscape')).toBe(0);
+    expect(rungStep(home, ['router~ip'], [], 'landscape')).toBe(0);
+  });
+
+  // generic: every rung of every ladder, from every other rung of it
+  it('holds everywhere: between any two rungs, the way down the ladder', () => {
+    let pairs = 0;
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      for (const o of ['landscape', 'portrait'] as const) {
+        const walk = (path: string[]): void => {
+          const ref = sceneRef(r, path, o)!;
+          if (ref.kind === 'path') return childrenOf(r, ref, o).forEach((c) => walk([...path, c.step]));
+          const b = belowOf(r, path, o);
+          if (b?.kind !== 'stack' || b.here < 0) return;
+          b.rungs.forEach((g, i) => {
+            pairs++;
+            expect(rungStep(r, path, g.path, o), `${place} × ${activity} ${o} /${path.join('/')} → ${g.path.join('/')}`).toBe(Math.sign(i - b.here));
+          });
+        };
+        walk([]);
+      }
+    }
+    expect(pairs).toBeGreaterThan(500);
   });
 });

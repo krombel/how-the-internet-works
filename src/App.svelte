@@ -3,16 +3,16 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, tick, untrack } from 'svelte';
-  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
-  import { FADE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
+  import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
-  import { belowOf } from './model/ladder';
+  import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
   import { hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
@@ -40,13 +40,19 @@
   const hereKey = $derived(keyOf(here.path));
 
   // ------------------------------------------------------------------ camera + flights
-  /** A flight (eased here) or a sideways travel along a path scene's chain (it eases its own legs). */
-  interface Trans { b: Cam; t0: number; dur: number; fly: (t: number) => Cam; travel: Travel | null }
+  /** A flight (eased here), a sideways travel along a path scene's chain (it eases its own legs) or a slide between
+   *  rungs of a stack. */
+  interface Trans { b: Cam; t0: number; dur: number; fly: (t: number) => Cam; travel: Travel | null; slide: Slide | null }
   /** Travelling along the chain of the path scene `key`: `s(t)` is the arc the view centre is at (from `a` to `b`),
    *  `start` the dive the whole glide set off from (a chained step keeps it). */
   interface Travel { key: string; chain: Chain; frame: Frame; nodes: Map<string, SNode>; kT: number; a: number; b: number; s: (t: number) => number; start: string[] }
   let cam = $state.raw<Cam>({ x: 0, y: 0, k: 1 });
   let trans: Trans | null = null;
+  /** A slide (#62): the scene going out (`from`), the camera that keeps its panel where the new one is, and which way
+   *  it goes (1: down the stack, the new layer comes up from below). */
+  interface Slide { from: string; cam: (t: number) => Cam; dir: 1 | -1 }
+  /** During a slide, this frame of it: the scene going out, its camera, and how far along (eased, 0–1). */
+  let sliding = $state.raw<{ from: string; cam: Cam; dir: 1 | -1; e: number } | null>(null);
   /** During a flight: where we came from (still blended in) and where we go (mounted from the start). */
   let flight = $state.raw<{ from: string[]; to: string[] } | null>(null);
   /** During a travel: the link or device of the path scene we're passing (it lights up as the camera glides by). */
@@ -65,9 +71,19 @@
   function startTrans(from: string[], to: string[], b: Cam, durMs?: number) {
     const fly = flyInterpolator(cam, b, view.vp);
     const dur = durMs ?? fly.duration * themeState.current.motion.speed;
-    trans = { b, t0: performance.now(), dur, fly: (t) => fly(easeInOutCubic(t)), travel: null };
+    trans = { b, t0: performance.now(), dur, fly: (t) => fly(easeInOutCubic(t)), travel: null, slide: null };
     flight = { from, to };
     passing = null;
+    return dur;
+  }
+  /** In place between two rungs of a stack (#62): the panel stays (easing to the new one's fit), the layer leaves it
+   *  and the next comes in from below (down the stack) or above, and nothing else shows. */
+  function startSlide(from: string[], to: string[], dir: 1 | -1) {
+    const o = view.orient, b = target(), cams = slideCams(cam, b, sceneInfo(route, from, o).frame, sceneInfo(route, to, o).frame);
+    const dur = SLIDE_MS * themeState.current.motion.speed;
+    trans = { b, t0: performance.now(), dur, fly: (t) => cams(easeInOutCubic(t)).b, travel: null, slide: { from: keyOf(from), cam: (t) => cams(easeInOutCubic(t)).a, dir } };
+    // its first frame now, so the next layer is never drawn where it stands in the stack
+    frameTrans(trans.t0);
     return dur;
   }
   /** Sideways between two children on a path scene's chain (#36): out, along the path, in. A step during a travel
@@ -92,7 +108,7 @@
     const devices = chain.items.filter((it) => it.tech === null && (it.s - a) * (tv.b - it.s) > 0).length;
     const fly = travelInterpolator(cam, b, along, Math.abs(tv.b - a) * info.frame.s, kT, view.vp, { devices, v0: v0 / warp.rate0, chained: !!R });
     const nodes = new Map(pathScene(route, info.ref.group, o).nodes.map((n) => [n.id, n]));
-    trans = { b, t0: now, dur: fly.duration * speed, fly, travel: { key, chain, frame: info.frame, nodes, kT, a, b: tv.b, s: (t) => warp.at(fly.pos(t)), start } };
+    trans = { b, t0: now, dur: fly.duration * speed, fly, travel: { key, chain, frame: info.frame, nodes, kT, a, b: tv.b, s: (t) => warp.at(fly.pos(t)), start }, slide: null };
     flight = { from, to };
     trip = { from: sceneTitle(route, start, o), to: sceneTitle(route, to, o), past: false };
   }
@@ -101,6 +117,7 @@
     const T = trans!, t = transT(T, now);
     cam = T.fly(t);
     if (T.travel) followTravel(T.travel, t);
+    if (T.slide) sliding = { from: T.slide.from, cam: T.slide.cam(t), dir: T.slide.dir, e: easeInOutCubic(t) };
     if (t >= 1) finishTrans();
   }
   /** Light up what the travel passes, and name the change of medium at a device on the way. */
@@ -129,6 +146,7 @@
   function dropTrans() {
     trans = null;
     flight = null;
+    sliding = null;
     passing = null;
     trip = null;
     change = null;
@@ -187,13 +205,16 @@
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
     const from = validPrefix(route, prev.path), tv = switched ? null : travelOf(route, from, next.path, view.orient);
+    // the ladder as it was seen (`via` is still the last stack's link)
+    const rung = switched ? 0 : rungStep(route, from, next.path, view.orient, via);
     const quick = gestureNav;
     gestureNav = false;
-    // a flight first lands; a travel hands over from wherever its camera is
-    if (trans && !trans.travel) finishTrans();
-    const move = moveFor({ switched, travel: !!tv, still: view.still });
+    const move = moveFor({ switched, travel: !!tv, rung: !!rung, still: view.still });
+    // a flight (or a slide) first lands; a travel hands over from wherever its camera is, unless a slide follows
+    if (trans && (!trans.travel || move === 'slide')) finishTrans();
     let dur = FADE_MS;
     if (move === 'fade') cutTo(target());
+    else if (move === 'slide') dur = startSlide(from, next.path, rung as 1 | -1);
     else if (move === 'travel') startTravel(from, next.path, tv!);
     else if (move === 'morph') {
       morph = { a, t0: performance.now(), dur: MORPH_MS, placesA: a.slots.map((s) => s.place) };
@@ -202,7 +223,7 @@
     if (move !== 'fade') showCaption = false;
     // the sound says what changed, however the camera gets there
     if (switched || tv || keyOf(next.path) === keyOf(prev.path)) sfx.swish();
-    else sfx.whoosh(next.path.length > prev.path.length, dur);
+    else sfx.whoosh(rung ? rung < 0 : next.path.length > prev.path.length, dur);
   }
 
   function settle() {
@@ -250,7 +271,16 @@
         const k = keyOf(p.slice(0, i));
         if (!keys.has(k)) keys.set(k, mix.get(k) ?? 0);
       }
-    return [...keys].map(([key, alpha]) => ({ key, path: key ? key.split('/') : [], alpha })).sort((a, b) => a.path.length - b.path.length);
+    const list: Mounted[] = [...keys].map(([key, alpha]) => ({ key, path: key ? key.split('/') : [], alpha })).sort((a, b) => a.path.length - b.path.length);
+    const S = sliding;
+    if (!S) return list;
+    // a slide (#62): the two layers in one panel and nothing else, the one coming in drawn last (it draws the edge)
+    const into = (key: string, slide: Mounted['slide']): Mounted => ({ key, path: key ? key.split('/') : [], alpha: 1, slide });
+    return [
+      ...list.filter((m) => m.key !== S.from && m.key !== hereKey).map((m) => ({ ...m, alpha: 0 })),
+      into(S.from, { cam: S.cam, shift: -S.dir * S.e, edge: false }),
+      into(hereKey, { shift: S.dir * (1 - S.e), edge: true }),
+    ];
   });
 
   // ------------------------------------------------------------------ packets, pause + the caught packet

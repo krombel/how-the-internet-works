@@ -125,6 +125,21 @@ export function travelInterpolator(a: Cam, b: Cam, along: (u: number) => Pt, len
   return Object.assign(fn, { duration, pos: (t: number) => legs(t).wg });
 }
 
+/** A scene's frame in root coordinates: local point p → (x + p.x·s, y + p.y·s). */
+interface Placed { x: number; y: number; s: number }
+/** A slide between two rungs of a stack (#62): one panel on screen, eased from where scene `fa`'s panel is under `a` to
+ *  where scene `fb`'s is under `b` (its fit), so it lands on the new fit without zooming out. For e ∈ [0, 1] it returns
+ *  the camera that puts each scene's panel there (they slide inside it, see `SceneView`). */
+export function slideCams(a: Cam, b: Cam, fa: Placed, fb: Placed) {
+  const at = (c: Cam, f: Placed) => ({ x: c.x + f.x * c.k, y: c.y + f.y * c.k, s: c.k * f.s });
+  const camOf = (p: Placed, f: Placed): Cam => ({ k: p.s / f.s, x: p.x - (f.x * p.s) / f.s, y: p.y - (f.y * p.s) / f.s });
+  const p0 = at(a, fa), p1 = at(b, fb);
+  return (e: number) => {
+    const p = { x: p0.x + (p1.x - p0.x) * e, y: p0.y + (p1.y - p0.y) * e, s: p0.s + (p1.s - p0.s) * e };
+    return { a: camOf(p, fa), b: camOf(p, fb) };
+  };
+}
+
 /** Scale a camera about a screen point. */
 export function zoomAbout(cam: Cam, f: number, sx: number, sy: number): Cam {
   const k = cam.k * f;

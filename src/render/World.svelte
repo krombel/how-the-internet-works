@@ -24,7 +24,7 @@
 
 <g class="world">
   {#each mounted as m (m.key)}
-    <SceneView {route} path={m.path} alpha={m.alpha} packets={packets.get(m.key) ?? []} scene={scenes.get(m.key)} {places}
+    <SceneView {route} path={m.path} alpha={m.alpha} slide={m.slide} packets={packets.get(m.key) ?? []} scene={scenes.get(m.key)} {places}
       focus={focus.key === m.key ? focus.stop : null} hot={focus.key === m.key ? focus.hot : null} lit={focus.key === m.key && focus.lit} />
   {/each}
 </g>
