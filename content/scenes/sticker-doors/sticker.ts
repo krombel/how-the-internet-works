@@ -51,7 +51,7 @@ export function layoutFor(orient: Orient, vp: { h: number; top: number; bottom: 
       doors: [{ x: 675, y: 770 }, { x: 760, y: 770 }, { x: 845, y: 770 }, { x: 930, y: 770 }],
       names: 860,
       walk: 740,
-      text: { title: 58, small: 35, parcel: 1.05 },
+      text: { title: 58, small: 35, parcel: 1.1 },
     };
   }
   return {

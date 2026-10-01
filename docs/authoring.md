@@ -230,6 +230,10 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   Portrait (900×1600) and landscape (1600×900) are both needed; a short landscape screen (a phone on its side)
   benefits from a compact layout with bigger text and fewer labels (see `layoutFor` in `scenes/ip-post/post.ts`).
   Text never draws smaller than the theme's minimum on screen, so check the portrait phone for overlaps.
+  That holds for `Text` and `Label`; raw `<text>` (inside a drawing) doesn't, so size it with `legibleSize()` from
+  `$core/api` (`const legible = legibleSize()`, then `legible(36)` is 36 or the world size that shows as the minimum;
+  inside a group scaled by `k`, use `legible(36 * k) / k`) and let its box grow with it. In short landscape 14 px is
+  about 42 world units: hide detail that can't be that big (draw an envelope's rows as lines, shorten long values).
 - Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
 - Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
   1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)

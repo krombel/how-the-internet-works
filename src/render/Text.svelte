@@ -4,10 +4,10 @@
   // the portrait phone layout readable). `text` is already translated (use tr() from $core/api).
   import type { LabelProps } from './theme-types';
   import { themeState } from '../state.svelte';
-  import { getScene, getWorld } from './ctx';
+  import { legibleSize } from './ctx';
   let { x, y, text, size, kind = 'node', colour, anchor = 'middle' }: Omit<LabelProps, 'kind'> & { kind?: LabelProps['kind'] } = $props();
-  const world = getWorld(), scene = getScene();
-  const px = $derived(Math.max(size, themeState.current.labelMinPx / (world.cam.k * scene.frame.s)));
+  const legible = legibleSize();
+  const px = $derived(legible(size));
   const Label = $derived(themeState.current.art.Label);
 </script>
 

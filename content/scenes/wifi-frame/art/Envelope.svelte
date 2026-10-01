@@ -14,6 +14,7 @@
     walking = false,
     time = 0,
     open = false,
+    blank = false,
   }: {
     x: number;
     y: number;
@@ -25,6 +26,8 @@
     walking?: boolean;
     time?: number;
     open?: boolean;
+    /** Rows as blank lines, not words (a phone on its side has no room for words this small). */
+    blank?: boolean;
   } = $props();
   const fill = $derived(kind === 'radio' ? 'var(--sun)' : 'var(--teal)');
   const stripe = $derived(kind === 'radio' ? 'var(--berry)' : 'var(--orange)');
@@ -56,7 +59,10 @@
   {/if}
   {#each rows as row, i}
     {@const yy = -bodyH / 2 + 64 + i * rowGap}
-    {#if longRows}
+    {#if blank}
+      <rect x="-98" y={yy - font * 0.25} width="62" height={font * 0.5} rx={font * 0.25} fill="var(--line)" opacity="0.3" />
+      <rect x="-6" y={yy - font * 0.25} width={row.hot ? 104 : 88} height={font * 0.5} rx={font * 0.25} fill="var(--line)" opacity={row.hot ? 0.75 : 0.3} />
+    {:else if longRows}
       <Text x={-82} y={yy - font * 0.05} text={row.label} size={font * 0.78} kind="small" anchor="start" />
       <Text x={-82} y={yy + font * 0.98} text={row.value} size={font * 0.66} kind="node" anchor="start" />
     {:else}
