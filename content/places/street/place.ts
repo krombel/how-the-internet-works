@@ -20,8 +20,8 @@ export default definePlace({
       landscape: {
         nodes: { phone: [530, 610, 200], 'cell-tower': [980, 440, 240], internet: [1510, 290, 250] },
         links: {
-          'phone-cell-tower': { bend: -0.2, label: [0, -80] },
-          'cell-tower-internet': { bend: 0.15, label: [-77, -88] },
+          'phone-cell-tower': { bend: -0.2, label: [0, -70] },
+          'cell-tower-internet': { bend: 0.15, label: [-77, -82] },
         },
       },
       portrait: {
