@@ -12,6 +12,7 @@
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
+  import { belowOf } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
   import { hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
@@ -209,14 +210,21 @@
   }
 
   // Sideways stepping: path scenes step through their stops; link dives between the parent's dives; layer dives up and
-  // down the layers of their hop.
+  // down the depth ladder: the layers on the link you're on, from the lowest down to its signal (#14, #32).
   let nudge = $state({ dir: 0, n: 0 });
   const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
+  /** The link of the last stack you stood on, so a layer both sides of a hop carry (IP) keeps you on your side. */
+  let via = $state<string | null>(null);
+  /** What lies below the scene you're in (the depth ladder). */
+  const below = $derived(belowOf(route, here.path, view.orient, untrack(() => via)));
+  $effect(() => { via = below?.kind === 'stack' ? below.link : null; });
+  const ladder = $derived(stepInfo.kind === 'layer' && below?.kind === 'stack' ? below : null);
   function step(d: -1 | 1) {
     if (caught) return stepCaught(hopStepFor(caught.dir, d));
-    const { kind, steps, i, min } = stepInfo, ni = i + d;
-    if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
-    if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
+    const { kind, steps, i, min } = stepInfo, ni = ladder ? ladder.here - d : i + d;
+    if (ladder ? ni < 0 || ni >= ladder.rungs.length : ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    if (ladder) go({ path: ladder.rungs[ni].path });
+    else if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
     else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
@@ -652,6 +660,13 @@
   const small = $derived(view.vp.w < 700);
   const short = $derived(isShort(view.vp.w, view.vp.h));
   const peekOpen = $derived(!!caught);
+  /** Room to keep a layer stack open beside the scene: a gutter about as wide as the ladder, and the height for it
+   *  above ▼. */
+  const roomy = $derived.by(() => {
+    if (portrait || short || view.vp.h < 820) return false;
+    const info = sceneInfo(route, here.path, view.orient), c = fit(info.fit, view.vp);
+    return info.fit.x * c.k + c.x >= 180;
+  });
 </script>
 
 <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
@@ -662,7 +677,7 @@
   </svg>
 </div>
 <div class={portrait ? 'port' : 'land'}>
-  <Chrome {crumbs} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
+  <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
     {paused} onpause={stepInfo.kind === 'stop' ? togglePause : undefined} quiet={peekOpen} />
   {#if caught && PeekPanel}
     <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
@@ -671,7 +686,8 @@
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
     ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
-    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
+    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
+      canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
   {#if trip}
     <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
