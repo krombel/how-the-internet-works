@@ -20,7 +20,7 @@
     "nerd": "A passive optical network: an unpowered splitter shares one fibre among 32–64 homes. Downstream at 1577 nm is broadcast to every home, and each ONT keeps only its own (encrypted) frames. Upstream at 1270 nm is time-shared: the OLT grants each home its slots (XGS-PON).",
     "describe": {
       "kid": "A row of houses shares one glass thread through a splitter. Blue light going home travels down the shared fibre and out to every house. Red light going up leaves one house at a time. Sparkles bounce inside the glass core.",
-      "nerd": "The access view shows a PON tree. Drop fibres from homes meet a passive splitter, then one shared fibre runs toward the OLT. Downstream pulses broadcast to every ONT. Upstream pulses use time slots so only one home sends on the shared span at a time. The label shows 1:32 and 1270/1577 nm."
+      "nerd": "The access view shows a PON tree. Drop fibres from homes meet a passive splitter, then one shared fibre runs toward the OLT. Downstream pulses (blue) broadcast to every ONT. Upstream pulses (red) use time slots so only one home sends on the shared span at a time. The label shows 1:32 and 1270/1577 nm."
     },
     "down": "Coming home",
     "everyone": "to every house",
@@ -34,8 +34,8 @@
     "kid": "A glass thread runs under the street from box to box, all the way to the exchange. The light bounces along inside its core, and a few colours share the same thread without getting mixed up: each colour is its own channel.",
     "nerd": "Metro fibre: single-mode links between street cabinets, aggregation sites and the exchange, typically 10–100 Gbit/s Ethernet optics, with CWDM or DWDM putting a handful of wavelengths on one fibre pair.",
     "describe": {
-      "kid": "One glass fibre stretches from a lamp end to a receiver end. Four coloured lights combine into the core, bounce along the thread, then split apart again. Labels point to the core, the cladding and the colour boxes.",
-      "nerd": "The metro fibre view shows four wavelength channels entering a mux and travelling through a single-mode core. They leave through a demux at the far end. Moving pulses mark each channel, while labels call out core, cladding and DWDM. The label shows the C-band 50 GHz grid."
+      "kid": "One glass fibre stretches from a lamp end to a receiver end. Four numbered lights, 1 red, 2 yellow, 3 green and 4 blue, combine into the core, bounce along the thread, then split apart again, each to the receiver with its own number. Labels point to the core, the cladding and the colour boxes.",
+      "nerd": "The metro fibre view shows four wavelength channels, λ1 to λ4 (drawn red, yellow, green and blue, and numbered at both ends), entering a mux and travelling through a single-mode core. They leave through a demux at the far end. Moving pulses mark each channel, while labels call out core, cladding and DWDM. The label shows the C-band 50 GHz grid."
     }
   },
   "backbone": {
@@ -43,8 +43,8 @@
     "kid": "The internet's motorways are glass threads hundreds of kilometres long, under roads and even under the sea. The light gets fainter as it goes, so every 80 km or so a booster makes all the colours bright again at once.",
     "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers about every 80 km boost all the colours at once; submarine cables cross the oceans.",
     "describe": {
-      "kid": "A long glass thread is split into wide spans with boosters along the way. Eight coloured lights run together through the core. They fade as they travel, then turn bright again at each booster. Kilometre labels count the long road.",
-      "nerd": "The long-haul view shows eight DWDM wavelengths in one fibre. Break marks stand for long spans. Pulses fade across each span, and EDFAs boost all channels at amplifier sites every 80 km. The label notes 96 wavelengths and EDFA every 80 km."
+      "kid": "A long glass thread is split into wide spans with boosters along the way. Eight lights, numbered 1 to 8 and coloured like a rainbow from red to pink, run together through the core. They fade as they travel, then turn bright again at each booster. Kilometre labels count the long road.",
+      "nerd": "The long-haul view shows eight DWDM wavelengths in one fibre, λ1 to λ8, numbered at the lasers and the receivers. Break marks stand for long spans. Pulses fade across each span, and EDFAs boost all channels at amplifier sites every 80 km. The label notes 96 wavelengths and EDFA every 80 km."
     },
     "booster": "Booster"
   },
@@ -53,8 +53,8 @@
     "kid": "In the exchange's building, every company has its own boxes, and a short glass cable joins them. Your parcels cross it in a blink: a few colours share the thread, each its own channel.",
     "nerd": "A cross-connect: a single-mode patch through the meet-me room, a few hundred metres at most. A 100GBASE-LR4 optic puts four 25G lanes on four wavelengths near 1310 nm (LAN-WDM) and splits them again at the far port.",
     "describe": {
-      "kid": "Inside the exchange, a short glass thread is shown close up. A few coloured lights enter, bounce through the core, and split apart at the far end. The moving flashes cross the hall very quickly, one colour per channel.",
-      "nerd": "The cross-connect view uses the metro drawing for a short meet-me-room patch. Four LAN-WDM lanes enter the mux, travel through the single-mode core and leave through the demux. The label shows four wavelengths from 1295 to 1310 nm, with moving pulses on each lane."
+      "kid": "Inside the exchange, a short glass thread is shown close up. Four numbered lights, 1 red, 2 yellow, 3 green and 4 blue, enter, bounce through the core, and split apart at the far end. The moving flashes cross the hall very quickly, one colour per channel.",
+      "nerd": "The cross-connect view uses the metro drawing for a short meet-me-room patch. Four LAN-WDM lanes, λ1 to λ4 (drawn red, yellow, green and blue, and numbered at both ends), enter the mux, travel through the single-mode core and leave through the demux. The label shows four wavelengths from 1295 to 1310 nm, with moving pulses on each lane."
     }
   },
   "dc-fibre": {

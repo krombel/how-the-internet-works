@@ -1,9 +1,12 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import { view, type PacketProps } from '$core/api';
-  let { kind, pose, colour, time, followed }: PacketProps = $props();
+  let { dir, pose, colour, time, followed }: PacketProps = $props();
   const facing = $derived(Math.cos(pose.angle) < 0 ? -1 : 1);
   const blink = $derived(Math.sin(time * 4.2 + pose.seg) > 0.94);
+  // what it carries tells the way it goes by shape, not only by colour: a square parcel up (the request), a round reel
+  // of film back down (the answer)
+  const reel = $derived(dir === 'down');
   // by night the courier is outlined in dark ink (--face) with a pale moonlit rim, so it reads on the sky and in lit rooms
   const night = $derived(view.mode === 'night');
 </script>
@@ -15,7 +18,7 @@
       <g class="rim">
         <path d="M-11 20 L-22 34 M10 20 L21 34" />
         <circle r="22" />
-        {#if kind === 'video'}<rect x="-3" y="-14" width="31" height="26" rx="5" transform="translate(28 -1) rotate(-8)" />
+        {#if reel}<circle cx="40" cy="-2" r="16" />
         {:else}<rect x="-2" y="-14" width="28" height="25" rx="4" transform="translate(26 -2) rotate(-8)" />{/if}
       </g>
     {/if}
@@ -28,11 +31,11 @@
     <ellipse class="eye" cx="-8" cy="-4" rx="3.4" ry={blink ? 0.8 : 4.2} />
     <ellipse class="eye" cx="8" cy="-4" rx="3.4" ry={blink ? 0.8 : 4.2} />
     <path class="smile" d="M-7 8 Q0 14 8 8" />
-    {#if kind === 'video'}
-      <g transform="translate(28 -1) rotate(-8)">
-        <rect class="film" x="-3" y="-14" width="31" height="26" rx="5" />
-        <circle cx="6" cy="-2" r="5" fill="var(--shine)" stroke="var(--line)" stroke-width="3" />
-        <path d="M18 -10 V8" stroke="var(--shine)" stroke-width="4" stroke-linecap="round" />
+    {#if reel}
+      <g transform="translate(40 -2) rotate({time * 90})">
+        <circle class="film" r="16" />
+        {#each [0, 90, 180, 270] as a}<circle class="hole" cx="8" r="3.6" transform="rotate({a})" />{/each}
+        <circle class="hole" r="2.4" />
       </g>
     {:else}
       <g transform="translate(26 -2) rotate(-8)">
@@ -52,4 +55,5 @@
   .parcel { fill: var(--cardboard); }
   .parcel-line { fill: none; stroke: var(--line); stroke-width: 3; stroke-linecap: round; opacity: .8; }
   .film { fill: var(--teal); }
+  .hole { fill: var(--shine); }
 </style>

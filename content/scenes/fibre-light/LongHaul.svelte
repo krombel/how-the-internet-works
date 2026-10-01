@@ -3,7 +3,7 @@
   // Long haul (backbone): many thinner colours on a thread hundreds of kilometres long. The light fades through each
   // span and a booster makes every colour bright again at once.
   import { TagAt, Text, strings, view } from '$core/api';
-  import { FIBRE, LONG_HAUL, channelRoute, fadeAt, fibrePulses, milestones, toScene, trackMatrix } from './light';
+  import { FIBRE, LONG_HAUL, channelRoute, fadeAt, fibrePulses, laneNumbers, milestones, toScene, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
   import Emitter from './art/Emitter.svelte';
@@ -45,3 +45,4 @@
 {#each boosters as b}<Text x={b.x} y={b.y} text={S('backbone.booster')} size={28} kind="big" />{/each}
 {#each km as m}<Text x={m.x} y={m.y} text={`${m.km} km`} size={26} kind="big" />{/each}
 <TagAt x={tag.x} y={tag.y} text={S('tag.backbone')} size={24} />
+{#each laneNumbers(H.lanes, o, 0.62) as l}<Text x={l.x} y={l.y + 7} text={(view.level === 'nerd' ? 'λ' : '') + l.n} size={20} kind="small" />{/each}

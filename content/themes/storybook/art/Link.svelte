@@ -10,9 +10,9 @@
 <g class="storybook-link link-{look}" class:focused>
   {#if kbd}
     <g class="kbd" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path {d} stroke="var(--bg)" stroke-width={w + 30} />
-      <path {d} stroke="var(--ink)" stroke-width={w + 20} />
-      <path {d} stroke="var(--bg)" stroke-width={w + 8} />
+      <path class="kbd-gap" {d} stroke="var(--bg)" stroke-width={w + 30} />
+      <path class="kbd-ink" {d} stroke="var(--ink)" stroke-width={w + 20} />
+      <path class="kbd-gap" {d} stroke="var(--bg)" stroke-width={w + 8} />
     </g>
   {/if}
   {#if focused}<path {d} fill="none" stroke="var(--glow)" stroke-width={look === 'trunk' ? 38 : 24} stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />{/if}

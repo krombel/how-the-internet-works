@@ -1,6 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Node, Text, legibleSize, nameOf, strings, view, type LinkSubject } from '$core/api';
+  import { Node, Text, labelInk, legibleSize, nameOf, strings, view, type LinkSubject } from '$core/api';
   import { COPPER, EYE_PATHS, PAM_LABELS, WIRE_PATHS, copperSparks, pamPath, squareWavePath, toScene, trackMatrix } from './copper';
   import Cable from './art/Cable.svelte';
   import Card from './art/Card.svelte';
@@ -71,7 +71,7 @@
   <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={25} kind="node" />
 {/if}
 {#if !portrait}
-  <text x={L.cableLabel.x} y={L.cableLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size={fs(compact ? L.text.small : 26)} font-weight="900" fill={subject.link.tech.colour}>{S(compact ? 'pairsShort' : 'pairs')}</text>
+  <text x={L.cableLabel.x} y={L.cableLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size={fs(compact ? L.text.small : 26)} font-weight="900" fill={labelInk(subject.link.tech.colour)}>{S(compact ? 'pairsShort' : 'pairs')}</text>
   {#if !compact}<text x={L.cableLabel.x} y={L.cableLabel.y + 34} text-anchor="middle" font-family="var(--label-font)" font-size="24" font-weight="900" fill="var(--line)">{S('bothWays')}</text>{/if}
 {/if}
 
@@ -86,7 +86,7 @@
   <path d="M70 14 H86 M78 6 V22" stroke="var(--line)" stroke-width="4.5" stroke-linecap="round" />
   <circle cx="78" cy="78" r="22" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
   <path d="M70 78 H86" stroke="var(--line)" stroke-width="4.5" stroke-linecap="round" />
-  <path d="M254 -10 l18 28 l-15 -4 l13 38 l-34 -48 l17 6 Z" fill="var(--sun)" stroke="var(--line)" stroke-width="4" />
+  <path d="M254 -10 l18 28 l-15 -4 l13 38 l-34 -48 l17 6 Z" fill="var(--sun)" stroke="var(--face)" stroke-width="4" />
 </g>
 {#if !(compact && nerd)}<text x={L.twist.x + 34} y={L.twist.y + L.twist.h - 40} font-family="var(--label-font)" font-size={fs(L.text.body)} font-weight="800" fill="var(--line)">{S(nerd ? 'twistLineNerd' : 'twistLine')}</text>{/if}
 
@@ -134,7 +134,7 @@
 {:else}
   {@const K = L.kid}
   <Card x={K.x} y={K.y} w={K.w} h={K.h} tint="var(--sun)" />
-  <text x={K.x + K.w / 2} y={K.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('pushTitle')}</text>
+  <text x={K.x + K.w / 2} y={K.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--face)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('pushTitle')}</text>
   <path d={pulseD} fill="none" stroke="var(--line)" stroke-width="17" stroke-linejoin="round" stroke-linecap="round" opacity="0.26" />
   <path d={pulseD} fill="none" stroke="var(--accent)" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" />
   <g transform={`translate(${K.x + 78} ${K.y + (portrait ? 224 : 212)})`}>

@@ -88,7 +88,7 @@
           <rect x={bx + 14} y={mid - 34} width={(b.w - 110) / 3 - 28} height="16" rx="5" fill={on ? 'var(--sun)' : 'var(--kraft)'} />
           {#if on}
             {@const cx = bx + (b.w - 110) / 6}
-            <path d={`M${cx - 9} ${mid - 6} v26 l22 -13 z`} fill="var(--line)" />
+            <path d={`M${cx - 9} ${mid - 6} v26 l22 -13 z`} fill="var(--face)" />
             {#if T.small}<text x={cx} y={mid - 66} text-anchor="middle" font-family="var(--label-font)" font-size={T.small} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="5" paint-order="stroke">{S('app')}</text>{/if}
           {/if}
         {/each}

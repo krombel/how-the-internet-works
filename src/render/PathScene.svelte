@@ -128,7 +128,7 @@
     {/each}
   {/if}
   {#each packets as p (p.id)}
-    <A.Packet kind={p.kind} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} />
+    <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} />
   {/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'badge')}{/each}
 </g>

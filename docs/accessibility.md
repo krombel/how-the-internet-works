@@ -10,7 +10,7 @@ The work comes in four slices:
 | 1 | Pause everything, the automated check (axe + keyboard) in `npm run evaluate` and CI, focus and announcer fixes | done |
 | 2 | A text map (list view) and the keyboard in the scene, sharing one focus model | done |
 | 3 | Spoken descriptions of each scene (`describe`, kid/nerd, every language) and read aloud from ⋯ | done |
-| 4 | Not by colour alone, non-text contrast, `forced-colors`, targets and 200 % zoom (with #45) | to do |
+| 4 | Not by colour alone, non-text contrast, `forced-colors`, targets and 200 % zoom (with #45) | done |
 
 ## What works today
 
@@ -78,12 +78,32 @@ The work comes in four slices:
     new one run together.
   - Learn-more links in another language than the page carry `lang`.
 - **Contrast.** The chrome's text pairs, including the "Change" link and the peek's old and new values, meet AA in day
-  and night (`model/contrast.test.ts`).
+  and night (`model/contrast.test.ts`). So do its non-text parts at 3:1 (WCAG 1.4.11): a card's edge on the page, a
+  button's and a chip's edge in a card, what is on (kid/nerd, a pressed toggle, a rung), the caption's door chips
+  and the scene's door badges, the focus ring and the keyboard's ring in the scene, and dark marks (`--face`) on
+  bright bodies.
+- **The scene's own text.** Labels are checked where they are drawn (`npm run evaluate -- --only=a11y`, below): 4.5:1
+  (3:1 when large) on their halo or the picture behind them. A label in a technology's colour (a link's name) is
+  mixed 40 % into the ink (`labelInk`, `render/colour.ts`; every technology's colour is tested in every theme and
+  mode); a label in one of the palette's colours uses its ink tone (`--leaf-ink`, `--teal-ink`, `--berry-ink`). Ink
+  on a bright body (a lit row, a sun-yellow sticker) is `--face`, which stays dark by night, with the body as its
+  halo (`Text`'s `on`).
+- **Not by colour alone.** The owners' regions (home, ISP, transit, the video's network) differ by their edge's
+  dash pattern as well as colour, and carry their name. A request travels as a parcel, the answer as a round film
+  reel. The fibre's colours are numbered at both ends (1, 2, 3…; λ1, λ2… for nerds) and the descriptions name them
+  ("1 red, 2 yellow…"). The scene's doors differ by their mark (+, magnifier, ✎), not just their colour. `--only=vision`
+  shows a few scenes and the chrome through protanopia, deuteranopia, tritanopia and achromatopsia to look at.
+- **Forced colours** (Windows contrast themes, `forced-colors: active`): the chrome keeps its edges (buttons and
+  chips get a `ButtonText` border, the caption's doors `LinkText`), what is on or pressed is `Highlight`, the focus
+  ring is `Highlight`. In the scene, the keyboard's ring (`kbd-ink`, `kbd-gap`) is `Highlight` on `Canvas`, and the
+  doors are `LinkText` badges with the hot one in `Highlight`; the rest of the picture keeps its colours.
+- **Targets and zoom.** Every control is at least 24 × 24 px (WCAG 2.5.8), including the caption's chips and the
+  inline learn-more links. At 200 % zoom (a 1280 px window: the evaluate's `zoom` view, 640 × 450 CSS px) the
+  chrome wraps and scrolls and nothing is cut off; large text from the browser's settings is the same page zoom.
 
-**Not yet** (slice 4): colour carries meaning in places (owner regions, request vs response, fibre colours). The
-stage SVG stays `aria-hidden`: its keys name the stops, its description is spoken on arrival and shown in the list
-view. An entry node (the start of a group or a dive's ends) is not a stop of its own: Esc and the list view take you
-up.
+The stage SVG stays `aria-hidden`: its keys name the stops, its description is spoken on arrival and shown in the
+list view. An entry node (the start of a group or a dive's ends) is not a stop of its own: Esc and the list view take
+you up.
 
 ## How to check
 
@@ -100,8 +120,13 @@ machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
   and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop and the list
-  view, on a desktop, a portrait phone and a short landscape screen. **Zero violations** is the bar; there is no
-  baseline of allowed ones.
+  view, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
+  violations** is the bar; there is no baseline of allowed ones.
+- **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
+  and not under another control (an open pop-up aside).
+- **The scene's labels** in every path scene and dive, kid and nerd on a desktop and kid on a phone, the clock held
+  still: each visible text (not faded below 60 %, not under the chrome or later art) against its halo, or the median
+  of the pixels behind it with the text hidden, whichever is more.
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
   screen, or on a control without a visible ring (for the scene's keys: on a stop, the theme's ring in the scene).
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
@@ -114,7 +139,11 @@ machine (#70). It checks:
 
 `--only=perf` also times walking the scene's keys (`keysWalk`).
 
-axe can't judge SVG text over art (it reports it as "needs review"); slice 4 covers the scene's own contrast.
+axe can't judge SVG text over art (it reports it as "needs review"); the label check above does.
+
+```sh
+npm run evaluate -- --only=vision [--mode=night]   # .tmp/vision/*.jpg: colour-vision and forced-colours sheets
+```
 
 ## Manual checklist
 

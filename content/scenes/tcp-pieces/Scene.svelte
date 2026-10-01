@@ -57,7 +57,7 @@
     <Box x={p.x} y={p.y} n={n} size={L.box} opacity={n < win ? 0.42 : 1} glow={n === 5 && (beat === 'loss' || beat === 'resend')} />
   {/each}
   <rect x={serverBox(L.cards[0], win, portrait).x - L.box * 0.68} y={serverBox(L.cards[0], win, portrait).y - L.box * 0.72} width={gap * 3 + L.box * 1.36} height={L.box * 1.45} rx="18" fill="none" stroke="var(--teal)" stroke-width="8" />
-  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(compact && beat === 'handshake' ? 'label.hello' : beat === 'handshake' ? 'label.handshake' : beat === 'send' ? 'label.window' : beat === 'loss' ? 'label.lost' : beat === 'resend' ? 'label.resend' : 'label.done')} size={L.text.label} kind="big" colour={beat === 'loss' || beat === 'resend' ? 'var(--berry)' : 'var(--teal-dark)'} />
+  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(compact && beat === 'handshake' ? 'label.hello' : beat === 'handshake' ? 'label.handshake' : beat === 'send' ? 'label.window' : beat === 'loss' ? 'label.lost' : beat === 'resend' ? 'label.resend' : 'label.done')} size={L.text.label} kind="big" colour={beat === 'loss' || beat === 'resend' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
 </g>
 
 <Card x={L.cards[1].x} y={L.cards[1].y} w={L.cards[1].w} h={L.cards[1].h} tint="var(--leaf)" />
@@ -69,7 +69,7 @@
     {#if shelfFilled(view.time, n)}<Box x={p.x} y={p.y} n={n} size={L.box} />{/if}
   {/each}
   {#if shelfStatus}
-    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={shelfStatus} size={L.text.label} kind="big" colour={beat === 'ready' ? 'var(--leaf-dark)' : 'var(--line)'} />
+    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={shelfStatus} size={L.text.label} kind="big" colour={beat === 'ready' ? 'var(--leaf-ink)' : 'var(--line)'} />
   {/if}
 </g>
 

@@ -8,9 +8,9 @@
 <g class="link link-{look}" class:focused>
   {#if kbd}
     <g class="kbd" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path {d} stroke="var(--focus-gap, var(--bg))" stroke-width={w + 30} />
-      <path {d} stroke="var(--focus-ink, var(--ink))" stroke-width={w + 20} />
-      <path {d} stroke="var(--focus-gap, var(--bg))" stroke-width={w + 8} />
+      <path class="kbd-gap" {d} stroke="var(--focus-gap, var(--bg))" stroke-width={w + 30} />
+      <path class="kbd-ink" {d} stroke="var(--focus-ink, var(--ink))" stroke-width={w + 20} />
+      <path class="kbd-gap" {d} stroke="var(--focus-gap, var(--bg))" stroke-width={w + 8} />
     </g>
   {/if}
   <path {d} fill="none" stroke={colour} stroke-width={w} stroke-linecap="round"

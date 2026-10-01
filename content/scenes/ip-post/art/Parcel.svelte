@@ -10,7 +10,7 @@
 
 {#snippet envelope(fill: string)}
   <rect x="-78" y="-122" width="156" height="112" rx="16" fill={fill} stroke="var(--line)" stroke-width="6" />
-  <path d="M-72 -116 L0 -66 L72 -116" fill="none" stroke="var(--line)" stroke-width="5" stroke-linejoin="round" opacity="0.7" />
+  <path d="M-72 -116 L0 -66 L72 -116" fill="none" stroke="var(--face)" stroke-width="5" stroke-linejoin="round" opacity="0.7" />
   <rect x="-46" y="-62" width="72" height="36" rx="6" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
   <path d="M-38 -50 H16 M-38 -38 H4" stroke="var(--muted)" stroke-width="4" stroke-linecap="round" />
 {/snippet}
@@ -22,14 +22,14 @@
     <path d="M22 -12 L{26 - step} 0" />
   </g>
   <rect x="-60" y="-104" width="120" height="92" rx="12" fill={colour} stroke="var(--line)" stroke-width="6" />
-  <path d="M-60 -80 H60" stroke="var(--line)" stroke-width="4" opacity="0.35" />
+  <path d="M-60 -80 H60" stroke="var(--face)" stroke-width="4" opacity="0.35" />
   <rect x="-48" y="-68" width="64" height="44" rx="6" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
   <path d="M-40 -55 H8 M-40 -42 H-2" stroke="var(--muted)" stroke-width="4" stroke-linecap="round" />
-  <g fill="var(--line)">
+  <g fill="var(--face)">
     <ellipse cx="30" cy="-58" rx="4.5" ry={blink ? 1 : 5.5} />
     <ellipse cx="48" cy="-58" rx="4.5" ry={blink ? 1 : 5.5} />
   </g>
-  <path d="M31 -42 Q39 -35 47 -42" fill="none" stroke="var(--line)" stroke-width="4" stroke-linecap="round" />
+  <path d="M31 -42 Q39 -35 47 -42" fill="none" stroke="var(--face)" stroke-width="4" stroke-linecap="round" />
   {#if wrap && wrap.lift < 1}
     <g transform="translate(0 {-wrap.lift * 90})" opacity={1 - wrap.lift}>{@render envelope(wrap.colour)}</g>
   {/if}

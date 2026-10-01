@@ -73,7 +73,7 @@
     <StickerBook x={cert.x + 405} y={cert.y + 92} w={330} h={180} ok={ramp(m.u, 1.2, 2.6)} />
   {/if}
 </g>
-{#if m.beat === 'id'}<Text x={cert.x + cert.w / 2} y={cert.y + cert.h - (view.orient === 'portrait' ? 36 : L.compact ? 40 : 26)} text={S('label.tick')} size={T.text} kind="big" colour="var(--leaf-dark)" />{/if}
+{#if m.beat === 'id'}<Text x={cert.x + cert.w / 2} y={cert.y + cert.h - (view.orient === 'portrait' ? 36 : L.compact ? 40 : 26)} text={S('label.tick')} size={T.text} kind="big" colour="var(--leaf-ink)" />{/if}
 
 <Card x={mix.x} y={mix.y} w={mix.w} h={mix.h} tint="var(--teal)" />
 <Text x={mix.x + 34} y={titleY(mix)} text={S(L.compact ? 'label.paintShort' : 'label.paint')} size={T.big} kind="big" anchor="start" />

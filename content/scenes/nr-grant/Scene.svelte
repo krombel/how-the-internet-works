@@ -112,8 +112,8 @@
   {#if row.on && scanOn}
     <circle cx={L.schedule.x + 18 + st.p * (L.schedule.w - 36)} cy={y} r={T.small * 0.62} fill="none" stroke="var(--teal)" stroke-width="7" opacity="0.82" />
   {/if}
-  <Text x={L.schedule.x + (portrait ? 22 : 18)} y={y + T.small * 0.35} text={row.n} size={T.small * (portrait ? 0.92 : 0.9)} kind="node" anchor="start" />
-  <Text x={L.schedule.x + L.schedule.w - (portrait ? 22 : 18)} y={y + T.small * 0.35} text={row.seat} size={T.small * (nerd ? 0.74 : 0.78)} kind={row.on && rowLit ? 'big' : 'small'} anchor="end" colour={row.on && rowLit ? 'var(--brick)' : 'var(--line)'} />
+  <Text x={L.schedule.x + (portrait ? 22 : 18)} y={y + T.small * 0.35} text={row.n} size={T.small * (portrait ? 0.92 : 0.9)} kind="node" anchor="start" colour={row.on && rowLit ? 'var(--face)' : undefined} on={row.on && rowLit ? 'var(--sun)' : undefined} />
+  <Text x={L.schedule.x + L.schedule.w - (portrait ? 22 : 18)} y={y + T.small * 0.35} text={row.seat} size={T.small * (nerd ? 0.74 : 0.78)} kind={row.on && rowLit ? 'big' : 'small'} anchor="end" colour={row.on && rowLit ? 'var(--face)' : 'var(--line)'} on={row.on && rowLit ? 'var(--sun)' : undefined} />
 {/each}
 
 <Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="var(--teal)" />
@@ -143,7 +143,7 @@
     <g transform="translate({bubbleX} {bubbleY})">
       <rect x={-T.text * (st.phase === 'ack' ? 1.35 : 1.65)} y={-T.text * 0.95} width={T.text * (st.phase === 'ack' ? 2.7 : 3.3)} height={T.text * 1.55} rx="16" fill="var(--paper-2)" stroke="var(--line)" stroke-width="5" />
       <path d={focus === 'phone' ? `M${-T.text * 0.55} ${T.text * 0.58} L${-T.text * 1.0} ${T.text * 1.0}` : `M${T.text * 0.55} ${T.text * 0.58} L${T.text * 1.0} ${T.text * 1.0}`} fill="none" stroke="var(--line)" stroke-width="5" stroke-linecap="round" />
-      <Text x={0} y={-T.text * 0.05} text={S(st.phase === 'ack' ? 'label.got' : 'label.again')} size={T.text} kind="big" colour={st.phase === 'ack' ? 'var(--leaf-dark)' : 'var(--berry-dark)'} />
+      <Text x={0} y={-T.text * 0.05} text={S(st.phase === 'ack' ? 'label.got' : 'label.again')} size={T.text} kind="big" colour={st.phase === 'ack' ? 'var(--leaf-ink)' : 'var(--berry-ink)'} />
     </g>
   {/if}
   {#if nerd}
@@ -153,7 +153,7 @@
     </g>
   {/if}
   {#if !nerd}
-    <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - (portrait || compact ? 46 : 28)} text={S(st.phase === 'combine' ? 'label.combine' : st.phase === 'nack' ? 'label.nack' : st.phase === 'ack' ? 'label.ack' : 'label.check')} size={T.small} kind="big" colour={st.phase === 'nack' ? 'var(--berry-dark)' : 'var(--teal-dark)'} />
+    <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - (portrait || compact ? 46 : 28)} text={S(st.phase === 'combine' ? 'label.combine' : st.phase === 'nack' ? 'label.nack' : st.phase === 'ack' ? 'label.ack' : 'label.check')} size={T.small} kind="big" colour={st.phase === 'nack' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
   {/if}
 </g>
 
@@ -180,6 +180,6 @@
     <rect x="-72" y="-45" width="144" height="90" rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="6" />
     <path d="M-66 -38 L0 2 L66 -38" fill="none" stroke="var(--line)" stroke-width="5" opacity="0.65" />
     <rect x={-envNoW / 2} y="-2" width={envNoW} height="34" rx="8" fill="var(--sun)" stroke="var(--line)" stroke-width="4" />
-    <Text x={0} y={24} text={envNo} size={34} kind="big" colour="var(--line)" />
+    <Text x={0} y={24} text={envNo} size={34} kind="big" colour="var(--face)" on="var(--sun)" />
   </g>
 {/if}

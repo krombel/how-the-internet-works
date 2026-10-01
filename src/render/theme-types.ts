@@ -28,7 +28,8 @@ export interface DeviceProps {
   context: 'path' | 'dive';
   focused: boolean;
   /** Focused from the keyboard (issue #53): draw the engine's focus ring round it, the ink (--focus-ink, else --ink)
-   *  over a gap in the page colour (--focus-gap, else --bg) so it shows on anything, in a group with class "kbd". */
+   *  over a gap in the page colour (--focus-gap, else --bg) so it shows on anything, in a group with class "kbd";
+   *  class the ink's shapes "kbd-ink" and the gap's "kbd-gap" (forced colours repaint them Highlight and Canvas). */
   kbd?: boolean;
 }
 /** Links are drawn by their technology's look. */
@@ -40,6 +41,9 @@ export interface LinkProps {
 }
 export interface PacketProps {
   kind: string; pose: Pose; colour: string; time: number;
+  /** The way it goes: 'up' towards the server (a request), 'down' back (the answer). Give the two different shapes,
+   *  not only different colours (WCAG 1.4.1). */
+  dir: 'up' | 'down';
   /** The user is following this packet (draw a reticle / highlight). */
   followed: boolean;
 }
@@ -73,7 +77,8 @@ export interface RegionProps {
   /** Its outline, a closed path round its devices. */
   d: string;
   /** Its colour slot: the owner's place along the route (0 = the first), the same in every scene; cycle your own
-   *  colours. Neighbouring networks get different tones. */
+   *  colours. Neighbouring networks get different tones; tell them apart by more than colour too (an edge
+   *  pattern per tone, say: WCAG 1.4.1). */
   tone: number;
   /** Only side branches (a way the packets don't take): draw it fainter. */
   aside: boolean;
@@ -83,8 +88,10 @@ export interface RegionProps {
 }
 /** Nerd-mode callout. `size` is the font size in scene units (already clamped to a readable screen size). */
 export interface TagProps { x: number; y: number; text: string; size: number; anchor: 'start' | 'middle' | 'end'; time: number }
-/** Scene labels. The engine computes `size` (clamped to a minimum screen size); themes style via CSS or override. */
-export interface LabelProps { x: number; y: number; text: string; size: number; kind: 'node' | 'link' | 'big' | 'small'; colour?: string; anchor?: 'start' | 'middle' | 'end' }
+/** Scene labels. The engine computes `size` (clamped to a minimum screen size); themes style via CSS or override.
+ *  `on` is the body a label is printed on (a lit row, a sign), if not the scene: its halo takes that colour, so ink
+ *  on a bright body (colour var(--face)) stays crisp instead of smudging into a dark halo by night. */
+export interface LabelProps { x: number; y: number; text: string; size: number; kind: 'node' | 'link' | 'big' | 'small'; colour?: string; on?: string; anchor?: 'start' | 'middle' | 'end' }
 /** Background ('back') and frame ('edge') of a nested scene (w×h of its own world): a group's path scene, a link dive
  *  or a layer dive (which the peek panel draws as an envelope; `sealed` when the hop can't open that layer). */
 export interface PanelProps { part: 'back' | 'edge'; kind: 'path' | 'dive' | 'layer'; sealed: boolean; w: number; h: number; orient: Orient; time: number }
