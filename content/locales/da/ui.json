@@ -79,5 +79,9 @@
   "peek.role.nat.up.kid": "{hop} bytter afsenderadressen ud med sin egen udadvendte adresse og husker, hvem der spurgte.",
   "peek.role.nat.up.nerd": "NAT: afsenderen omskrives til den udadvendte adresse, checksummer rettes, og koblingen gemmes; så routes den (TTL − 1).",
   "peek.role.nat.down.kid": "{hop} slår op, hvem der bad om den, og skifter adressen tilbage.",
-  "peek.role.nat.down.nerd": "NAT retur: modtageren omskrives tilbage via tabellen, checksummer rettes, og så routes den (TTL − 1)."
+  "peek.role.nat.down.nerd": "NAT retur: modtageren omskrives tilbage via tabellen, checksummer rettes, og så routes den (TTL − 1).",
+  "ladder.doors.one": "{n} dør fører længere ned",
+  "ladder.doors.other": "{n} døre fører længere ned",
+  "ladder.stack.kid": "{hop}: kuverterne",
+  "ladder.stack.nerd": "{hop}: lagene"
 }

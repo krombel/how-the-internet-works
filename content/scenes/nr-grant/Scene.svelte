@@ -2,13 +2,14 @@
 <script lang="ts">
   // THESIS: the NR frame is a little radio conversation: ask the tower for seats, read the C-RNTI ticket, then prove
   // each piece arrived with HARQ before upper radio layers have to recover anything.
-  import { Node, Text, fill, nameOf, strings, view, type LayerSubject } from '$core/api';
+  import { Node, Text, fill, legibleSize, nameOf, strings, textBox, view, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import Piece from './art/Piece.svelte';
   import { combineAmount, layoutFor, mix, pieceOffset, sceneState } from './grant';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.nr-grant');
+  const legible = legibleSize();
   const ctx = $derived(subject.ctx);
   const nerd = $derived(ctx.level === 'nerd');
   const focus = $derived(ctx.role === 'endpoint' ? 'phone' : 'tower');
@@ -60,6 +61,11 @@
   const combine = $derived(combineAmount(st.phase, st.p));
   const smudge = $derived(st.phase === 'send' ? 0.65 : st.phase === 'nack' ? 1 : st.phase === 'combine' ? 1 - combine : 0);
   const nameSize = $derived(portrait ? 40 : compact ? 38 : 32);
+
+  // the envelope's number: unscaled on a phone on its side, where it would fall under the label minimum (issue #33)
+  const envScale = $derived(portrait ? 1.05 : compact ? 1 : 0.9);
+  const envNo = $derived(nerd ? rnti : kidRnti);
+  const envNoW = $derived(compact ? Math.max(84, textBox(envNo, legible(34), 'middle', 0.6, '--label-font').w + 24) : 84);
 
   function tx(a: number, b: number, p: number) { return mix(a, b, p); }
   function nameX(x: number, text: string, size: number) {
@@ -170,10 +176,10 @@
 {#if !compact && !portrait}<Text x={nameX(L.core.x, coreName, nameSize)} y={L.names} text={coreName} size={nameSize} kind="node" />{/if}
 
 {#if st.phase === 'send'}
-  <g transform="translate({tx(focus === 'tower' ? L.phone.x + 105 : L.tower.x - 95, focus === 'tower' ? L.tower.x - 112 : L.phone.x + 115, st.p)} {L.walk - 92 - Math.sin(time * 8) * 7}) scale({portrait ? 1.05 : 0.9})">
+  <g transform="translate({tx(focus === 'tower' ? L.phone.x + 105 : L.tower.x - 95, focus === 'tower' ? L.tower.x - 112 : L.phone.x + 115, st.p)} {L.walk - 92 - Math.sin(time * 8) * 7}) scale({envScale})">
     <rect x="-72" y="-45" width="144" height="90" rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="6" />
     <path d="M-66 -38 L0 2 L66 -38" fill="none" stroke="var(--line)" stroke-width="5" opacity="0.65" />
-    <rect x="-42" y="-2" width="84" height="34" rx="8" fill="var(--sun)" stroke="var(--line)" stroke-width="4" />
-    <Text x={0} y={24} text={nerd ? rnti : kidRnti} size={34} kind="big" colour="var(--line)" />
+    <rect x={-envNoW / 2} y="-2" width={envNoW} height="34" rx="8" fill="var(--sun)" stroke="var(--line)" stroke-width="4" />
+    <Text x={0} y={24} text={envNo} size={34} kind="big" colour="var(--line)" />
   </g>
 {/if}

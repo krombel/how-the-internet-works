@@ -1,18 +1,20 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Node, Text, fakeLabel, fakeMac, fill, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
+  import { Node, Text, fakeLabel, fakeMac, fill, legibleSize, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import StickerParcel from './art/StickerParcel.svelte';
   import { bob, layoutFor, moment, parcelX, ramp, type LayerKind, type RoleKind } from './sticker';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.sticker-doors');
+  const legible = legibleSize();
   const ctx = $derived(subject.ctx);
   const nerd = $derived(ctx.level === 'nerd');
   const layer = $derived<LayerKind>(subject.layer === 'vlan' || subject.layer === 'mpls' ? subject.layer : 'ethernet');
   const role = $derived<RoleKind>(ctx.role);
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.text);
+  const short = (mac: string) => (L.compact ? `…${mac.slice(-8)}` : mac);
   const m = $derived(moment(view.still ? 5.4 : view.time));
   const x = $derived(parcelX(L, m));
   const moving = $derived(m.phase === 'arrive' || m.phase === 'reply' || m.phase === 'straight');
@@ -51,7 +53,7 @@
       ...(nerd ? [[S('book.age'), '~300 s']] : []),
     ];
     return [
-      [arpTarget || '192.168.1.23', m.learned ? arpMac : 'ff:ff:ff:ff:ff:ff'],
+      [arpTarget || '192.168.1.23', short(m.learned ? arpMac : 'ff:ff:ff:ff:ff:ff')],
       [nerd ? S('book.fcs') : S('book.check'), m.phase === 'fanout' ? S('book.drop') : 'OK'],
       ...(nerd ? [['IPv6', 'NDP']] : []),
     ];
@@ -61,8 +63,11 @@
   const rowY = (i: number) => L.cards[1].y + (isPortrait ? 148 : L.compact ? 142 : 112) + i * (isPortrait ? 62 : L.compact ? 58 : 44);
   const doorPulse = $derived(m.phase === 'fanout' ? ramp(m.p, 0.05, 0.85) : m.phase === 'straight' ? 1 : 0);
   const peel = $derived(role !== 'bridge' && layer === 'ethernet' ? (m.phase === 'fanout' ? ramp(m.p, 0, 0.6) : m.phase === 'straight' ? 1 : 0) : 0);
-  const actionScale = $derived(isPortrait ? 1.05 : L.compact ? 0.9 : 0.95);
-  const actionY = $derived(L.cards[0].y + (isPortrait ? 198 : L.compact ? 178 : 158));
+  // a phone on its side: a bigger drawing and words (never under the theme's label minimum) and shorter MACs (issue #33)
+  const actionScale = $derived(isPortrait ? 1.05 : L.compact ? 1.15 : 0.95);
+  const actionY = $derived(L.cards[0].y + (isPortrait ? 198 : L.compact ? 186 : 158));
+  const inner = (size: number, k = 1) => (L.compact ? legible(size * actionScale * k) / (actionScale * k) : size);
+  const rowPx = $derived(L.compact ? legible(42) : 0);
   // each drawing is lopsided around its origin; nudge it back to the card's middle
   const actionDx = $derived(layer === 'mpls' ? 0 : layer === 'vlan' ? 10 : role === 'bridge' ? 39 : -73);
   const steps = $derived([S(`mini.${action}.a`), S(`mini.${action}.b`)].map((t) => fill(t, { in: inLabel, out: outLabel })));
@@ -89,7 +94,7 @@
     <rect x="-48" y="-35" width="96" height="70" rx="12" fill={tint} stroke="var(--line)" stroke-width="5" />
     <path d="M-42 -29 L0 3 L42 -29" fill="none" stroke="var(--line)" stroke-width="4" opacity="0.65" />
     <rect x="-33" y="0" width="66" height="26" rx="6" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
-    {#if label}<text x="0" y="26" text-anchor="middle" font-size={label.length <= 3 ? 42 : 30} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{label}</text>{/if}
+    {#if label}<text x="0" y="26" text-anchor="middle" font-size={inner(label.length <= 3 ? 42 : 30, scale)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{label}</text>{/if}
   </g>
 {/snippet}
 
@@ -99,7 +104,7 @@
     {#each [0, 1, 2, 3] as i}
       {@const lane = !vlan || i === 0 || i === 2}
       <rect x={-104 + i * 56} y="-22" width="42" height="70" rx="8" fill={vlan ? (lane ? 'var(--teal)' : 'var(--stone)') : 'var(--paper-2)'} stroke="var(--line)" stroke-width="4" opacity={vlan && !lane ? 0.55 : 1} />
-      <text x={-83 + i * 56} y="25" text-anchor="middle" font-size="39" font-family="system-ui, sans-serif" font-weight="900" fill={vlan && lane ? 'var(--paper)' : 'var(--line)'}>{i + 1}</text>
+      <text x={-83 + i * 56} y="25" text-anchor="middle" font-size={inner(39, scale)} font-family="system-ui, sans-serif" font-weight="900" fill={vlan && lane ? 'var(--paper)' : 'var(--line)'}>{i + 1}</text>
     {/each}
   </g>
 {/snippet}
@@ -124,14 +129,14 @@
     {@render smallEnvelope(-86, 6, 'var(--orange)', '', 1, 0.88)}
     <g transform="translate({-86 - peel * 50} {-30 - peel * 8}) rotate({-18 * peel})" opacity={1 - peel * 0.35}>
       <rect x="-64" y="-28" width="128" height="56" rx="12" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-      <text x="0" y="11" text-anchor="middle" font-size="36" font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">For ✓</text>
+      <text x="0" y="11" text-anchor="middle" font-size={inner(36)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">For ✓</text>
     </g>
     <rect x="8" y="-80" width="124" height="58" rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" />
-    <text x="70" y="-41" text-anchor="middle" font-size="34" font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">FCS ✓</text>
+    <text x="70" y="-41" text-anchor="middle" font-size={inner(L.compact ? 36 : 34)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">FCS ✓</text>
     <g opacity={m.phase === 'lookup' || m.phase === 'fanout' ? 1 : 0.45}>
       <path d="M-8 42 C42 96 117 84 145 42" fill="none" stroke="var(--teal)" stroke-width="8" stroke-linecap="round" stroke-dasharray="18 14" />
       <rect x="8" y="40" width="285" height="58" rx="18" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-      <text x="150" y="78" text-anchor="middle" font-size="36" font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{S('label.whoHasShort')}</text>
+      <text x="150" y="78" text-anchor="middle" font-size={inner(36)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{S('label.whoHasShort')}</text>
       <rect x="224" y="-24" width="72" height="56" rx="16" fill="var(--leaf)" stroke="var(--line)" stroke-width="4" opacity={m.phase === 'fanout' || m.phase === 'straight' ? 1 : 0.25} />
       <path d="M243 5 L256 18 L278 -10" fill="none" stroke="var(--line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity={m.phase === 'fanout' || m.phase === 'straight' ? 1 : 0.25} />
     </g>
@@ -143,7 +148,7 @@
     {#if action === 'vlan.bng'}
       <g transform="translate(104 -55) rotate(-8)">
         <rect x="-54" y="-26" width="108" height="52" rx="12" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-        <text x="0" y="9" text-anchor="middle" font-size="30" font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">TAGS</text>
+        <text x="0" y="9" text-anchor="middle" font-size={inner(L.compact ? 36 : 30)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">TAGS</text>
       </g>
       <path d="M62 -28 Q102 -84 143 -55" fill="none" stroke="var(--berry)" stroke-width="7" stroke-linecap="round" />
     {/if}
@@ -152,20 +157,20 @@
       <path d="M-100 44 H115" stroke="var(--line)" stroke-width="16" stroke-linecap="round" />
       <path d="M-90 44 H105" stroke="var(--paper)" stroke-width="5" stroke-dasharray="18 14" stroke-linecap="round" />
       <rect x="-112" y="-58" width="166" height="64" rx="16" fill={action === 'mpls.push' ? 'var(--paper-2)' : 'var(--berry)'} stroke="var(--line)" stroke-width="5" />
-      <text x="-29" y="-13" text-anchor="middle" font-size="48" font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.push' ? 'var(--line)' : 'var(--paper)'}>{mplsLeft}</text>
+      <text x="-29" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.push' ? 'var(--line)' : 'var(--paper)'}>{mplsLeft}</text>
       <path d="M72 -25 H142" stroke="var(--line)" stroke-width="7" stroke-linecap="round" marker-end="url(#arrow-sticker)" />
       {#if mplsMid}
-        <rect x="66" y="-64" width="90" height="32" rx="10" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-        <text x="111" y="-38" text-anchor="middle" font-size="34" font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{mplsMid}</text>
+        <rect x="66" y={L.compact ? -70 : -64} width="90" height={L.compact ? 40 : 32} rx="10" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
+        <text x="111" y="-38" text-anchor="middle" font-size={inner(L.compact ? 36 : 34)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{mplsMid}</text>
       {/if}
       <rect x="166" y="-58" width="166" height="64" rx="16" fill={action === 'mpls.pop' ? 'var(--paper-2)' : 'var(--berry)'} stroke="var(--line)" stroke-width="5" />
-      <text x="249" y="-13" text-anchor="middle" font-size="48" font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.pop' ? 'var(--line)' : 'var(--paper)'}>{mplsRight}</text>
+      <text x="249" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.pop' ? 'var(--line)' : 'var(--paper)'}>{mplsRight}</text>
     </g>
   {/if}
 </g>
 {#if isPortrait || L.compact}
   {#each steps as step, i}
-    <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (L.compact ? 84 : 100) + i * (L.compact ? 60 : 62)} text={i ? `→ ${step}` : step} size={32} kind="big" colour="var(--brick)" />
+    <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (L.compact ? 68 : 100) + i * (L.compact ? 50 : 62)} text={i ? `→ ${step}` : step} size={32} kind="big" colour="var(--brick)" />
   {/each}
 {:else}
   <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - 24} text={`${steps[0]}  →  ${steps[1]}`} size={22} kind="big" colour="var(--brick)" />
@@ -175,9 +180,9 @@
 {#if L.compact}
   <text x={L.cards[1].x + 38} y={L.cards[1].y + 92} font-size="58" font-family="system-ui, sans-serif" font-weight="800" fill="var(--line)">{S(layer === 'mpls' ? 'card.lfib' : layer === 'vlan' ? 'card.lanes' : role === 'bridge' ? 'card.macBook' : 'card.arpBook')}</text>
   {#each bookRows.slice(0, 2) as r, i}
-    <rect x={L.cards[1].x + 34} y={L.cards[1].y + 140 + i * 72} width={L.cards[1].w - 68} height="54" rx="14" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-    <text x={L.cards[1].x + 58} y={L.cards[1].y + 179 + i * 72} font-size="38" font-family="system-ui, sans-serif" font-weight="800" fill="var(--line)">{r[0]}</text>
-    <text x={L.cards[1].x + L.cards[1].w - 58} y={L.cards[1].y + 179 + i * 72} text-anchor="end" font-size="38" font-family="system-ui, sans-serif" font-weight="800" fill="var(--brick)">{r[1]}</text>
+    <rect x={L.cards[1].x + 34} y={L.cards[1].y + 134 + i * 78} width={L.cards[1].w - 68} height={rowPx * 1.45} rx="14" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
+    <text x={L.cards[1].x + 58} y={L.cards[1].y + 134 + i * 78 + rowPx * 1.08} font-size={rowPx} font-family="system-ui, sans-serif" font-weight="800" fill="var(--line)">{r[0]}</text>
+    <text x={L.cards[1].x + L.cards[1].w - 58} y={L.cards[1].y + 134 + i * 78 + rowPx * 1.08} text-anchor="end" font-size={rowPx} font-family="system-ui, sans-serif" font-weight="800" fill="var(--brick)">{r[1]}</text>
   {/each}
 {:else}
   <Text x={L.cards[1].x + 34} y={L.cards[1].y + (isPortrait ? 88 : 72)} text={S(layer === 'mpls' ? 'card.lfib' : layer === 'vlan' ? 'card.lanes' : role === 'bridge' ? 'card.macBook' : 'card.arpBook')} size={T.title} kind="big" anchor="start" />
@@ -189,9 +194,9 @@
   {/each}
 {/if}
 
-{#if nerd}
+{#if nerd && !L.compact}
   {@const c = L.cards[1]}
-  {@const fs = isPortrait ? 32 : L.compact ? 30 : 20}
+  {@const fs = isPortrait ? 32 : 20}
   <rect x={c.x + 28} y={c.y + c.h - fs * 2.9} width={c.w - 56} height={fs * 2} rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="4" />
   <text x={c.x + c.w / 2} y={c.y + c.h - fs * 1.55} text-anchor="middle" font-family="var(--tag-font)" font-size={fs} font-weight="800" fill="var(--line)">{fieldsLine}</text>
 {/if}
@@ -227,7 +232,7 @@
 {/if}
 {#if !L.compact}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.title * (isPortrait ? 0.82 : 1)} kind="big" />{/if}
 
-<StickerParcel x={x} y={L.walk + bob(view.time, moving)} scale={T.parcel} tint={actionTint} sticker={packetSticker} moving={moving} time={view.time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
+<StickerParcel x={x} y={L.walk + bob(view.time, moving)} scale={T.parcel} legible={L.compact ? legible : undefined} tint={actionTint} sticker={packetSticker} moving={moving} time={view.time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
 
 {#if layer === 'ethernet' && role !== 'bridge' && m.phase === 'lookup'}
   <g transform="translate({L.box.x + L.box.w / 2} {L.box.y - 55})">

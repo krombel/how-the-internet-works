@@ -4,10 +4,11 @@
 // about a stop in their context), then the node, technology or scene itself.
 import type { LearnMore, Level, Orient } from '../define';
 import { doorsOf } from '../model/doors';
+import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { opens } from '../model/stack';
-import { diveRuns, downFrom, parentPath, sceneRef, upFrom, type SceneRef } from '../model/tree';
+import { diveRuns, downFrom, parentPath, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
 
@@ -97,7 +98,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       tag: stretchTag(r, ref, o),
       body: trFirst([`scene.${ref.dive}.${tech.id}`, `scene.${ref.dive}`], lv),
       hint: tr('hint.zoomOut'),
-      doors: upFrom(r, ref).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
+      doors: carriedBy(r, ref, o).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(tech.learnMore ?? [])]),
     };
   }
