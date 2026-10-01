@@ -93,8 +93,9 @@ export const placement = z.tuple([z.number(), z.number(), z.number().positive(),
 const linkLayout = z.strictObject({
   /** Curvature, as a fraction of the link length (+ bends to the left of travel). */
   bend: z.number().optional(),
-  /** Label offset from the link's midpoint. */
-  label: z.tuple([z.number(), z.number()]).optional(),
+  /** Label offset from the link's midpoint, and which end of the name sits there (default its middle): with `end` or
+   *  `start` a name keeps beside the link however long it gets in another language. */
+  label: z.tuple([z.number(), z.number(), z.enum(['start', 'middle', 'end']).optional()]).optional(),
   /** A hand-drawn curve instead (start, control, end points); it still follows its nodes when they move. */
   curve: z.tuple([pt, pt, pt]).optional(),
 });

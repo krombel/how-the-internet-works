@@ -471,6 +471,10 @@ Vitest (`npm test`) covers:
   re-planned mid-glide; neighbouring stretches into the same scene have different titles in every language
 - doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
   place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
+- crowding (#64, `model/overlap.test.ts`): in every path scene of every place × activity, orientation, language and
+  level, at the size a small screen draws them (2× portrait, 1.9× landscape), door badges, device names, link names
+  and owner signs keep apart from each other and from the devices, and every link shows at least two packets' worth
+  of itself. Known crowding is listed in the test; a new case fails, and so does a listed one that's gone
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - device dives (#9, #38): validation, the child and its frame on the device, its layer stack above it, the badge
   away from the name, stepping and travelling link → device → link with no dive panel showing on the glide, a device

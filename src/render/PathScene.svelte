@@ -116,7 +116,7 @@
       {@const lo = l.label}
       {@const tag = nerd ? trFirst([...routeKeys(`tag.${l.id}`), `tech.${l.link.tech.id}.tag`]) : ''}
       <g opacity={l.alpha < 1 ? l.alpha : undefined}>
-        <Text x={m.x + lo[0]} y={m.y + lo[1]} text={tr(`tech.${l.link.tech.id}.name`)} size={24} kind="link" colour={l.link.tech.colour} />
+        <Text x={m.x + lo[0]} y={m.y + lo[1]} text={tr(`tech.${l.link.tech.id}.name`)} size={24} kind="link" colour={l.link.tech.colour} anchor={lo[2]} />
         {#if tag && portrait}
           <TagAt x={m.x + (lo[0] < 0 ? 26 : -26)} y={m.y + 8} text={tag} anchor={lo[0] < 0 ? 'start' : 'end'} />
         {:else if tag}<TagAt x={m.x + lo[0]} y={m.y + lo[1] + (lo[1] < 0 ? -40 : 34)} text={tag} />{/if}

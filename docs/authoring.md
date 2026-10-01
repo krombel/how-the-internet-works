@@ -310,6 +310,11 @@ documentation AS numbers 64496–64511).
 - `place.ts` (`definePlace`) starts with the reader's device and ends with the link into the activity's next segment.
 - `art/Backdrop.svelte` is optional.
 - Strings: `name` (required), `kid`/`nerd`, `tag.<instance>`, `stop.<instance or link id>`, and `inside.<group>`.
+- A link's `label: [dx, dy]` is the offset of its name from the link's midpoint, where its door badge sits. A third
+  entry, `'end'` or `'start'`, puts that end of the name there instead of its middle, so a long translation grows
+  away from the link (the street's fibre in portrait: `label: [-66, 15, 'end']`).
+- On a small screen, names and badges draw up to twice their authored size. Leave room for that:
+  `overlap.test.ts` fails when names, badges, owner signs and devices overlap at that size, in any language.
 
 Validation checks that the place makes a well-formed route with every activity. To keep an activity to some places,
 use `only: [...]` on its place slot.
@@ -394,8 +399,9 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
 - [ ] `locales/en.json` has the required strings; `da.json` if you can.
-- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes). Device names
-      mustn't touch at the size they grow to on a phone, in any language (a test in `model/doors.test.ts` checks).
+- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes), with
+  nothing overlapping at the size things grow to on a small phone, in any language (`model/overlap.test.ts` and
+  `model/doors.test.ts` check).
 - [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
