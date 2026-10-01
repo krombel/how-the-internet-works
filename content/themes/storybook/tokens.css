@@ -243,15 +243,18 @@
   box-shadow: 0 3px 0 color-mix(in srgb, var(--shade) 18%, transparent);
 }
 
-:root[data-style='storybook'] .seg .btn {
+:root[data-style='storybook'] .seg .btn,
+:root[data-style='storybook'] .menu .btn,
+:root[data-style='storybook'] .about-box .btn {
   border-color: transparent;
   box-shadow: none;
 }
 
 :root[data-style='storybook'] .seg .btn.on,
 :root[data-style='storybook'] .controls .seg .btn.on,
-:root[data-style='storybook'] .styles .btn.on,
-:root[data-style='storybook'] .icon-btn[aria-pressed='true'] {
+:root[data-style='storybook'] .menu .btn.on,
+:root[data-style='storybook'] .icon-btn[aria-pressed='true'],
+:root[data-style='storybook'] .more-btn[aria-expanded='true'] {
   border-color: var(--line);
 }
 

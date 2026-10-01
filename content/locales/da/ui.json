@@ -83,5 +83,16 @@
   "ladder.stack.nerd": "{hop}: lagene",
   "nav.where": "Hvor du er",
   "peek.path": "Undervejs",
-  "peek.was": "{now}, var {was}"
+  "peek.was": "{now}, var {was}",
+  "about.open": "Om denne app",
+  "about.title": "Om",
+  "about.credit": "{name} af {author}",
+  "about.legal": "Fri software: du må bruge, dele og ændre den under GNU Affero General Public License, version 3 eller senere. Den kommer uden nogen garanti.",
+  "about.shots": "Skærmbilleder må deles under CC BY 4.0 med kreditering.",
+  "about.source": "Kildekode",
+  "about.license": "Licens",
+  "about.terms": "Vilkår og kreditering",
+  "ui.more": "Mere",
+  "ui.on": "til",
+  "ui.off": "fra"
 }

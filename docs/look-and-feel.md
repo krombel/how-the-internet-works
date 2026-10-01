@@ -303,7 +303,7 @@ Tapping the × button, pressing Esc or tapping empty space ends the follow, and 
 > used (soft yellow, `--env-used`) and changed (struck-through old value → new, `--env-change`), kid fields only or
 > every header field for nerds, and a Details protocol tree. See [architecture](architecture.md#pause-catch-and-step-issue-17).
 
-### Sound (🔈, muted by default)
+### Sound (in the ⋯ menu, muted by default)
 
 All sounds are **synthesised with the Web Audio API**, so there are no audio files and no licences to track:
 
@@ -356,7 +356,7 @@ always muted again on reload.
 - **Labels** are counter-scaled with a minimum on-screen size per style (13–14 px). Some labels flip above or
   below per orientation.
 - **Chrome** fits on two rows (breadcrumb, then the controls), and the caption sits at the bottom where thumbs
-  are. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies below (a
+  are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px phone. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies below (a
   ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; only a roomy
   desktop keeps a layer stack open beside the scene.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps

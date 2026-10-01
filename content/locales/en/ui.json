@@ -83,5 +83,16 @@
   "ladder.stack.nerd": "{hop}: the layers",
   "nav.where": "Where you are",
   "peek.path": "Along the way",
-  "peek.was": "{now}, was {was}"
+  "peek.was": "{now}, was {was}",
+  "about.open": "About this app",
+  "about.title": "About",
+  "about.credit": "{name} by {author}",
+  "about.legal": "Free software: you may use, share and change it under the GNU Affero General Public License, version 3 or later. It comes with no warranty.",
+  "about.shots": "Screenshots may be shared under CC BY 4.0, with credit.",
+  "about.source": "Source code",
+  "about.license": "License",
+  "about.terms": "Terms and credit",
+  "ui.more": "More",
+  "ui.on": "on",
+  "ui.off": "off"
 }

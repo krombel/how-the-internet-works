@@ -1,13 +1,17 @@
 <script lang="ts">
-  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?", pause (all motion), style switcher
-  // (only when more than one theme is installed), language, kid/nerd, day/night (when the theme has a night), sound.
-  // On a short landscape screen it is one slim row. Toggles keep their name and say their state with aria-pressed.
+  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?", pause (all motion), kid/nerd,
+  // day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the language,
+  // sound, the style (only when more than one theme is installed) and About. On a short landscape screen it is one slim
+  // row. Toggles keep their name and say their state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
   import { hasNight, loc, setLevel, setMode, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr, view } from '../state.svelte';
+  import type AboutT from './About.svelte';
   import Icon from './Icon.svelte';
   import Ladder from './Ladder.svelte';
+  import type MenuT from './Menu.svelte';
+  import type { MenuEntry } from './menu';
 
   let { crumbs, below, roomy, onhot, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
     crumbs: { title: string; path: string[] }[]; small: boolean;
@@ -24,11 +28,39 @@
     /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
     quiet: boolean;
   } = $props();
-  let open = $state(false);
-  function pick(id: string) { settings.style = id; syncUrl(); open = false; }
+  /** What hangs off ⋯: its menu, or About. */
+  let open = $state<'menu' | 'about' | null>(null);
+  let more: HTMLButtonElement;
+  // the menu and About load on first use (the menu as soon as ⋯ is pointed at or focused), off the first load
+  let Menu = $state.raw<typeof MenuT | null>(null), About = $state.raw<typeof AboutT | null>(null);
+  const loadMenu = async () => { Menu ??= (await import('./Menu.svelte')).default; };
+  async function toggleMenu() {
+    if (open === 'menu') return void (open = null);
+    await loadMenu();
+    open = 'menu';
+  }
+  async function showAbout() {
+    About ??= (await import('./About.svelte')).default;
+    open = 'about';
+  }
+  function close(back: boolean) { open = null; if (back) more.focus(); }
+  // a tap or click outside closes it
+  function onpointerdown(e: PointerEvent) {
+    if (open && !(e.target as Element).closest?.('.menu, .about-box, .more-btn')) open = null;
+  }
+  const entries = $derived<MenuEntry[]>([
+    { kind: 'choice', id: 'lang', label: tr('ui.language'), value: loc.lang, pick: (lang) => go({ lang }, true),
+      options: languages.map((l) => ({ id: l.code, label: l.name, lang: l.code })) },
+    { kind: 'toggle', id: 'sound', icon: settings.sound ? 'soundOn' : 'soundOff', label: tr('ui.sound'), on: settings.sound,
+      state: tr(settings.sound ? 'ui.on' : 'ui.off'), set: setSound },
+    ...(THEME_IDS.length > 1 ? [{ kind: 'choice' as const, id: 'style', label: tr('ui.style'), value: settings.style,
+      pick: (id) => { settings.style = id; syncUrl(); },
+      options: THEME_IDS.map((id) => ({ id, label: tr(`theme.${id}.name`), swatch: themeSwatches[id] })) } satisfies MenuEntry] : []),
+    { kind: 'action', id: 'about', icon: 'info', label: tr('about.open'), run: showAbout },
+  ]);
 </script>
 
-<svelte:window onkeydown={(e) => e.key === 'Escape' && open && ((open = false), e.preventDefault())} />
+<svelte:window {onpointerdown} />
 <header class="chrome" data-ui>
   <Ladder {crumbs} {below} {short} {roomy} {quiet} {onhot} />
   <div class="controls">
@@ -39,18 +71,6 @@
     </div>
     <div class="card">
       <button class="btn icon-btn" aria-pressed={paused} aria-label={tr('ui.pause')} title={tr('ui.pause')} onclick={onpause}><Icon name={paused ? 'play' : 'pause'} /></button>
-    </div>
-    {#if THEME_IDS.length > 1}
-      <button class="card btn" aria-expanded={open} aria-controls="styles" title={tr('ui.style')} onclick={() => (open = !open)}>
-        <span class="swatch" style:background={themeSwatches[settings.style]}></span>
-        {#if !small}<span>{tr(`theme.${settings.style}.name`)}</span>{/if}
-        <Icon name="down" />
-      </button>
-    {/if}
-    <div class="card seg" role="group" aria-label={tr('ui.language')}>
-      {#each languages as l}
-        <button class="btn" class:on={loc.lang === l.code} aria-pressed={loc.lang === l.code} lang={l.code} title={l.name} onclick={() => go({ lang: l.code }, true)}>{small ? l.code.toUpperCase() : l.name}</button>
-      {/each}
     </div>
     <div class="card seg" role="group" aria-label={tr('ui.level')}>
       {#each ['kid', 'nerd'] as const as lv}
@@ -63,17 +83,10 @@
       </div>
     {/if}
     <div class="card">
-      <button class="btn icon-btn" aria-pressed={settings.sound} aria-label={tr('ui.sound')} title={tr('ui.sound')} onclick={() => setSound(!settings.sound)}><Icon name={settings.sound ? 'soundOn' : 'soundOff'} /></button>
+      <button class="btn icon-btn more-btn" bind:this={more} aria-haspopup="menu" aria-expanded={open === 'menu'} aria-label={tr('ui.more')} title={tr('ui.more')}
+        onpointerenter={loadMenu} onfocus={loadMenu} onclick={toggleMenu}><Icon name="more" /></button>
     </div>
   </div>
-  {#if open}
-    <div class="pop card styles" id="styles">
-      <h3>{tr('ui.style')}</h3>
-      {#each THEME_IDS as id}
-        <button class="btn" aria-pressed={settings.style === id} class:on={settings.style === id} onclick={() => pick(id)}>
-          <span class="swatch" style:background={themeSwatches[id]}></span>{tr(`theme.${id}.name`)}
-        </button>
-      {/each}
-    </div>
-  {/if}
+  {#if open === 'menu' && Menu}<Menu {entries} label={tr('ui.more')} onclose={close} />{/if}
+  {#if open === 'about' && About}<About onclose={close} />{/if}
 </header>

@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
@@ -29,8 +29,14 @@ function stringPacks(): Plugin {
   };
 }
 
+/** Who made the app and where its source is, for the About entry (the AGPL's Appropriate Legal Notices and source
+ *  offer; NOTICE.md): from package.json, so the engine names no project. */
+const pkg = JSON.parse(readFileSync(`${root}package.json`, 'utf8'));
+const about = { name: 'How the Internet Works', author: pkg.author, year: 2026, license: pkg.license, source: pkg.homepage };
+
 export default defineConfig({
   plugins: [svelte(), stringPacks()],
+  define: { __ABOUT__: JSON.stringify(about) },
   resolve: {
     // Content folders import the engine only through $core/api (Svelte side) and $core/define (definition files).
     alias: { $core: `${root}src` },
