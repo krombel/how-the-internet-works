@@ -460,13 +460,14 @@ async function speechJourney(style, fail) {
  *  and they don't come again. A link into a scene gets none (and doesn't use them up); a tap on the scene ends them
  *  and still opens what it hit. */
 async function coachJourney(style, fail) {
-  const first = async (where) => {
+  // waiting for them allows a slow (SWIFTSHADER) runner 20 s; that none come, 3 s after the page stands still
+  const first = async (where, want) => {
     const { ctx, p } = await open('desktop', url(style, 'en', where), null, true);
     await still(p);
-    return { ctx, p, shown: await p.waitForSelector('.coach.placed', { timeout: 3000 }).then(() => true, () => false) };
+    return { ctx, p, shown: await p.waitForSelector('.coach.placed', { timeout: want ? 20000 : 3000 }).then(() => true, () => false) };
   };
   const coached = (p) => p.evaluate(() => localStorage.getItem('coached'));
-  let { ctx, p, shown } = await first('home/watch-video');
+  let { ctx, p, shown } = await first('home/watch-video', true);
   if (!shown) fail('journey: coach marks', 'none on a first visit');
   else {
     const heard = await p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 2000 }).then((h) => h.jsonValue()).catch(() => '');
@@ -485,11 +486,11 @@ async function coachJourney(style, fail) {
     if (await p.$('.coach')) fail('journey: coach marks', 'they come again');
   }
   await ctx.close();
-  ({ ctx, p, shown } = await first('home/watch-video/internet'));
+  ({ ctx, p, shown } = await first('home/watch-video/internet', false));
   if (shown) fail('journey: coach marks', 'a link into a scene gets them');
   if ((await coached(p)) !== null) fail('journey: coach marks', 'a link into a scene uses them up');
   await ctx.close();
-  ({ ctx, p, shown } = await first('home/watch-video'));
+  ({ ctx, p, shown } = await first('home/watch-video', true));
   if (shown) {
     const [x, y] = await p.evaluate(() => window.__app.doorAt('internet'));
     await p.mouse.click(x, y); await still(p);
