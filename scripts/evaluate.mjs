@@ -48,7 +48,9 @@ async function open(view, url) {
   await p.evaluate(() => document.fonts.ready);
   return { ctx, p };
 }
-const settle = (p) => p.waitForFunction(() => !window.__app.busy(), null, { timeout: 8000 }).then(() => p.waitForTimeout(400));
+/** Wait for the camera to land. The a11y run allows longer: it doesn't time anything, and a software-rendered
+ *  (SWIFTSHADER) flight at night on a CI runner can take over 8 s. */
+const settle = (p, timeout = ONLY === 'a11y' ? 30000 : 8000) => p.waitForFunction(() => !window.__app.busy(), null, { timeout }).then(() => p.waitForTimeout(400));
 /** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
 const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
 
