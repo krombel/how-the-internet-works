@@ -128,7 +128,7 @@ describe('scene tree', () => {
     ]);
     expect(notLayers(street, []).map((c) => c.step)).toEqual(['phone-cell-tower', 'cell-tower', 'cell-tower-internet', 'internet']);
     // the backbone links are one stretch, one dive; so are the cross-connects at the exchange
-    expect(notLayers(street, ['internet']).map((c) => c.step)).toEqual(['cell-tower-mobile-core', 'mobile-core-core', 'border-ixp', 'datacentre']);
+    expect(notLayers(street, ['internet']).map((c) => c.step)).toEqual(['cell-tower-mobile-core', 'mobile-core-core', 'border', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
   });
 
   it('resolves dives with their subject link', () => {
@@ -241,21 +241,21 @@ describe('scene tree', () => {
     const c: Content = structuredClone(content);
     c.nodes.backhaul.dive = c.nodes.router.dive;
     const h = resolveRoute({ activity: 'watch-video', places: ['home'] }, c);
-    expect(diveRuns(h, 'internet', 'landscape').runs.map((x) => x.links.map((l) => l.id))).toEqual([['home-cabinet'], ['cabinet-backhaul'], ['backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp', 'ixp-datacentre']]);
-    expect(notLayers(h, ['internet']).map((x) => x.step)).toEqual(['home-cabinet', 'cabinet-backhaul', 'backhaul', 'backhaul-bng', 'bng-core', 'border-ixp', 'datacentre']);
+    expect(diveRuns(h, 'internet', 'landscape').runs.map((x) => x.links.map((l) => l.id))).toEqual([['home-cabinet'], ['cabinet-backhaul'], ['backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp'], ['ixp-datacentre']]);
+    expect(notLayers(h, ['internet']).map((x) => x.step)).toEqual(['home-cabinet', 'cabinet-backhaul', 'backhaul', 'backhaul-bng', 'bng-core', 'border', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
   });
 
   it('makes a stretch of consecutive links into the same scene with the same technology one dive', () => {
     const desk = resolveRoute({ activity: 'watch-video', places: ['desk'] });
     const runs = (r: typeof home, group: string | null) => diveRuns(r, group, 'landscape').runs.map((x) => x.links.map((l) => l.id));
     // access, metro, long haul, the exchange's cross-connects: not eight identical fibre dives
-    expect(runs(home, 'internet')).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp', 'ixp-datacentre']]);
-    expect(runs(street, 'internet')).toEqual([['cell-tower-mobile-core'], ['mobile-core-core', 'core-border'], ['border-ixp', 'ixp-datacentre']]);
+    expect(runs(home, 'internet')).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp'], ['ixp-datacentre']]);
+    expect(runs(street, 'internet')).toEqual([['cell-tower-mobile-core'], ['mobile-core-core', 'core-border'], ['border-ixp'], ['ixp-datacentre']]);
     // different scenes (or technologies) stay apart
     expect(runs(street, null)).toEqual([['phone-cell-tower'], ['cell-tower-internet']]);
     expect(runs(desk, null)).toEqual([['laptop-router'], ['router-internet']]);
     // one child, one sideways stop, one step each way: its first link is its step, the rest are not steps of their own
-    expect(sideways(home, ['internet', 'cabinet-backhaul'], null, 'portrait')).toMatchObject({ steps: ['home-cabinet', 'cabinet-backhaul', 'bng-core', 'border-ixp'], i: 1 });
+    expect(sideways(home, ['internet', 'cabinet-backhaul'], null, 'portrait')).toMatchObject({ steps: ['home-cabinet', 'cabinet-backhaul', 'bng-core', 'border', 'border-ixp', 'ixp', 'ixp-datacentre'], i: 1 });
     expect(sceneRef(home, ['internet', 'backhaul-bng'])).toBeNull();
     expect(validPrefix(home, ['internet', 'backhaul-bng'])).toEqual(['internet']);
     // the dive sits in the middle of the stretch (a single link's at its midpoint), and a travel lands there

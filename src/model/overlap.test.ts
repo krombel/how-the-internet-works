@@ -93,7 +93,6 @@ const KNOWN_OVERLAPS = [
   'desk × watch-video portrait /internet: bng name × isp sign',
   'desk × watch-video portrait /internet: cabinet name × dive badge home-cabinet',
   'desk × watch-video portrait /internet: isp sign × dive badge cabinet-backhaul',
-  'desk × watch-video portrait /internet: ixp sign × dive badge border-ixp',
   'desk × watch-video portrait /internet: transit name × ixp sign',
   'home × watch-video landscape /: ap art × ap-router name',
   'home × watch-video landscape /: ap name × swap badge phone',
@@ -112,9 +111,7 @@ const KNOWN_OVERLAPS = [
   'home × watch-video portrait /internet: bng name × isp sign',
   'home × watch-video portrait /internet: cabinet name × dive badge home-cabinet',
   'home × watch-video portrait /internet: isp sign × dive badge cabinet-backhaul',
-  'home × watch-video portrait /internet: ixp sign × dive badge border-ixp',
   'home × watch-video portrait /internet: transit name × ixp sign',
-  'street × watch-video portrait /internet: ixp sign × dive badge border-ixp',
   'street × watch-video portrait /internet: transit name × ixp sign',
 ];
 const KNOWN_SHORT = [

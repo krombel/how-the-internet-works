@@ -22,7 +22,7 @@ describe('depth ladder (#22)', () => {
     // a device with a dive (#9) is a door between its links
     expect(doors(home, [])).toEqual(['dive:phone-ap', 'dive:ap-router', 'dive:router', 'dive:router-internet', 'expand:internet']);
     // a stretch of links is one door
-    expect(doors(home, ['internet'])).toEqual(['dive:internet/home-cabinet', 'dive:internet/cabinet-backhaul', 'dive:internet/bng-core', 'dive:internet/border-ixp', 'expand:internet/datacentre']);
+    expect(doors(home, ['internet'])).toEqual(['dive:internet/home-cabinet', 'dive:internet/cabinet-backhaul', 'dive:internet/bng-core', 'dive:internet/border', 'dive:internet/border-ixp', 'dive:internet/ixp', 'dive:internet/ixp-datacentre', 'expand:internet/datacentre']);
     // and inside the data centre, devices with a dive end a stretch
     expect(doors(home, ['internet', 'datacentre'])).toEqual(['dive:internet/datacentre/ixp-dc-router', 'dive:internet/datacentre/dc-router-load-balancer', 'dive:internet/datacentre/spine', 'dive:internet/datacentre/spine-rack-switch', 'dive:internet/datacentre/cdn']);
     expect(doors(street, [])).toEqual(['dive:phone-cell-tower', 'dive:cell-tower', 'dive:cell-tower-internet', 'expand:internet']);

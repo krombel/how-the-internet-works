@@ -1,0 +1,63 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inde i grænserouteren",
+  "heading": {
+    "kid": "Inde i grænserouteren",
+    "nerd": "Grænserouterens RIB"
+  },
+  "kid": "Det her er døren ud af dit internetfirma. Grænserouteren tager motorvejsmærkaten af, læser sedler fra naboerne og vælger den gratis genvej gennem knudepunktet. Den betalte transitvej er klar, men din pakke behøver den ikke.",
+  "nerd": "Ved PE/ASBR'en poppes det sidste MPLS-label før peering-LAN'et, som kun bruger Ethernet; med penultimate-hop popping kan kernen tage labelen af et hop tidligere. eBGP-updates fra IXP-peeren og transit-udbyderen fylder RIB'en, og local preference vælger peering frem for betalt transit til 198.51.100.0/24.",
+  "describe": {
+    "kid": "Dit internetfirmas kerne er til venstre. To udgange er til højre: knudepunktet og en dæmpet transit, som man betaler for. En pakke kommer med en motorvejsmærkat. Mærkaten pilles af. Sedler fra begge naboer flyver ind i vejbogen. Knudepunktets række lyser op, og pakken kører ud til knudepunktet.",
+    "nerd": "Inde i grænserouteren popper linekortet mod kernen MPLS-labelen. En BGP-routingtabel viser videoprefixet med IXP-peer- og transitstier. UPDATE-sedler kommer fra begge naboer. Rækken med local-pref 200 lyser, og pakken går ud til IXP'et."
+  },
+  "rib": {
+    "title": {
+      "kid": "Vejbogen",
+      "nerd": "BGP RIB"
+    },
+    "dest": {
+      "kid": "Skal til",
+      "nerd": "Prefix"
+    },
+    "target": {
+      "kid": "videofirmaet",
+      "nerd": "198.51.100.0/24"
+    },
+    "exchange": {
+      "kid": "via knudepunktet",
+      "nerd": "via IXP-peer",
+      "detail": {
+        "kid": "kort vej · gratis",
+        "nerd": "AS path 1 hop · local-pref 200"
+      }
+    },
+    "transit": {
+      "kid": "via transit",
+      "nerd": "via transit",
+      "detail": {
+        "kid": "lang vej · betalt",
+        "nerd": "AS path 3 hop · local-pref 100"
+      }
+    }
+  },
+  "pop": {
+    "tag": {
+      "kid": "Motorvejsmærkat af",
+      "nerd": "pop label"
+    },
+    "short": {
+      "kid": "af",
+      "nerd": "pop"
+    }
+  },
+  "note": {
+    "short": {
+      "kid": "seddel",
+      "nerd": "UPDATE"
+    }
+  }
+}

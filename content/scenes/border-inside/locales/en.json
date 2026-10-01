@@ -1,0 +1,63 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inside the border router",
+  "heading": {
+    "kid": "Inside the border router",
+    "nerd": "Border router RIB"
+  },
+  "kid": "This is the door out of your internet company. The border router takes the motorway sticker off, reads neighbour notes, and chooses the free shortcut through the exchange. The paid transit road is ready, but your parcel does not need it.",
+  "nerd": "At the PE/ASBR, the last MPLS label is popped before the Ethernet-only peering LAN; with penultimate-hop popping the core may remove it one hop earlier. eBGP updates from the IXP peer and the transit provider feed the RIB, and local preference picks peering over paid transit for 198.51.100.0/24.",
+  "describe": {
+    "kid": "Your internet company's core is on the left. Two exits are on the right: the exchange, and a dim carrier you pay. A parcel arrives with a motorway sticker. The sticker peels off. Notes from both neighbours fly into the route book. The exchange row lights up, and the parcel leaves for the exchange.",
+    "nerd": "Inside the border router, the core-facing line card pops the MPLS label. A BGP routing table lists the video prefix with IXP peer and transit paths. UPDATE notes arrive from both neighbours. The local-pref 200 row lights, and the packet exits to the IXP."
+  },
+  "rib": {
+    "title": {
+      "kid": "Route book",
+      "nerd": "BGP RIB"
+    },
+    "dest": {
+      "kid": "Going to",
+      "nerd": "Prefix"
+    },
+    "target": {
+      "kid": "the video company",
+      "nerd": "198.51.100.0/24"
+    },
+    "exchange": {
+      "kid": "via the exchange",
+      "nerd": "via IXP peer",
+      "detail": {
+        "kid": "short road · free",
+        "nerd": "AS path 1 hop · local-pref 200"
+      }
+    },
+    "transit": {
+      "kid": "via transit",
+      "nerd": "via transit",
+      "detail": {
+        "kid": "long road · paid",
+        "nerd": "AS path 3 hops · local-pref 100"
+      }
+    }
+  },
+  "pop": {
+    "tag": {
+      "kid": "Motorway sticker off",
+      "nerd": "pop label"
+    },
+    "short": {
+      "kid": "off",
+      "nerd": "pop"
+    }
+  },
+  "note": {
+    "short": {
+      "kid": "note",
+      "nerd": "UPDATE"
+    }
+  }
+}
