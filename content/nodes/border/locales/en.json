@@ -1,0 +1,6 @@
+{
+  "name": "Border router",
+  "kid": "The door out of your internet company. It takes the motorway sticker off and hands your parcel to the next network.",
+  "nerd": "A provider-edge router and ASBR: it pops the last MPLS label (or the core does, with penultimate-hop popping), speaks eBGP to its neighbours and picks the exit: free peering at the exchange or paid transit.",
+  "tag": "PE/ASBR · eBGP"
+}

@@ -11,5 +11,5 @@
     <path d={`M${x - 22} ${y + 8} L${x - 28 + step} ${y + 24}`} />
     <path d={`M${x + 22} ${y + 8} L${x + 28 - step} ${y + 24}`} />
   </g>
-  <Box {x} y={y - 40} {n} size={70} {sealed} {glow} {port} />
+  <Box {x} y={y - 40} {n} size={70} {sealed} {glow} {port} outer={scale} />
 </g>

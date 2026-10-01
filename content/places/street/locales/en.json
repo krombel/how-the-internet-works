@@ -17,7 +17,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you."
+      "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you. Each shaded area is one operator’s network."
     }
   }
 }

@@ -20,6 +20,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); c
 body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
 #stage { position: fixed; inset: 0; }
 #stage > svg { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
+/* a camera cut with prefers-reduced-motion: the old picture fades out over the new one (engine/motion.ts › fadeOver) */
+#stage > .fading { position: absolute; inset: 0; pointer-events: none; will-change: opacity; animation: fade-out ease-out both; }
+@keyframes fade-out { to { opacity: 0; } }
 button, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -63,6 +66,30 @@ button { cursor: pointer; }
 .styles .btn.on { background: var(--btn-on); color: var(--btn-on-ink); }
 .crumb-menu { inset-inline: 12px auto; display: grid; gap: 4px; }
 .crumb-menu .btn { justify-content: flex-start; border-radius: 12px; background: none; font-size: 15px; }
+/* the depth ladder (Ladder.svelte): the rung you're on opens into what lies below it, the doors further down (a small
+   ladder and their count) or the stack of envelopes down to the signal (a pip per rung, the one you're on filled) */
+.crumbs { max-width: 100%; }
+.crumbs .here.btn { color: var(--ink); min-width: 0; gap: 6px; }
+.here-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.below-count { display: inline-flex; align-items: center; gap: 1px; padding: 1px 7px 1px 4px; border-radius: 99px; background: var(--btn-on);
+  color: var(--btn-on-ink); font-family: var(--ui-font); font-size: 12px; font-weight: 800; line-height: 1.35; }
+.crumbs .below-count svg { width: 14px; height: 14px; }
+.crumbs .pips { width: 11px; height: 20px; flex: none; }
+.pips rect { fill: currentColor; opacity: 0.3; }
+.pips rect.signal { fill: var(--door-dive, var(--accent)); opacity: 0.6; }
+.pips rect.on { opacity: 1; }
+.ladder { inset-inline: 12px auto; display: grid; gap: 3px; width: max-content; min-width: 200px; max-width: min(320px, calc(100% - 24px));
+  max-height: calc(100vh - 100px); overflow: auto; }
+.ladder.pinned { min-width: 0; max-width: 164px; max-height: calc(50vh - 110px); }
+.ladder .rung { justify-content: flex-start; text-align: start; border-radius: 12px; background: none; font-size: 14px; line-height: 1.2;
+  min-height: 36px; padding: 5px 10px; }
+.ladder .rung svg { width: 18px; height: 18px; color: var(--door-ink, currentColor); }
+.ladder .rung.on { background: var(--btn-on); color: var(--btn-on-ink); }
+.ladder .rung.on svg, .ladder .rung.on .lock { color: inherit; }
+.ladder .lock { display: inline-flex; margin-inline-start: auto; color: var(--muted); }
+.ladder .lock svg { width: 15px; height: 15px; color: inherit; }
+/* the signal carries all of them: set apart under the envelopes, in the colour of the doors down to it */
+.ladder .rung.signal { margin-top: 4px; box-shadow: inset 0 0 0 2px var(--door-ink); }
 .swatch { width: 26px; height: 26px; border-radius: 8px; flex: none; border: 2px solid rgba(128, 128, 128, 0.35); }
 
 /* ---------------- caption */
@@ -259,12 +286,16 @@ button { cursor: pointer; }
   .step { width: 54px; height: 54px; }
 }
 /* a short landscape screen (a phone on its side, `isShort` in engine/camera.ts): one slim top row, so the scene gets
-   the height; the breadcrumb keeps its last two steps (Chrome.svelte) and cuts long names short */
+   the height; the breadcrumb keeps its last two steps (Ladder.svelte) and cuts long names short */
 @media (orientation: landscape) and (max-height: 499px) {
   .chrome { flex-wrap: nowrap; padding-inline: max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-right)); }
   .crumbs { min-width: 0; }
   .crumbs .btn, .crumbs .here { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .crumbs .btn { line-height: 20px; }
+  .crumbs .here.btn { display: flex; }
+  .ladder { gap: 2px; padding-block: 6px; }
+  .ladder h3 { margin-block: 2px 4px; }
+  .ladder .rung { min-height: 32px; padding-block: 3px; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) { .env, .picker, .trip { animation: none; } .caption { transition: none; } }

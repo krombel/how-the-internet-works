@@ -8,8 +8,9 @@ export type * from './render/theme-types';
 
 export { along, lengths } from './engine/geometry';
 export { pts, textBox } from './engine/svg';
-export { fakeMac } from './model/packet';
+export { fakeLabel, fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';
+export { legibleSize } from './render/ctx';
 export { fill, nameOf, view, yours } from './state.svelte';
 
 export { default as Depth } from './render/Depth.svelte';

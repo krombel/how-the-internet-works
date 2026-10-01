@@ -71,6 +71,11 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     if (n.dive && n.kind !== 'device') add(n.file, 'dive', `only a device has a dive (a ${n.kind} is drawn as a group, which opens up instead).`);
     learnMore(n.file, n.learnMore);
   }
+  for (const o of Object.values(c.owners)) {
+    schema(o.file, S.owner, strip(o));
+    needLevelled(o.file, `owner.${o.id}.name`);
+    learnMore(o.file, o.learnMore);
+  }
   for (const t of Object.values(c.technologies)) {
     schema(t.file, S.technology, strip(t));
     t.stack?.forEach((l, i) => ref(t.file, `stack[${i}]`, 'layers', l, 'a layer'));
@@ -111,7 +116,7 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     learnMore(s.file, s.learnMore);
   }
 
-  const segmentLike = (file: string, def: { hops: unknown[]; aside?: { from: string; link: string; at: string; node?: string }[]; entry?: Record<string, string> }, s: z.ZodType, whole: unknown) => {
+  const segmentLike = (file: string, def: { hops: unknown[]; aside?: { from: string; link: string; at: string; node?: string; owner?: string }[]; entry?: Record<string, string> }, s: z.ZodType, whole: unknown) => {
     const hops = Array.isArray(def.hops) ? def.hops : [];
     hops.forEach((h, i) => {
       const item = h as Record<string, unknown>;
@@ -129,12 +134,14 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
       } else {
         ref(file, `hops[${i}]`, 'nodes', h.node ?? h.at, 'a node (set "node" if the instance id differs)');
         if (h.in) ref(file, `hops[${i}].in`, 'nodes', h.in, 'a node');
+        ref(file, `hops[${i}].owner`, 'owners', h.owner, 'an owner');
       }
     }
     const ids = new Set((hops as Parameters<typeof isLink>[0][]).flatMap((h) => (isLink(h) ? [] : [h.at])));
     def.aside?.forEach((a, i) => {
       ref(file, `aside[${i}]`, 'nodes', a.node ?? a.at, 'a node');
       ref(file, `aside[${i}].link`, 'technologies', a.link, 'a technology');
+      ref(file, `aside[${i}].owner`, 'owners', a.owner, 'an owner');
       if (!ids.has(a.from)) add(file, `aside[${i}].from`, `"${a.from}" is not a hop in this segment.${suggest(a.from, [...ids])}`);
     });
     for (const [g, n] of Object.entries(def.entry ?? {})) { ref(file, `entry.${g}`, 'nodes', g, 'a node'); ref(file, `entry.${g}`, 'nodes', n, 'a node'); }
@@ -193,11 +200,14 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
       for (const x of d?.aside ?? []) instances.add(x.at);
       for (const e of Object.values(d?.entry ?? {})) instances.add(e);
     }
-    const checkLayout = (file: string, layout: Record<string, Record<string, { nodes?: Record<string, unknown> } | undefined>> | undefined) => {
+    const checkLayout = (file: string, layout: Record<string, Record<string, { nodes?: Record<string, unknown>; owners?: Record<string, unknown> } | undefined>> | undefined) => {
       for (const [key, byOrient] of Object.entries(layout ?? {})) {
         if (key !== 'overview' && !groupIds.has(key)) add(file, `layout.${key}`, `"${key}" is not a path scene: use "overview" or a group (${[...groupIds].join(', ')})`);
-        for (const [o, l] of Object.entries(byOrient)) for (const id of Object.keys(l?.nodes ?? {}))
-          if (!instances.has(id)) add(file, `layout.${key}.${o}.nodes.${id}`, `"${id}" is not a hop in any route of "${a.id}".${suggest(id, [...instances])}`);
+        for (const [o, l] of Object.entries(byOrient)) {
+          for (const id of Object.keys(l?.nodes ?? {}))
+            if (!instances.has(id)) add(file, `layout.${key}.${o}.nodes.${id}`, `"${id}" is not a hop in any route of "${a.id}".${suggest(id, [...instances])}`);
+          for (const id of Object.keys(l?.owners ?? {})) ref(file, `layout.${key}.${o}.owners.${id}`, 'owners', id, 'an owner');
+        }
       }
     };
     checkLayout(a.file, a.layout);

@@ -43,13 +43,13 @@
   },
   "mpls": {
     "title": "Motorway numbers",
-    "kid": "Inside the provider network the sticker is a motorway number. A junction can swap 24012 for 17003 and send the parcel out door 3 without reading the long address. Underneath, it travels as flashes of light in fibre.",
-    "nerd": "MPLS routers use an LFIB: incoming label 24012 maps to an outgoing interface and label 17003. Edge routers push labels; intermediate LSRs swap; the penultimate hop may pop.",
+    "kid": "Inside the provider network the sticker is a motorway number. A junction swaps it for the number the next junction asked for and sends the parcel out door 3 without reading the long address. Underneath, it travels as flashes of light in fibre.",
+    "nerd": "MPLS routers use an LFIB: an incoming label maps to an outgoing interface and the label the next router advertised. The ingress edge pushes a label, LSRs in the middle swap it, the egress edge pops it (or the hop before, with penultimate-hop popping).",
     "at": {
-      "core": {
-        "title": "Last motorway junction",
-        "kid": "The core is the last junction before the exchange here. It pops the motorway sticker off, so the next box can read the normal address again. Underneath, it travels as flashes of light in fibre.",
-        "nerd": "Penultimate-hop popping: the core removes the MPLS label before the Ethernet-only IXP segment. TC bits carry class, and TTL is copied from IP and decremented."
+      "border": {
+        "title": "Leaving the motorway",
+        "kid": "The border router is the last junction in your internet company’s network. It takes the motorway sticker off, so the exchange and the next network can read the normal address again. Underneath, it travels as flashes of light in fibre.",
+        "nerd": "The egress PE pops the label before the Ethernet-only peering LAN at the IXP and forwards on the IP header towards the eBGP next hop. With penultimate-hop popping the core would pop it one hop earlier instead. TC bits carry class, and TTL is copied from IP and decremented."
       }
     }
   },
@@ -84,11 +84,11 @@
     },
     "mpls": {
       "push": {
-        "a": "Push 24012.",
+        "a": "Push {out}.",
         "b": "Enter the motorway."
       },
       "swap": {
-        "a": "24012 → 17003.",
+        "a": "{in} → {out}.",
         "b": "No IP lookup here."
       },
       "pop": {

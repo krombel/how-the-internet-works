@@ -5,7 +5,7 @@
   "tag": "AS64500 · BGP",
   "inside": {
     "title": "Inside the internet",
-    "kid": "The internet isn’t one big cloud. It’s a chain of boxes, each passing your parcel to the next one – from your street, through your internet company, to where the video lives.",
-    "nerd": "A chain of networks: your access network, your internet company’s core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you."
+    "kid": "The internet isn’t one big cloud. It’s lots of networks, each run by a different company, holding hands. The coloured patches show whose boxes your parcel passes – and the faint circles far away are a few of the many other networks.",
+    "nerd": "A network of networks: your ISP’s access network and MPLS core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you. Each shaded area is one operator; tens of thousands of other autonomous systems are out there too."
   }
 }

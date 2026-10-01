@@ -1,13 +1,34 @@
 import { describe, expect, it } from 'vitest';
 import { resolveRoute } from '../model/resolve';
 import { areaCentre, fit, toWorldPt, travelInterpolator, type Viewport } from './camera';
-import { camFor, decide, mixes, sceneInfo, travelK } from './zoom';
+import { DIVE_RIM, camFor, decide, mixes, sceneInfo, travelK } from './zoom';
 import { chainAt, chainNear, chainOf, toLocal, toRoot, travelOf } from '../model/tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const vp: Viewport = { w: 1440, h: 900, top: 0, bottom: 0 };
 const pvp: Viewport = { w: 390, h: 844, top: 0, bottom: 0 };
 const at = (path: string[]) => fit(sceneInfo(home, path, 'landscape').fit, vp);
+
+describe('dives on a phone on its side (issue #33)', () => {
+  const svp: Viewport = { w: 844, h: 390, top: 60, bottom: 69 };
+  it('fill the height between the bars, running under their edges only by the rim, clear of the side buttons', () => {
+    for (const path of [['phone-ap'], ['router~ip'], ['internet', 'cabinet~ethernet']]) {
+      const r = sceneInfo(home, path, 'landscape').fit, cam = camFor(home, path, null, svp, 'landscape');
+      const sx = (x: number) => x * cam.k + cam.x, sy = (y: number) => y * cam.k + cam.y;
+      expect(cam.k).toBeGreaterThan(fit(r, svp).k * 1.15);
+      expect(sx(r.x)).toBeGreaterThanOrEqual(DIVE_RIM.side - 1e-6);
+      expect(sx(r.x + r.w)).toBeLessThanOrEqual(svp.w - DIVE_RIM.side + 1e-6);
+      expect(sy(r.y + r.h * DIVE_RIM.top)).toBeGreaterThanOrEqual(svp.top - 1e-6);
+      expect(sy(r.y + r.h * (1 - DIVE_RIM.bottom))).toBeLessThanOrEqual(svp.h - svp.bottom + 1e-6);
+      expect(sx(r.x + r.w / 2)).toBeCloseTo(svp.w / 2);
+    }
+  });
+
+  it('leave path scenes and other screens as they were', () => {
+    expect(camFor(home, [], null, svp, 'landscape')).toEqual(fit(sceneInfo(home, [], 'landscape').fit, svp));
+    expect(camFor(home, ['phone-ap'], null, vp, 'landscape')).toEqual(at(['phone-ap']));
+  });
+});
 
 describe('layer dives in the zoom', () => {
   it('only draws a layer dive when it is on the path', () => {

@@ -1,7 +1,7 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
 import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
-import { TRAVEL, areaCentre, fit, progress, smoothstep, type Cam, type Viewport } from './camera';
+import { TRAVEL, areaCentre, fit, isShort, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
@@ -23,10 +23,22 @@ export function sceneInfo(r: Route, path: string[], o: Orient) {
   return hit;
 }
 
+/** On a short landscape screen (a phone on its side, issue #33) a dive's wide panel fits the height left between the
+ *  top bar and the caption pill, and got only about half the width. It may run under their edges: its top `top` and
+ *  bottom `bottom` (shares of its height) hold only its border and flap, and only the corners of the bar and the middle
+ *  of the pill reach that far. It keeps `side` px clear of each side for the ◀ ▶ buttons. */
+export const DIVE_RIM = { top: 0.08, bottom: 0.045, side: 80 };
+function diveFit(r: Rect, vp: Viewport): Cam {
+  const R = DIVE_RIM, ah = vp.h - vp.top - vp.bottom, inner = r.h * (1 - R.top - R.bottom);
+  const k = Math.min((vp.w - 2 * R.side) / r.w, ah / inner);
+  return { k, x: vp.w / 2 - (r.x + r.w / 2) * k, y: vp.top + (ah - inner * k) / 2 - (r.y + r.h * R.top) * k };
+}
+
 /** The camera for a scene, or a stop inside a path scene. */
 export function camFor(r: Route, path: string[], stop: string | null, vp: Viewport, o: Orient): Cam {
   const s = sceneInfo(r, path, o);
-  if (stop && s.ref.kind === 'path') {
+  if (s.ref.kind !== 'path') return isShort(vp.w, vp.h) ? diveFit(s.fit, vp) : fit(s.fit, vp);
+  if (stop) {
     const rect = stopRectLocal(pathScene(r, s.ref.group, o), stop);
     if (rect) return fit(rectToRoot(s.frame, rect), vp, 0.9);
   }

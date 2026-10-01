@@ -17,6 +17,14 @@
   "hint.zoomOut": "Knib eller scroll ud for at gå tilbage",
   "hint.overview": "Tryk på en pakke for at fange den. Swipe for at gå videre.",
   "dive.stretches": "{n} strækninger · via {via}",
+  "trip.trip.kid": "Dine pakker rejser omkring {km} hver vej",
+  "trip.trip.nerd": "Omkring {km} hver vej · {light} for lys i fiber",
+  "trip.group.kid": "{n} firmaer sender dine pakker videre · omkring {km}",
+  "trip.group.nerd": "{n} operatørers net · omkring {km} · {light} for lys",
+  "trip.hop.kid": "{km} fra dig",
+  "trip.hop.nerd": "{km} henne ad vejen · lys: {light}",
+  "trip.link.kid": "Omkring {km} lang",
+  "trip.link.nerd": "Omkring {km} · lys: {light}",
   "hint.dive": "Tryk på forstørrelsesglasset for at se indeni",
   "hint.expand": "Tryk på den for at åbne den og se, hvad der er indeni",
   "hint.step": "Swipe eller brug pilene for at gå langs vejen",
@@ -71,5 +79,9 @@
   "peek.role.nat.up.kid": "{hop} bytter afsenderadressen ud med sin egen udadvendte adresse og husker, hvem der spurgte.",
   "peek.role.nat.up.nerd": "NAT: afsenderen omskrives til den udadvendte adresse, checksummer rettes, og koblingen gemmes; så routes den (TTL − 1).",
   "peek.role.nat.down.kid": "{hop} slår op, hvem der bad om den, og skifter adressen tilbage.",
-  "peek.role.nat.down.nerd": "NAT retur: modtageren omskrives tilbage via tabellen, checksummer rettes, og så routes den (TTL − 1)."
+  "peek.role.nat.down.nerd": "NAT retur: modtageren omskrives tilbage via tabellen, checksummer rettes, og så routes den (TTL − 1).",
+  "ladder.doors.one": "{n} dør fører længere ned",
+  "ladder.doors.other": "{n} døre fører længere ned",
+  "ladder.stack.kid": "{hop}: kuverterne",
+  "ladder.stack.nerd": "{hop}: lagene"
 }

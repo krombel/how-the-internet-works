@@ -65,12 +65,12 @@ export default definePlace({
   order: 3,                                                  // position in "Where are you?"
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
-    { link: 'ethernet' },                                    // an existing technology: its stack, look, colour and dive (copper)
+    { link: 'ethernet', km: 0.003 },                         // an existing technology: its stack, look, colour and dive (copper); `km`: roughly how long
     { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
-    { link: 'gpon' },                                        // its dive (the fibre scene in GPON mode) comes along
-    { at: 'cabinet', in: 'internet' },                       // `in`: shown when the internet is unfolded
+    { link: 'gpon', km: 1.2 },                               // its dive (the fibre scene in GPON mode) comes along
+    { at: 'cabinet', in: 'internet', owner: 'isp' },         // `in`: shown when the internet is unfolded; `owner`: whose network it is
     …
-    { link: 'backbone' },                                    // ends with the link into the activity's next segment
+    { link: 'backbone', km: 25 },                            // ends with the link into the activity's next segment
   ],
   entry: { internet: 'home' },                               // inside the internet, the house stands for "where you came from"
   layout: {
@@ -159,7 +159,7 @@ A field is `{ id, bits?, value, use?, kid? }`:
 - `bits`: its size on the wire. Give every field `bits` and the detail view draws the header diagram.
 - `value`: a template. Plain text is the same on every hop (`'4'`, `'010 (DF)'`); `{ up, down }` differs by direction;
   facts fill in per link: `{src}` `{dst}` `{sport}` `{dport}` `{ttl}` `{mac.src}` `{mac.dst}` `{mac.tx}` `{mac.rx}`
-  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{inner.<code>}` (see
+  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{label}` `{inner.<code>}` (see
   [architecture](architecture.md#the-packet-model-modelpacketts)). `'@ask'` shows the string `value.ask` instead. An
   empty value leaves the field out in that direction.
 - `use`: the roles that act on it when the packet arrives (`['router', 'nat']` for TTL), or `true` for every hop that
@@ -199,7 +199,7 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   `<tech>.title` and draw the difference: a reader steps from one stretch to the next and should see what changed (a
   content test checks the titles differ). `fibre-light` picks a mode from `subject.link.tech` (`light.ts` › `modeOf`):
   **access** (GPON: a splitter shares one thread with the street, the light coming home reaches every house, the houses
-  take turns going up), **metro** (DWDM colours with mux and demux) and **long haul** (the backbone: eight colours, a
+  take turns going up), **metro** (DWDM colours with mux and demux; the exchange's cross-connects too, with their own title and a LAN-WDM tag) and **long haul** (the backbone: eight colours, a
   booster every 80 km). Each mode is its own component with portrait, landscape and short-landscape layouts.
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
   the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it
@@ -261,6 +261,10 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   Portrait (900×1600) and landscape (1600×900) are both needed; a short landscape screen (a phone on its side)
   benefits from a compact layout with bigger text and fewer labels (see `layoutFor` in `scenes/ip-post/post.ts`).
   Text never draws smaller than the theme's minimum on screen, so check the portrait phone for overlaps.
+  That holds for `Text` and `Label`; raw `<text>` (inside a drawing) doesn't, so size it with `legibleSize()` from
+  `$core/api` (`const legible = legibleSize()`, then `legible(36)` is 36 or the world size that shows as the minimum;
+  inside a group scaled by `k`, use `legible(36 * k) / k`) and let its box grow with it. In short landscape 14 px is
+  about 42 world units: hide detail that can't be that big (draw an envelope's rows as lines, shorten long values).
 - Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
 - Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
   1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)
@@ -283,6 +287,20 @@ its path scene, so nothing else needs a layout. Dive scenes are loaded on demand
 ## Add a segment
 
 `content/segments/<id>/segment.ts`: `defineSegment({ hops, aside?, entry?, layout? })`. It is a reusable stretch of route that activities list in `route`. `aside` adds a dashed alternative branch that packets don't take (transit).
+
+## Add an owner (issue #20)
+
+The internet is a network of networks. `content/owners/<id>/owner.ts` (`defineOwner({})`) is a company that runs
+some of the hops: your internet company, the exchange, the video company, a transit carrier. Its only string is
+`name`, split by level (`"name": { "kid": "Your internet company", "nerd": "Your ISP · AS64500" }`; use the
+documentation AS numbers 64496–64511).
+- A hop (or `aside`) says `owner: '<id>'`. Inside a group, the hops of one owner get a tinted, rounded region, and the
+  owners on the packets' way are named on a sign; a side branch's region stays faint and unnamed. The tone is the
+  owner's place along the route, so it is the same colour in every scene.
+- A layout may place the signs: `owners: { isp: [x, y] }` next to `nodes`; the region reaches out to the sign.
+  Without one, the sign sits on the region's top edge.
+- Give every link a rough `km`. The caption turns them into the trip's scale: how far the video is, how many
+  companies carry it, how far a stop is from you and how long a link is (with light's time in fibre for nerds).
 
 ## Add a place
 

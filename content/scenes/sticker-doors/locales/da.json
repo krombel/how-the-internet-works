@@ -43,13 +43,13 @@
   },
   "mpls": {
     "title": "Motorvejsnumre",
-    "kid": "Inde i udbyderens net er mærkaten et motorvejsnummer. Et kryds kan bytte 24012 til 17003 og sende pakken ud ad dør 3 uden at læse den lange adresse. Nedenunder rejser den som lysglimt i fiber.",
-    "nerd": "MPLS-routere bruger en LFIB: indgående label 24012 peger på et udgående interface og label 17003. Kantroutere pusher labels; LSR'er i midten swapper; næstsidste hop kan poppe.",
+    "kid": "Inde i udbyderens net er mærkaten et motorvejsnummer. Et kryds bytter det til det nummer, det næste kryds bad om, og sender pakken ud ad dør 3 uden at læse den lange adresse. Nedenunder rejser den som lysglimt i fiber.",
+    "nerd": "MPLS-routere bruger en LFIB: en indgående label peger på et udgående interface og den label, den næste router annoncerede. Indgangskanten pusher en label, LSR'er i midten swapper den, udgangskanten popper den (eller hoppet før, med penultimate-hop popping).",
     "at": {
-      "core": {
-        "title": "Sidste motorvejskryds",
-        "kid": "Kernen er det sidste kryds før exchange her. Den popper motorvejsmærkaten af, så den næste boks kan læse den normale adresse igen. Nedenunder rejser den som lysglimt i fiber.",
-        "nerd": "Penultimate-hop popping: kernen fjerner MPLS-labelen før det Ethernet-only IXP-stykke. TC-bits bærer klasse, og TTL kopieres fra IP og tælles ned."
+      "border": {
+        "title": "Af motorvejen",
+        "kid": "Grænserouteren er det sidste kryds i dit internetfirmas net. Den tager motorvejsmærkaten af, så knudepunktet og det næste net kan læse den normale adresse igen. Nedenunder rejser den som lysglimt i fiber.",
+        "nerd": "Egress-PE’en popper labelen før det Ethernet-only peering-LAN på IXP’et og sender videre på IP-headeren mod eBGP-næste hop. Med penultimate-hop popping ville kernen i stedet poppe den et hop tidligere. TC-bits bærer klasse, og TTL kopieres fra IP og tælles ned."
       }
     }
   },
@@ -84,11 +84,11 @@
     },
     "mpls": {
       "push": {
-        "a": "Push 24012.",
+        "a": "Push {out}.",
         "b": "Ind på motorvejen."
       },
       "swap": {
-        "a": "24012 → 17003.",
+        "a": "{in} → {out}.",
         "b": "Intet IP-opslag her."
       },
       "pop": {

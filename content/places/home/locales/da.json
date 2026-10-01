@@ -14,7 +14,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "Adgangsnet (PON/OLT), et aggregeringslag (L2-backhaul til BNG’en), udbyderens MPLS-kerne og derefter enten gratis peering i et IXP eller betalt transit – og til sidst en CDN-cache tæt på dig."
+      "nerd": "Adgangsnet (PON/OLT), et aggregeringslag (L2-backhaul til BNG’en), udbyderens MPLS-kerne og derefter enten gratis peering i et IXP eller betalt transit – og til sidst en CDN-cache tæt på dig. Hvert farvet felt er én operatørs net."
     }
   }
 }

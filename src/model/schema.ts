@@ -29,6 +29,12 @@ export const node = z.strictObject({
   learnMore: learnMoreList,
 });
 
+/** Who runs a stretch of the route (your internet company, an exchange, a video company…): a network of its own. Path
+ *  scenes draw the hops it runs as one region, so the reader sees where one network hands over to the next. */
+export const owner = z.strictObject({
+  learnMore: learnMoreList,
+});
+
 export const technology = z.strictObject({
   /** How the theme draws the link. */
   look: z.enum(['radio', 'cable', 'fibre', 'trunk']),
@@ -94,6 +100,8 @@ const linkLayout = z.strictObject({
 });
 export const sceneLayout = z.strictObject({
   nodes: z.record(id, placement).optional(),
+  /** Where an owner region's sign goes (default: centred above its region), keyed by owner id. */
+  owners: z.record(id, pt).optional(),
   /** Keyed by "<from>-<to>" instance ids as seen in that scene. */
   links: z.record(z.string(), linkLayout).optional(),
 });
@@ -112,6 +120,8 @@ export const hop = z.strictObject({
   addr: z.string().optional(),
   /** NAT: the address it rewrites the client's source address to, with ":port" when it also rewrites the port. */
   natTo: z.string().regex(/^[^:]+(:\d{1,5})?$/, 'use "address" or "address:port"').optional(),
+  /** Who runs it (content/owners/<id>). */
+  owner: id.optional(),
 });
 export const link = z.strictObject({
   /** Technology id. */
@@ -120,6 +130,8 @@ export const link = z.strictObject({
   stack: z.array(id).min(1).optional(),
   /** Override the technology's dive scene (false = no dive here). */
   dive: z.union([id, z.literal(false)]).optional(),
+  /** Roughly how long it is, in km (the trip's scale in the captions). */
+  km: z.number().positive().optional(),
 });
 export const aside = hop.extend({
   /** The hop it branches off from (an alternative path, drawn dashed; packets don't take it). */

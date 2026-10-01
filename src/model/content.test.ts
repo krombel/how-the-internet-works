@@ -103,6 +103,17 @@ describe('validation messages', () => {
     expect(msg).toContain('layout.overview.landscape.nodes.phnoe: "phnoe" is not a hop in any route of "watch-video". Did you mean "phone"?');
   });
 
+  it('checks owners: known ids on hops and layout signs, and a name', () => {
+    const msg = broken((c) => {
+      (c.segments['isp-to-cdn'].hops[0] as { owner?: string }).owner = 'ips';
+      c.segments['isp-to-cdn'].layout!.internet!.landscape!.owners!.cnd = [1, 2];
+      c.owners.acme = { ...c.owners.isp, id: 'acme', file: 'content/owners/acme/owner.ts' };
+    });
+    expect(msg).toContain('hops[0].owner: "ips" is not an owner. Did you mean "isp"?');
+    expect(msg).toContain('owners.cnd: "cnd" is not an owner. Did you mean "cdn"?');
+    expect(msg).toContain('missing English string "owner.acme.name"');
+  });
+
   it('asks for missing English strings', () => {
     const msg = broken((c) => { c.nodes.gizmo = { ...c.nodes.phone, id: 'gizmo', file: 'content/nodes/gizmo/node.ts' }; c.layers.zip = { ...c.layers.ip, id: 'zip', file: 'content/layers/zip/layer.ts' }; });
     expect(msg).toContain('content/nodes/gizmo/node.ts › strings: missing English string "node.gizmo.name" (in content/nodes/gizmo/locales/en.json)');

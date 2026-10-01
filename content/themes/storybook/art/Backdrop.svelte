@@ -9,6 +9,10 @@
   const STARS: [number, number, number][] = [[60, .05, 7], [230, .2, 5], [390, .07, 9], [520, .26, 5], [610, .12, 6], [700, .03, 5],
     [880, .18, 8], [960, .06, 5], [1100, .24, 6], [1180, .1, 9], [1420, .28, 5], [1500, .05, 7], [1600, .16, 6], [300, .32, 4],
     [820, .3, 4], [1030, .34, 5], [140, .27, 6], [1650, .3, 4]];
+  // other networks on the horizon of a group's scene: [x, y, radius]
+  const others = $derived<[number, number, number][]>(portrait
+    ? [[90, 250, 40], [330, 190, 34], [520, 150, 30]]
+    : [[150, 175, 44], [400, 130, 36], [640, 160, 40], [1270, 170, 36], [1530, 140, 34]]);
   const stars = $derived(STARS.map(([x, y, r]) => (portrait ? [x * 0.6, y * 0.55 * h, r] : [x, y * h, r])));
   // a few stars twinkle (still when the reader prefers less motion)
   const twinkle = (i: number) => (view.still || i % 4 ? 1 : 0.55 + 0.45 * Math.sin(view.time * 1.7 + i * 2.1));
@@ -43,30 +47,30 @@
   <Depth d={0.42}>
     {#if night}
       {#each stars as [x, y, r], i (i)}<path d={star(x, y * 0.6, r)} fill="var(--glow)" opacity={twinkle(i)} />{/each}
+    {/if}
+    <path d={portrait ? 'M-80 300 C170 200 340 330 560 240 C720 180 920 250 1020 210 L1020 1760 H-80 Z' : 'M-100 250 C210 170 430 250 680 200 C950 150 1180 230 1500 170 C1640 150 1760 180 1780 220 L1780 1050 H-100 Z'} fill="var(--grass-far)" stroke="var(--line)" stroke-width="7" />
+  </Depth>
+  <!-- the rest of the internet: other networks far off, faint, that this trip doesn't use -->
+  <Depth d={0.5}>
+    <!-- faint through stroke-opacity, not a group opacity: that would repaint off-screen at every step of a zoom -->
+    <g fill="none" stroke="var(--line)" stroke-width="4" stroke-opacity="0.35">
+      {#each others as [x, y, r], i (i)}
+        <circle cx={x} cy={y} {r} stroke-dasharray="3 10" stroke-linecap="round" />
+        <path d={`M${x - r * 0.45} ${y + r * 0.2} L${x} ${y - r * 0.35} L${x + r * 0.45} ${y + r * 0.2} Z`} />
+        {#each [[-0.45, 0.2], [0, -0.35], [0.45, 0.2]] as [dx, dy], k (k)}<circle cx={x + dx * r} cy={y + dy * r} r="6" fill="var(--paper)" />{/each}
+        {#if i}<path d={`M${others[i - 1][0] + others[i - 1][2]} ${others[i - 1][1]} Q${(x + others[i - 1][0]) / 2} ${Math.min(y, others[i - 1][1]) - 40} ${x - r} ${y}`} stroke-dasharray="10 12" />{/if}
+      {/each}
+    </g>
+  </Depth>
+  <!-- the sun (or moon) in front of the faint networks' lines -->
+  <Depth d={0.42}>
+    {#if night}
       <path d={moon(portrait ? 730 : 1360, portrait ? 120 : 115, 56)} fill="var(--glow)" stroke="var(--line)" stroke-width="6" stroke-linejoin="round" />
     {:else}
       <circle cx={portrait ? 730 : 1360} cy={portrait ? 120 : 115} r="56" fill="var(--sun)" stroke="var(--line)" stroke-width="6" />
     {/if}
-    <path d={portrait ? 'M-80 650 C170 500 340 680 560 540 C720 438 920 545 1020 475 L1020 1760 H-80 Z' : 'M-100 430 C210 270 430 470 680 340 C950 200 1180 420 1500 250 C1640 190 1760 250 1780 340 L1780 1050 H-100 Z'} fill="var(--grass-far)" stroke="var(--line)" stroke-width="7" />
   </Depth>
   <Depth d={0.75}>
-    <path d={portrait ? 'M-100 940 C150 805 310 980 530 875 C715 786 900 855 1030 785 L1030 1760 H-100 Z' : 'M-120 610 C150 460 360 640 580 530 C820 410 1040 620 1290 470 C1450 380 1660 430 1760 520 L1760 1050 H-120 Z'} fill="var(--grass-near)" stroke="var(--line)" stroke-width="8" />
-    <path d={portrait ? 'M190 1510 C310 1320 570 1180 690 1020 C760 920 740 810 650 710' : 'M80 700 C300 560 500 735 720 585 C950 430 1210 610 1510 640'} fill="none" stroke="var(--line)" stroke-width="54" stroke-linecap="round" opacity="0.22" />
-    <path d={portrait ? 'M190 1510 C310 1320 570 1180 690 1020 C760 920 740 810 650 710' : 'M80 700 C300 560 500 735 720 585 C950 430 1210 610 1510 640'} fill="none" stroke="var(--road-top)" stroke-width="38" stroke-linecap="round" />
-    <path d={portrait ? 'M190 1510 C310 1320 570 1180 690 1020 C760 920 740 810 650 710' : 'M80 700 C300 560 500 735 720 585 C950 430 1210 610 1510 640'} fill="none" stroke="var(--paper)" stroke-width="5" stroke-linecap="round" stroke-dasharray="22 28" />
-  </Depth>
-  <Depth d={0.56}>
-    <g transform={portrait ? 'translate(540 240) scale(.95)' : 'translate(1060 150)'} fill="var(--orange)" stroke="var(--line)" stroke-width="5">
-      {#if night}<ellipse cx="130" cy="150" rx="230" ry="130" fill="var(--glow)" stroke="none" opacity="0.12" />{/if}
-      <rect x="0" y="110" width="46" height="120" rx="7" />
-      <rect x="55" y="70" width="58" height="160" rx="7" fill="var(--teal)" />
-      <rect x="124" y="34" width="50" height="196" rx="7" fill="var(--mustard)" />
-      <rect x="186" y="92" width="70" height="138" rx="7" fill="var(--berry)" />
-      <path d="M-38 236 H300" stroke-linecap="round" />
-      <g fill="var(--window)" stroke-width="3">
-        {#each [0,1,2,3] as i}<rect x={67} y={92 + i * 28} width="28" height="14" rx="3" />{/each}
-        {#each [0,1,2] as i}<rect x={137} y={58 + i * 38} width="24" height="16" rx="3" />{/each}
-      </g>
-    </g>
+    <path d={portrait ? 'M-100 420 C150 340 310 440 530 380 C715 330 900 380 1030 340 L1030 1760 H-100 Z' : 'M-120 300 C150 240 360 310 580 265 C820 220 1040 300 1290 250 C1450 220 1660 240 1760 280 L1760 1050 H-120 Z'} fill="var(--grass-near)" stroke="var(--line)" stroke-width="8" />
   </Depth>
 {/if}

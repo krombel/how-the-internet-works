@@ -1,5 +1,5 @@
 {
   "name": "Video-server",
-  "kid": "Videoen bor her, på en server ikke langt fra dig, så den kommer hurtigt frem.",
+  "kid": "Videoen bor her, i et stort hus fuld af computere lige ved siden af knudepunktet. Videofirmaet gemmer kopier af populære videoer mange steder, så ingen af dem er langt væk.",
   "nerd": "En CDN-cache i eller ved IXP’et leverer segmentet; kun cache-miss går videre til origin-serveren."
 }
