@@ -14,26 +14,27 @@ export default definePlace({
     { link: 'backbone', km: 25 },
   ],
   layout: {
+    // spread out so the badges and names keep apart at the size a small screen draws them (src/model/overlap.test.ts):
+    // the shops huddle down the road on the left, the tower names itself below so the fibre's name fits above
     overview: {
       landscape: {
-        // the shops stand back down the road, so the 5G hop crosses open sky
-        nodes: { phone: [650, 610, 200], 'cell-tower': [920, 420, 260, 'above'] },
+        nodes: { phone: [530, 610, 200], 'cell-tower': [980, 440, 240], internet: [1510, 290, 250] },
         links: {
-          'phone-cell-tower': { bend: -0.2, label: [-20, -58] },
-          'cell-tower-internet': { bend: 0.3, label: [-20, 74] },
+          'phone-cell-tower': { bend: -0.2, label: [0, -70] },
+          'cell-tower-internet': { bend: 0.15, label: [-77, -82] },
         },
       },
       portrait: {
-        nodes: { phone: [250, 1330, 250], 'cell-tower': [640, 900, 280] },
+        nodes: { phone: [240, 1335, 240], 'cell-tower': [740, 900, 240] },
         links: {
-          'phone-cell-tower': { bend: 0.16, label: [-40, -60] },
-          'cell-tower-internet': { bend: 0.16, label: [-70, -40] },
+          'phone-cell-tower': { curve: [[240, 1215], [330, 960], [630, 930]], label: [110, 40] },
+          'cell-tower-internet': { curve: [[745, 785], [880, 600], [750, 370]], label: [-66, 15, 'end'] },
         },
       },
     },
     internet: {
       landscape: { nodes: { 'cell-tower': [110, 680, 140], 'mobile-core': [460, 460, 180, 'above'] } },
-      portrait: { nodes: { 'cell-tower': [200, 1440, 150], 'mobile-core': [620, 1150, 180] }, owners: { isp: [250, 1100] } },
+      portrait: { nodes: { 'cell-tower': [200, 1440, 150], 'mobile-core': [680, 1170, 180] }, owners: { isp: [250, 1100] } },
     },
   },
   learnMore: [

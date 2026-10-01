@@ -31,7 +31,7 @@ export interface SLink extends Curve {
   dashed: boolean;
   dive: string | null;
   bend: number;
-  label: [number, number];
+  label: [number, number, ('start' | 'middle' | 'end')?];
   alpha: number;
 }
 

@@ -7,9 +7,9 @@
   // [x, width, height, colour, roof colour] of each shop, standing on the pavement
   const shops = $derived<[number, number, number, string, string][]>(portrait
     ? [[24, 150, 230, 'var(--peach)', 'var(--roof)'], [470, 170, 190, 'var(--paper-2)', 'var(--teal)']]
-    : [[20, 170, 250, 'var(--peach)', 'var(--roof)'], [200, 150, 200, 'var(--paper-2)', 'var(--teal)'], [360, 120, 150, 'var(--tan)', 'var(--berry)']]);
+    : [[-25, 150, 250, 'var(--peach)', 'var(--roof)'], [135, 135, 200, 'var(--paper-2)', 'var(--teal)'], [280, 110, 150, 'var(--tan)', 'var(--berry)']]);
   const ground = $derived(portrait ? 1470 : 712);
-  const lamp = $derived(portrait ? 700 : 520);
+  const lamp = $derived(portrait ? 700 : 410);
   const car = $derived(((time * 70) % (w + 400)) - 200);
   const night = $derived(view.mode === 'night');
 </script>
@@ -40,11 +40,11 @@
   <rect x="-40" y={ground} width={w + 80} height="34" fill="var(--flap)" stroke="var(--line)" stroke-width="6" />
   <rect x="-40" y={ground + 34} width={w + 80} height="220" fill="var(--road)" stroke="var(--line)" stroke-width="6" />
   <path d={`M-40 ${ground + 104} H${w + 40}`} stroke="var(--paper)" stroke-width="8" stroke-dasharray="46 38" opacity="0.8" />
-  <!-- a little car pootling along -->
+  <!-- a little car pootling along, bonnet first -->
   <g transform="translate({car} {ground + 132})">
     {#if night}<path d="M62 -22 L190 -46 V10 Z" fill="var(--lamp)" opacity="0.22" />{/if}
-    <path d="M-60 0 V-26 Q-60 -34 -50 -34 H-30 L-14 -58 H30 L48 -34 H56 Q64 -34 64 -24 V0 Z" fill="var(--teal)" stroke="var(--line)" stroke-width="6" stroke-linejoin="round" />
-    <path d="M-8 -50 H24 L36 -34 H-18 Z" fill="var(--paper)" stroke="var(--line)" stroke-width="4" stroke-linejoin="round" />
+    <path d="M-60 0 V-26 Q-60 -34 -50 -34 H-44 L-28 -58 H16 L34 -34 H56 Q64 -34 64 -24 V0 Z" fill="var(--teal)" stroke="var(--line)" stroke-width="6" stroke-linejoin="round" />
+    <path d="M-22 -50 H10 L22 -34 H-32 Z" fill="var(--paper)" stroke="var(--line)" stroke-width="4" stroke-linejoin="round" />
     <circle cx="-34" cy="2" r="13" fill="var(--line)" /><circle cx="38" cy="2" r="13" fill="var(--line)" />
   </g>
 </Depth>
