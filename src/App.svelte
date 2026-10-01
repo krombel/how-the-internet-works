@@ -30,7 +30,9 @@
   import Chrome from './ui/Chrome.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
+  import SceneKeys from './ui/SceneKeys.svelte';
   import StepButtons from './ui/StepButtons.svelte';
+  import type TextMapT from './ui/TextMap.svelte';
 
   startRouter();
   let stage: HTMLDivElement;
@@ -442,6 +444,25 @@
     picker = null;
     void tick().then(() => keepFocus(pickFrom));
   }
+  // The list view (TextMap.svelte, #53): the whole scene tree as text, from ⋯ or the skip link. A dialog like the
+  // picker; it loads (with the dive strings) on first use.
+  let TextMap = $state.raw<typeof TextMapT | null>(null);
+  let mapOpen = $state(false), mapFrom: Element | null = null;
+  async function openMap(from: Element | null = document.activeElement) {
+    mapFrom = from;
+    [TextMap] = await Promise.all([TextMap ?? import('./ui/TextMap.svelte').then((m) => m.default), loadDiveStrings()]);
+    mapOpen = true;
+  }
+  function closeMap() {
+    mapOpen = false;
+    void tick().then(() => keepFocus(mapFrom));
+  }
+  /** Go somewhere picked in the list view; focus goes there in the scene. */
+  function mapGo(path: string[], stop: string | null) {
+    mapOpen = false;
+    go({ path, stop });
+    void tick().then(() => keepFocus(sceneSpot() ?? null));
+  }
   /** The current path scene as drawn (mid-morph while switching place), or null in a dive. */
   const hereScene = () => {
     const info = sceneInfo(route, here.path, view.orient);
@@ -582,14 +603,17 @@
 
   // ------------------------------------------------------------------ focus + what a screen reader hears (#53)
   // Focus never falls to the page or stays on something hidden: when a navigation lands (or a caught packet is let
-  // go) and focus was on what went away, it goes to the caption's title; otherwise focus stays put (◀ ▶, a crumb)
-  // and the announcer says where you are.
+  // go) and focus was on what went away, it goes to where you are in the scene (SceneKeys), else the caption's title;
+  // otherwise focus stays put (◀ ▶, a crumb) and the announcer says where you are.
   let navigated = false;
   let catchFrom: Element | null = null;
   const focusable = (e: Element | null): e is HTMLElement => !!e && e !== document.body && e.isConnected && !e.closest('[inert]');
+  const sceneSpot = () => [document.querySelector<HTMLElement>('.scene-key[tabindex="0"]')].find(focusable);
+  /** The keyboard is in the scene (SceneKeys): the scene rings where you are. */
+  let kbd = $state(false);
   function keepFocus(prefer: Element | null = null) {
     if (focusable(document.activeElement)) return false;
-    (focusable(prefer) ? prefer : captionEl?.querySelector<HTMLElement>('h2'))?.focus();
+    (focusable(prefer) ? prefer : (sceneSpot() ?? captionEl?.querySelector<HTMLElement>('h2')))?.focus();
     return true;
   }
   $effect(() => {
@@ -685,7 +709,7 @@
     const ro = new ResizeObserver(resize);
     ro.observe(stage);
     const keys = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker) return;
+      if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker || mapOpen) return;
       // a focused text that scrolls takes its arrow keys
       if (e.key !== 'Escape' && (e.target as Element).closest?.('[data-scroll]')) return;
       if (e.key === 'Escape') up();
@@ -695,6 +719,13 @@
       e.preventDefault();
     };
     window.addEventListener('keydown', keys);
+    // the hints name keys after a key, gestures after a pointer
+    const modality = (e: Event) => {
+      if (e instanceof KeyboardEvent && ['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+      view.keys = e.type === 'keydown';
+    };
+    window.addEventListener('keydown', modality, true);
+    window.addEventListener('pointerdown', modality, true);
     // Test/screenshot hook (scripts/evaluate.mjs).
     Object.assign(window, {
       __app: {
@@ -724,7 +755,8 @@
         },
       },
     });
-    return () => { offNav(); clearTimeout(exploreTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys); };
+    return () => { offNav(); clearTimeout(exploreTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys);
+      window.removeEventListener('keydown', modality, true); window.removeEventListener('pointerdown', modality, true); };
   });
 
   $effect(() => {
@@ -756,18 +788,21 @@
   });
 </script>
 
-<div class={portrait ? 'port' : 'land'} inert={!!picker}>
+<div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen}>
+  <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
   <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
-    {paused} onpause={togglePause} quiet={peekOpen} />
+    {paused} onpause={togglePause} quiet={peekOpen} onmap={openMap} />
   <main>
     <h1 class="sr">{tr('app.title')}</h1>
     <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <A.Defs />
-        <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore }} />
+        <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false, kbd: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore, kbd }} />
         <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
       </svg>
     </div>
+    <SceneKeys {route} path={here.path} stop={here.stop} {cam} vertical={portrait || stepInfo.kind === 'layer'} hidden={peekOpen}
+      onopen={openDoor} onhot={(id) => (chipHot = id)} onkbd={(on) => (kbd = on)} />
     {#if caught && PeekPanel}
       <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
     {/if}
@@ -791,4 +826,7 @@
 <Announcer />
 {#if picker}
   <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={closePicker} />
+{/if}
+{#if mapOpen && TextMap}
+  <TextMap {route} {here} caught={caught && route.chain[caught.hop].id} onclose={closeMap} ongo={mapGo} onswap={() => { mapOpen = false; openPicker(0); }} />
 {/if}

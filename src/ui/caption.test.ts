@@ -75,3 +75,18 @@ describe('counts in words', () => {
     state.setLang('en');
   });
 });
+
+describe('caption hints', () => {
+  it('name the keys after a key and the gestures after a tap, in every kind of scene and stop (#53)', () => {
+    state.setLang('en'); state.setLevel('kid');
+    const at: [string[], string | null][] = [[[], null], [[], 'phone-ap'], [[], 'ap'], [[], 'internet'], [['internet'], null], [['phone-ap'], null], [['router~ip'], null]];
+    const hints = (keys: boolean) => { state.view.keys = keys; return at.map(([p, s]) => caption.captionFor(home, p, s, 'landscape').hint!); };
+    const taps = hints(false), keys = hints(true);
+    state.view.keys = false;
+    expect(new Set(taps).size).toBe(at.length);
+    keys.forEach((k, i) => {
+      expect(k).not.toMatch(/^hint\.|Tap|Swipe|Pinch/);
+      expect(k).not.toBe(taps[i]);
+    });
+  });
+});

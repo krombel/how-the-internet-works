@@ -152,6 +152,9 @@ const A11Y_STATES = [
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short'] },
   { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone'] },
+  // the scene's keys (#53): two stops along, the ring on the Wi‑Fi; and the list view, opened by the skip link
+  { name: 'keys', where: 'home/watch-video', keys: 2, views: ['desktop', 'phone', 'short'] },
+  { name: 'map', where: 'home/watch-video/internet', map: true, views: ['desktop', 'phone', 'short'] },
 ];
 /** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
  *  null. */
@@ -170,7 +173,10 @@ function focusProblem() {
   if (o < 0.2 || r.width < 1 || r.height < 1 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return `${name} can't be seen`;
   if (e.matches(':focus-visible')) {
     const cs = getComputedStyle(e);
-    if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) < 2) return `${name} has no focus ring`;
+    // the scene's keys: a stop's ring is drawn in the scene (the theme's `kbd`); the whole scene's outline is scaled
+    // with the camera (3 px on screen), so its own width means nothing
+    if (e.matches('.scene-key:not([data-kind=scene])')) { if (!document.querySelector('#stage .kbd')) return `${name} has no ring in the scene`; }
+    else if (cs.outlineStyle === 'none' || (!e.matches('.scene-key') && parseFloat(cs.outlineWidth) < 2)) return `${name} has no focus ring`;
   }
   return null;
 }
@@ -187,6 +193,8 @@ async function a11y(style) {
     if (s.ladder) await p.click('.crumbs .here');
     if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
     if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
+    if (s.keys) { await p.focus('.scene-key'); for (let i = 0; i < s.keys; i++) await p.keyboard.press('ArrowRight'); }
+    if (s.map) { await p.focus('.skip'); await p.keyboard.press('Enter'); await p.waitForSelector('.map'); }
     await still(p);
     return { ctx, p };
   };
@@ -235,6 +243,33 @@ async function a11y(style) {
   }
   await p.keyboard.press('Escape'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
+  // the scene's keys (#53): into the picture, two stops along, in through the Wi‑Fi's door and back out
+  const at = () => p.evaluate(() => { const l = window.__app.loc(); return `${l.path.join('/')}:${l.stop}`; });
+  await p.focus('.scene-key'); await check('the scene');
+  await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight'); await still(p);
+  if ((await at()) !== ':phone-ap') fail('journey: arrows in the scene', `at ${await at()}, not the Wi‑Fi`);
+  await check('arrows in the scene');
+  await p.keyboard.press('Enter'); await still(p);
+  if ((await at()) !== 'phone-ap:null') fail('journey: Enter in the scene', `at ${await at()}, not in the Wi‑Fi`);
+  await check('Enter in the scene');
+  await p.keyboard.press('Escape'); await still(p); await check('Esc from the scene');
+  // the list view: the skip link opens it at where you are, Tab stays in it, Esc comes back
+  await p.focus('.skip'); await p.keyboard.press('Enter'); await p.waitForSelector('.map'); await still(p);
+  if (!(await p.evaluate(() => !!document.activeElement?.closest('.map [data-here]')))) fail('journey: list view', 'it does not open at where you are');
+  for (let i = 0; i < 80; i++) {
+    await p.keyboard.press('Tab');
+    const where = await p.evaluate(() => (document.activeElement === document.body ? 'browser' : document.activeElement?.closest('.map') ? 'dialog' : 'page'));
+    if (where === 'page') { fail('journey: list view', 'Tab reaches the page behind it'); break; }
+    if (where === 'browser') break;
+    await check('Tab in the list view');
+  }
+  await p.keyboard.press('Escape'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.skip')))) fail('journey: list view', 'focus is not back on the skip link');
+  // from ⋯, then into a dive from the list: focus lands in the scene
+  await p.click('.more-btn'); await p.click('.menu [role=menuitem]:has-text("List view")'); await p.waitForSelector('.map'); await still(p);
+  await p.focus('.map-stops .btn[aria-label^="Look inside"]'); await p.keyboard.press('Enter'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.scene-key')))) fail('journey: list view', 'a door in it does not land in the scene');
+  await check('a door in the list view');
   await ctx.close();
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
   if (fails.length) process.exitCode = 1;
@@ -310,6 +345,11 @@ for (const style of STYLES) {
       r.travelFromRouter = await sample(p, cdp, 3000, () => p.keyboard.press('ArrowRight'));
       await settle(p);
       await go({ path: [] }); await settle(p);
+      // the scene's keys (#53): into the picture, two stops along with the ring
+      await p.focus('.scene-key');
+      r.keysWalk = await sample(p, cdp, 2400, async () => { await p.keyboard.press('ArrowRight'); await p.waitForTimeout(800); await p.keyboard.press('ArrowRight'); });
+      await settle(p);
+      await p.keyboard.press('Escape'); await settle(p);
       // catch a packet (traffic pauses), then step it two hops on
       r.catchStep = await sample(p, cdp, 2400, async () => {
         await p.evaluate(() => window.__app.catch('video'));

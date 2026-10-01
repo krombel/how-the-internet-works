@@ -33,6 +33,19 @@ button { cursor: pointer; }
 /* only for screen readers */
 .sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%);
   white-space: nowrap; }
+/* the first Tab stop: to the list view, out of sight until focused */
+.skip { position: fixed; z-index: 40; inset-inline-start: 12px; top: max(10px, env(safe-area-inset-top)); }
+.skip:not(:focus) { clip-path: inset(50%); width: 1px; height: 1px; min-width: 0; min-height: 0; padding: 0; overflow: hidden; }
+/* the scene's keys (SceneKeys.svelte): invisible buttons over the picture, moved by the camera. A stop's ring is drawn
+   in the scene (the theme's `kbd`); the whole scene's is this outline, kept 3 px on screen (--px: px per scene unit).
+   `overflow: clip` so focusing a button never scrolls anything. */
+.scene-keys { position: fixed; inset: 0; overflow: clip; pointer-events: none; }
+.scene-keys-in { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.scene-key { position: absolute; display: block; margin: 0; padding: 0; border: 0; background: none; pointer-events: none; }
+.scene-key:focus-visible { outline: none !important; box-shadow: none !important; }
+.scene-key[data-kind='scene']:focus-visible { outline: calc(3px * var(--px)) solid var(--focus-ink, var(--ink)) !important;
+  outline-offset: calc(-14px * var(--px)) !important; box-shadow: inset 0 0 0 calc(16px * var(--px)) var(--focus-gap, var(--bg)) !important;
+  border-radius: calc(24px * var(--px)); }
 
 /* scene text (DOM text inside the SVG) */
 .lbl { font-family: var(--label-font); font-weight: var(--lbl-weight); fill: var(--ink); paint-order: stroke; stroke: var(--lbl-halo); stroke-width: var(--lbl-halo-w); stroke-linejoin: round; }
@@ -190,6 +203,49 @@ button { cursor: pointer; }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------------- the list view (TextMap.svelte): a panel at the side, the whole screen on a phone */
+.map-back { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+.map { position: fixed; z-index: 21; inset-block: 12px; inset-inline-end: 12px; width: min(600px, calc(100% - 24px));
+  display: flex; flex-direction: column; animation: pick-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  background: linear-gradient(var(--card), var(--card)), var(--bg); /* opaque: long text reads better without the scene behind */ }
+.map > header { display: flex; align-items: center; gap: 4px; padding: 8px 10px 4px 18px; }
+.map > header .btn { background: none; }
+.map h2 { margin: 4px 0; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 20px; color: var(--heading);
+  text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
+.map-body { overflow: auto; overscroll-behavior: contain; padding: 0 18px 18px; scrollbar-width: thin; }
+.map-body .map-h { margin: 14px 0 2px; font-family: var(--heading-font); font-weight: var(--heading-weight); color: var(--heading);
+  font-size: 17px; text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
+.map-body .map-h.top { font-size: 19px; }
+.map-body p { margin: 0 0 4px; font-size: 14.5px; line-height: 1.4; }
+.map-body .map-tag { color: var(--muted); font-size: 12.5px; font-weight: 800; }
+.map-body .map-stop { margin-bottom: 0; font-size: 15.5px; }
+/* where the list opens: its ring sits in the gap below, clear of the tag line */
+.map-body [data-here] { margin-bottom: 4px; }
+.map-body [data-here]:focus-visible { outline-offset: 0 !important; }
+.map-mark { margin-inline-start: 8px; padding: 1px 8px; border-radius: 99px; background: var(--btn-on); color: var(--btn-on-ink);
+  font-family: var(--ui-font); font-size: 12px; font-weight: 800; vertical-align: 2px; text-transform: none; letter-spacing: 0; }
+.map-body .btn { min-height: 32px; padding: 4px 10px; margin: 2px 6px 4px 0; font-size: 13px; }
+.map-body .btn svg { width: 16px; height: 16px; }
+.map-stops { margin: 6px 0 0; padding-inline-start: 22px; }
+.map-stops > li { margin: 0 0 8px; padding-inline-start: 4px; }
+.map-stops > li::marker { color: var(--muted); font-weight: 800; }
+.map-stops .map-scene { margin-inline-start: 2px; padding-inline-start: 12px; border-inline-start: 3px solid var(--btn); }
+@media (max-width: 700px), (max-height: 500px) {
+  .map { inset: 0; width: auto; border-radius: 0; border: 0; padding-bottom: env(safe-area-inset-bottom); }
+}
+/* printing with the list view open prints the list, on the page's paper (its colours kept, so night text stays on
+   night paper); without it the page prints as it is */
+@media print {
+  html:has(.map), body:has(.map) { height: auto; overflow: visible; }
+  body:has(.map) * { visibility: hidden; }
+  body:has(.map) :is(.map, .map *) { visibility: visible; }
+  .map { position: absolute; inset: 0 auto auto 0; width: 100%; border: 0; box-shadow: none; animation: none;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .map-body { overflow: visible; }
+  .map > header .btn, .map-body .btn, .map-back { display: none; }
+  .map :focus-visible { outline: none !important; }
+}
 
 /* ---------------- place / activity picker */
 .picker-back { position: fixed; inset: 0; z-index: 20; background: rgba(40, 30, 20, 0.28); }

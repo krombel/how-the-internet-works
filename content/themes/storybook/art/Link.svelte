@@ -1,11 +1,20 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import type { LinkProps } from '$core/api';
-  let { look, d, curve, colour, dashed, time, focused }: LinkProps = $props();
+  let { look, d, curve, colour, dashed, time, focused, kbd }: LinkProps = $props();
+  /** The widest stroke each look draws (the keyboard's ring goes round it). */
+  const w = $derived(look === 'trunk' ? 30 : 19);
   const dash = $derived((-time * 34).toFixed(1));
 </script>
 
 <g class="storybook-link link-{look}" class:focused>
+  {#if kbd}
+    <g class="kbd" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path {d} stroke="var(--bg)" stroke-width={w + 30} />
+      <path {d} stroke="var(--ink)" stroke-width={w + 20} />
+      <path {d} stroke="var(--bg)" stroke-width={w + 8} />
+    </g>
+  {/if}
   {#if focused}<path {d} fill="none" stroke="var(--glow)" stroke-width={look === 'trunk' ? 38 : 24} stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />{/if}
   {#if look === 'radio'}
     <path {d} fill="none" stroke="var(--line)" stroke-width="18" stroke-linecap="round" stroke-dasharray="1 25" stroke-dashoffset={dash} />

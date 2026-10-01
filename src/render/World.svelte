@@ -16,8 +16,9 @@
     scenes: Map<string, PathScene>;
     /** Place backdrops while morphing (see PathScene). */
     places?: { id: string; alpha: number; dx: number }[];
-    /** The current scene, its focused stop, the door pointed at and whether "What can I explore?" is on. */
-    focus: { key: string; stop: string | null; hot: string | null; lit: boolean };
+    /** The current scene, its focused stop, the door pointed at, whether "What can I explore?" is on and whether the
+     *  stop has keyboard focus (the scene's keys: its ring is drawn in the scene). */
+    focus: { key: string; stop: string | null; hot: string | null; lit: boolean; kbd: boolean };
   } = $props();
   setWorld({ get cam() { return cam; } });
 </script>
@@ -25,6 +26,6 @@
 <g class="world">
   {#each mounted as m (m.key)}
     <SceneView {route} path={m.path} alpha={m.alpha} slide={m.slide} packets={packets.get(m.key) ?? []} scene={scenes.get(m.key)} {places}
-      focus={focus.key === m.key ? focus.stop : null} hot={focus.key === m.key ? focus.hot : null} lit={focus.key === m.key && focus.lit} />
+      focus={focus.key === m.key ? focus.stop : null} hot={focus.key === m.key ? focus.hot : null} lit={focus.key === m.key && focus.lit} kbd={focus.key === m.key && focus.kbd} />
   {/each}
 </g>
