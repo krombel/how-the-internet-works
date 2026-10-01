@@ -334,8 +334,9 @@ always muted again on reload.
     bottom says where from and to. Quick repeated steps join into one, slightly quicker glide. With
     `prefers-reduced-motion` it cuts straight to the next dive.
   - With `prefers-reduced-motion` nothing flies (issue #41): every move (stepping, zooming in and out, the
-    breadcrumb, switching places, letting a packet go) cuts there under a quick 220 ms cross-fade, and an envelope
-    opened from the peek doesn't grow into its dive. The URL and where focus goes are the same either way.
+    breadcrumb and its ladder, switching places, letting a packet go) cuts there under a quick 220 ms
+    cross-fade, and an envelope opened from the peek doesn't grow into its dive. The URL and where focus goes
+    are the same either way.
   - A run of links with the same technology is **one stop** (issue #34): inside the internet you step from the
     street's shared fibre (access) to the colours of the metro fibre and on to the long-haul backbone, and each
     looks different, instead of stepping through six identical "light in a glass thread" dives. The run has one
