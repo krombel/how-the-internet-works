@@ -123,11 +123,15 @@ the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/hom
 
 `content/nodes/<id>/`:
 - `node.ts`: `kind` is `device`, or `network` for a group that unfolds into its own path scene (list it in the activity's `groups`). Add a default `role` and `learnMore`.
+  A group can sit inside another one: list it as `{ id: 'datacentre', in: 'internet' }`, after its parent, and put its
+  hops `in` it. It is drawn as one node in its parent's scene and unfolds into its own, entered from the hop before it.
 - `art/Device.svelte`: optional; without it the theme draws a plain fallback body. Draw in a 200×200 box with the vocabulary classes: `body`, `peach`, `orange`, `teal`, `berry`, `cloud`, `screen`, `hi`, `button`, `accent`, `line`, `thin`, `wave`, `roof`. Export `face` if a face fits.
 - `locales/en.json`:
   - `name` (required) and `kid`/`nerd` (the caption when it's the stop)
   - optionally `tag` (a small technical label in nerd mode) and `yours` ("your phone", used when this is the reader's device)
-  - for network nodes, `inside` (`title`, `kid`, `nerd`) for the unfolded scene
+  - for network nodes, `inside` (`title`, `kid`, `nerd`, `describe`) for the unfolded scene
+- `art/Backdrop.svelte` (network nodes, optional): drawn over the theme's backdrop in the unfolded scene (the data
+  centre's hall). It gets `PlaceBackdropProps`; keep it faint and cheap.
 
 ## Add a technology
 
@@ -338,7 +342,7 @@ use `only: [...]` on its place slot.
 ```ts
 defineActivity({
   route: [{ place: 'me', default: 'home' }, { segment: 'isp-to-cdn' }],
-  groups: ['internet'],
+  groups: ['internet'], // or nested: ['internet', { id: 'datacentre', in: 'internet' }]
   flows: [{ id: 'video', stack: ['ip', 'tcp', 'tls', 'http'],
             packets: [{ kind: 'request', dir: 'up', pace: 1.2, colour: '#ffcf5d' }, { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, colour: '#bf6f8f' }] }],
   layout: { overview: { landscape: { nodes: { internet: [1380, 360, 250] } } } },

@@ -11,7 +11,8 @@
     "dwdm": "C-band · 50 GHz grid",
     "gpon": "1:32 · ↑1270 ↓1577 nm",
     "backbone": "96 λ · EDFA / 80 km",
-    "lan-wdm": "4 λ · 1295–1310 nm"
+    "lan-wdm": "4 λ · 1295–1310 nm",
+    "cwdm4": "4 λ · 1271–1331 nm"
   },
   "gpon": {
     "title": "Lys delt af hele vejen",
@@ -54,6 +55,15 @@
     "describe": {
       "kid": "Inde i knudepunktet ses en kort glastråd tæt på. Nogle farvede lys går ind, hopper gennem kernen og deles i den anden ende. De bevægende glimt krydser rummet meget hurtigt, én farve pr. kanal.",
       "nerd": "Krydsforbindelsen bruger metro-tegningen til en kort patch gennem meet-me-rummet. Fire LAN-WDM-baner går ind i muxen, løber gennem single-mode-kernen og forlader demuxen. Mærket viser fire bølgelængder fra 1295 til 1310 nm, med pulser på hver bane."
+    }
+  },
+  "dc-fibre": {
+    "title": "Lys mellem racks",
+    "kid": "Inde i datacentret forbinder korte glaskabler kasserne: hoveddøren, vejkrydsene og skabene med computere. De er kun få meter lange, så lyset krydser dem på et øjeblik. Fire farver deler hver tråd, så den bærer fire gange så meget.",
+    "nerd": "Datacenteroptik: 400GBASE-FR4 lægger fire 100G-baner på fire CWDM-bølgelængder (1271–1331 nm) over ét single-mode-par, op til 2 km; de sidste meter ind til en server er ofte kobber (DAC). Hver forbindelse er ét hop i leaf–spine-fabric’en.",
+    "describe": {
+      "kid": "En kort glastråd mellem to kasser i datacentret vises tæt på. Fire farvede lys samles i den ene ende, hopper gennem kernen og deles i den anden. Glimtene krydser på et øjeblik.",
+      "nerd": "Fabric-visningen bruger metrotegningen til en kort single-mode-strækning. Fire CWDM-baner går ind i muxen, gennem kernen og ud gennem demuxen. Mærket viser fire bølgelængder fra 1271 til 1331 nm med lysglimt på hver bane."
     }
   }
 }

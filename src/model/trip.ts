@@ -1,6 +1,6 @@
 // The trip's scale (issue #20): how far a packet goes, from the links' `km`, how long light takes for it, and whose
 // networks it passes through.
-import type { Hop, Route } from './resolve';
+import { within, type Route } from './resolve';
 
 /** Light in glass fibre covers about 200 km per millisecond (two thirds of its speed in a vacuum). */
 export const FIBRE_KM_PER_MS = 200;
@@ -12,16 +12,11 @@ export const tripKm = (r: Route) => kmTo(r, r.chain.length - 1);
 /** Light's time over `km` of fibre, in milliseconds. */
 export const lightMs = (km: number) => km / FIBRE_KM_PER_MS;
 
-/** Whether hop `h` lives inside group `g`, at any depth. */
-function inside(r: Route, h: Hop, g: string): boolean {
-  for (let p = h.group; p; p = r.hops[p]?.group ?? null) if (p === g) return true;
-  return false;
-}
 /** The chain hops inside group `g`. */
-const hopsIn = (r: Route, g: string) => r.chain.filter((h) => inside(r, h, g));
+const hopsIn = (r: Route, g: string) => r.chain.filter((h) => within(r.hops, h, g));
 /** Km across group `g`: its own links, and the ones that lead in and out of it. */
 export const groupKm = (r: Route, g: string) =>
-  r.links.filter((l) => inside(r, r.hops[l.from], g) || inside(r, r.hops[l.to], g)).reduce((s, l) => s + (l.km ?? 0), 0);
+  r.links.filter((l) => within(r.hops, r.hops[l.from], g) || within(r.hops, r.hops[l.to], g)).reduce((s, l) => s + (l.km ?? 0), 0);
 
 /** The owners the packets pass through, in route order (only inside group `g`, if given); with `asides`, then those
  *  of the side branches too. */

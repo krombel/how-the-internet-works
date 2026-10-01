@@ -11,7 +11,8 @@
     "dwdm": "C-band · 50 GHz grid",
     "gpon": "1:32 · ↑1270 ↓1577 nm",
     "backbone": "96 λ · EDFA / 80 km",
-    "lan-wdm": "4 λ · 1295–1310 nm"
+    "lan-wdm": "4 λ · 1295–1310 nm",
+    "cwdm4": "4 λ · 1271–1331 nm"
   },
   "gpon": {
     "title": "Light shared by your street",
@@ -54,6 +55,15 @@
     "describe": {
       "kid": "Inside the exchange, a short glass thread is shown close up. A few coloured lights enter, bounce through the core, and split apart at the far end. The moving flashes cross the hall very quickly, one colour per channel.",
       "nerd": "The cross-connect view uses the metro drawing for a short meet-me-room patch. Four LAN-WDM lanes enter the mux, travel through the single-mode core and leave through the demux. The label shows four wavelengths from 1295 to 1310 nm, with moving pulses on each lane."
+    }
+  },
+  "dc-fibre": {
+    "title": "Light between the racks",
+    "kid": "Inside the data centre, short glass cables join the boxes: the front door, the crossroads and the cupboards of computers. They are only a few metres long, so the light crosses them in a blink. Four colours share each thread, so it carries four times as much.",
+    "nerd": "Data-centre optics: 400GBASE-FR4 puts four 100G lanes on four CWDM wavelengths (1271–1331 nm) over one single-mode pair, up to 2 km; the last metres to a server are often copper (DAC). Each link is one hop of the leaf–spine fabric.",
+    "describe": {
+      "kid": "A short glass thread between two boxes in the data centre is shown close up. Four coloured lights join at one end, bounce along the core, and split apart at the other. The flashes cross in a blink.",
+      "nerd": "The fabric link view uses the metro drawing for a short single-mode run. Four CWDM lanes enter the mux, travel through the core and leave through the demux. The label shows four wavelengths from 1271 to 1331 nm, with moving pulses on each lane."
     }
   }
 }

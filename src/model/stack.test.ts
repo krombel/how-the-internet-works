@@ -32,7 +32,7 @@ describe('addresses', () => {
   it('counts down the TTL at each router', () => {
     expect(layerCtx(home, link(home, 'phone-ap'), 'video', 'request', 'up', 'kid').ttl).toBe(64);
     expect(layerCtx(home, link(home, 'router-cabinet'), 'video', 'request', 'up', 'kid').ttl).toBe(63);
-    expect(layerCtx(home, link(home, 'ixp-cdn'), 'video', 'request', 'up', 'kid').ttl).toBeLessThan(63);
+    expect(layerCtx(home, link(home, 'ixp-dc-router'), 'video', 'request', 'up', 'kid').ttl).toBeLessThan(63);
   });
 });
 
