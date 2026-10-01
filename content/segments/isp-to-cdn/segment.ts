@@ -9,14 +9,15 @@ export default defineSegment({
     { link: 'backbone', km: 180 },
     // the ISP's door to the other networks: it pops the last label (#25)
     { at: 'border', in: 'internet', owner: 'isp' },
-    // the exchange is one big shared Ethernet switch: no MPLS labels across it
-    { link: 'backbone', stack: ['ethernet'], km: 0.2 },
+    // from here on everyone is in the same building: short cross-connects to the exchange's switch (one big shared
+    // Ethernet, no MPLS labels across it) and from there to the video company's servers, a few rooms away
+    { link: 'cross-connect', km: 0.2 },
     { at: 'ixp', in: 'internet', owner: 'ixp' },
-    { link: 'backbone', stack: ['ethernet'], km: 0.3 },
+    { link: 'cross-connect', km: 0.3 },
     { at: 'cdn', in: 'internet', addr: '198.51.100.20', owner: 'cdn' },
   ],
-  // the other door: a carrier the ISP pays to reach everything the exchange doesn't
-  aside: [{ at: 'transit', in: 'internet', from: 'border', link: 'backbone', owner: 'transit' }],
+  // the other door: a carrier the ISP pays to reach everything the exchange doesn't, met in the same building
+  aside: [{ at: 'transit', in: 'internet', from: 'border', link: 'cross-connect', owner: 'transit' }],
   layout: {
     internet: {
       landscape: {

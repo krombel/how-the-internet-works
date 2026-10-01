@@ -198,7 +198,7 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   `<tech>.title` and draw the difference: a reader steps from one stretch to the next and should see what changed (a
   content test checks the titles differ). `fibre-light` picks a mode from `subject.link.tech` (`light.ts` › `modeOf`):
   **access** (GPON: a splitter shares one thread with the street, the light coming home reaches every house, the houses
-  take turns going up), **metro** (DWDM colours with mux and demux) and **long haul** (the backbone: eight colours, a
+  take turns going up), **metro** (DWDM colours with mux and demux; the exchange's cross-connects too, with their own title and a LAN-WDM tag) and **long haul** (the backbone: eight colours, a
   booster every 80 km). Each mode is its own component with portrait, landscape and short-landscape layouts.
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
   the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it

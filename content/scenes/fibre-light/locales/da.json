@@ -10,7 +10,8 @@
   "tag": {
     "dwdm": "C-band · 50 GHz grid",
     "gpon": "1:32 · ↑1270 ↓1577 nm",
-    "backbone": "96 λ · EDFA / 80 km"
+    "backbone": "96 λ · EDFA / 80 km",
+    "lan-wdm": "4 λ · 1295–1310 nm"
   },
   "gpon": {
     "title": "Lys delt af hele vejen",
@@ -33,5 +34,10 @@
     "kid": "Internettets motorveje er glastråde, hundredvis af kilometer lange, under vejene og endda under havet. Lyset bliver svagere undervejs, så cirka hver 80. km gør en forstærker alle farverne klare igen på én gang.",
     "nerd": "Long-haul DWDM: 64–96 bølgelængder i C-båndet, hver på 100–800 Gbit/s med kohærent optik. Erbium-doterede fiberforstærkere cirka hver 80. km forstærker alle farverne på én gang; søkabler krydser oceanerne.",
     "booster": "Forstærker"
+  },
+  "cross-connect": {
+    "title": "Over gangen",
+    "kid": "I knudepunktets bygning har hvert firma sine egne bokse, og et kort glaskabel forbinder dem. Dine pakker krydser det på et øjeblik: nogle få farver deler tråden, og hver farve er sin egen kanal.",
+    "nerd": "En krydsforbindelse: en single-mode-patch gennem meet-me-rummet, højst et par hundrede meter. En 100GBASE-LR4-optik lægger fire 25G-baner på fire bølgelængder omkring 1310 nm (LAN-WDM) og deler dem igen i den anden ende."
   }
 }

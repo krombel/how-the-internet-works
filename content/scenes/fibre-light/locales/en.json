@@ -10,7 +10,8 @@
   "tag": {
     "dwdm": "C-band · 50 GHz grid",
     "gpon": "1:32 · ↑1270 ↓1577 nm",
-    "backbone": "96 λ · EDFA / 80 km"
+    "backbone": "96 λ · EDFA / 80 km",
+    "lan-wdm": "4 λ · 1295–1310 nm"
   },
   "gpon": {
     "title": "Light shared by your street",
@@ -33,5 +34,10 @@
     "kid": "The internet's motorways are glass threads hundreds of kilometres long, under roads and even under the sea. The light gets fainter as it goes, so every 80 km or so a booster makes all the colours bright again at once.",
     "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers about every 80 km boost all the colours at once; submarine cables cross the oceans.",
     "booster": "Booster"
+  },
+  "cross-connect": {
+    "title": "Across the hall",
+    "kid": "In the exchange's building, every company has its own boxes, and a short glass cable joins them. Your parcels cross it in a blink: a few colours share the thread, each its own channel.",
+    "nerd": "A cross-connect: a single-mode patch through the meet-me room, a few hundred metres at most. A 100GBASE-LR4 optic puts four 25G lanes on four wavelengths near 1310 nm (LAN-WDM) and splits them again at the far port."
   }
 }

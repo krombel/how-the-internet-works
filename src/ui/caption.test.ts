@@ -39,6 +39,13 @@ describe('caption scale tag', () => {
     state.setLang('en'); state.setLevel('kid');
   });
 
+  it('tells a stretch how long it is: the long haul across the country, the cross-connects at the exchange across the hall', () => {
+    state.setLang('en'); state.setLevel('kid');
+    const dive = (step: string) => caption.captionFor(home, ['internet', step], null, 'landscape');
+    expect(dive('bng-core')).toMatchObject({ title: 'Light across the country', tag: '2 stretches · via ISP core · 205 km' });
+    expect(dive('border-ixp')).toMatchObject({ title: 'Across the hall', tag: '2 stretches · via Internet exchange · 500 m' });
+  });
+
   it('links to what the owner is, at a stop it runs', () => {
     state.setLang('en'); state.setLevel('nerd');
     const urls = caption.captionFor(home, ['internet'], 'core', 'landscape').links.map((l) => l.url);
