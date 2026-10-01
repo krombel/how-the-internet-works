@@ -230,12 +230,15 @@ async function a11y(style) {
   //    the browser's own controls, which the page sees as focus on <body>: that ends the round.
   for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da')) {
     const { ctx, p } = await prep(s, 'desktop');
-    for (let i = 1; i <= 60; i++) {
+    // a long route has many stops (the list view has a button for each), so the round may take as many Tabs as the
+    // page has things to focus, and a few more
+    const most = (await p.locator('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])').count()) + 5;
+    for (let i = 1; i <= most; i++) {
       await p.keyboard.press('Tab');
       const bad = await p.evaluate(focusProblem);
       if (bad === 'focus on the page') { if (i < 3) fail(`${s.name} Tab ${i}`, 'nothing to Tab to'); break; }
       if (bad) fail(`${s.name} Tab ${i}`, bad);
-      if (i === 60) fail(s.name, 'Tab never gets round');
+      if (i === most) fail(s.name, 'Tab never gets round');
     }
     await ctx.close();
   }
