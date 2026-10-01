@@ -7,7 +7,7 @@
 
 <g class="amplifier">
   <rect x={x - 56} y={y - 78} width="112" height="156" rx="24" fill="var(--peach)" stroke="var(--line)" stroke-width="6" />
-  <circle cx={x} cy={y} r="34" fill="var(--sun)" stroke="var(--line)" stroke-width="5" />
-  <path d={`M${x - 16} ${y} H${x + 16} M${x} ${y - 16} V${y + 16}`} stroke="var(--line)" stroke-width="7" stroke-linecap="round" />
-  <circle cx={x} cy={y} r="46" fill="none" stroke="var(--paper)" stroke-width="5" opacity={glow} />
+  <circle cx={x} cy={y} r="34" fill="var(--sun)" stroke="var(--face)" stroke-width="5" />
+  <path d={`M${x - 16} ${y} H${x + 16} M${x} ${y - 16} V${y + 16}`} stroke="var(--face)" stroke-width="7" stroke-linecap="round" />
+  <circle cx={x} cy={y} r="46" fill="none" stroke="var(--shine)" stroke-width="5" opacity={glow} />
 </g>
