@@ -10,7 +10,13 @@
     "check:content": "vitest run src/model/content.test.ts --reporter=verbose",
     "evaluate": "node scripts/evaluate.mjs"
   },
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
+  "author": "Thomas Kjær",
+  "homepage": "https://github.com/tkjaer/how-the-internet-works",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkjaer/how-the-internet-works.git"
+  },
   "type": "module",
   "dependencies": {
     "@fontsource-variable/baloo-2": "^5.3.0",
