@@ -3,8 +3,9 @@ import { defineActivity } from '$core/define';
 // Watching a video: requests go up to a video server, pieces of video come back down.
 export default defineActivity({
   order: 1,
-  route: [{ place: 'me', default: 'home' }, { segment: 'isp-to-cdn' }],
-  groups: ['internet'],
+  route: [{ place: 'me', default: 'home' }, { segment: 'isp-to-cdn' }, { segment: 'datacentre' }],
+  // the video company's data centre unfolds inside the internet
+  groups: ['internet', { id: 'datacentre', in: 'internet' }],
   flows: [
     {
       id: 'video',

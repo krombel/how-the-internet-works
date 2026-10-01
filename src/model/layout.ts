@@ -4,7 +4,7 @@
 import { WORLD_SIZE, curveBetween, lerp, type Curve, type Orient, type Pt } from '../engine/geometry';
 import type { NodeDef, Placement, SceneLayout } from '../define';
 import type { WithId } from './registry';
-import type { Hop, Link, Route, Source } from './resolve';
+import { within, type Hop, type Link, type Route, type Source } from './resolve';
 
 const ROOT = 'overview';
 
@@ -116,19 +116,25 @@ export function pathScene(r: Route, group: string | null, o: Orient): PathScene 
     if (via && seq.length) joins.push(via);
     seq.push(it);
   };
-  const groupHop = (g: string) => r.groups.find((x) => x.id === g);
+  const groupHop = (g: string) => r.groups.find((x) => x.id === g)!;
+  /** What stands for hop `h` in this scene: itself, the group inside this one that holds it, or null (it is outside). */
+  const shown = (h: Hop): Item | null => {
+    if (h.group === group) return { id: h.id, node: h.node, hop: h, kind: 'hop', source: h.source };
+    for (let g = h.group; g; g = groupHop(g).group) {
+      const gh = groupHop(g);
+      if (gh.group === group) return { id: gh.id, node: gh.node, hop: gh, kind: 'group', source: gh.source };
+    }
+    return null;
+  };
   r.chain.forEach((h, i) => {
-    const via = i > 0 ? r.links[i - 1] : null;
-    if (group === null) {
-      const g = h.group ? groupHop(h.group) : null;
-      push(g ? { id: g.id, node: g.node, hop: g, kind: 'group', source: g.source } : { id: h.id, node: h.node, hop: h, kind: 'hop', source: h.source }, via);
-    } else if (h.group === group) {
-      if (!seq.length && i > 0) {
+    const via = i > 0 ? r.links[i - 1] : null, it = shown(h);
+    if (it) {
+      if (group !== null && !seq.length && i > 0) {
         const e = r.entry[group];
         seq.push({ id: e.id, node: e.node, hop: e.hop, kind: 'entry', source: e.hop.source });
       }
-      push({ id: h.id, node: h.node, hop: h, kind: 'hop', source: h.source }, via);
-    } else if (seq.length && seq[seq.length - 1].kind !== 'exit' && r.chain[i - 1]?.group === group) {
+      push(it, via);
+    } else if (seq.length && seq[seq.length - 1].kind !== 'exit' && within(r.hops, r.chain[i - 1], group!)) {
       push({ id: h.id, node: h.node, hop: h, kind: 'exit', source: h.source }, via);
     }
   });
@@ -162,11 +168,12 @@ export function pathScene(r: Route, group: string | null, o: Orient): PathScene 
   const chainLinks = joins.map((l, i) => mkLink(seq[i].id, seq[i + 1].id, l, i, false));
   const links = [...chainLinks, ...asides.map((a, i) => mkLink(a.link.from, a.hop.id, a.link, chainLinks.length + i, true))];
 
-  // 5. stops: at the root every node and link; inside a group the hops and the links you can look inside
+  // 5. stops: at the root every node and link; inside a group the hops, the groups inside it and the links you can
+  // look inside
   const stops: string[] = [];
   seq.forEach((s, i) => {
     if (i > 0) { const l = chainLinks[i - 1]; if (group === null || l.dive) stops.push(l.id); }
-    if (group === null || s.kind === 'hop') stops.push(s.id);
+    if (group === null || s.kind === 'hop' || s.kind === 'group') stops.push(s.id);
     for (const a of asides) if (a.link.from === s.id) stops.push(a.hop.id);
   });
 

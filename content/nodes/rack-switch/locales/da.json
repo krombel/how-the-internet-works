@@ -1,0 +1,6 @@
+{
+  "name": "Rack-switch",
+  "kid": "Switchen øverst i et højt skab fuld af computere (et rack). Den giver pakkerne videre til computerne i sit eget skab.",
+  "nerd": "Top-of-rack-switchen (ToR) er en leaf: et uplink til hver spine og 25–100G ned til de par dusin servere i racket.",
+  "tag": "ToR-leaf · 25G til servere"
+}

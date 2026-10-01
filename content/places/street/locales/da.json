@@ -23,8 +23,8 @@
     "internet": {
       "nerd": "Mobilkernen (5GC) afslutter radiotunnelen og laver carrier-grade NAT; derfra er det det samme internet: udbyderens kerne, peering i et IXP (eller betalt transit) og en CDN-cache tæt på dig. Hvert farvet felt er én operatørs net.",
       "describe": {
-        "kid": "Inde i skyen starter ruten ved mobilmasten og mobilkernen. Den går gennem ISP-kernen, border-routeren og internetknudepunktet til videoserveren. En stiplet sidevej viser transit. Pakker bevæger sig begge veje.",
-        "nerd": "Internetvisningen starter med gNB og mobilkerne, derefter ISP-kerne, border-router, IXP og CDN. Skyggerne viser mobil- eller ISP-net, exchange og videofirma. Pakker går begge veje over GTP, backbone-fiber og krydsforbindelser."
+        "kid": "Inde i skyen starter ruten ved mobilmasten og mobilkernen. Den går gennem ISP-kernen, border-routeren og internetknudepunktet til videofirmaets datacenter. En stiplet sidevej viser transit. Pakker bevæger sig begge veje.",
+        "nerd": "Internetvisningen starter med gNB og mobilkerne, derefter ISP-kerne, border-router, IXP og CDN’ets datacenter. Skyggerne viser mobil- eller ISP-net, exchange og videofirma. Pakker går begge veje over GTP, backbone-fiber og krydsforbindelser."
       }
     }
   }

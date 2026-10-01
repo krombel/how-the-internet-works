@@ -15,7 +15,8 @@ export interface BackdropProps { kind: 'root' | 'group'; orient: Orient; w: numb
 /** Inside a group: the way the packets go through it (issue #20), under the links and devices and over the owner
  *  regions: the entry, every hop and the links between as one path. Side branches are off it. */
 export interface RoadProps { d: string; orient: Orient; time: number }
-/** Props of a place's own backdrop (content/places/<id>/art/Backdrop.svelte), drawn over the theme's root backdrop. */
+/** Props of a place's own backdrop (content/places/<id>/art/Backdrop.svelte), drawn over the theme's root backdrop;
+ *  also of a network node's (content/nodes/<id>/art/Backdrop.svelte), drawn over the theme's in its unfolded scene. */
 export interface PlaceBackdropProps { orient: Orient; w: number; h: number; time: number }
 /** A node's own art (content/nodes/<id>/art/Device.svelte) draws its body in a 200×200 box; the theme's Device
  *  slot places it, adds a face at `face` (if the theme draws faces), a focus ring, and a fallback when there's no art. */

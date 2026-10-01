@@ -4,7 +4,7 @@
 import type { z } from 'zod';
 import * as S from './schema';
 import { FACT, FACTS } from './packet';
-import { isLink } from './resolve';
+import { groupSpec, isLink } from './resolve';
 import type { Content } from './registry';
 import { FALLBACK, type Json, type Pack } from './strings';
 
@@ -172,10 +172,15 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
         ref(a.file, `route[${i}].default`, 'places', st.default, 'a place');
       }
     });
-    a.groups?.forEach((g, i) => {
-      ref(a.file, `groups[${i}]`, 'nodes', g, 'a node');
-      if (c.nodes[g] && c.nodes[g].kind !== 'network') add(a.file, `groups[${i}]`, `"${g}" is a ${c.nodes[g].kind}; only network nodes expand`);
-      need(a.file, `node.${g}.inside.title`);
+    const specs = (a.groups ?? []).map(groupSpec);
+    specs.forEach((g, i) => {
+      const at = typeof a.groups![i] === 'string' ? `groups[${i}]` : `groups[${i}].id`;
+      ref(a.file, at, 'nodes', g.id, 'a node');
+      if (specs.slice(0, i).some((p) => p.id === g.id)) add(a.file, at, `"${g.id}" is listed twice`);
+      if (c.nodes[g.id] && c.nodes[g.id].kind !== 'network') add(a.file, at, `"${g.id}" is a ${c.nodes[g.id].kind}; only network nodes expand`);
+      // a group nests in one listed before it, so nesting can't go round in a circle
+      if (g.in && !specs.slice(0, i).some((p) => p.id === g.in)) add(a.file, `groups[${i}].in`, `"${g.in}" is not a group listed before "${g.id}"`);
+      need(a.file, `node.${g.id}.inside.title`);
     });
     a.flows?.forEach((f, i) => f.stack?.forEach((l, k) => ref(a.file, `flows[${i}].stack[${k}]`, 'layers', l, 'a layer')));
 
@@ -191,7 +196,7 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
         if (!last && !endsWithLink) add(d.file, 'hops', `it comes before another part in "${a.id}", so it must end with the link that joins them`);
       }
     });
-    const groupIds = new Set(a.groups ?? []);
+    const groupIds = new Set(specs.map((g) => g.id));
     for (const opt of options) for (const d of opt) (d?.hops ?? []).forEach((h, k) => {
       if (!isLink(h) && h.in && !groupIds.has(h.in)) add(d.file, `hops[${k}].in`, `"${h.in}" is not one of the groups of "${a.id}" (${[...groupIds].join(', ') || 'none'})`);
     });

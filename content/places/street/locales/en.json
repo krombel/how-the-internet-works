@@ -23,8 +23,8 @@
     "internet": {
       "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you. Each shaded area is one operator’s network.",
       "describe": {
-        "kid": "Inside the cloud, the route starts at the cell tower and mobile core. It joins the ISP core, reaches the border router, crosses the internet exchange, and ends at the video server. A dashed side road shows transit. Parcels move both ways.",
-        "nerd": "This internet view starts with the gNB and mobile core, then continues through ISP core, border router, IXP and CDN. Shaded areas are the mobile or ISP network, the exchange and the video company. Packets move both ways over GTP, backbone fibre and cross-connects."
+        "kid": "Inside the cloud, the route starts at the cell tower and mobile core. It joins the ISP core, reaches the border router, crosses the internet exchange, and ends at the video company's data centre. A dashed side road shows transit. Parcels move both ways.",
+        "nerd": "This internet view starts with the gNB and mobile core, then continues through ISP core, border router, IXP and the CDN's data centre. Shaded areas are the mobile or ISP network, the exchange and the video company. Packets move both ways over GTP, backbone fibre and cross-connects."
       }
     }
   }

@@ -41,7 +41,7 @@ describe('the packet on each link', () => {
   it('rewrites the source address and port at the home NAT', () => {
     expect([val(home, 'ap-router', 'ip.src'), val(home, 'ap-router', 'tcp.sport')]).toEqual(['192.168.1.23', '51034']);
     expect([val(home, 'router-cabinet', 'ip.src'), val(home, 'router-cabinet', 'tcp.sport')]).toEqual(['203.0.113.7', '61757']);
-    expect(val(home, 'ixp-cdn', 'ip.dst')).toBe('198.51.100.20');
+    expect(val(home, 'ixp-dc-router', 'ip.dst')).toBe('198.51.100.20');
     // and back again on the way down
     expect(val(home, 'router-cabinet', 'ip.dst', 'down')).toBe('203.0.113.7');
     expect(val(home, 'ap-router', 'ip.dst', 'down')).toBe('192.168.1.23');
@@ -56,9 +56,9 @@ describe('the packet on each link', () => {
 
   it('counts the TTL down at every router, not at bridges', () => {
     const ttls = home.links.map((l) => val(home, l.id, 'ip.ttl'));
-    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '61', '60', '60']);
+    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '61', '60', '60', '59', '58', '57', '56']);
     expect(val(home, 'bng-core', 'mpls.ttl')).toBe('62');
-    expect(val(home, 'phone-ap', 'ip.ttl', 'down')).toBe('60');
+    expect(val(home, 'phone-ap', 'ip.ttl', 'down')).toBe('56');
   });
 
   it('keeps MAC addresses across bridges and writes new ones at routers', () => {
@@ -210,9 +210,11 @@ describe('catching and stepping a packet', () => {
       r.chain[entryHop(r, dir, (h) => hopScenePath(r, h, o, path)?.join('/') === path.join('/'))!].id;
     for (const o of ['landscape', 'portrait'] as const) {
       expect([entry(home, [], 'up', o), entry(home, [], 'down', o)]).toEqual(['phone', 'router']);
-      expect([entry(home, ['internet'], 'up', o), entry(home, ['internet'], 'down', o)]).toEqual(['cabinet', 'cdn']);
+      // the video comes out of the data centre, which is folded up in the internet: the exchange is the first drawn hop
+      expect([entry(home, ['internet'], 'up', o), entry(home, ['internet'], 'down', o)]).toEqual(['cabinet', 'ixp']);
+      expect([entry(home, ['internet', 'datacentre'], 'up', o), entry(home, ['internet', 'datacentre'], 'down', o)]).toEqual(['dc-router', 'cdn']);
       expect([entry(street, [], 'up', o), entry(street, [], 'down', o)]).toEqual(['phone', 'cell-tower']);
-      expect([entry(street, ['internet'], 'up', o), entry(street, ['internet'], 'down', o)]).toEqual(['mobile-core', 'cdn']);
+      expect([entry(street, ['internet'], 'up', o), entry(street, ['internet'], 'down', o)]).toEqual(['mobile-core', 'ixp']);
     }
     expect(entryHop(home, 'up', () => false)).toBeNull();
 

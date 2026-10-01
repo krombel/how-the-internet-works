@@ -1,0 +1,6 @@
+{
+  "name": "Kantrouter",
+  "kid": "Datacentrets hoveddør. Den lukker pakker ind fra knudepunktet og sender videoen ud igen.",
+  "nerd": "PoP’ens kantrouter: den peerer over BGP på knudepunktet, annoncerer videofirmaets adresser og router ind i fabric’en, hvor den fordeler trafikken over load balancerne.",
+  "tag": "eBGP · AS64501"
+}

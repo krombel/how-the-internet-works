@@ -1,0 +1,6 @@
+{
+  "name": "Spine switch",
+  "kid": "One of the big crossroads in the middle of the hall. Every cupboard has a road to every crossroad, so there are lots of equal roads and none of them gets jammed.",
+  "nerd": "A spine of a leaf–spine (Clos) fabric: every leaf connects to every spine, so any two racks are two hops apart over many equal-cost paths. ECMP hashes each flow onto one of them.",
+  "tag": "Clos · ECMP · 400G"
+}

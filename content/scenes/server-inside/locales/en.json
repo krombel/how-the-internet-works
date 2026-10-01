@@ -1,0 +1,66 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inside the video server",
+  "kid": "The video server is a computer that keeps popular videos close to you. Light from the data-centre link becomes bits on the network card. The video app looks on the shelves; if the piece is there, it sends it straight back. If not, it asks the main copy far away, saves a copy, and then sends yours.",
+  "nerd": "A CDN cache server terminates the fibre on a NIC, then the request reaches the video service running in VMs or containers on a hypervisor, often scheduled as k8s pods. The app checks hot RAM and NVMe SSD cache. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
+  "describe": {
+    "kid": "An open server case shows a network card, little computers, memory and video shelves. A request comes in as light, reaches the video app, then the shelf either sends a film piece back or asks the far-away main copy first.",
+    "nerd": "The cutaway cache server shows NIC, VM/container host, RAM and NVMe SSD cache. The request enters on fibre and reaches the highlighted app. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
+  },
+  "app": "Video app",
+  "hit": {
+    "kid": "Got it!",
+    "nerd": "HIT · served from cache"
+  },
+  "miss": {
+    "kid": "Not here: ask the main copy",
+    "nerd": "MISS · fetch origin, store copy"
+  },
+  "origin": {
+    "kid": "Main copy, far away",
+    "nerd": "Origin keeps 3 copies"
+  },
+  "nic": {
+    "title": {
+      "kid": "Network card",
+      "nerd": "NIC 2×100G"
+    },
+    "line": {
+      "kid": "Light → bits",
+      "nerd": "Fibre frames → DMA"
+    }
+  },
+  "compute": {
+    "title": {
+      "kid": "The computer",
+      "nerd": "Host compute"
+    },
+    "line": {
+      "kid": "Little computers inside",
+      "nerd": "KVM · containers · k8s pods"
+    }
+  },
+  "memory": {
+    "title": {
+      "kid": "Memory",
+      "nerd": "RAM cache"
+    },
+    "line": {
+      "kid": "Fast shelf",
+      "nerd": "Hot objects in RAM"
+    }
+  },
+  "ssd": {
+    "title": {
+      "kid": "SSD shelves",
+      "nerd": "NVMe SSD cache"
+    },
+    "line": {
+      "kid": "Shelves of videos",
+      "nerd": "Cache objects on disk"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Edge router",
+  "kid": "The front door of the data centre. It lets parcels in from the exchange and sends the video back out.",
+  "nerd": "The PoP’s edge router: it peers over BGP at the exchange, announcing the video company’s addresses, and routes into the fabric, spreading traffic over the load balancers.",
+  "tag": "eBGP · AS64501"
+}
