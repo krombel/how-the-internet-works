@@ -263,6 +263,8 @@ button { cursor: pointer; }
 .picker .option { flex-direction: column; gap: 4px; padding: 10px 8px 12px; border-radius: 18px; font-size: 16px; font-weight: 800;
   border: 3px solid transparent; }
 .picker .option.wide { flex-direction: row; grid-column: span 2; }
+.picker .option.row { flex-direction: row; }
+.picker .option.row.on { background: var(--btn-on); color: var(--btn-on-ink); }
 .picker .option.on { border-color: var(--accent); }
 /* beats the theme's small-screen `.btn svg` icon size */
 .picker .options .option.btn svg { width: 92px; height: 92px; overflow: visible; }

@@ -171,8 +171,12 @@ export const flow = z.strictObject({
 /** A place is where the device is (home, street, airplane…): the access segment from the device to where it joins the
  *  shared network, plus its backdrop. Every place can be combined with every activity. */
 export const place = segment.extend({
-  /** Sort order in the "Where are you?" picker. */
+  /** Sort order in the "Where are you?" picker (a variant's: among its place's ways of getting online). */
   order: z.number().optional(),
+  /** Another way of getting online from the same place (`home` on the phone line): not a place of its own in the
+   *  picker but one of its place's connections, named by its `access` string. An era switch (issue #59) picks among
+   *  a place and its variants. */
+  variantOf: id.optional(),
 });
 /** A route step: a place slot (filled with the chosen place) or a fixed segment. */
 export const placeSlot = z.strictObject({

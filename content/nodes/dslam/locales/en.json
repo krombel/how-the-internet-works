@@ -1,0 +1,6 @@
+{
+  "name": "Street cabinet",
+  "kid": "In a box on your street, the phone lines from lots of houses end. A machine here listens to their tones and sends the parcels on along a glass thread.",
+  "nerd": "A DSLAM: a VDSL2 line card per bundle of copper pairs (vectored, so it cancels their crosstalk) and a fibre uplink towards the ISP.",
+  "tag": "DSLAM · VDSL2"
+}

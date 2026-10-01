@@ -335,6 +335,23 @@ documentation AS numbers 64496–64511).
 Validation checks that the place makes a well-formed route with every activity. To keep an activity to some places,
 use `only: [...]` on its place slot.
 
+### Another way online: a place variant (issue #3)
+
+The same place reached another way (the house on the phone line rather than fibre, a block of flats with fibre to
+the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
+- Its hops swap the access link and the devices around it (`home-dsl`: a `dsl-router` with a modem, `vdsl` to a
+  `dslam` in the street cabinet; `home-fttb`: an Ethernet riser to a `building-switch`, then `fttb` fibre).
+- `layout: home.layout` (or `...home.layout` plus its own groups) keeps the base's spots, so its backdrop can redraw
+  the same room (`home-dsl` puts a telephone in the house; `home-fttb` turns it into a flat in a block).
+- Strings: the base and every variant need `access`, the short name of their way online ("Fibre to the house", "Phone
+  line (DSL)"). The picker lists the base once, and under it a row of `access` chips, one per family member, in
+  `order`.
+- Variants are one level deep: a variant of a variant fails validation, as does a missing `access`.
+- URLs name the variant (`#/en/home-dsl/watch-video`), so every link, dive and list view works as for any place.
+
+A later era switch (issue #59) picks among a family by an era on each variant; `placeFamily(id)` in
+`src/model/registry.ts` lists a place and its variants, `basePlace(id)` the base.
+
 ## Add an activity
 
 `content/activities/<id>/activity.ts`:

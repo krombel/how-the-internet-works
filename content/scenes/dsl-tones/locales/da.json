@@ -1,0 +1,66 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Toner på telefonlinjen",
+  "kid": "DSL laver bits om til en masse små musiktoner og sender dem ned ad den gamle kobber-telefonlinje. Når man taler i telefon, bruger man de dybe toner, og internettet bruger de lyse, så begge kan være på én ledning. Jo tættere du bor på gadeskabet, jo flere toner kommer igennem, og jo hurtigere går det.",
+  "nerd": "VDSL2 bruger DMT: op til 4096 underbærebølger med 4,3125 kHz imellem, der hver bærer 0–15 bits med QAM. Båndplan 998 deler dem i op- og nedbånd over telefonens stemmebånd. Hastigheden falder hurtigt med linjens længde, og vectoring udligner krydstale mellem parrene i samme kabel. PTM bærer Ethernet-rammerne, hvor ADSL brugte ATM-celler på 53 byte.",
+  "describe": {
+    "kid": "En tynd, snoet telefonledning går fra hjemmerouteren til gadeskabet. En langsom, lang bølge er en telefonsamtale. Korte toner hopper op til skabet, og hurtigere toner suser ned til hjemmet. Kortene viser de dybe, mellemste og lyse baner, og hvordan farten falder, jo længere væk du bor.",
+    "nerd": "Et snoet kobberpar forbinder DSL-modemmet med DSLAM’en i gadeskabet. Stemmebåndet kører med under databølger begge veje. Kortene viser båndplan 998 med bits pr. tone, downloadhastighed mod linjelængde med denne linje markeret, og vectoring, der udligner krydstale mellem nabopar."
+  },
+  "lineLabel": {
+    "kid": "Tale, op og ned deler én telefonlinje",
+    "nerd": "VDSL2 17a · DMT: 4096 toner, 4,3125 kHz imellem"
+  },
+  "lineSub": {
+    "kid": "Dyb brummen = tale · lyse toner = internet",
+    "nerd": "PTM bærer Ethernet-rammer (ADSL brugte ATM-celler)"
+  },
+  "bandsTitle": {
+    "kid": "Baner efter tonehøjde",
+    "nerd": "Båndplan 998"
+  },
+  "band": {
+    "voice": "Tale",
+    "up": {
+      "kid": "Op",
+      "nerd": "↑"
+    },
+    "down": {
+      "kid": "Ned",
+      "nerd": "↓"
+    }
+  },
+  "lowNotes": "Dybe toner",
+  "highNotes": "Lyse toner",
+  "tick": {
+    "low": "138 kHz",
+    "mid": "3,75 MHz",
+    "top": "17,7 MHz"
+  },
+  "bandsLine": {
+    "kid": "Dybt til tale, lyst til internet.",
+    "nerd": "Hver søjle er en tone med 0–15 bits."
+  },
+  "distTitle": {
+    "kid": "Tættere er hurtigere",
+    "nerd": "Hastighed og afstand"
+  },
+  "fast": {
+    "kid": "Hurtigt",
+    "nerd": "Mbit/s"
+  },
+  "twoKm": "2 km",
+  "you": {
+    "kid": "Dig",
+    "nerd": "≈ {n} Mbit/s"
+  },
+  "distLine": {
+    "kid": "Langt væk falmer de lyse toner.",
+    "nerd": "Denne linje: {m} m kobber"
+  },
+  "vecTitle": "Vectoring",
+  "vecLine": "Krydstalen udlignes"
+}

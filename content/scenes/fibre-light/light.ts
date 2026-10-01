@@ -1,11 +1,12 @@
 // The fibre dive's maths (style-agnostic). Coordinates are in a landscape 1600×900 "track space"; portrait layouts
-// rotate the track (see trackMatrix). One glass thread, told three ways by where it runs (the link's technology):
-// access (a street shares it through a splitter: light home reaches every house, light up takes turns), metro (a few
-// colours share it, each its own channel) and long haul (many colours, far: boosters make the fading light bright).
+// rotate the track (see trackMatrix). One glass thread, told four ways by where it runs (the link's technology):
+// access (a street shares it through a splitter: light home reaches every house, light up takes turns), a building's
+// own thread (one colour up, another down), metro (a few colours share it, each its own channel) and long haul (many
+// colours, far: boosters make the fading light bright).
 import type { Orient, Pt } from '$core/api';
 
-type Mode = 'access' | 'metro' | 'long-haul';
-const MODES: Record<string, Mode> = { gpon: 'access', backbone: 'long-haul' };
+type Mode = 'access' | 'building' | 'metro' | 'long-haul';
+const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone: 'long-haul' };
 /** How this stretch of fibre is told, from its technology (any other fibre is metro). */
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'metro';
 /** The nerd tag of a metro-told thread: a cross-connect's optic puts its few colours close together (LAN-WDM), a
@@ -128,6 +129,10 @@ export function accessPulses(t: number, routes: { up: Pt[][]; down: Pt[][] }): L
   for (let i = 0; i < n; i++) out.push(pulseAt(routes.up[i], wrap(t * FIBRE.speed + (i * Lu) / n + 40, Lu), 0));
   return out;
 }
+
+// ---------------------------------------------------------------- building: a thread of its own, both ways
+/** Fibre to the building: one strand, light going up on one lane (left → right) and coming down on the other. */
+export const BUILDING: Channel[] = [{ y: 330, reverse: false }, { y: 570, reverse: true }];
 
 // ---------------------------------------------------------------- long haul: many colours, far
 /** Eight thinner colours, two boosters splitting the thread into three spans (≈ breaks: much longer than drawn). */

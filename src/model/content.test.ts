@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { describeKeys } from './describe';
-import { content, type Content } from './registry';
+import { basePlace, content, placeFamily, type Content } from './registry';
 import { loadAllPacks, lookupLevel, packs, type Json } from './strings';
 import { resolveRoute } from './resolve';
 import { childrenOf, diveSubject, sceneRef, sideways, type SceneRef } from './tree';
@@ -140,6 +140,19 @@ describe('validation messages', () => {
     expect(groups([{ id: 'datacentre', in: 'internet' }, 'internet'])).toContain('watch-video/activity.ts › groups[0].in: "internet" is not a group listed before "datacentre"');
     expect(groups(['internet', { id: 'cdn', in: 'internet' }])).toContain('groups[1].id: ');
     expect(groups(['internet', 'datacentre', { id: 'datacentre', in: 'internet' }])).toContain('groups[2].id: "datacentre" is listed twice');
+  });
+
+  it('checks place variants: a known base, one level deep, and an access name', () => {
+    expect(broken((c) => { c.places['home-dsl'].variantOf = 'hoem'; })).toContain('place.ts › variantOf: "hoem" is not a place. Did you mean "home"?');
+    expect(broken((c) => { c.places.desk.variantOf = 'home-dsl'; })).toContain('desk/place.ts › variantOf: "home-dsl" is itself a variant of "home"; use "home"');
+    expect(broken((c) => { c.places.street.variantOf = 'desk'; })).toContain('missing English string "place.street.access"');
+  });
+
+  it('groups a place with its variants, base first, in order (the picker shows one place and its ways online)', () => {
+    expect([basePlace('home-dsl'), basePlace('home'), basePlace('street')]).toEqual(['home', 'home', 'street']);
+    expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl']);
+    expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
+    expect(placeFamily('street')).toEqual(['street']);
   });
 
   it('asks for missing English strings', () => {
