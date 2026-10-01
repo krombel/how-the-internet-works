@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script module lang="ts">
   /** Where a theme may draw a face (in the 200×200 box). */
-  export const face: [number, number] = [100, 112];
+  export const face: [number, number] = [100, 100];
 </script>
 
 <rect class="body orange" x="31" y="39" width="138" height="122" rx="22" />

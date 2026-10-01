@@ -15,10 +15,10 @@
 </script>
 
 <div class="pop card about-box" role="dialog" aria-labelledby="about-title" tabindex="-1" bind:this={el} {onkeydown}>
-  <header>
+  <div class="about-head">
     <h3 id="about-title">{tr('about.title')}</h3>
     <button class="btn" aria-label={tr('ui.close')} title={tr('ui.close')} onclick={() => onclose(true)}><Icon name="close" /></button>
-  </header>
+  </div>
   <p class="about-credit">{fill(tr('about.credit'), { name, author })}</p>
   <p class="about-fine">© {year} {author} · {license}</p>
   <p>{tr('about.legal')}</p>

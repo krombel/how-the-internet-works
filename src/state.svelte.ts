@@ -72,12 +72,14 @@ const metaOf = (id: string) => themeMeta[`/content/themes/${id}/meta.json`] ?? {
 export const THEME_IDS = Object.keys(themeModules).map(idOf).sort((a, b) => metaOf(a).order - metaOf(b).order || a.localeCompare(b));
 export const themeSwatches: Record<string, string> = Object.fromEntries(THEME_IDS.map((id) => [id, metaOf(id).swatch]));
 
-export interface Settings { style: string; sound: boolean; mode: Mode }
+/** `paused`: the reader stopped all motion (remembered, like the level: it's an access need, WCAG 2.2.2). */
+export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean }
 const pick = <T extends string>(v: string | null, ok: readonly T[], d: T): T => (v && (ok as readonly string[]).includes(v) ? (v as T) : d);
 export const settings = $state<Settings>({
   style: pick(q.get('style'), THEME_IDS, pick(localStorage.getItem('style'), THEME_IDS, THEME_IDS[0])),
   sound: false, // always muted on load
   mode: 'day', // set below
+  paused: localStorage.getItem('paused') === '1',
 });
 
 /** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode`
@@ -90,6 +92,11 @@ export function syncUrl() {
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`;
   if (url !== location.pathname + location.search + location.hash) history.replaceState(history.state, '', url);
   localStorage.setItem('style', settings.style);
+}
+export function setPaused(on: boolean) {
+  settings.paused = on;
+  if (on) localStorage.setItem('paused', '1');
+  else localStorage.removeItem('paused');
 }
 export function setSound(on: boolean) {
   settings.sound = on;

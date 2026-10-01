@@ -78,7 +78,8 @@ src/                      the engine: no content ids anywhere
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
   ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, style, About), About,
-                          Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree…
+                          Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree, Change (a changed value),
+                          Announcer + announce (what a screen reader hears)…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -154,8 +155,11 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 ### Pause, catch and step (issue #17)
 
 Navigating the scene shows a packet's physical life; catching one shows its layers.
-- **Pause** (⏸ in the top bar next to "Explore", path scenes only) freezes the traffic clock; dives keep animating. Tapping a packet,
-  moving or frozen, catches it and pauses if needed (letting it go resumes only if the catch paused).
+- **Pause** (⏸ in the top bar next to "Explore", in every scene; issue #53) freezes all motion: the scene clock
+  (`view.time`) that drives the traffic, the dives, the night sky and the doors' breathing stops (`clockRate` in
+  `engine/motion.ts` eases the rate to exactly 0 and back). It is remembered (`settings.paused`, `localStorage`).
+  Tapping a packet, moving or frozen, catches it, and motion is paused while it is caught; letting it go resumes
+  unless ⏸ is on.
 - The caught packet is drawn as a ghost (`poseOn`) waiting at a **chain hop**: just before it, on the link it arrives
   by (`caughtSpot`). A packet caught between hops waits at the hop ahead, or the one behind when the scene doesn't
   draw the hop ahead (a collapsed group): `hopAhead`. Its live twin is hidden while caught.
@@ -393,6 +397,23 @@ theme) and About.
   `homepage`, `license`) through `__ABOUT__` in `vite.config.ts`, so the engine names no project.
 - **Load.** The menu and About are lazy chunks; the menu loads when ⋯ is pointed at or focused.
 
+## Accessibility (issue #53)
+
+What a keyboard or screen-reader user gets, and how it is checked, is in [accessibility](accessibility.md). In the
+engine:
+- **Focus after navigation** (`App.svelte`). A navigation sets `navigated`; when the caption shows again (the flight has
+  landed) focus moves to its heading (`tabindex="-1"`) if the control that was used has gone or turned `inert`,
+  otherwise the arrival is announced. Hidden UI is `inert`, never only transparent. Catching a packet remembers the
+  focused element (`catchFrom`) and focuses the peek; letting go gives it back (`keepFocus`). The picker makes
+  everything behind it `inert` and gives focus back to its opener.
+- **One announcer** (`ui/announce.svelte.ts`, `ui/Announcer.svelte`): `announce(text)` puts one short line in a
+  visually hidden `role="status"`. On arrival `arrival(title, body)` says the title and the first sentence
+  (`firstSentence`, `Intl.Segmenter` in the page's language); the peek announces each hop. No panel is `aria-live`, so
+  nothing re-reads 600 characters.
+- **The focus ring** is the engine's (`:focus-visible` in `ui/ui.css`, `!important` so a theme's card outline can't
+  hide it); themes can only recolour it with `--focus-ink` and `--focus-gap`, and the contrast test checks the pair.
+- **No content ids.** All of this is generic over the scene tree; the words are `ui.json` strings.
+
 ## Strings and languages
 
 - **Namespacing.** Each folder's `locales/<lang>.json` is namespaced by kind and id (`nodes/phone` → `node.phone.*`).
@@ -474,7 +495,8 @@ Vitest (`npm test`) covers:
 - contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
   night, with translucent cards composited over the page background
 
-CI runs `npm ci && npm test && npm run build`.
+CI runs `npm ci && npm test && npm run build`, and in a second job the accessibility check (`npm run evaluate --
+--only=a11y`, day and night, below).
 
 ## Performance
 
@@ -489,6 +511,9 @@ CI runs `npm ci && npm test && npm run build`.
 - sideways travel (#36): two quick steps inside the internet (access → metro → backbone fibre, one joined glide), the
   long-haul and metro fibre idles, and Wi‑Fi → copper on the overview
 - node dives (#9, #38): copper → the home router's dive → fibre, stepping, and the router dive's idle
+
+`--only=a11y` runs the accessibility check instead (axe-core on the key states in three viewports, a Tab round and
+keyboard journeys; it exits non-zero on any problem and writes nothing): see [accessibility](accessibility.md).
 
 `--mode=night` runs the same shots and phases at night. The results go to `app-<style>-night-*.jpg`, and the metrics
 under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× (the halos in the long-haul fibre) and

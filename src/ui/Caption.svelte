@@ -6,6 +6,9 @@
   // - `pill` (a short landscape screen): a one-line pill with the title;
   // - `card` (a portrait phone): the title, the text cut to two lines and the doors; where you are, the hint and
   //   learn-more links show once it's open. The text is all there for screen readers either way.
+  // Hidden (during a flight, while a packet is caught), it is inert: nothing in it can be focused or read. Its title
+  // takes focus when a navigation took it away (App.svelte); open over the scene and taller than the screen, it can be
+  // focused to scroll it.
   import { loc, tr } from '../state.svelte';
   import type { CaptionDoor, CaptionFold, CaptionText } from './caption';
   import Icon from './Icon.svelte';
@@ -34,21 +37,31 @@
     openFor = null;
   }
   const icon = { dive: 'look', expand: 'open', down: 'wave', up: 'envelope' } as const;
+  let inner = $state<HTMLElement>(), scrolls = $state(false);
+  $effect(() => {
+    const p = inner;
+    if (!p || !open) return void (scrolls = false);
+    const ro = new ResizeObserver(() => (scrolls = p.scrollHeight > p.clientHeight));
+    ro.observe(p);
+    return () => ro.disconnect();
+  });
   const verbs = $derived((['dive', 'expand', 'down', 'up'] as const).map((kind) => ({ kind, doors: text.doors.filter((d) => d.kind === kind) })).filter((v) => v.doors.length));
 </script>
 
 <svelte:window {onkeydown} />
 <section class="caption card" class:hide={hidden} class:compact={fold === 'pill'} class:folded={fold === 'card'} class:open data-ui bind:this={el}
-  style:height={fold === 'card' && open ? `${foldH}px` : undefined} aria-live="polite">
-  <div class="cap-in" class:card={open}>
+  style:height={fold === 'card' && open ? `${foldH}px` : undefined} inert={hidden}>
+  <!-- open and taller than the screen, it is a Tab stop, so it can be scrolled from the keyboard -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <div class="cap-in" class:card={open} bind:this={inner} tabindex={scrolls ? 0 : undefined} data-scroll={scrolls || undefined}>
     {#if fold}
-      <h2 dir="auto">
+      <h2 dir="auto" tabindex="-1">
         <button class="cap-toggle" bind:this={toggleEl} aria-expanded={open} title={tr(open ? 'caption.close' : 'caption.open')} onclick={toggle}>
           <span>{text.title}</span><Icon name="down" rotate={open ? 0 : 180} />
         </button>
       </h2>
     {:else}
-      <h2 dir="auto">{text.title}</h2>
+      <h2 dir="auto" tabindex="-1">{text.title}</h2>
     {/if}
     {#if text.tag}<div class="tag" dir="auto">{text.tag}</div>{/if}
     <p dir="auto">{text.body}</p>
@@ -76,7 +89,7 @@
       {#if text.hint}<span class="hint">{text.hint}</span>{/if}
       {#if text.links.length}
         <span class="more"><span>{tr('more.title')}</span>
-          {#each text.links as l}<a href={l.url} target="_blank" rel="noopener" hreflang={l.lang}>{l.title}{l.lang !== loc.lang ? ` (${l.lang})` : ''}</a>{/each}
+          {#each text.links as l}<a href={l.url} target="_blank" rel="noopener" hreflang={l.lang} lang={l.lang}>{l.title}{l.lang !== loc.lang ? ` (${l.lang})` : ''}</a>{/each}
         </span>
       {/if}
     </div>

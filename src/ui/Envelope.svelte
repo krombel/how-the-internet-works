@@ -1,11 +1,13 @@
 <script lang="ts">
   // One layer of the caught packet as the hop sees it (issue #17): its header fields with the values on the wire here,
-  // what the hop uses highlighted and what it changed shown as old → new. Sealed layers stay shut. Kids see only the
-  // fields that matter here, by name; nerds see every field. When the layer has a dive, its head flies into it.
+  // what the hop uses highlighted and what it changed shown as old → new (read as "new, was old"). Sealed layers stay
+  // shut. Kids see only the fields that matter here, by name; nerds see every field. When the layer has a dive, its
+  // head flies into it.
   import type { Snippet } from 'svelte';
   import type { FieldView, LayerView, Val } from '../model/packet';
   import { fill, loc, nameOf, tr, trFirst, trl, yours } from '../state.svelte';
   import type { Hop } from '../model/resolve';
+  import Change from './Change.svelte';
   let { layer, client, depth, off = false, dive, children }: {
     layer: LayerView; client: Hop; depth: number; off?: boolean; dive?: (env: HTMLElement) => void; children?: Snippet;
   } = $props();
@@ -34,7 +36,7 @@
       {#each fields as f (f.id)}
         <div class:used={f.used} class:changed={!!f.before} title={f.used ? trl('peek.used') : undefined}>
           <dt>{trl(`layer.${id}.field.${f.id}.name`)}</dt>
-          <dd dir={kid ? 'auto' : 'ltr'}>{#if f.before}<s>{show(f.before)}</s><span class="to" aria-hidden="true">→</span>{/if}{now(f)}{#if !kid && f.value.who}<small> · {who(f.value.who)}</small>{/if}</dd>
+          <dd dir={kid ? 'auto' : 'ltr'}>{#if f.before}<Change was={show(f.before)} now={now(f)} />{:else}{now(f)}{/if}{#if !kid && f.value.who}<small> · {who(f.value.who)}</small>{/if}</dd>
         </div>
       {/each}
     </dl>

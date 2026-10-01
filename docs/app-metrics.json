@@ -5,7 +5,7 @@
   "metrics": {
     "storybook": {
       "kB": {
-        "js": 81.5,
+        "js": 82.5,
         "css": 8.2,
         "font": 71.9
       },
@@ -368,7 +368,7 @@
     },
     "storybook-night": {
       "kB": {
-        "js": 81.5,
+        "js": 82.5,
         "css": 8.2,
         "font": 71.9
       },

@@ -16,6 +16,14 @@ export function moveFor({ switched, travel, still }: { switched: boolean; travel
   return switched ? 'morph' : travel ? 'travel' : 'fly';
 }
 
+/** The scene clock's rate (1 = running) eased towards `frozen ? 0 : 1` over `dt` seconds: everything that moves
+ *  (traffic, dives, the night sky, the doors) runs on the scene clock, so pausing slows it all to a stop within a
+ *  second, and then exactly 0 (WCAG 2.2.2). */
+export function clockRate(rate: number, frozen: boolean, dt: number) {
+  const next = rate + ((frozen ? 0 : 1) - rate) * Math.min(1, dt * 5);
+  return frozen && next < 0.002 ? 0 : next;
+}
+
 /** How long a `fade` takes (ms). */
 export const FADE_MS = 220;
 /** A `fade`: a still copy of `pic` (the stage's SVG, as it is before the cut) laid over it, fading out on the compositor

@@ -117,7 +117,7 @@
   --door-catch: #8a4f75;
   --env-used: color-mix(in srgb, var(--sun) 55%, transparent);
   --env-change: #ab3c25;
-  --link: #b35636;
+  --link: #a04a2d;
   --lbl-weight: 800;
   --lbl-halo: var(--paper);
   --lbl-halo-w: 0.22em;
@@ -211,7 +211,7 @@
   --door-catch: #e3a4d3;
   --env-used: color-mix(in srgb, var(--sun) 16%, transparent);
   --env-dive: var(--door-dive);
-  --env-change: #ff9f86;
+  --env-change: #ffb3a0;
   --link: #ffb48c;
   --card-rim: color-mix(in srgb, var(--white) 10%, transparent);
   --tag-bg: #3a3460;
