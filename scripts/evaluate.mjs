@@ -104,6 +104,8 @@ const A11Y_STATES = [
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: true, detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone'] },
 ];
 /** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
  *  null. */
@@ -137,6 +139,8 @@ async function a11y(style) {
     if (s.detail) { await p.click('.peek header .chip'); await p.waitForTimeout(300); }
     if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForTimeout(500); }
     if (s.ladder) { await p.click('.crumbs .here'); await p.waitForTimeout(300); }
+    if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
+    if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
     return { ctx, p };
   };
   // 1. axe on every state
@@ -172,6 +176,10 @@ async function a11y(style) {
   if (!(await p.evaluate(() => document.activeElement?.id === 'peek-title'))) fail('journey: catch', 'focus is not on the peek panel');
   await p.keyboard.press('Tab'); await check('Tab in the peek panel');
   await p.keyboard.press('Escape'); await settle(p); await check('letting go');
+  await p.focus('.more-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.menu');
+  if (!(await p.evaluate(() => !!document.activeElement?.closest('.menu')))) fail('journey: ⋯', 'focus is not in the menu');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(100);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.more-btn')))) fail('journey: ⋯', 'focus is not back on ⋯');
   await p.focus('.caption .foot > .chip'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
   for (let i = 0; i < 12; i++) {
     await p.keyboard.press('Tab');

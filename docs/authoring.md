@@ -399,3 +399,4 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).
+- [ ] `npm run evaluate -- --only=a11y` if it adds UI (zero axe violations, focus never lost; [accessibility](accessibility.md)).

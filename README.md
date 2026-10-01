@@ -33,7 +33,8 @@ activities, languages, themes and learn-more links are each **added as a folder*
 - [docs/authoring.md](docs/authoring.md): how to add each kind of thing (with the laptop as a worked example)
 
 `npm run evaluate` (with `npx vite preview --port 5318` running on a fresh build) regenerates the screenshots in
-`docs/img/app-*` and the frame-time metrics in [docs/app-metrics.json](docs/app-metrics.json).
+`docs/img/app-*` and the frame-time metrics in [docs/app-metrics.json](docs/app-metrics.json); `npm run evaluate --
+--only=a11y` checks accessibility ([docs/accessibility.md](docs/accessibility.md)).
 
 ## Earlier rounds
 

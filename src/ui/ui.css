@@ -85,9 +85,9 @@ button { cursor: pointer; }
 .about-box { width: min(360px, calc(100% - 24px)); max-height: calc(100dvh - 130px); overflow: auto; padding: 8px 10px 12px; }
 .about-box:focus { outline: none; }
 .about-box:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.about-box header { display: flex; align-items: center; justify-content: space-between; }
-.about-box header h3 { margin-block: 0; }
-.about-box header .btn { background: none; min-height: 36px; min-width: 36px; padding: 6px; }
+.about-head { display: flex; align-items: center; justify-content: space-between; }
+.about-head h3 { margin-block: 0; }
+.about-head .btn { background: none; min-height: 36px; min-width: 36px; padding: 6px; }
 .about-box p { margin: 0 6px 8px; font-size: 14px; line-height: 1.4; }
 .about-box .about-credit { margin-bottom: 2px; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 18px; line-height: 1.25; color: var(--heading); }
 .about-box .about-fine { color: var(--muted); font-size: 12.5px; font-weight: 700; }
