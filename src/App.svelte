@@ -24,7 +24,7 @@
   import { go, onNavigate, startRouter } from './router';
   import { loadDiveStrings, loadTheme, nameW, nav, settings, themeState, tr, view } from './state.svelte';
   import Caption from './ui/Caption.svelte';
-  import { captionFold, captionFor, sceneTitle } from './ui/caption';
+  import { captionFold, captionFor, sceneTitle, type CaptionFold } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
@@ -537,7 +537,10 @@
     return { x: r.left > view.vp.w / 2 ? r.left / 2 : (r.right + view.vp.w) / 2, y: c.y };
   }
 
+  /** The caption's fold when it was last measured for the viewport (it folds by the viewport, so a refit may refold it). */
+  let measuredFold: CaptionFold | undefined;
   function resize() {
+    measuredFold = fold;
     const bar = document.querySelector('.chrome .controls')?.getBoundingClientRect();
     view.vp = viewportFor(stage, { top: bar ? bar.bottom + 8 : 0, bottom: captionEl ? captionEl.offsetHeight + 22 : 0 });
     const o = orientFor(view.vp.w, view.vp.h);
@@ -654,8 +657,9 @@
     if (!el) return;
     const ro = new ResizeObserver(() => {
       captionH = el.offsetHeight;
-      // the caption grew past the reserved inset (first measure, longer text): refit while idle
-      if (!trans && !caught && Math.abs(view.vp.bottom - (captionH + 22)) > 30) resize();
+      // the caption grew past the reserved inset (first measure, longer text), or the last refit (un)folded it: refit
+      // while idle
+      if (!trans && !caught && (fold !== measuredFold || Math.abs(view.vp.bottom - (captionH + 22)) > 30)) resize();
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -666,6 +670,7 @@
   const portrait = $derived(view.orient === 'portrait');
   const small = $derived(view.vp.w < 700);
   const short = $derived(isShort(view.vp.w, view.vp.h));
+  const fold = $derived(captionFold(view.vp.w, view.vp.h));
   const peekOpen = $derived(!!caught);
   /** Room to keep a layer stack open beside the scene: a gutter about as wide as the ladder, and the height for it
    *  above ▼. */
@@ -691,7 +696,7 @@
   {/if}
   <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
-    ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} fold={captionFold(view.vp.w, view.vp.h)} bind:el={captionEl} />
+    ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
   {#if !peekOpen}
     <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
       canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
