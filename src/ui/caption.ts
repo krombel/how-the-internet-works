@@ -11,7 +11,7 @@ import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
-import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '../state.svelte';
+import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
@@ -53,6 +53,9 @@ function describeOf(r: Route, ref: SceneRef, level: Level) {
   const said = describeKeys(r, ref).map((keys) => trFirst(keys, level)).filter(Boolean).join(' ');
   return ref.kind === 'layer' ? fill(said, layerVars(r, ref)) : said;
 }
+
+/** A hint, naming the keys when the last input was a key (#53), else the gestures. */
+const hint = (key: string) => tr(view.keys ? `${key}.keys` : key);
 
 /** The title of a scene (for the breadcrumb and the caption). */
 export function sceneTitle(r: Route, path: string[], o: Orient): string {
@@ -98,7 +101,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       title: sceneTitle(r, path, o),
       body: layerText(r, ref, '', lv),
       describe: describeOf(r, ref, lv),
-      hint: tr('hint.layer'),
+      hint: hint('hint.layer'),
       doors: down ? [{ kind: 'down', id: down.join('/'), name: sceneTitle(r, down, o), path: down }] : [],
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
     };
@@ -109,7 +112,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       tag: stretchTag(r, ref, o),
       body: trFirst(sceneKeys(r, ref)[0], lv),
       describe: describeOf(r, ref, lv),
-      hint: tr('hint.zoomOut'),
+      hint: hint('hint.zoomOut'),
       doors: carriedBy(r, ref, o).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
     };
@@ -123,7 +126,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     tag: n.kind === 'group' ? undefined : scaleTag(r, 'hop', kmTo(r, n.hop.index), n.hop.owner ? [n.hop.owner] : []),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),
     describe: '',
-    hint: tr(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
+    hint: hint(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore([...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
   };
@@ -132,7 +135,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     tag: scaleTag(r, 'link', l.link.km ?? 0),
     body: trFirst([...routeKeys(`stop.${l.id}`), `tech.${l.link.tech.id}`], lv),
     describe: '',
-    hint: tr(l.dive ? 'hint.dive' : 'hint.step'),
+    hint: hint(l.dive ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore(l.link.tech.learnMore ?? []),
   };
@@ -144,7 +147,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       tag: owners.length > 1 ? scaleTag(r, 'group', groupKm(r, g.id), owners) : undefined,
       body: trFirst(sceneKeys(r, ref)[0], lv),
       describe: describeOf(r, ref, lv),
-      hint: tr('hint.group'),
+      hint: hint('hint.group'),
       doors,
       links: learnMore(g.node.learnMore ?? []),
     };
@@ -155,7 +158,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     tag: scaleTag(r, 'trip', tripKm(r)),
     body: [tr(`activity.${r.activity.id}.${lv}`), ...sceneKeys(r, ref).map((keys) => trFirst(keys, lv))].filter(Boolean).join(' '),
     describe: describeOf(r, ref, lv),
-    hint: tr('hint.overview'),
+    hint: hint('hint.overview'),
     doors,
     links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
   };

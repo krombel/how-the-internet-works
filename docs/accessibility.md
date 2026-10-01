@@ -8,8 +8,8 @@ The work comes in four slices:
 | Slice | What | State |
 |---|---|---|
 | 1 | Pause everything, the automated check (axe + keyboard) in `npm run evaluate` and CI, focus and announcer fixes | done |
-| 2 | A text map (list view) and the keyboard in the scene, sharing one focus model | to do |
-| 3 | Spoken descriptions of each scene (`describe`, kid/nerd, every language) and read aloud from ⋯ | done (the text map's descriptions follow slice 2) |
+| 2 | A text map (list view) and the keyboard in the scene, sharing one focus model | done |
+| 3 | Spoken descriptions of each scene (`describe`, kid/nerd, every language) and read aloud from ⋯ | done |
 | 4 | Not by colour alone, non-text contrast, `forced-colors`, targets and 200 % zoom (with #45) | to do |
 
 ## What works today
@@ -21,11 +21,34 @@ The work comes in four slices:
 - **Keyboard.** Everything in the chrome, the caption, the ladder, the peek, the ⋯ menu and the picker is a real
   button or link. Esc goes back up, closes a list, a menu or a dialog, folds an opened caption, or lets a caught
   packet go. ← → (▲ ▼ in portrait) step along, except inside an opened caption that scrolls (the arrows scroll it).
+- **The keyboard in the scene.** The picture is one Tab stop, after the top bar (`ui/SceneKeys.svelte`, a
+  `toolbar` named "The picture"): a real button over every spot of the scene, in a layer that moves with the camera,
+  with a roving tabindex on where you are. The spots and their order come from one focus model (`spotsOf` in
+  `model/focus.ts`): the whole scene first, then the stops in stepping order (the same as ← →), each with the doors it
+  opens (`doorsOf`). On a stop the theme draws a two-tone ring round it (the art's `kbd`, the same ink and gap as the
+  focus ring) and its door shows its label; the whole scene gets an outline 3 px on screen. Focus follows where you
+  are and where you are follows focus: ← → (▲ ▼) step, Home and End go to the first and last stop, Enter or Space
+  opens the stop's door (open up, then look inside, then change), Esc goes up. Each button says where it is ("Wi‑Fi,
+  2 of 7, look inside"; the scene: "Watching a video, 7 stops"). The ring and the label show only for the keyboard
+  (`:focus-visible`), not when focus lands in the scene after a tap. The buttons take no pointer events, so taps
+  still hit the picture; screen readers' touch exploration, Voice Control and switch access reach them too.
+- **The list view** (`ui/TextMap.svelte`, a lazy chunk): the whole scene tree as text, from "List view" in ⋯ or the
+  skip link (the first Tab stop, "Skip to the list view"). A dialog over the page (`inert` meanwhile) that opens at
+  where you are ("You are here", `aria-current="location"`) and marks the caught packet's hop. Each scene has a
+  heading (deeper scenes, deeper levels: `role="heading"`, `aria-level`), its caption's tag and text and its door
+  ("Open up", "Look inside"); a path scene lists its stops in stepping order (`model/textmap.ts`, `mapOf`: the same
+  spots as the scene's keys), each with its text, "Go there", "Change" at the start, and the scenes it opens. A
+  layer dive hangs under its hop, a run's dive under its first link. Going somewhere closes it and puts focus there
+  in the scene; Esc or × gives focus back to what opened it. Print prints the list, on the page's paper. Each scene's
+  description (slice 3, `describe`: what its picture shows) comes before its caption text, so the list is the
+  picture's text alternative.
+- **Hints name keys after a key** (`view.keys`, set by the last input): "Press Enter to look inside. The arrow keys
+  walk along." instead of "Tap the magnifier…" (`hint.*.keys`).
 - **A folded caption** (a phone, a short landscape screen) is a disclosure: its title is a real button
   (`aria-expanded`) that opens the rest. Text cut to two lines is still read in full; the parts folded away come back
   with the button, so nothing in it is out of reach.
-- **Focus is never lost.** After a door, a ladder rung or a step, focus goes to the new caption's heading if the
-  control you used has gone (it never falls to the page or to something hidden). Catching a packet moves focus to the
+- **Focus is never lost.** After a door, a ladder rung or a step, focus goes to where you are in the scene (its
+  key), else the new caption's heading, if the control you used has gone (it never falls to the page or to something hidden). Catching a packet moves focus to the
   peek's heading, and letting go brings it back. The picker makes the page behind it `inert` and gives focus back to
   the button that opened it. Hidden parts (the caption during a flight or while a packet is caught) are `inert`.
 - **Focus ring.** One two-tone ring for every control (`:focus-visible` in `ui/ui.css`): the theme's ink outside, the
@@ -57,10 +80,10 @@ The work comes in four slices:
 - **Contrast.** The chrome's text pairs, including the "Change" link and the peek's old and new values, meet AA in day
   and night (`model/contrast.test.ts`).
 
-**Not yet** (slices 2 and 4): the stage SVG is still `aria-hidden` (its description is spoken on arrival, but there
-is no list view of it yet; the caption chips and the ladder are the way in), the scene can't be walked by keyboard
-stop by stop, hints name gestures
-("Swipe…") but not keys, and colour carries meaning in places (owner regions, request vs response, fibre colours).
+**Not yet** (slice 4): colour carries meaning in places (owner regions, request vs response, fibre colours). The
+stage SVG stays `aria-hidden`: its keys name the stops, its description is spoken on arrival and shown in the list
+view. An entry node (the start of a group or a dive's ends) is not a stop of its own: Esc and the list view take you
+up.
 
 ## How to check
 
@@ -76,17 +99,20 @@ animation or transition is running (`document.getAnimations()`), so nothing is j
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
-  and About, and read aloud on (the caption's "Read again", ⋯ with its toggle), on a desktop, a portrait phone and a
-  short landscape screen. **Zero violations** is the bar; there is no
+  and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop and the list
+  view, on a desktop, a portrait phone and a short landscape screen. **Zero violations** is the bar; there is no
   baseline of allowed ones.
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
-  screen, or on a control without a visible ring.
+  screen, or on a control without a visible ring (for the scene's keys: on a stop, the theme's ring in the scene).
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
   the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button),
-  and read aloud: turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the
-  title, the description and the caption, and "Read again" says them again. The browser's voices are replaced by a
-  fake one with an English and a Danish voice (a headless browser may have none), which notes what it was asked to
-  say.
+  the scene's keys (Tab in, → → to the Wi‑Fi, Enter into its dive, Esc), the list view (the skip link opens it at
+  where you are, Tab stays in it, Esc back to the skip link; from ⋯, a door in it lands in the scene), and read aloud:
+  turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the title, the
+  description and the caption, and "Read again" says them again. The browser's voices are replaced by a fake one with
+  an English and a Danish voice (a headless browser may have none), which notes what it was asked to say.
+
+`--only=perf` also times walking the scene's keys (`keysWalk`).
 
 axe can't judge SVG text over art (it reports it as "needs review"); slice 4 covers the scene's own contrast.
 
@@ -109,6 +135,10 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
       caption; "Read again" repeats it; a new door cuts it off. In Danish it is only offered with a Danish voice
       installed.
 - [ ] "Change" (the place): a dialog; Tab stays in it; Esc returns to "Change".
+- [ ] Tab past the top bar into the picture: "The picture, toolbar", "Watching a video, 7 stops". → says "Phone, 1
+      of 7, change where you are" once (and the announcer adds its first sentence); Enter on the Wi‑Fi looks inside.
+- [ ] The skip link (first Tab) opens the list view at "You are here"; VO-⌘H walks the headings; "Go there" closes it
+      and you are on that stop in the picture; Esc returns to the skip link.
 - [ ] Switch to Dansk: the Danish voice is used for the page (and English for an English learn-more link).
 
 **VoiceOver on iOS** (Safari, triple-click side button):

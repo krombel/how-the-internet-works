@@ -14,8 +14,8 @@
   import { diveView } from './dives.svelte';
   import PathScene from './PathScene.svelte';
 
-  let { route, path, alpha, slide, packets, scene, places, focus, hot, lit }: {
-    route: Route; path: string[]; alpha: number; slide?: Mounted['slide']; packets: LivePacket[]; scene?: PS; focus: string | null; hot: string | null; lit: boolean;
+  let { route, path, alpha, slide, packets, scene, places, focus, hot, lit, kbd }: {
+    route: Route; path: string[]; alpha: number; slide?: Mounted['slide']; packets: LivePacket[]; scene?: PS; focus: string | null; hot: string | null; lit: boolean; kbd: boolean;
     places?: { id: string; alpha: number; dx: number }[];
   } = $props();
   const outer = getWorld();
@@ -52,13 +52,13 @@
 
 <g class="scene" transform={m} opacity={alpha} display={visible ? 'inline' : 'none'}>
   {#if path.length === 0}
-    {#if ps}<PathScene {route} {ps} {packets} {focus} {places} {hot} {lit} root />{/if}
+    {#if ps}<PathScene {route} {ps} {packets} {focus} {places} {hot} {lit} {kbd} root />{/if}
   {:else}
     <clipPath id={clip}><rect width={W.w} height={W.h} rx="60" /></clipPath>
     <g clip-path="url(#{clip})">
       <g transform={slide ? `translate(0 ${slide.shift * W.h})` : undefined}>
         <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
-        {#if ps}<PathScene {route} {ps} {packets} {focus} {hot} {lit} root={false} />
+        {#if ps}<PathScene {route} {ps} {packets} {focus} {hot} {lit} {kbd} root={false} />
         {:else if Dive && subject}<Dive {subject} />{/if}
       </g>
     </g>

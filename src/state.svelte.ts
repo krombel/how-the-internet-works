@@ -158,8 +158,9 @@ export async function loadTheme(id: string) {
 const calm = matchMedia('(prefers-reduced-motion: reduce)');
 /** `still`: the reader prefers reduced motion (decorative motion, like the doors' breathing, stands still). */
 /** `mode`: day or night (always day when the theme has no night). */
-export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean; mode: Mode }>({
-  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches, mode: 'day',
+/** `keys`: the last input was a key, not a pointer (the hints name keys; App sets it). */
+export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean; mode: Mode; keys: boolean }>({
+  vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches, mode: 'day', keys: false,
 });
 calm.addEventListener('change', () => (view.still = calm.matches));
 

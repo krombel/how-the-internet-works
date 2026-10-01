@@ -2,9 +2,10 @@
   // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (only where there is something to
   // explore: not in dives), pause (all motion), kid/nerd, day/night (when the theme has a night), and ⋯: a menu
   // (Menu.svelte, entries in `entries` below) with the language, sound, read aloud (where there is a voice for the
-  // language), the style (only when more than one theme is installed) and About. The controls keep to the end of the
-  // row, so one that comes and goes doesn't move the others; on a phone they wrap under the ladder, and on a short
-  // landscape screen it is one slim row. Toggles keep their name and say their state with aria-pressed.
+  // language), the style (only when more than one theme is installed), the list view (TextMap.svelte, opened by the
+  // app) and About. The controls keep to the end of the row, so one that comes and goes doesn't move the others; on a
+  // phone they wrap under the ladder, and on a short landscape screen it is one slim row. Toggles keep their name and
+  // say their state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
@@ -15,7 +16,7 @@
   import type MenuT from './Menu.svelte';
   import type { MenuEntry } from './menu';
 
-  let { crumbs, below, roomy, onhot, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet }: {
+  let { crumbs, below, roomy, onhot, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet, onmap }: {
     crumbs: { title: string; path: string[] }[]; small: boolean;
     /** What lies below the scene you're in (the ladder's last rung), room to keep a stack open, pointing at a door. */
     below: Below | null; roomy: boolean; onhot: (id: string | null) => void;
@@ -29,6 +30,8 @@
     paused: boolean; onpause: () => void;
     /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
     quiet: boolean;
+    /** Open the list view (focus goes back to `from` when it closes). */
+    onmap: (from: HTMLElement) => void;
   } = $props();
   /** What hangs off ⋯: its menu, or About. */
   let open = $state<'menu' | 'about' | null>(null);
@@ -60,6 +63,7 @@
     ...(THEME_IDS.length > 1 ? [{ kind: 'choice' as const, id: 'style', label: tr('ui.style'), value: settings.style,
       pick: (id) => { settings.style = id; syncUrl(); },
       options: THEME_IDS.map((id) => ({ id, label: tr(`theme.${id}.name`), swatch: themeSwatches[id] })) } satisfies MenuEntry] : []),
+    { kind: 'action', id: 'map', icon: 'list', label: tr('map.open'), run: () => onmap(more) },
     { kind: 'action', id: 'about', icon: 'info', label: tr('about.open'), run: showAbout },
   ]);
 </script>

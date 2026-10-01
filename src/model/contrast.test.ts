@@ -73,6 +73,9 @@ const PAIRS: [string, string[], number][] = [
   ['focus-ink|ink', ['focus-gap|bg'], ICON],
   ['focus-ink|ink', ['card'], ICON],
   ['focus-ink|ink', [], ICON],
+  // and in the scene (the keyboard's ring round a stop, or round a whole scene on the sky or a dive's panel)
+  ['focus-ink|ink', ['scene-bg'], ICON],
+  ['focus-ink|ink', ['panel-bg'], ICON],
 ];
 
 describe('contrast', () => {

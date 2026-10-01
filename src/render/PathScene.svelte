@@ -18,12 +18,14 @@
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
 
-  let { route, ps, packets, focus, root, places, hot = null, lit = false }: {
+  let { route, ps, packets, focus, root, places, hot = null, lit = false, kbd = false }: {
     route: Route; ps: PathScene; packets: LivePacket[]; focus: string | null; root: boolean;
     /** Place backdrops to draw (root only); defaults to the route's places. */
     places?: { id: string; alpha: number; dx: number }[];
     /** The door pointed at (its item id), and whether "What can I explore?" lights every door up. */
     hot?: string | null; lit?: boolean;
+    /** The focused stop has keyboard focus: ring it. */
+    kbd?: boolean;
   } = $props();
   const world = getWorld(), scene = getScene();
   const W = $derived(WORLD_SIZE[view.orient]);
@@ -80,14 +82,14 @@
   {/if}
   {#each ps.links as l (l.id)}
     <g opacity={l.alpha < 1 ? l.alpha : undefined}>
-      <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} />
+      <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} kbd={kbd && focus === l.id} />
     </g>
   {/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
   {#each ps.nodes as n (n.id)}
     {@const art = nodeArt[n.node.id]}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
-      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} />
+      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
     </g>
   {/each}
   <!-- beneath the node names and tags: when it gets crowded (nerd tags), the boxes stay readable -->
