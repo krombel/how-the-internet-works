@@ -1,5 +1,6 @@
-// WCAG AA for the chrome in every theme and mode: captions, chips, doors, the peek/stack view, dive labels and
-// learn-more links. Each pair is the tokens ui.css draws text with; a theme's night overrides its day.
+// WCAG AA for the chrome in every theme and mode: captions, chips, doors, the peek/stack view, dive labels,
+// learn-more links and the keyboard focus ring. Each pair is the tokens ui.css draws text (or the ring) with; a
+// theme's night overrides its day.
 import { describe, expect, it } from 'vitest';
 import { resolve, themeTokens } from '../test/tokens';
 
@@ -44,6 +45,7 @@ const PAIRS: [string, string[], number][] = [
   ['muted', ['card'], TEXT],
   ['heading', ['card'], TEXT],
   ['link', ['card'], TEXT],
+  ['link', ['btn', 'card'], TEXT],
   ['ink', ['btn', 'card'], TEXT],
   ['btn-on-ink', ['btn-on'], TEXT],
   ['door-dive|accent', ['card'], TEXT],
@@ -57,6 +59,7 @@ const PAIRS: [string, string[], number][] = [
   ['muted', ['env-bg', 'card'], TEXT],
   ['env-name', ['env-bg', 'card'], TEXT],
   ['env-change', ['env-bg', 'card'], TEXT],
+  ['env-change', ['env-used', 'env-bg', 'card'], TEXT],
   ['ink', ['env-used', 'env-bg', 'card'], TEXT],
   ['muted', ['env-used', 'env-bg', 'card'], TEXT],
   ['env-name', ['env-sealed', 'card'], TEXT],
@@ -66,6 +69,10 @@ const PAIRS: [string, string[], number][] = [
   ['ink', ['panel-bg'], TEXT],
   ['hint', ['hint-bg'], TEXT],
   ['accent-ink', ['env-dive|accent'], ICON],
+  // the focus ring: its two tones apart, and against the cards and the page it sits on
+  ['focus-ink|ink', ['focus-gap|bg'], ICON],
+  ['focus-ink|ink', ['card'], ICON],
+  ['focus-ink|ink', [], ICON],
 ];
 
 describe('contrast', () => {

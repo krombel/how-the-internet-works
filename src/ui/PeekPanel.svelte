@@ -5,12 +5,15 @@
   // opened, the fields the hop uses marked and the ones it changed as old → new. "Details" swaps the envelopes for
   // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8), and below the
   // envelopes, the link they leave on leads down to how it carries them (issue #13).
+  // Its title takes focus when it opens; each hop is announced (#53).
+  import { onMount } from 'svelte';
   import { hopStepFor, hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/dives.svelte';
   import { sceneTitle } from './caption';
   import { fill, loc, nameOf, tr, trFirst, trl, yours } from '../state.svelte';
+  import { announce } from './announce.svelte';
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
   import Icon from './Icon.svelte';
@@ -39,28 +42,33 @@
   $effect(() => { for (const id of dives.keys()) void loadDive(route.content.layers[id].dive!); });
   const dive = (l: LayerView) => (dives.has(l.id) ? (env: HTMLElement) => ondive(dives.get(l.id)!, env) : undefined);
   const lname = (id: string) => trl(`layer.${id}.name`);
+  const name = $derived(at === client ? yours(at) : nameOf(at));
+  const count = $derived(fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n }));
+  let title: HTMLHeadingElement;
+  onMount(() => title.focus());
+  $effect(() => announce(`${name}, ${count}. ${says}`));
   const down = $derived.by(() => {
     const link = linkOut(route, hop, dir), path = link && linkDivePath(route, link);
     return path ? { path, name: sceneTitle(route, path, 'landscape') } : null;
   });
 </script>
 
-<aside class="peek card" class:wide={detail} data-ui aria-live="polite">
+<section class="peek card" class:wide={detail} data-ui aria-labelledby="peek-title">
   <header>
-    <h2>{tr(`activity.${route.activity.id}.peek.${kind}`)}</h2>
+    <h2 id="peek-title" tabindex="-1" bind:this={title}>{tr(`activity.${route.activity.id}.peek.${kind}`)}</h2>
     <button class="btn chip" class:on={detail} aria-pressed={detail} onclick={() => (detail = !detail)}>{tr('peek.detail')}</button>
     <button class="btn" onclick={onclose} aria-label={tr('peek.close')}><Icon name="close" /></button>
   </header>
-  <nav class="hopnav">
+  <div class="hopnav" role="group" aria-label={tr('peek.path')}>
     {#snippet stepper(s: -1 | 1)}
       {@const d = hopStepFor(dir, s)}
       <button class="btn" class:fwd={d > 0} onclick={() => onstep(d)} disabled={stepHop(route, hop, dir, d) === null}
         aria-label={tr(d > 0 ? 'peek.next' : 'peek.prev')}><Icon name="chevron" rotate={portrait ? -90 * s : s > 0 ? 0 : 180} /></button>
     {/snippet}
     {@render stepper(-1)}
-    <p><strong>{at === client ? yours(at) : nameOf(at)}</strong><small>{fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n })}</small></p>
+    <p><strong>{name}</strong><small>{count}</small></p>
     {@render stepper(1)}
-  </nav>
+  </div>
   <p class="where" dir="auto">{says}</p>
   {#if off.length || changed.length || v.layers.some((l) => l.change === 'added' && v.arrive)}
     <ul class="chips" aria-label={tr('peek.changed')}>
@@ -88,7 +96,7 @@
   {#if down}
     <button class="btn chip travels door-down" onclick={() => ondown(down.path)}><Icon name="wave" /><span dir="auto">{fill(tr('peek.travels'), { name: down.name })}</span></button>
   {/if}
-</aside>
+</section>
 
 {#snippet nest(i: number)}
   {@const l = kept[i]}

@@ -6,6 +6,7 @@
   import type { Route } from '../model/resolve';
   import { fill, loc, tr, trl, yours } from '../state.svelte';
   import { learnMore } from './caption';
+  import Change from './Change.svelte';
   let { v, route }: { v: HopView; route: Route } = $props();
   const nerd = (key: string) => trl(key, 'nerd');
   const summary = (id: string, fields: FieldView[]) => fill(nerd(`layer.${id}.line`), Object.fromEntries(fields.map((f) => [f.id, f.value.key ? trl(f.value.key) : f.value.text])));
@@ -60,7 +61,7 @@
           {#each l.fields as f (f.id)}
             <div class:used={f.used} class:changed={!!f.before}>
               <dt>{nerd(`layer.${l.id}.field.${f.id}.name`)}{#if f.bits}<small> · {fill(tr('peek.bits'), { n: f.bits })}</small>{/if}</dt>
-              <dd dir="ltr">{#if f.before}<s>{f.before.text}</s><span class="to" aria-hidden="true">→</span>{/if}{f.value.key ? trl(f.value.key) : f.value.text}</dd>
+              <dd dir="ltr">{#if f.before}<Change was={f.before.text} now={f.value.key ? trl(f.value.key) : f.value.text} />{:else}{f.value.key ? trl(f.value.key) : f.value.text}{/if}</dd>
               <dd class="about" dir="auto">{trl(`layer.${l.id}.field.${f.id}.about`)}</dd>
             </div>
           {/each}

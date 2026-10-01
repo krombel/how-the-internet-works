@@ -1,7 +1,8 @@
 <script lang="ts">
-  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?", pause, kid/nerd, day/night (when the
-  // theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the language, sound, the style
-  // (only when more than one theme is installed) and About. On a short landscape screen it is one slim row.
+  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?", pause (all motion), kid/nerd,
+  // day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the language,
+  // sound, the style (only when more than one theme is installed) and About. On a short landscape screen it is one slim
+  // row. Toggles keep their name and say their state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
@@ -22,8 +23,8 @@
     wide: boolean;
     /** "What can I explore?" is on / there's anything to explore in this scene. */
     explore: boolean; canExplore: boolean; ontoggle: () => void;
-    /** Traffic is frozen; pausing is offered (path scenes only). */
-    paused: boolean; onpause?: () => void;
+    /** All motion is paused (by the reader, or while a packet is caught). */
+    paused: boolean; onpause: () => void;
     /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
     quiet: boolean;
   } = $props();
@@ -60,7 +61,7 @@
 </script>
 
 <svelte:window {onpointerdown} />
-<nav class="chrome" data-ui>
+<header class="chrome" data-ui>
   <Ladder {crumbs} {below} {short} {roomy} {quiet} {onhot} />
   <div class="controls">
     <div class="card">
@@ -68,19 +69,17 @@
         <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
       </button>
     </div>
-    {#if onpause}
-      <div class="card">
-        <button class="btn icon-btn" aria-pressed={paused} title={tr(paused ? 'ui.play' : 'ui.pause')} onclick={onpause}><Icon name={paused ? 'play' : 'pause'} /></button>
-      </div>
-    {/if}
+    <div class="card">
+      <button class="btn icon-btn" aria-pressed={paused} aria-label={tr('ui.pause')} title={tr('ui.pause')} onclick={onpause}><Icon name={paused ? 'play' : 'pause'} /></button>
+    </div>
     <div class="card seg" role="group" aria-label={tr('ui.level')}>
       {#each ['kid', 'nerd'] as const as lv}
-        <button class="btn" class:on={loc.level === lv} onclick={() => setLevel(lv)}>{tr(small ? `mode.${lv}.short` : `mode.${lv}`)}</button>
+        <button class="btn" class:on={loc.level === lv} aria-pressed={loc.level === lv} onclick={() => setLevel(lv)}>{tr(small ? `mode.${lv}.short` : `mode.${lv}`)}</button>
       {/each}
     </div>
     {#if hasNight()}
       <div class="card">
-        <button class="btn icon-btn" aria-pressed={view.mode === 'night'} title={tr(`ui.${view.mode}`)} onclick={() => setMode(view.mode === 'night' ? 'day' : 'night')}><Icon name={view.mode} /></button>
+        <button class="btn icon-btn" aria-pressed={view.mode === 'night'} aria-label={tr('ui.night')} title={tr('ui.night')} onclick={() => setMode(view.mode === 'night' ? 'day' : 'night')}><Icon name={view.mode} /></button>
       </div>
     {/if}
     <div class="card">
@@ -90,4 +89,4 @@
   </div>
   {#if open === 'menu' && Menu}<Menu {entries} label={tr('ui.more')} onclose={close} />{/if}
   {#if open === 'about' && About}<About onclose={close} />{/if}
-</nav>
+</header>

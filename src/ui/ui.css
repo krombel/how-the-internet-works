@@ -25,7 +25,13 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; -web
 @keyframes fade-out { to { opacity: 0; } }
 button, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Keyboard focus (#53): a two-tone ring, the theme's ink outside and the page's colour between, so it shows on any
+   background (≥ 3:1, model/contrast.test.ts). A theme may recolour it (--focus-ink, --focus-gap), not hide it. */
+:focus-visible { outline: 3px solid var(--focus-ink, var(--ink)) !important; outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px var(--focus-gap, var(--bg)) !important; }
+/* only for screen readers */
+.sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap; }
 
 /* scene text (DOM text inside the SVG) */
 .lbl { font-family: var(--label-font); font-weight: var(--lbl-weight); fill: var(--ink); paint-order: stroke; stroke: var(--lbl-halo); stroke-width: var(--lbl-halo-w); stroke-linejoin: round; }
@@ -78,10 +84,9 @@ button { cursor: pointer; }
 /* About (About.svelte): the credit, the licence and the source */
 .about-box { width: min(360px, calc(100% - 24px)); max-height: calc(100dvh - 130px); overflow: auto; padding: 8px 10px 12px; }
 .about-box:focus { outline: none; }
-.about-box:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.about-box header { display: flex; align-items: center; justify-content: space-between; }
-.about-box header h3 { margin-block: 0; }
-.about-box header .btn { background: none; min-height: 36px; min-width: 36px; padding: 6px; }
+.about-head { display: flex; align-items: center; justify-content: space-between; }
+.about-head h3 { margin-block: 0; }
+.about-head .btn { background: none; min-height: 36px; min-width: 36px; padding: 6px; }
 .about-box p { margin: 0 6px 8px; font-size: 14px; line-height: 1.4; }
 .about-box .about-credit { margin-bottom: 2px; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 18px; line-height: 1.25; color: var(--heading); }
 .about-box .about-fine { color: var(--muted); font-size: 12.5px; font-weight: 700; }
@@ -248,7 +253,7 @@ button { cursor: pointer; }
 .bitbox.used { background: linear-gradient(var(--env-used), var(--env-used)), var(--card); }
 .env-fields .used dt { color: var(--ink); }
 .env-fields .changed dd, .tree-fields .changed dd:not(.about) { color: var(--env-change); font-weight: 800; }
-.env-fields s, .tree-fields s { opacity: 0.6; font-weight: 400; }
+.env-fields s, .tree-fields s { color: var(--muted); font-weight: 400; }
 .env-fields .to, .tree-fields .to { margin-inline: 0.35em; }
 .bitbox.changed { box-shadow: inset 0 0 0 2px var(--env-change); }
 .env-note, .env-sealed { margin: 4px 0 0; font-size: 12.5px; line-height: 1.35; }
