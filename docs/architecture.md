@@ -246,7 +246,7 @@ dive; `CaptionDoor.path` carries where they go.
   pointer over anything tappable). Pointing at or focusing a caption chip lights its badge in the scene the same way.
 - **"What can I explore?"** (the ✨ button in the chrome) lights every door of the current scene with its label for
   six seconds, or until tapped again, a tap on the scene or a scene change. If some are off screen (zoomed in on a
-  stop), it steps back to the whole scene first. It's disabled where a scene has no doors (dives).
+  stop), it steps back to the whole scene first. It isn't shown where a scene has no doors (dives).
 - **Caption chips.** The caption lists the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a
   stop, only that stop's own). Links of the same technology share one chip (the first) at scene level; walking to a
   stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
@@ -257,7 +257,8 @@ dive; `CaptionDoor.path` carries where they go.
 
 The breadcrumb is a **depth ladder** (`ui/Ladder.svelte`): Home ▸ Inside the internet ▸ Light shared by your street,
 each rung tappable to go back up. The rung you're on says what lies below it, and tapping it opens the list:
-- **A path scene**: a small ladder and how many doors lead further down ("4 doors lead further down"), and the list of
+- **A path scene**: a small ladder and how many ways lead further down ("4 ways down" on a big screen; on a small one
+  just the count, with those words as its accessible name; `trCount` picks the language's plural form), and the list of
   them with their verb's icon, named by their scenes' titles. Pointing at or focusing one lights its badge in the
   scene, as a caption chip does. They are the scene tree's children, bar the layer dives (those are reached by
   address, see *Camera*), so a new kind of child (a node dive) shows up by itself.

@@ -19,8 +19,11 @@ The work comes in four slices:
   a packet pauses too; letting go resumes unless ⏸ is on. `prefers-reduced-motion` still removes the flights and the
   breathing as before.
 - **Keyboard.** Everything in the chrome, the caption, the ladder, the peek, the ⋯ menu and the picker is a real
-  button or link. Esc goes back up, closes a list, a menu or a dialog, or lets a caught packet go. ← → (▲ ▼ in
-  portrait) step along, except inside the caption text when it scrolls (the arrows scroll it).
+  button or link. Esc goes back up, closes a list, a menu or a dialog, folds an opened caption, or lets a caught
+  packet go. ← → (▲ ▼ in portrait) step along, except inside an opened caption that scrolls (the arrows scroll it).
+- **A folded caption** (a phone, a short landscape screen) is a disclosure: its title is a real button
+  (`aria-expanded`) that opens the rest. Text cut to two lines is still read in full; the parts folded away come back
+  with the button, so nothing in it is out of reach.
 - **Focus is never lost.** After a door, a ladder rung or a step, focus goes to the new caption's heading if the
   control you used has gone (it never falls to the page or to something hidden). Catching a packet moves focus to the
   peek's heading, and letting go brings it back. The picker makes the page behind it `inert` and gives focus back to

@@ -3,6 +3,7 @@
 // looked up from the most specific source to the least: the places and segments on the route (they can say something
 // about a stop in their context), then the node, technology or scene itself.
 import type { LearnMore, Level, Orient } from '../define';
+import { isShort } from '../engine/camera';
 import { doorsOf } from '../model/doors';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
@@ -17,6 +18,11 @@ import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, yours } from '..
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
 /** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). */
 export interface CaptionText { title: string; tag?: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
+
+/** How the caption folds so the scene keeps the screen (Caption.svelte): a one-line pill on a short landscape screen,
+ *  a card cut to its title, two lines and its doors on a narrow one (a portrait phone), else not at all. */
+export type CaptionFold = 'pill' | 'card' | null;
+export const captionFold = (w: number, h: number): CaptionFold => (isShort(w, h) ? 'pill' : w < 700 ? 'card' : null);
 
 /** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip.
  *  Dives of the same technology name share one chip (the first); their badges on the map open the others. */

@@ -73,6 +73,35 @@ describe('doors', () => {
     expect(stretches).toBeGreaterThan(0);
   });
 
+  // generic: in every language, at the size names grow to on a small screen (short landscape the most)
+  it('keeps device names apart, at their biggest', async () => {
+    await loadAllPacks();
+    let pairs = 0;
+    const touching: string[] = [];
+    for (const lang of Object.keys(packs)) {
+      const nameW = (n: SNode) => (packs[lang].strings[`node.${n.node.id}.name`] ?? packs.en.strings[`node.${n.node.id}.name`]).length * 28 * 0.52;
+      for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+        const r = resolveRoute({ activity, places: [place] });
+        for (const o of ['landscape', 'portrait'] as const) {
+          const walk = (path: string[]): void => {
+            const ref = sceneRef(r, path, o)!;
+            if (ref.kind !== 'path') return;
+            const ps = pathScene(r, ref.group, o), names = ps.nodes.map((n) => ({ id: n.id, box: nodeBoxes(n, nameW(n), o)[1] }));
+            for (const [i, a] of names.entries()) for (const b of names.slice(i + 1)) {
+              pairs++;
+              const apart = a.box.x + a.box.w <= b.box.x || b.box.x + b.box.w <= a.box.x || a.box.y + a.box.h <= b.box.y || b.box.y + b.box.h <= a.box.y;
+              if (!apart) touching.push(`${lang} ${place} × ${activity} ${o} /${path.join('/')}: ${a.id} and ${b.id}`);
+            }
+            for (const c of childrenOf(r, ref, o)) if (c.kind === 'expand') walk([...path, c.step]);
+          };
+          walk([]);
+        }
+      }
+    }
+    expect(touching).toEqual([]);
+    expect(pairs).toBeGreaterThan(0);
+  });
+
   it('puts badges where the art draws them: mid-link, above a group, beside the start device', () => {
     const ps = pathScene(home, null, 'landscape'), d = doorsIn(home, null, 'landscape');
     const n = (id: string) => ps.nodes.find((k) => k.id === id)!;

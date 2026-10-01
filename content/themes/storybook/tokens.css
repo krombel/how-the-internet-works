@@ -292,6 +292,7 @@
 
   :root[data-style='storybook'] .crumbs .btn,
   :root[data-style='storybook'] .crumbs .here {
+    min-height: 31px;
     padding: 4px 7px;
   }
 

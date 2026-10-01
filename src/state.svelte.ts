@@ -42,6 +42,9 @@ export const trl = (key: string, level: Level = loc.level) => (more.n, lookupLev
 export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.lang, keys, level) ?? '');
 /** Fill {placeholders}. */
 export const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+/** A count in words, by the language's plural form: `key.one`, `key.other`, … with {n} filled ("4 ways down"). */
+export const trCount = (key: string, n: number) =>
+  fill(trFirst([`${key}.${new Intl.PluralRules(loc.lang).select(n)}`, `${key}.other`]), { n });
 
 // ------------------------------------------------------------------ where we are
 // Raw state: the router replaces both wholesale, and a route is resolved once and cached, so `nav.route` stays the

@@ -41,7 +41,8 @@ export default definePlace({
       },
     },
     internet: {
-      landscape: { nodes: { home: [140, 680, 120], cabinet: [295, 450, 150, 'above'], backhaul: [450, 680, 150], bng: [640, 450, 150, 'above'] } },
+      // the house a little higher than the backhaul switch, so their names (at their biggest, in short landscape) don't meet
+      landscape: { nodes: { home: [140, 620, 120], cabinet: [295, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [650, 450, 150, 'above'] } },
       portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [650, 1030, 150] } },
     },
   },

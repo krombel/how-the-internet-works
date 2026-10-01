@@ -10,14 +10,16 @@
   // focus back on its button.
   import type { Below } from '../model/ladder';
   import { go } from '../router';
-  import { fill, loadDiveStrings, loc, nameOf, nav, tr, trFirst, trl, view } from '../state.svelte';
+  import { fill, loadDiveStrings, nameOf, nav, tr, trCount, trl, view } from '../state.svelte';
   import { sceneTitle } from './caption';
   import Icon from './Icon.svelte';
 
-  let { crumbs, below, short, roomy, quiet, onhot }: {
+  let { crumbs, below, small, short, roomy, quiet, onhot }: {
     crumbs: { title: string; path: string[] }[];
     /** What lies below the rung you're on. */
     below: Below | null;
+    /** A small screen: the count of ways down is a compact badge (its words are its accessible name). */
+    small: boolean;
     short: boolean;
     /** Room to keep a stack open beside the scene. */
     roomy: boolean;
@@ -58,10 +60,7 @@
   }
   const heading = $derived.by(() => {
     if (!below) return '';
-    if (below.kind === 'doors') {
-      const n = below.doors.length;
-      return fill(trFirst([`ladder.doors.${new Intl.PluralRules(loc.lang).select(n)}`, 'ladder.doors.other']), { n });
-    }
+    if (below.kind === 'doors') return trCount('ladder.doors', below.doors.length);
     return below.hop ? fill(trl('ladder.stack'), { hop: nameOf(below.hop) }) : tr('door.up');
   });
   const icon: Record<string, 'look' | 'open'> = { dive: 'look', expand: 'open' };
@@ -86,8 +85,10 @@
     {:else if below}
       <button class="btn here" bind:this={hereBtn} aria-current="location" aria-expanded={shown} aria-controls="below-list" title={heading} onclick={toggleBelow}>
         <span class="here-name">{c.title}</span>
-        {#if below.kind === 'doors'}
-          <span class="below-count" aria-hidden="true"><Icon name="ladder" />{below.doors.length}</span>
+        {#if below.kind === 'doors' && small}
+          <span class="below-count" role="img" aria-label={trCount('ladder.ways', below.doors.length)}><Icon name="ladder" />{below.doors.length}</span>
+        {:else if below.kind === 'doors'}
+          <span class="below-count"><Icon name="ladder" />{trCount('ladder.ways', below.doors.length)}</span>
         {:else}
           <svg class="pips" viewBox="0 0 12 {below.rungs.length * 5 - 2}" preserveAspectRatio="none" aria-hidden="true">
             {#each below.rungs as r, k}

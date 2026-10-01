@@ -352,8 +352,11 @@ always muted again on reload.
     looks different, instead of stepping through six identical "light in a glass thread" dives. The run has one
     magnifier, on its links and never over a device or its name (the run's glow shows what it covers), and its caption says what it covers ("3 stretches · via ISP core and Internet exchange").
   - The buttons point where the camera will go, so they are not mirrored in RTL.
-- **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas. The chrome buttons are
-  36–40 px on a phone so they fit on two rows. That's fine for grown-ups, but a bit small for the youngest.
+  - A step button with nothing that way shrinks to a small ghost at its edge of the screen (it keeps focus, and a
+    press still nudges it), so it doesn't cover the scene.
+- **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas (44 px for ▲ ▼ on a portrait
+  phone). The chrome buttons are 31–40 px on a phone so they fit on two rows; nothing is under 24 px (WCAG 2.5.8).
+  That's fine for grown-ups, but a bit small for the youngest.
 
 ### Portrait phone layout
 
@@ -362,10 +365,21 @@ always muted again on reload.
   the portrait overview is cropped tighter so the devices come out bigger.
 - **Labels** are counter-scaled with a minimum on-screen size per style (13–14 px). Some labels flip above or
   below per orientation.
-- **Chrome** fits on two rows (breadcrumb, then the controls), and the caption sits at the bottom where thumbs
-  are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px phone. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies below (a
-  ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; only a roomy
-  desktop keeps a layer stack open beside the scene.
+- **Chrome** fits on two tight rows (breadcrumb, then the controls at the end of the row), and the caption sits at
+  the bottom where thumbs are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px
+  phone; *Explore* is only there when there is something to explore (not in dives), and the others keep their place
+  when it goes. One row doesn't fit: the controls take about 230 of 360–390 px and would cut every breadcrumb short.
+  The scene fades out under the bar (`--bar-fade`, the paper by default), so labels that slide under it don't show
+  between the buttons. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies
+  below (a ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; on a
+  big screen the count is in words ("4 ways down"), on a phone it's a badge whose words are its accessible name. Only
+  a roomy desktop keeps a layer stack open beside the scene.
+- **Caption** (issue #54). Folded to its title, two lines of the text and the chips, so the scene keeps most of the
+  screen. The title is a button (with `aria-expanded`): it opens the whole caption over the scene, up to the top bar
+  and scrolling beyond that, with the scale line, the place, the gesture hint and *Want to know more?*. The title
+  again, or Esc, folds it, and so does going somewhere else. The scene doesn't move while it is open. The folded text
+  is only cut short on screen: a screen reader reads it all, and the rest is one tap away. On a bigger screen the
+  caption is never cut. The ▲ ▼ buttons sit on its top corners.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
   its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
   the whole caption over the scene. The scene keeps about 280 of 390 px (it had 105–145).
