@@ -19,12 +19,20 @@
     "cell-tower": {
       "title": "Masten åbner tunnelen",
       "kid": "Ved masten kommer den store tunnel-kuvert af. Din pakke siger stadig 100.64.12.7, så masten kan sende den videre over radioen til din telefon.",
-      "nerd": "På downlink afslutter gNB'en GTP-U-strækningen fra UPF'en: ydre IP 10.20.0.1 → 10.20.0.5, UDP/2152, TEID 0x7. Den pakker UE-pakken til 100.64.12.7 ud og planlægger den på NR-radio. Ved handover opdaterer kernen tunnel-endepunkt og TEID, mens UE-IP'en bliver ankret."
+      "nerd": "På downlink afslutter gNB'en GTP-U-strækningen fra UPF'en: ydre IP 10.20.0.1 → 10.20.0.5, UDP/2152, TEID 0x7. Den pakker UE-pakken til 100.64.12.7 ud og planlægger den på NR-radio. Ved handover opdaterer kernen tunnel-endepunkt og TEID, mens UE-IP'en bliver ankret.",
+      "describe": {
+        "kid": "På vejen står telefonen, to master og mobilkernen ved en tyk tunnel. Tunnelmundingen ved masten er markeret. En stor tunnelkuvert bevæger sig mellem mast og kerne. Ved masten åbner den og viser pakken med adressen 100.64.12.7. Handover-kortet bøjer tunnelen til næste mast.",
+        "nerd": "gNB-enden af GTP-U-tunnelen er markeret på vejen med UDP 2152 og TEID 0x7. Kuverten bevæger sig mellem gNB og UPF. Ved masten åbner den og viser UE-pakken til 100.64.12.7. Handover-kortet flytter tunnelendepunktet, mens UE-IP’en bliver ankret."
+      }
     },
     "mobile-core": {
       "title": "Kernen åbner tunnelen",
       "kid": "I mobilkernen åbnes tunnel-kuverten, og din pakke kan fortsætte ud på internettet. Selv når du går til næste mast, beholder telefonen den samme adresse.",
-      "nerd": "På uplink modtager UPF/PGW GTP-U fra gNB'en: ydre IP 10.20.0.5 → 10.20.0.1, UDP/2152, TEID 0x7. Den pakker UE-pakken (100.64.12.7) ud, anvender politik/NAT og videresender den. Ved handover opdaterer UPF'en N3/S1-U-tunnelens endepunkt; UE-IP'en forbliver ankret."
+      "nerd": "På uplink modtager UPF/PGW GTP-U fra gNB'en: ydre IP 10.20.0.5 → 10.20.0.1, UDP/2152, TEID 0x7. Den pakker UE-pakken (100.64.12.7) ud, anvender politik/NAT og videresender den. Ved handover opdaterer UPF'en N3/S1-U-tunnelens endepunkt; UE-IP'en forbliver ankret.",
+      "describe": {
+        "kid": "På vejen står telefonen, masterne og mobilkernen ved en tyk tunnel. Tunnelmundingen ved kernen er markeret. En tunnelkuvert går til kernen, åbner og viser adressen 100.64.12.7, og rejser tilbage. Handover-kortet beholder adressen, mens tunnelen bøjer mod næste mast.",
+        "nerd": "UPF- og mobilkerneenden er den markerede tunnelmunding med UDP 2152, TEID 0x7 og UE-IP som anker. GTP-U-kuverten åbner i kernen og viser pakken 100.64.12.7. Handover-kortet viser N3- eller S1-U-endepunktet flytte sig uden at ændre UE-adressen."
+      }
     }
   }
 }

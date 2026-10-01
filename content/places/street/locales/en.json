@@ -2,6 +2,10 @@
   "name": "On the street",
   "kid": "Out on the street there’s no Wi-Fi, so the parcels fly by radio to a cell tower, and from there along a glass thread to the internet.",
   "nerd": "On 5G the phone talks NR to a gNB, which tunnels the packets (GTP-U) over fibre to the mobile core; its UPF does carrier-grade NAT towards the internet.",
+  "describe": {
+    "kid": "A street with shops, a lamp, a road and a car sits before green hills. Your phone sends parcels by 5G radio to a cell tower. Fibre carries them onward to the internet cloud. Requests and video move both ways.",
+    "nerd": "The street view shows a phone, an NR radio link to the cell tower, fibre backhaul and the internet cloud. Request packets move up through the gNB and mobile core path. Video packets return through fibre and radio."
+  },
   "tag": {
     "phone": "5G · 100.64.12.7",
     "mobile-core": "UPF · CGNAT"
@@ -17,7 +21,11 @@
   },
   "inside": {
     "internet": {
-      "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you. Each shaded area is one operator’s network."
+      "nerd": "The mobile core (5GC) ends the radio tunnel and does carrier-grade NAT; from there it’s the same internet: the ISP core, peering at an IXP (or paid transit), and a CDN cache close to you. Each shaded area is one operator’s network.",
+      "describe": {
+        "kid": "Inside the cloud, the route starts at the cell tower and mobile core. It joins the ISP core, reaches the border router, crosses the internet exchange, and ends at the video server. A dashed side road shows transit. Parcels move both ways.",
+        "nerd": "This internet view starts with the gNB and mobile core, then continues through ISP core, border router, IXP and CDN. Shaded areas are the mobile or ISP network, the exchange and the video company. Packets move both ways over GTP, backbone fibre and cross-connects."
+      }
     }
   }
 }

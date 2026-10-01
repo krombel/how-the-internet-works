@@ -6,12 +6,20 @@
     "bridge": {
       "title": "The tower hands out radio seats",
       "kid": "The tower is the classroom helper. Your phone raises its hand, the tower gives phone no. 4601 a turn, and then checks every piece. Underneath, the envelope travels as a radio beam.",
-      "nerd": "At the gNB, an uplink SR on PUCCH leads to an UL grant in DCI on PDCCH, CRC-scrambled with the UE’s C-RNTI 0x4601. The scheduler assigns slot 6, RB 20–31; HARQ ACK/NACK arrives about 1 ms later, with RLC ARQ above for residual loss and PDCP ciphering plus SN preserved."
+      "nerd": "At the gNB, an uplink SR on PUCCH leads to an UL grant in DCI on PDCCH, CRC-scrambled with the UE’s C-RNTI 0x4601. The scheduler assigns slot 6, RB 20–31; HARQ ACK/NACK arrives about 1 ms later, with RLC ARQ above for residual loss and PDCP ciphering plus SN preserved.",
+      "describe": {
+        "kid": "The road shows phone, tower and mobile core, with the tower drawn largest. On the first card, the phone asks for a turn. The tower’s list lights up phone number 4601 in slot 6. On the second card, radio pieces move, one gets smudged, “Again!” appears, and a clean piece gets a tick.",
+        "nerd": "The gNB card highlights the request-to-grant flow for C-RNTI 0x4601, slot 6 and RB 20 to 31. The HARQ card animates a bad transport block, NACK, retransmission with RV, soft combining and ACK. Labels name the logical channel, RLC, PDCP and QoS flow."
+      }
     },
     "endpoint": {
       "title": "The phone looks for its number",
       "kid": "Your phone reads the tower’s list and only picks up pieces marked phone no. 4601. If one is smudged, it says “again!” and keeps the clear copy. Underneath, the envelope travels as a radio beam.",
-      "nerd": "The UE monitors PDCCH candidates for DCI whose CRC unscrambles with C-RNTI 0x4601, then receives its PDSCH allocation. It reports HARQ ACK/NACK within roughly 1 ms; incremental redundancy and soft combining recover the transport block before RLC/PDCP see it."
+      "nerd": "The UE monitors PDCCH candidates for DCI whose CRC unscrambles with C-RNTI 0x4601, then receives its PDSCH allocation. It reports HARQ ACK/NACK within roughly 1 ms; incremental redundancy and soft combining recover the transport block before RLC/PDCP see it.",
+      "describe": {
+        "kid": "The phone is the largest stop on the road, watching the tower’s list. A circle scans until phone number 4601 lights up. Then an envelope marked 4601 travels over the radio beam. A smudged piece asks for “Again!”, and two copies join into one clear piece.",
+        "nerd": "The UE view scans PDCCH rows for C-RNTI 0x4601, then shows its PDSCH grant for slot 6 and RB 20 to 31. The HARQ card shows the NACK bubble, retransmitted redundancy, soft combining into a checked block, and RLC and PDCP sequence labels."
+      }
     }
   },
   "sealed": {

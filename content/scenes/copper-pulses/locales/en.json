@@ -6,6 +6,10 @@
   "title": "Electricity in copper",
   "kid": "Ethernet sends tiny voltage pushes down twisted copper pairs. The twists help noise cancel out, and the cable can talk both ways at once. After about 100 m the pushes get too faint and smeared. This is how the cable envelope travels.",
   "nerd": "1000BASE-T uses differential signalling on all four Cat 5e pairs. Each pair runs 125 MBd with PAM-5 levels near ±1 V, hybrids and echo cancellation make every pair full duplex, and the standard budgets about 100 m for loss and crosstalk.",
+  "describe": {
+    "kid": "Two network boxes sit at the ends of a thick cable. Inside are four twisted pairs. Glowing electric pulses move both ways through the pairs. The cards zoom into the twists, the pulses and the fading after about 100 metres.",
+    "nerd": "The cable cutaway shows four differential pairs carrying full-duplex pulses between endpoints. Cards show opposite voltages on a twisted pair, PAM-5 levels and an eye diagram. A 100 metre marker shows the channel budget as pulses fade."
+  },
   "pairs": "Four twisted pairs inside one cable",
   "pairsShort": "Four twisted pairs",
   "bothWays": "Glowing pushes travel both ways at once",

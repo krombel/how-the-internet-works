@@ -5,14 +5,14 @@
   // opened, the fields the hop uses marked and the ones it changed as old → new. "Details" swaps the envelopes for
   // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8), and below the
   // envelopes, the link they leave on leads down to how it carries them (issue #13).
-  // Its title takes focus when it opens; each hop is announced (#53).
-  import { onMount } from 'svelte';
+  // Its title takes focus when it opens; each hop is announced, and read aloud when that is on (#53).
+  import { onMount, untrack } from 'svelte';
   import { hopStepFor, hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/dives.svelte';
   import { sceneTitle } from './caption';
-  import { fill, loc, nameOf, tr, trFirst, trl, yours } from '../state.svelte';
+  import { fill, loc, nameOf, readAloud, tr, trFirst, trl, yours } from '../state.svelte';
   import { announce } from './announce.svelte';
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
@@ -46,7 +46,11 @@
   const count = $derived(fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n }));
   let title: HTMLHeadingElement;
   onMount(() => title.focus());
-  $effect(() => announce(`${name}, ${count}. ${says}`));
+  $effect(() => {
+    const line = `${name}, ${count}. ${says}`;
+    announce(line);
+    untrack(() => readAloud(line));
+  });
   const down = $derived.by(() => {
     const link = linkOut(route, hop, dir), path = link && linkDivePath(route, link);
     return path ? { path, name: sceneTitle(route, path, 'landscape') } : null;

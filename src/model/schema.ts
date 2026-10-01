@@ -193,3 +193,7 @@ export const activity = z.strictObject({
 });
 
 export const localeMeta = z.strictObject({ name: z.string().min(1), dir: z.enum(['ltr', 'rtl']), note: z.string().optional() });
+
+/** A scene's spoken description (#53, a `describe` in any locale file): what the picture shows and what moves, for
+ *  each level. Read on arrival by the announcer and by read aloud, so it is short. */
+export const describeText = z.strictObject({ kid: z.string().min(1).max(400), nerd: z.string().min(1).max(400) });

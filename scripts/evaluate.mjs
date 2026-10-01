@@ -6,8 +6,8 @@
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
-//                        ring; focus comes back after a door, a catch and the picker). Prints what fails, exits 1 if
-//                        anything does; writes nothing.
+//                        ring; focus comes back after a door, a catch and the picker; read aloud and the announcer
+//                        say a scene's description). Prints what fails, exits 1 if anything does; writes nothing.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
 //                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
 //                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
@@ -67,16 +67,27 @@ const metricsPath = 'docs/app-metrics.json';
 const old = existsSync(metricsPath) ? JSON.parse(readFileSync(metricsPath, 'utf8')).metrics : {};
 const metrics = { ...old };
 
-async function open(view, url) {
+/** `speech`: give the page a fake speechSynthesis with an English and a Danish voice (a headless browser may have no
+ *  voices at all), which notes what it was asked to say in `window.__said`; `on` also turns read aloud on (#53). */
+async function open(view, url, speech = null) {
   const v = VIEWS[view];
   const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch, colorScheme: MODE === 'night' ? 'dark' : 'light' });
   const p = await ctx.newPage();
+  if (speech) await p.addInitScript(fakeSpeech, speech.on);
   p.on('pageerror', (e) => console.log('  pageerror', e.message));
   p.on('console', (m) => m.type() === 'error' && console.log('  console', m.text()));
   await p.goto(url);
   await p.waitForFunction(() => window.__app, null, { timeout: 15000 });
   await p.evaluate(() => document.fonts.ready);
   return { ctx, p };
+}
+function fakeSpeech(on) {
+  const said = (window.__said = []);
+  const voices = [{ lang: 'en-GB', default: true, localService: true, name: 'en' }, { lang: 'da-DK', default: false, localService: true, name: 'da' }];
+  const synth = Object.assign(new EventTarget(), { speaking: false, getVoices: () => voices, speak: (u) => said.push(u.text), cancel() {} });
+  Object.defineProperty(window, 'speechSynthesis', { value: synth, configurable: true });
+  window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
+  if (on) localStorage.setItem('speech', '1');
 }
 /** Wait for the camera to land. */
 const settle = (p) => p.waitForFunction(() => !window.__app.busy(), null, { timeout: 8000 }).then(() => p.waitForTimeout(400));
@@ -152,6 +163,9 @@ const A11Y_STATES = [
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short'] },
   { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone'] },
+  // read aloud on: the caption's "Read again", and the ⋯ menu with its toggle (#53)
+  { name: 'speech', where: 'home/watch-video/phone-ap', speech: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'speech-menu', where: 'home/watch-video', speech: true, menu: true, views: ['desktop', 'phone'] },
 ];
 /** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
  *  null. */
@@ -179,7 +193,7 @@ async function a11y(style) {
   const fails = [];
   const fail = (where, what) => { fails.push(`${where}: ${what}`); console.log(`  ✗ ${where}: ${what}`); };
   const prep = async (s, view) => {
-    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''));
+    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null);
     await still(p);
     if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); }
     if (s.detail) await p.click('.peek header .chip');
@@ -188,6 +202,10 @@ async function a11y(style) {
     if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
     if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
     await still(p);
+    if (s.speech) {
+      const there = s.menu ? p.locator('.menu [role=menuitemcheckbox]', { hasText: 'Read aloud' }) : p.locator('.caption .read');
+      if (!(await there.count())) fail(`${s.name} ${view}`, s.menu ? 'no "Read aloud" in ⋯' : 'no "Read again" in the caption');
+    }
     return { ctx, p };
   };
   // 1. axe on every state
@@ -236,8 +254,37 @@ async function a11y(style) {
   await p.keyboard.press('Escape'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
   await ctx.close();
+  await speechJourney(style, fail);
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
   if (fails.length) process.exitCode = 1;
+}
+
+/** Read aloud and the announcer (#53): turned on from ⋯, it says so; a door's arrival is announced with what the
+ *  picture shows (its `describe`), and read aloud says the title, that and the caption; "Read again" says it again. */
+async function speechJourney(style, fail) {
+  const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'), { on: false });
+  await still(p);
+  const said = () => p.evaluate(() => window.__said.slice());
+  if (await p.$('.caption .read')) fail('journey: read aloud', '"Read again" while read aloud is off');
+  await p.click('.more-btn'); await p.waitForSelector('.menu');
+  const toggle = p.locator('.menu [role=menuitemcheckbox]', { hasText: 'Read aloud' });
+  if (!(await toggle.count())) fail('journey: read aloud', 'no "Read aloud" in ⋯');
+  else {
+    await toggle.click();
+    if (!(await said()).includes('Read aloud is on.')) fail('journey: read aloud', 'turning it on says nothing');
+  }
+  await p.keyboard.press('Escape');
+  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await still(p);
+  const cap = await p.evaluate(() => ({ title: document.querySelector('.caption h2')?.textContent?.trim(), body: document.querySelector('.caption p')?.textContent?.trim() }));
+  const heard = await p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 2000 }).then((h) => h.jsonValue()).catch(() => '');
+  if (!heard || heard.length < 40) fail('journey: arrival', `the announcer says only "${heard}"`);
+  const last = (await said()).at(-1) ?? '';
+  if (!last.startsWith(cap.title) || !last.endsWith(cap.body) || last.length < cap.title.length + cap.body.length + 40)
+    fail('journey: read aloud', `arriving reads "${last.slice(0, 80)}…", not the title, the description and the caption`);
+  const n = (await said()).length;
+  await p.click('.caption .read');
+  if ((await said()).length !== n + 1 || (await said()).at(-1) !== last) fail('journey: read again', 'it does not read the caption again');
+  await ctx.close();
 }
 
 for (const style of STYLES) {

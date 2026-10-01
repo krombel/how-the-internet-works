@@ -2,6 +2,10 @@
   "title": "Radiostråler",
   "kid": "Masten har masser af små antenner. Sammen sigter de en stråle direkte mod hver telefon. Og hver telefon får sine egne pladser i tid og i radiofarver, ligesom sæder i en bus, så de aldrig taler i munden på hinanden.",
   "nerd": "Et massive-MIMO-panel former en separat stråle til hver bruger. I hver 0,5 ms slot (30 kHz subcarrier-afstand) uddeler scheduleren resource blocks: OFDMA deler tid og frekvens mellem brugerne, så snesevis af telefoner bruger de samme 100 MHz på én gang.",
+  "describe": {
+    "kid": "En mobilmast retter lysende stråler mod tre telefoner, og din telefon har et mærke. Ved siden af glider et gitter af små sæder for tid og radiofarver. Farvede sæder lyser for hver telefon. Den matchende stråle lyser op, når telefonen får tur.",
+    "nerd": "gNB-panelet beamformer tre brugere, mens et tids- og frekvensgitter ruller ved siden af. Farvede resource blocks viser OFDMA-tildelinger. Den aktuelle slot får den matchende stråle til at lyse op. Mærker viser 64T64R beamforming, 30 kHz afstand og 0,5 ms slots."
+  },
   "beams": "En stråle til hver telefon",
   "grid": "Alle får deres egne pladser",
   "time": "tid →",

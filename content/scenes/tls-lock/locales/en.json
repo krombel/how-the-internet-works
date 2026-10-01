@@ -2,17 +2,29 @@
   "title": "The secret handshake",
   "kid": "Your phone and the video server do a secret handshake before the film starts. The phone checks the server's gold stamp, then both sides mix colours so they get the same lock colour. After that, every parcel travels locked.",
   "nerd": "TLS 1.3 starts with SNI and certificate authentication: video.example presents a chain leaf → intermediate → root in the trust store, with a matching name and valid dates. X25519 ECDHE exchanges public shares g^a and g^b; both endpoints derive g^ab with HKDF and protect records with AEAD such as AES-GCM or ChaCha20-Poly1305 (RFC 8446, one round trip).",
+  "describe": {
+    "kid": "A road links your phone and the video server. The first card shows an ID card and a trusted stamp book. The second card shows phone and server paint pots mixing. A crow watches only the public mixes. Then a lock clicks onto the parcel, and the locked parcel travels down the road.",
+    "nerd": "The cards depict TLS 1.3 from the client endpoint. The identity card shows certificate validation. The paint equations show key agreement. The crow sees public handshake values on the wire, not secrets. When the mix completes, the parcel becomes an encrypted record and moves to the server."
+  },
   "at": {
     "cdn": {
       "title": "The server proves who it is",
       "kid": "The video server shows its ID card with a gold stamp. It mixes its secret colour too, so it gets the very same lock colour as your phone. Then it sends video parcels that only the two ends can open.",
-      "nerd": "At the server endpoint, TLS terminates: the certificate for video.example is sent, the selected TLS 1.3 cipher suite is used, and the server's X25519 secret combines with the client's public share to derive the same traffic keys. Records leave as authenticated ciphertext."
+      "nerd": "At the server endpoint, TLS terminates: the certificate for video.example is sent, the selected TLS 1.3 cipher suite is used, and the server's X25519 secret combines with the client's public share to derive the same traffic keys. Records leave as authenticated ciphertext.",
+      "describe": {
+        "kid": "The video server is highlighted at the end of the road. It shows its stamped ID card, mixes its paint with the phone’s paint, and ends with the same lock colour. The crow can watch the mixtures. After the lock appears, the parcel travels as a locked box that only the two ends can open.",
+        "nerd": "At the server endpoint, the cards show the certificate chain and ECDHE paint math. The server contributes its public share and derives matching traffic keys. The crow on the wire can see handshake metadata and public values. After that, only authenticated ciphertext records move as locked parcels."
+      }
     }
   },
   "sealed": {
     "title": "What the crow can see",
     "kid": "This stop carries the parcel, but it cannot open the lock. Like the crow, it sees the orange and green mixtures and then locked parcels with scrambled marks. Even the boxes that carry your parcel cannot read it.",
-    "nerd": "At {hop}, TLS is sealed end to end. The hop can forward lower-layer headers, but TLS records are AEAD ciphertext; it may observe SNI/certificate handshake metadata and ECDHE public shares, not the HTTP request or keys."
+    "nerd": "At {hop}, TLS is sealed end to end. The hop can forward lower-layer headers, but TLS records are AEAD ciphertext; it may observe SNI/certificate handshake metadata and ECDHE public shares, not the HTTP request or keys.",
+    "describe": {
+      "kid": "A middle stop sits on the road while the phone and server are at the ends. The cards still show the ID check and paint mixing, and the crow watches the public mixes. When the lock appears, the parcel’s face turns into scribbles. The stop just carries the locked parcel onward.",
+      "nerd": "This non-endpoint view shows TLS sealed above the hop. The public certificate and ECDHE shares are visible in the card story, but the device you are at only forwards lower-layer packets. Once records are protected, the moving parcel is locked and scrambled as ciphertext, not readable HTTP."
+    }
   },
   "label": {
     "videoName": "video.example",
