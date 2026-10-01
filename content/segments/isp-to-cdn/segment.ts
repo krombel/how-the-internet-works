@@ -21,16 +21,17 @@ export default defineSegment({
   layout: {
     internet: {
       landscape: {
-        nodes: { core: [822, 680, 160], border: [1025, 450, 150, 'above'], transit: [1095, 170, 120, 'above'], ixp: [1240, 680, 150], datacentre: [1430, 450, 160] },
-        links: { 'border-transit': { bend: 0.08 } },
+        nodes: { core: [822, 739, 160], border: [1012, 442, 150, 'above'], transit: [975, 184, 120, 'above'], ixp: [1272, 696, 150], datacentre: [1495, 367, 160] },
+        // bent just enough to keep the dive badges clear of each other
+        links: { 'border-transit': { bend: 0.08 }, 'bng-core': { bend: 0.14 }, 'core-border': { bend: -0.12 }, 'border-ixp': { bend: 0.19 }, 'ixp-datacentre': { bend: 0.1 } },
         // the networks' signs (on the packets' way): over their devices' names, the exchange's under its own
-        owners: { isp: [465, 265], ixp: [1385, 845], cdn: [1320, 265] },
+        owners: { isp: [465, 265], ixp: [1409, 862], cdn: [1366, 209] },
       },
       portrait: {
-        nodes: { core: [250, 870, 160], border: [640, 720, 150], transit: [720, 540, 100, 'above'], ixp: [260, 560, 150], datacentre: [640, 280, 150] },
-        links: { 'border-transit': { bend: 0.08 } },
+        nodes: { core: [250, 870, 160], border: [645, 706, 150], transit: [719, 527, 100, 'above'], ixp: [190, 651, 150], datacentre: [647, 259, 150] },
+        links: { 'border-transit': { bend: 0.08 }, 'border-ixp': { bend: 0.15 }, 'ixp-datacentre': { bend: -0.34 } },
         // in the gaps the zigzag leaves
-        owners: { isp: [280, 1050], ixp: [220, 445], cdn: [275, 165] },
+        owners: { isp: [280, 1050], ixp: [226, 480], cdn: [453, 102] },
       },
     },
   },
