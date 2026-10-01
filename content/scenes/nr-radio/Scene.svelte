@@ -50,6 +50,6 @@
   <circle cx={p.x + p.size * 0.36} cy={p.y - p.size * 0.4} r="14" fill={COLOURS[i]} stroke="var(--line)" stroke-width="4" />
 {/each}
 <Text x={L.labels.you.x} y={L.labels.you.y} text={S('you')} size={28} kind="node" />
-<Text x={L.labels.beams.x} y={L.labels.beams.y} text={S('beams')} size={30} kind="big" colour={COLOURS[0]} />
+<Text x={L.labels.beams.x} y={L.labels.beams.y} text={S('beams')} size={30} kind="big" colour="var(--berry-ink)" />
 <TagAt x={L.tags.tower.x} y={L.tags.tower.y} text={S('tag.beams')} size={24} />
 <TagAt x={L.tags.grid.x} y={L.tags.grid.y} text={S('tag.grid')} size={24} />

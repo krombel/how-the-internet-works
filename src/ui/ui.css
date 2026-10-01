@@ -163,7 +163,7 @@ button { cursor: pointer; }
 .caption p { margin: 0; font-size: 15.5px; line-height: 1.42; }
 .caption .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
-.caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 0; border-radius: 99px; background: var(--btn); font-weight: 800; }
+.caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 24px; border-radius: 99px; background: var(--btn); font-weight: 800; }
 .caption .chip u { text-underline-offset: 2px; color: var(--link); }
 .caption .read svg { width: 15px; height: 15px; }
 /* doors, by verb: "Look inside: Wi-Fi · Fibre   Open up: The internet" */
@@ -204,6 +204,8 @@ button { cursor: pointer; }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
+/* links in a line of text still get a 24 px target (WCAG 2.5.8, issue #53) */
+:is(.more, .about-links, .tree-more) a { display: inline-block; min-width: 24px; line-height: 24px; }
 
 /* ---------------- the list view (TextMap.svelte): a panel at the side, the whole screen on a phone */
 .map-back { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 55%, transparent); }
@@ -409,5 +411,20 @@ button { cursor: pointer; }
   .ladder .rung { min-height: 32px; padding-block: 3px; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
   .menu, .about-box { max-height: calc(100dvh - 76px); }
+}
+/* forced colours (a contrast theme, issue #53): the system's colours everywhere but the scene's picture. What a colour
+   or a shadow showed shows another way: a button's edge, the on / pressed / open state in Highlight, the doors as
+   links, the keyboard's ring in Highlight over Canvas (a theme classes its shapes kbd-ink / kbd-gap). */
+@media (forced-colors: active) {
+  .btn, .caption .chip { border: 1px solid ButtonText; }
+  .caption .door { border: 2px solid LinkText; color: LinkText; }
+  .caption .verb-name, .caption .tag, .ladder .rung svg { color: CanvasText; }
+  .ladder .rung.signal { outline: 2px solid CanvasText; outline-offset: -2px; }
+  :is(.seg .btn.on, .menu-opts .btn.on, .ladder .rung.on, .peek header .chip.on, [aria-pressed='true'], .more-btn[aria-expanded='true'],
+    .caption .door:hover, .caption .doors.lit .door) { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
+  :focus-visible { outline-color: Highlight !important; }
+  .scene-key[data-kind='scene']:focus-visible { outline-color: Highlight !important; }
+  .kbd-ink { stroke: Highlight !important; }
+  .kbd-gap { stroke: Canvas !important; }
 }
 @media (prefers-reduced-motion: reduce) { .env, .picker, .trip { animation: none; } .caption, .step { transition: none; } }

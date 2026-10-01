@@ -94,7 +94,7 @@
     <rect x="-48" y="-35" width="96" height="70" rx="12" fill={tint} stroke="var(--line)" stroke-width="5" />
     <path d="M-42 -29 L0 3 L42 -29" fill="none" stroke="var(--line)" stroke-width="4" opacity="0.65" />
     <rect x="-33" y="0" width="66" height="26" rx="6" fill="var(--paper)" stroke="var(--line)" stroke-width="3" />
-    {#if label}<text x="0" y="26" text-anchor="middle" font-size={inner(label.length <= 3 ? 42 : 30, scale)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{label}</text>{/if}
+    {#if label}<text x="0" y="26" text-anchor="middle" font-size={inner(label.length <= 3 ? 42 : 30, scale)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" stroke-linejoin="round" paint-order="stroke">{label}</text>{/if}
   </g>
 {/snippet}
 
@@ -104,7 +104,7 @@
     {#each [0, 1, 2, 3] as i}
       {@const lane = !vlan || i === 0 || i === 2}
       <rect x={-104 + i * 56} y="-22" width="42" height="70" rx="8" fill={vlan ? (lane ? 'var(--teal)' : 'var(--stone)') : 'var(--paper-2)'} stroke="var(--line)" stroke-width="4" opacity={vlan && !lane ? 0.55 : 1} />
-      <text x={-83 + i * 56} y="25" text-anchor="middle" font-size={inner(39, scale)} font-family="system-ui, sans-serif" font-weight="900" fill={vlan && lane ? 'var(--paper)' : 'var(--line)'}>{i + 1}</text>
+      <text x={-83 + i * 56} y="25" text-anchor="middle" font-size={inner(39, scale)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" stroke-linejoin="round" paint-order="stroke">{i + 1}</text>
     {/each}
   </g>
 {/snippet}
@@ -129,10 +129,10 @@
     {@render smallEnvelope(-86, 6, 'var(--orange)', '', 1, 0.88)}
     <g transform="translate({-86 - peel * 50} {-30 - peel * 8}) rotate({-18 * peel})" opacity={1 - peel * 0.35}>
       <rect x="-64" y="-28" width="128" height="56" rx="12" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
-      <text x="0" y="11" text-anchor="middle" font-size={inner(36)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">For ✓</text>
+      <text x="0" y="11" text-anchor="middle" font-size={inner(36)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-ink)">For ✓</text>
     </g>
     <rect x="8" y="-80" width="124" height="58" rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" />
-    <text x="70" y="-41" text-anchor="middle" font-size={inner(L.compact ? 36 : 34)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-dark)">FCS ✓</text>
+    <text x="70" y="-41" text-anchor="middle" font-size={inner(L.compact ? 36 : 34)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--leaf-ink)">FCS ✓</text>
     <g opacity={m.phase === 'lookup' || m.phase === 'fanout' ? 1 : 0.45}>
       <path d="M-8 42 C42 96 117 84 145 42" fill="none" stroke="var(--teal)" stroke-width="8" stroke-linecap="round" stroke-dasharray="18 14" />
       <rect x="8" y="40" width="285" height="58" rx="18" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
@@ -157,14 +157,14 @@
       <path d="M-100 44 H115" stroke="var(--line)" stroke-width="16" stroke-linecap="round" />
       <path d="M-90 44 H105" stroke="var(--paper)" stroke-width="5" stroke-dasharray="18 14" stroke-linecap="round" />
       <rect x="-112" y="-58" width="166" height="64" rx="16" fill={action === 'mpls.push' ? 'var(--paper-2)' : 'var(--berry)'} stroke="var(--line)" stroke-width="5" />
-      <text x="-29" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.push' ? 'var(--line)' : 'var(--paper)'}>{mplsLeft}</text>
+      <text x="-29" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" stroke-linejoin="round" paint-order="stroke">{mplsLeft}</text>
       <path d="M72 -25 H142" stroke="var(--line)" stroke-width="7" stroke-linecap="round" marker-end="url(#arrow-sticker)" />
       {#if mplsMid}
         <rect x="66" y={L.compact ? -70 : -64} width="90" height={L.compact ? 40 : 32} rx="10" fill="var(--paper)" stroke="var(--line)" stroke-width="4" />
         <text x="111" y="-38" text-anchor="middle" font-size={inner(L.compact ? 36 : 34)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{mplsMid}</text>
       {/if}
       <rect x="166" y="-58" width="166" height="64" rx="16" fill={action === 'mpls.pop' ? 'var(--paper-2)' : 'var(--berry)'} stroke="var(--line)" stroke-width="5" />
-      <text x="249" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill={action === 'mpls.pop' ? 'var(--line)' : 'var(--paper)'}>{mplsRight}</text>
+      <text x="249" y="-13" text-anchor="middle" font-size={inner(48)} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" stroke-linejoin="round" paint-order="stroke">{mplsRight}</text>
     </g>
   {/if}
 </g>
@@ -211,7 +211,7 @@
     {@const sameLane = layer !== 'vlan' || i === 0 || i === 2}
     {@const active = (role === 'bridge' && layer === 'ethernet' && ((m.phase === 'fanout' && i > 0) || (m.phase === 'straight' && i === 1))) || (layer === 'vlan' && sameLane && i !== 3) || (layer === 'mpls' && i === 2)}
     <rect x={d.x - 35} y={d.y - 82} width="70" height="82" rx="10" fill={layer === 'vlan' ? (sameLane ? 'var(--teal)' : 'var(--stone)') : 'var(--paper-2)'} stroke={active ? 'var(--accent)' : 'var(--line)'} stroke-width={active ? 7 : 5} />
-    <Text x={d.x} y={d.y - 28} text={String(i + 1)} size={T.small * 1.28} kind="big" colour={layer === 'vlan' && sameLane ? 'var(--paper)' : 'var(--line)'} />
+    <Text x={d.x} y={d.y - 28} text={String(i + 1)} size={T.small * 1.28} kind="big" colour="var(--line)" />
   {/each}
   <Node id={ctx.to.node.id} x={L.hop.x} y={L.hop.y} size={L.hop.size} focused />
 </g>

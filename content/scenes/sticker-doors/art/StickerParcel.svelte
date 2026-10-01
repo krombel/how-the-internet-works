@@ -35,7 +35,7 @@
   {#if smudge}
     <path d="M-45 -52 C-20 -68 5 -35 34 -56" fill="none" stroke="var(--berry)" stroke-width="10" stroke-linecap="round" opacity="0.65" />
   {:else}
-    {#if sticker}<text x="0" y={labelSize > 40 ? -29 : -36} text-anchor="middle" font-size={labelSize} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)">{sticker}</text>{/if}
+    {#if sticker}<text x="0" y={labelSize > 40 ? -29 : -36} text-anchor="middle" font-size={labelSize} font-family="system-ui, sans-serif" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" stroke-linejoin="round" paint-order="stroke">{sticker}</text>{/if}
   {/if}
   <g fill="var(--line)">
     <ellipse cx="31" cy="-86" rx="4.5" ry={blink ? 1 : 5.5} />

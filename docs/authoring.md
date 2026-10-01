@@ -378,11 +378,22 @@ extra effort:
   - at the end of a line, it covers that line only
 
   Data colours (a technology's or a packet's `colour`) are identity, not paint, and stay literal in the definition files.
+- **Ink that stays readable** (#45):
+  - Marks and text on a bright body (`--sun`, `--mustard`, `--lamp`, a lit sticker or row) are `--face`, not
+    `--line`: `--line` turns pale at night. For a `Text` there, pass the body too (`colour="var(--face)"
+    on="var(--sun)"`), so its halo doesn't smudge the dark ink.
+  - Text on a mid-tone body (a teal door, a berry sticker) keeps `--line` with a `--paper` halo
+    (`stroke="var(--paper)" paint-order="stroke"`).
+  - A label in a palette colour uses its ink tone (`--leaf-ink`, `--teal-ink`, `--berry-ink`), not `--leaf-dark`. A
+    `Text` in a data colour (`#…`) is mixed into the ink for you; for raw `<text>` use `labelInk(colour)`.
+  - Don't let colour alone carry meaning: give it a number, a name, a shape or a pattern as well.
 - **Tests check the rules:**
   - `art-colours.test.ts` flags literals in `content/**` art. It also checks that every `var(--x)` exists in the
     theme's day tokens, and that night only overrides tokens the day defines.
   - `contrast.test.ts` checks the chrome's text pairs (caption, chips, peek, tags, buttons, links, labels) for WCAG AA
-    in both modes.
+    in both modes, its edges and rings at 3:1, and every technology's colour as a label.
+  - `npm run evaluate -- --only=a11y` checks every scene's labels where they are drawn (see
+    [accessibility](accessibility.md)).
 - Look at it at night: `npm run dev`, then add `?mode=night` to the URL. `npm run evaluate -- --mode=night` takes the
   night screenshots and perf.
 

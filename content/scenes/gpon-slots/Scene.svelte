@@ -112,7 +112,7 @@
     <Text x={c0.x + 34} y={c0.y + 116} text={S('label.header')} size={T.text * 0.76} kind="small" anchor="start" />
     {#each fieldRows as row, i}
       <rect x={c0.x + 28} y={c0.y + 134 + i * 47} width={down.fieldW - 34} height="38" rx="10" fill={i === 1 ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === 1 ? 4 : 2.5} />
-      <Text x={c0.x + 44} y={c0.y + 161 + i * 47} text={row} size={T.text * 0.7} kind={i === 1 ? 'node' : 'small'} anchor="start" />
+      <Text x={c0.x + 44} y={c0.y + 161 + i * 47} text={row} size={T.text * 0.7} kind={i === 1 ? 'node' : 'small'} anchor="start" colour={i === 1 ? 'var(--face)' : undefined} on={i === 1 ? 'var(--sun)' : undefined} />
     {/each}
   {/if}
   <Node id="cabinet" x={down.cab.x} y={down.cab.y} size={portrait ? 78 : compact ? 54 : 60} />
@@ -134,7 +134,7 @@
     {/if}
     {@const bw = Math.max(h.size * 0.72, houseNumbers[i].length * badgeSize * 0.62 + 14)}
     <rect x={h.x - bw / 2} y={h.y + h.size * 0.62} width={bw} height={badgeSize * 1.35} rx="8" fill={i === 2 ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === 2 ? 4 : 3} />
-    <Text x={h.x} y={h.y + h.size * 0.62 + badgeSize * 1.0} text={houseNumbers[i]} size={badgeSize} kind={i === 2 ? 'node' : 'small'} />
+    <Text x={h.x} y={h.y + h.size * 0.62 + badgeSize * 1.0} text={houseNumbers[i]} size={badgeSize} kind={i === 2 ? 'node' : 'small'} colour={i === 2 ? 'var(--face)' : undefined} on={i === 2 ? 'var(--sun)' : undefined} />
   {/each}
   {#each down.houses as h, i}
     {@const p = downPoint(h, st.down)}
@@ -153,9 +153,9 @@
     <rect x={x + 5} y={up.strip.y + 8} width={w - 10} height={up.strip.h - 16} rx="13" fill={slot === yourSlot ? 'var(--sun)' : 'var(--kraft)'} stroke="var(--line)" stroke-width={slot === yourSlot ? 5 : 2.5} opacity={slot === yourSlot ? 1 : 0.72} />
     {#if nerd}
       <path d={`M${x} ${up.strip.y + up.strip.h + 8} V${up.strip.y + up.strip.h + 20}`} stroke="var(--line)" stroke-width="3" />
-      <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={slotLabels[slot]} size={slotLabelSize} kind={slot === yourSlot ? 'node' : 'small'} />
+      <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={slotLabels[slot]} size={slotLabelSize} kind={slot === yourSlot ? 'node' : 'small'} colour={slot === yourSlot ? 'var(--face)' : undefined} on={slot === yourSlot ? 'var(--sun)' : undefined} />
     {:else}
-      <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={portrait ? String(slot + 1) : `${S('label.slot')} ${slot + 1}`} size={slotLabelSize * 0.82} kind={slot === yourSlot ? 'node' : 'small'} />
+      <Text x={x + w / 2} y={up.strip.y + up.strip.h * 0.60} text={portrait ? String(slot + 1) : `${S('label.slot')} ${slot + 1}`} size={slotLabelSize * 0.82} kind={slot === yourSlot ? 'node' : 'small'} colour={slot === yourSlot ? 'var(--face)' : undefined} on={slot === yourSlot ? 'var(--sun)' : undefined} />
     {/if}
   {/each}
   {#if nerd && !portrait && !compact}
@@ -168,7 +168,7 @@
   {/each}
   <g transform="translate({burstX} {burstY})">
     <rect x={portrait ? -34 : -28} y={portrait ? -20 : -16} width={portrait ? 68 : 56} height={portrait ? 40 : 32} rx="10" fill={st.slot === yourSlot ? 'var(--sun)' : 'var(--teal)'} stroke="var(--line)" stroke-width="4" />
-    <path d={portrait ? 'M-22 -5 H22 M-16 8 H16' : 'M-18 -4 H18 M-13 7 H13'} stroke="var(--paper)" stroke-width="4" stroke-linecap="round" />
+    <path d={portrait ? 'M-22 -5 H22 M-16 8 H16' : 'M-18 -4 H18 M-13 7 H13'} stroke="var(--face)" stroke-width="4" stroke-linecap="round" />
   </g>
   {#if !nerd}
     {#each [0, 1, 2, 3] as slot}

@@ -336,7 +336,7 @@ Packets restart on the new route, and the caption waits for the morph to finish.
 Dive scenes load on demand (`render/dives.svelte.ts`): a scene's chunk is fetched when the flight towards it starts,
 and the peek preloads the layer dives it offers.
 
-From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text) and `TagAt`.
+From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text; a data colour is mixed into the ink with `labelInk`, and `on` names the body it is printed on) and `TagAt`.
 
 **Layer dives** get a `LayerCtx` (`model/stack.ts`, built on the packet model), per hop and direction:
 
@@ -377,10 +377,12 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
 `Device` (places the node art, adds a face and a focus ring, and a fallback body; `kbd`: the keyboard's two-tone ring
-round it), `Link` (by `look`; `kbd` likewise round the link), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
+round it, its shapes classed `kbd-ink` and `kbd-gap` so forced colours can repaint them), `Link` (by `look`; `kbd`
+likewise round the link), `Packet` (with its `dir`: up, a request, and down, an answer, look different by shape, not
+just colour), `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
 `glow` round what it opens under the devices and a `badge` over everything, with its label, `hot` and the reduced-motion
 clock), `Region` (an owner's area under the path and its sign, drawn in two parts like `Hint`, with a `tone` and
-`aside`), `Road` (the way the packets go through a group, under its links: the path, apart from the things around
+`aside`; tones differ by more than colour), `Road` (the way the packets go through a group, under its links: the path, apart from the things around
 it), `Tag`, `Label`, `Panel` and `Overlay`. `Panel` gets a `kind` (`path`, `dive`, `layer`) and
 `sealed`: Storybook draws a layer dive as a big envelope with its flap at the top, dashed when sealed. Scene-specific art (waves, prisms, beams) lives
 in the scene's own folder, so a new dive needs no theme change.

@@ -10,6 +10,7 @@ export { along, lengths } from './engine/geometry';
 export { pts, textBox } from './engine/svg';
 export { fakeLabel, fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';
+export { labelInk } from './render/colour';
 export { legibleSize } from './render/ctx';
 export { fill, nameOf, view, yours } from './state.svelte';
 

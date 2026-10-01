@@ -2,7 +2,7 @@
 <script lang="ts">
   // Metro: a few colours share one thread, each its own channel (combined at one end, split at the other).
   import { TagAt, Text, strings, view } from '$core/api';
-  import { DWDM, FIBRE, channelRoute, fibrePulses, metroTag, trackMatrix } from './light';
+  import { DWDM, FIBRE, channelRoute, fibrePulses, laneNumbers, metroTag, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
   import Emitter from './art/Emitter.svelte';
@@ -42,3 +42,4 @@
 <Text x={L.mux.x} y={L.mux.y} text={S('mux')} size={28} kind="big" />
 <Text x={L.demux.x} y={L.demux.y} text={S('demux')} size={28} kind="big" />
 <TagAt x={L.tag.x} y={L.tag.y} text={S(metroTag(tech))} size={24} />
+{#each laneNumbers(DWDM, o) as l}<Text x={l.x} y={l.y + 10} text={(view.level === 'nerd' ? 'λ' : '') + l.n} size={28} kind="small" />{/each}

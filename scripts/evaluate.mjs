@@ -2,12 +2,16 @@
 // layer dives, languages and a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
-// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y] [--style=id]
+// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
 //                        ring; focus comes back after a door, a catch and the picker; read aloud and the announcer
-//                        say a scene's description). Prints what fails, exits 1 if anything does; writes nothing.
+//                        say a scene's description); every control at least 24 px, not cut off (at 200 % zoom too:
+//                        the zoom view) and not under another; every scene's labels at 4.5:1 (3:1 when large) on
+//                        their halo or what's behind them. Prints what fails, exits 1 if anything does; writes nothing.
+//   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
+//                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
 //                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
 //                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
@@ -30,7 +34,8 @@ const STYLES = flag('style')
   ? [flag('style')]
   : readdirSync('content/themes').filter((d) => existsSync(`content/themes/${d}/meta.json`))
       .sort((a, b) => JSON.parse(readFileSync(`content/themes/${a}/meta.json`)).order - JSON.parse(readFileSync(`content/themes/${b}/meta.json`)).order);
-const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true }, short: { w: 844, h: 390, dpr: 2, touch: true } };
+// zoom: a 1280 × 900 window at 200 % page zoom (or large text), which is a 640 × 450 CSS viewport at 2 px per px
+const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true }, short: { w: 844, h: 390, dpr: 2, touch: true }, zoom: { w: 640, h: 450, dpr: 2 } };
 // GPU-backed headless where available (macOS: Metal via ANGLE); CPU swiftshader otherwise.
 const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'];
 
@@ -151,21 +156,21 @@ async function sample(p, cdp, ms, during) {
 // ------------------------------------------------------------------ accessibility (--only=a11y)
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 const A11Y_STATES = [
-  { name: 'overview', where: 'home/watch-video', views: ['desktop', 'phone', 'short'] },
+  { name: 'overview', where: 'home/watch-video', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'internet', where: 'home/watch-video/internet', views: ['desktop'] },
-  { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short'] },
+  { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
-  { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone'] },
-  { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=nerd', views: ['desktop'] },
-  { name: 'caught', where: 'home/watch-video', catch: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone', 'zoom'] },
+  { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=nerd', views: ['desktop', 'zoom'] },
+  { name: 'caught', where: 'home/watch-video', catch: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: true, detail: true, views: ['desktop'] },
-  { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone'] },
-  { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short'] },
-  { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short'] },
-  { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone'] },
+  { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
+  { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone', 'zoom'] },
   // the scene's keys (#53): two stops along, the ring on the Wi‑Fi; and the list view, opened by the skip link
   { name: 'keys', where: 'home/watch-video', keys: 2, views: ['desktop', 'phone', 'short'] },
-  { name: 'map', where: 'home/watch-video/internet', map: true, views: ['desktop', 'phone', 'short'] },
+  { name: 'map', where: 'home/watch-video/internet', map: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   // read aloud on: the caption's "Read again", and the ⋯ menu with its toggle (#53)
   { name: 'speech', where: 'home/watch-video/phone-ap', speech: true, views: ['desktop', 'phone', 'short'] },
   { name: 'speech-menu', where: 'home/watch-video', speech: true, menu: true, views: ['desktop', 'phone'] },
@@ -193,6 +198,118 @@ function focusProblem() {
     else if (cs.outlineStyle === 'none' || (!e.matches('.scene-key') && parseFloat(cs.outlineWidth) < 2)) return `${name} has no focus ring`;
   }
   return null;
+}
+/** In the page: what's wrong with the controls you can see (#53). Each is at least 24 × 24 px (WCAG 2.5.8, inline
+ *  links too), inside the window or a box that scrolls (nothing cut off, at 200 % zoom too), and on top: no other
+ *  control lies over it (bar an open pop-up, which Esc closes; one scrolled out of its box is checked when there). */
+function controlProblems() {
+  const out = [];
+  const name = (e) => `${e.tagName.toLowerCase()} "${(e.getAttribute('aria-label') || e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 30)}"`;
+  const CONTROL = 'button, a[href], [role^=menuitem], [role=option], select, input';
+  const shown = [...document.querySelectorAll(CONTROL)]
+    .filter((e) => !e.matches('.scene-key, .skip:not(:focus)') && !e.closest('[inert], [aria-hidden=true]') && e.checkVisibility({ opacityProperty: true, visibilityProperty: true }));
+  for (const e of shown) {
+    const r = e.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) continue;
+    if (r.width < 23.5 || r.height < 23.5) out.push(`${name(e)} is ${Math.round(r.width)} × ${Math.round(r.height)} px`);
+    // cut off by the window, or by a box that hides its overflow (one that scrolls is fine: you can get there)
+    let clip = { left: 0, top: 0, right: innerWidth, bottom: innerHeight }, scroller = null;
+    for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) { clip = null; scroller = a.getBoundingClientRect(); break; }
+      if (/hidden|clip/.test(cs.overflowX + cs.overflowY)) {
+        const b = a.getBoundingClientRect();
+        clip = { left: Math.max(clip.left, b.left), top: Math.max(clip.top, b.top), right: Math.min(clip.right, b.right), bottom: Math.min(clip.bottom, b.bottom) };
+      }
+    }
+    if (clip && (r.left < clip.left - 1 || r.top < clip.top - 1 || r.right > clip.right + 1 || r.bottom > clip.bottom + 1)) out.push(`${name(e)} is cut off`);
+    else {
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight || (scroller && (x < scroller.left || y < scroller.top || x > scroller.right || y > scroller.bottom))) continue;
+      const over = document.elementFromPoint(x, y)?.closest(CONTROL);
+      if (over && !e.contains(over) && !over.contains(e) && !over.closest('.pop:not(.pinned)')) out.push(`${name(e)} is under ${name(over)}`);
+    }
+  }
+  return out;
+}
+// every scene's labels against what they're drawn on (#45): the path scenes, and every dive, by kids and nerds
+const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
+  'home/watch-video/phone-ap', 'street/watch-video/phone-cell-tower', 'home/watch-video/router', 'street/watch-video/cell-tower',
+  'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/cabinet-backhaul',
+  'home/watch-video/internet/bng-core', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
+  'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
+  'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
+  'home/watch-video/internet/cabinet~ethernet', 'home/watch-video/internet/backhaul~vlan', 'home/watch-video/internet/core~mpls',
+  'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
+  'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn'];
+/** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
+ *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
+ *  when large: 24 px, or 18.7 px bold). */
+function sceneTexts() {
+  const rgb = (v) => {
+    const m = v.match(/^rgba?\(([^)]+)\)$/) ?? v.match(/^color\(srgb ([^)]+)\)$/);
+    if (!m) return null;
+    const n = m[1].split(/[\s,/]+/).map(Number);
+    return v.startsWith('color') ? n.slice(0, 3).map((x) => x * 255) : n.slice(0, 3);
+  };
+  return [...document.querySelectorAll('#stage svg text')].flatMap((t) => {
+    const r = t.getBoundingClientRect(), cs = getComputedStyle(t), text = t.textContent.trim();
+    if (!text || r.width < 2 || r.bottom < 0 || r.right < 0 || r.top > innerHeight || r.left > innerWidth || !t.checkVisibility({ visibilityProperty: true })) return [];
+    let o = +cs.fillOpacity;
+    for (let a = t; a && a.tagName !== 'svg'; a = a.parentElement) o *= +getComputedStyle(a).opacity;
+    const fill = rgb(cs.fill);
+    if (!fill || o < 0.6) return [];
+    const over = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2), svg = t.closest('#stage svg');
+    if (over && over !== t && !t.contains(over) && !over.contains(t)) {
+      if (!svg.contains(over)) return [];
+      const ocs = getComputedStyle(over);
+      const solid = !/^(none|transparent|rgba\(0, 0, 0, 0\))$/.test(ocs.fill) && +ocs.fillOpacity * +ocs.opacity > 0.5;
+      if (solid && t.compareDocumentPosition(over) & Node.DOCUMENT_POSITION_FOLLOWING) return [];
+    }
+    const m = t.getScreenCTM(), px = parseFloat(cs.fontSize) * Math.hypot(m.a, m.b);
+    const halo = cs.paintOrder.startsWith('stroke') && parseFloat(cs.strokeWidth) > 0 && +cs.strokeOpacity > 0.6 ? rgb(cs.stroke) : null;
+    return [{ text: text.slice(0, 40), fill, o, halo, box: [r.left, r.top, r.width, r.height], min: px >= 24 || (px >= 18.66 && +cs.fontWeight >= 700) ? 3 : 4.5 }];
+  });
+}
+/** In the page: each text's contrast, on its halo or on the median of the pixels behind it (the picture with the
+ *  text hidden, a PNG in base64), whichever is more: a dark halo round dark ink on a bright body still reads. */
+async function textContrast([texts, png, dpr]) {
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = `data:image/png;base64,${png}`; });
+  const c = document.createElement('canvas');
+  c.width = img.width; c.height = img.height;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  const lum = (v) => v.reduce((s, x, i) => { x /= 255; return s + [0.2126, 0.7152, 0.0722][i] * (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4); }, 0);
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  return texts.map((t) => {
+    const halo = t.halo ? ratio(t.fill, t.halo) : 0;
+    const [x, y, w, h] = t.box.map((v) => Math.round(v * dpr));
+    const x0 = Math.max(0, x), y0 = Math.max(0, y), w0 = Math.min(c.width, x + w) - x0, h0 = Math.min(c.height, y + h) - y0;
+    if (w0 < 1 || h0 < 1) return { ...t, ratio: 21, on: 'nothing' };
+    const d = g.getImageData(x0, y0, w0, h0).data, rs = [];
+    for (let i = 0; i < d.length; i += 4 * 3) {
+      const bg = [d[i], d[i + 1], d[i + 2]];
+      rs.push(ratio(t.fill.map((f, k) => f * t.o + bg[k] * (1 - t.o)), bg));
+    }
+    rs.sort((a, b) => a - b);
+    const picture = rs[Math.floor(rs.length / 2)];
+    return halo > picture ? { ...t, ratio: halo, on: 'its halo' } : { ...t, ratio: picture, on: 'the picture' };
+  });
+}
+async function labelContrast(style, fail) {
+  for (const where of LABEL_SCENES)
+    for (const [view, q] of [['desktop', ''], ['desktop', '&level=nerd'], ['phone', '']]) {
+      const { ctx, p } = await open(view, url(style, 'en', where, q));
+      await still(p);
+      await p.evaluate(() => window.__app.setClock(5.2, true));
+      await p.waitForTimeout(100);
+      const texts = await p.evaluate(sceneTexts);
+      await p.addStyleTag({ content: '#stage svg text { visibility: hidden !important; }' });
+      const png = (await p.screenshot()).toString('base64');
+      for (const t of await p.evaluate(textContrast, [texts, png, VIEWS[view].dpr]))
+        if (t.ratio < t.min) fail(`labels ${where}${q && ' nerd'} ${view}`, `"${t.text}" ${t.ratio.toFixed(2)} < ${t.min} on ${t.on}`);
+      await ctx.close();
+    }
 }
 async function a11y(style) {
   const axe = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
@@ -224,6 +341,7 @@ async function a11y(style) {
       const r = await p.evaluate((tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), AXE_TAGS);
       for (const v of r.violations)
         for (const n of v.nodes) fail(`${s.name} ${view}`, `${v.id} (${v.impact}) ${n.target.join(' ')}: ${n.failureSummary.split('\n').slice(1).join(' ').trim()}`);
+      for (const bad of await p.evaluate(controlProblems)) fail(`${s.name} ${view}`, bad);
       await ctx.close();
     }
   // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
@@ -293,6 +411,7 @@ async function a11y(style) {
   await check('a door in the list view');
   await ctx.close();
   await speechJourney(style, fail);
+  await labelContrast(style, fail);
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
   if (fails.length) process.exitCode = 1;
 }
@@ -325,9 +444,69 @@ async function speechJourney(style, fail) {
   await ctx.close();
 }
 
+// ------------------------------------------------------------------ not by colour alone (--only=vision)
+/** The places where colour carries meaning (owner regions, request and video, the fibre colours, the doors), each as
+ *  one sheet: as it is, through the four colour-vision deficiencies Chromium emulates, and in forced colours (a light
+ *  or a dark contrast theme, by the mode). For looking at, not judging: written to .tmp/vision/, nothing fails. */
+const VISION = ['none', 'protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'];
+const VISION_SHOTS = [
+  { view: 'desktop', where: 'home/watch-video', name: 'home' },
+  { view: 'desktop', where: 'home/watch-video/internet', name: 'internet' },
+  { view: 'phone', where: 'street/watch-video/internet', name: 'internet-street-phone' },
+  { view: 'desktop', where: 'home/watch-video', catch: 'request', name: 'peek' },
+  { view: 'desktop', where: 'home/watch-video/internet/home-cabinet', name: 'gpon' },
+  { view: 'desktop', where: 'home/watch-video/internet/cabinet-backhaul', name: 'metro' },
+  { view: 'phone', where: 'home/watch-video/internet/bng-core', q: '&level=nerd', name: 'backbone-nerd-phone' },
+  { view: 'desktop', where: 'home/watch-video/phone~tcp', name: 'tcp' },
+];
+async function vision(style) {
+  mkdirSync('.tmp/vision', { recursive: true });
+  const sheet = await browser.newPage();
+  for (const s of VISION_SHOTS) {
+    const panels = [];
+    for (const forced of [false, true]) {
+      const v = VIEWS[s.view];
+      const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1, hasTouch: !!v.touch, isMobile: !!v.touch,
+        colorScheme: MODE === 'night' ? 'dark' : 'light', forcedColors: forced ? 'active' : 'none' });
+      const p = await ctx.newPage();
+      await p.goto(url(style, s.lang ?? 'en', s.where, s.q ?? ''));
+      await p.waitForFunction(() => window.__app, null, { timeout: 15000 });
+      await p.evaluate(() => document.fonts.ready);
+      await settle(p);
+      await p.evaluate(() => window.__app.setClock(5.2, true));
+      if (s.catch) { await p.evaluate((k) => window.__app.catch(k), s.catch); await p.waitForSelector('.peek'); await p.waitForTimeout(1500); }
+      await still(p);
+      const cdp = await ctx.newCDPSession(p);
+      for (const type of forced ? ['none'] : VISION) {
+        await cdp.send('Emulation.setEmulatedVisionDeficiency', { type });
+        panels.push({ label: forced ? 'forced colours' : type === 'none' ? 'as drawn' : type, png: (await p.screenshot({ type: 'png' })).toString('base64') });
+      }
+      await ctx.close();
+    }
+    const jpg = await sheet.evaluate(async ({ panels, title }) => {
+      const imgs = await Promise.all(panels.map((x) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = `data:image/png;base64,${x.png}`; })));
+      const scale = imgs[0].width > 800 ? 0.5 : 0.6, w = imgs[0].width * scale, h = imgs[0].height * scale, cols = 3, head = 28;
+      const c = document.createElement('canvas');
+      c.width = cols * w; c.height = Math.ceil(imgs.length / cols) * (h + head);
+      const g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+      imgs.forEach((img, i) => {
+        const x = (i % cols) * w, y = Math.floor(i / cols) * (h + head);
+        g.fillStyle = '#000'; g.font = 'bold 18px system-ui'; g.fillText(`${title} · ${panels[i].label}`, x + 8, y + 20);
+        g.drawImage(img, x, y + head, w, h);
+      });
+      return c.toDataURL('image/jpeg', 0.8).split(',')[1];
+    }, { panels, title: s.name });
+    writeFileSync(`.tmp/vision/${style}${MODE === 'night' ? '-night' : ''}-${s.name}.jpg`, Buffer.from(jpg, 'base64'));
+    console.log(`  ${s.name}`);
+  }
+  await sheet.close();
+}
+
 for (const style of STYLES) {
   console.log(style);
   if (ONLY === 'a11y') { await a11y(style); continue; }
+  if (ONLY === 'vision') { await vision(style); continue; }
   const key = MODE === 'night' ? `${style}-night` : style;
   const m = (metrics[key] = { ...(metrics[key] ?? {}) });
 
@@ -544,5 +723,5 @@ for (const style of STYLES) {
     console.log(`  ${shots.length} screenshots`);
   }
 }
-if (!DIFF && ONLY !== 'a11y') writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
+if (!DIFF && ONLY !== 'a11y' && ONLY !== 'vision') writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
 await browser.close();
