@@ -3,7 +3,7 @@
   // Look inside the home router: the switch's cable sockets, the Wi‑Fi radio, the brain (routing and NAT) and the
   // fibre ONT. A parcel comes in on the link before (electric pushes on a cable), is plain bits inside, has its sender
   // swapped by the brain and leaves on the link after (as light on the fibre): the rooms it uses follow those links.
-  import { Node, Text, fill, nameOf, strings, view, type NodeSubject } from '$core/api';
+  import { Node, Text, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
   import { centre, formFor, parcelAt, roomFor, routerLayout, tripPath } from './router';
   import type { Look, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
@@ -16,8 +16,10 @@
   const portrait = $derived(o === 'portrait');
   const compact = $derived(o === 'landscape' && view.vp.h < 470);
   const night = $derived(view.mode === 'night');
-  const L = $derived(routerLayout(o));
-  const T = $derived(portrait ? { head: 34, body: 30, sticker: 28 } : compact ? { head: 32, body: 0, sticker: 24 } : { head: 27, body: 23, sticker: 19 });
+  const L = $derived(routerLayout(o, compact));
+  // a phone on its side: no text under the theme's minimum on screen (about 42 world units there)
+  const legible = legibleSize();
+  const T = $derived(portrait ? { head: 34, body: 30, sticker: 28 } : compact ? { head: legible(44), body: 0, sticker: legible(42) } : { head: 27, body: 23, sticker: 19 });
 
   const before = $derived(subject.in ? subject.route.hops[subject.in.from] : null);
   const after = $derived(subject.out ? subject.route.hops[subject.out.to] : null);
@@ -44,7 +46,7 @@
 
 <!-- geometric text: the camera scales this panel every frame, and hinted text would be laid out again each time -->
 <g text-rendering="geometricPrecision">
-  {#if !portrait}<text x="800" y={compact ? 110 : 120} text-anchor="middle" font-family="var(--label-font)" font-size={compact ? 44 : 42} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="7" paint-order="stroke">{S('title')}</text>{/if}
+  {#if !portrait}<text x="800" y={compact ? 110 : 120} text-anchor="middle" font-family="var(--label-font)" font-size={compact ? legible(44) : 42} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="7" paint-order="stroke">{S('title')}</text>{/if}
 
   <!-- the links either side, in their technologies' colours: the medium changes inside the box -->
   {#each [[path[0], path[1], inLink], [path[path.length - 2], path[path.length - 1], outLink]] as const as [a, b, l], i (i)}

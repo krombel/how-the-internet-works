@@ -2,7 +2,7 @@
 <script lang="ts">
   // Look inside the cell tower: the antennas catch the phone's radio wave, the radio unit turns it into bits, baseband
   // wraps the parcel in the mobile network's tunnel envelope, and the fibre carries it onward as light.
-  import { Node, Text, fill, nameOf, strings, view, type NodeSubject } from '$core/api';
+  import { Node, Text, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
   import { centre, formFor, parcelAt, towerLayout, tripPath } from './tower';
   import type { Pt, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
@@ -15,8 +15,10 @@
   const compact = $derived(!portrait && view.vp.h < 470);
   const night = $derived(view.mode === 'night');
   const nerd = $derived(S('mode') === 'nerd');
-  const L = $derived(towerLayout(view.orient));
-  const T = $derived(portrait ? { head: 36, body: 30, sticker: 30 } : compact ? { head: 34, body: 0, sticker: 0 } : { head: 28, body: 23, sticker: 21 });
+  const L = $derived(towerLayout(view.orient, compact));
+  // a phone on its side: no text under the theme's minimum on screen (about 42 world units there)
+  const legible = legibleSize();
+  const T = $derived(portrait ? { head: 36, body: 30, sticker: 30 } : compact ? { head: legible(44), body: 0, sticker: 0 } : { head: 28, body: 23, sticker: 21 });
   const mast = $derived({ x: centre(L.rooms.radio).x, y0: L.rooms.radio.y + L.rooms.radio.h, y1: L.cabinet.y });
 
   const before = $derived(subject.in ? subject.route.hops[subject.in.from] : null);
@@ -41,7 +43,7 @@
 
 <!-- geometric text: the camera scales this panel every frame, and hinted text would be laid out again each time -->
 <g text-rendering="geometricPrecision">
-  {#if !portrait}<text x="800" y={compact ? 110 : 120} text-anchor="middle" font-family="var(--label-font)" font-size={compact ? 44 : 42} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="7" paint-order="stroke">{S('title')}</text>{/if}
+  {#if !portrait}<text x="800" y={compact ? 110 : 120} text-anchor="middle" font-family="var(--label-font)" font-size={compact ? legible(44) : 42} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="7" paint-order="stroke">{S('title')}</text>{/if}
 
   <!-- the links either side, as the route draws them -->
   {#each ends as e (e.d)}

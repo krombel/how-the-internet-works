@@ -19,8 +19,8 @@ const apart = (a: Box, b: Box) => a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + 
 
 describe('inside the home router', () => {
   it('lays its rooms out in the box, apart, and the box in the world', () => {
-    for (const o of ['landscape', 'portrait'] as const) {
-      const L = router.routerLayout(o), W = WORLD_SIZE[o], rooms = Object.values(L.rooms);
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = router.routerLayout(o, compact), W = WORLD_SIZE[o], rooms = Object.values(L.rooms);
       expect(inside(L.case, { x: 0, y: 0, ...W })).toBe(true);
       for (const [i, r] of rooms.entries()) {
         expect(inside(r, L.case)).toBe(true);
@@ -62,8 +62,8 @@ describe('inside the home router', () => {
 
 describe('inside the cell tower', () => {
   it('lays its rooms out apart in the world, baseband and the fibre in the cabinet, under the mast', () => {
-    for (const o of ['landscape', 'portrait'] as const) {
-      const L = tower.towerLayout(o), W = WORLD_SIZE[o], rooms = Object.values(L.rooms);
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = tower.towerLayout(o, compact), W = WORLD_SIZE[o], rooms = Object.values(L.rooms);
       expect(inside(L.cabinet, { x: 0, y: 0, ...W })).toBe(true);
       for (const [i, r] of rooms.entries()) {
         expect(inside(r, { x: 0, y: 0, ...W })).toBe(true);

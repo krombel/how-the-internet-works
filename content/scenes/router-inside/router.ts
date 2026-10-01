@@ -13,14 +13,22 @@ const box = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h }
 export const centre = (b: Box): Pt => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
 
 /** Landscape: the parcel runs left to right, through the switch, the brain and the ONT, with the Wi‑Fi radio above the
- *  brain. Portrait: bottom to top, the ONT at the top, the Wi‑Fi radio beside the brain. */
-export function routerLayout(o: Orient): RouterLayout {
+ *  brain. Portrait: bottom to top, the ONT at the top, the Wi‑Fi radio beside the brain. `compact` (a phone on its
+ *  side): wider rooms for titles big enough to read, the devices either side closer to the edges. */
+export function routerLayout(o: Orient, compact = false): RouterLayout {
   if (o === 'portrait') return {
     case: box(70, 330, 760, 950),
     rooms: { ont: box(120, 390, 660, 240), brain: box(120, 690, 380, 280), wifi: box(540, 690, 240, 280), switch: box(120, 1030, 660, 200) },
     inNode: { x: 450, y: 1425 }, outNode: { x: 450, y: 180 }, nodeSize: 160,
     inLabel: { x: 450, y: 1555 }, outLabel: { x: 450, y: 70 },
     antennas: [{ x: 600, y: 330 }, { x: 720, y: 330 }],
+  };
+  if (compact) return {
+    case: box(195, 220, 1210, 560),
+    rooms: { switch: box(225, 450, 360, 300), brain: box(620, 450, 360, 300), ont: box(1015, 450, 360, 300), wifi: box(620, 250, 360, 170) },
+    inNode: { x: 105, y: 600 }, outNode: { x: 1495, y: 600 }, nodeSize: 150,
+    inLabel: { x: 105, y: 730 }, outLabel: { x: 1495, y: 730 },
+    antennas: [{ x: 740, y: 220 }, { x: 860, y: 220 }],
   };
   return {
     case: box(370, 220, 860, 560),

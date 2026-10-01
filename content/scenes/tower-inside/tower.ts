@@ -10,13 +10,21 @@ export const centre = (b: Box): Pt => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
 /** Landscape: the antennas face the phone on the left, the radio unit beside them; the mast goes down from the radio
  *  unit into baseband, and the fibre leaves the cabinet on the right. Portrait: the same, the fibre leaving downwards,
  *  with the phone down the left, clear of the cabinet. */
-export function towerLayout(o: Orient): TowerLayout {
+export function towerLayout(o: Orient, compact = false): TowerLayout {
   if (o === 'portrait') return {
     rooms: { antenna: box(60, 140, 340, 280), radio: box(440, 140, 400, 280), baseband: box(440, 640, 400, 320), fibre: box(440, 1000, 400, 240) },
     cabinet: box(405, 590, 470, 690),
     inNode: { x: 200, y: 1150 }, outNode: { x: 640, y: 1440 }, nodeSize: 150,
     inLabel: { x: 200, y: 1270, anchor: 'middle' }, outLabel: { x: 545, y: 1452, anchor: 'end' },
     inTag: { x: 185, y: 760, anchor: 'end' }, outTag: { x: 680, y: 1330, anchor: 'start' },
+  };
+  // a phone on its side: wider rooms for titles big enough to read, the devices either side closer to the edges
+  if (compact) return {
+    rooms: { antenna: box(310, 170, 350, 230), radio: box(690, 170, 390, 230), baseband: box(690, 540, 390, 230), fibre: box(1110, 540, 300, 230) },
+    cabinet: box(660, 505, 780, 300),
+    inNode: { x: 150, y: 600 }, outNode: { x: 1520, y: 655 }, nodeSize: 130,
+    inLabel: { x: 150, y: 735, anchor: 'middle' }, outLabel: { x: 1520, y: 790, anchor: 'middle' },
+    inTag: { x: 260, y: 405, anchor: 'end' }, outTag: { x: 1465, y: 612, anchor: 'middle' },
   };
   return {
     rooms: { antenna: box(450, 170, 290, 230), radio: box(780, 170, 290, 230), baseband: box(780, 540, 290, 230), fibre: box(1105, 540, 215, 230) },

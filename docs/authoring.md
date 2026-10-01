@@ -230,9 +230,11 @@ is the hop id (`#/en/home/watch-video/router`).
   fibre) and veils the rest.
 - Wrap the scene in `<g text-rendering="geometricPrecision">`. The camera rescales a device dive on every frame of the
   zoom out to the next stop, and Chrome lays hinted SVG text out again each time (this cost frames at 6× CPU).
+- A phone on its side, as for layer dives: no text under 14 px (`legibleSize()`, about 42 world units there), so the
+  router and the cell tower have a compact layout with wider rooms, their titles only and no device names.
 - Strings: `title` and `kid`/`nerd`, or per device (`<node id>.title`, `<node id>.kid`…) for a scene serving several.
   The caption adds **What it carries** chips by itself: the envelopes of the links either side that have a dive, at
-  this device.
+  this device; the depth ladder shows the envelopes it handles on one of its links, over that link's signal.
 - A device with a dive of its own **ends a stretch**: two links of the same technology either side of it become two
   sideways stops, with the device between them. A device without one stays inside the stretch.
 - Its layer dives (the peek) stack above it, as upper floors.
