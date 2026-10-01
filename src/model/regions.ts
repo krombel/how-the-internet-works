@@ -3,7 +3,7 @@
 // hands the parcel over to the next. Pure and content-id free.
 import type { Pt } from '../engine/geometry';
 import type { PathScene, SNode } from './layout';
-import type { Route } from './resolve';
+import { within, type Route } from './resolve';
 import { ownersOf } from './trip';
 
 export interface Region {
@@ -57,14 +57,21 @@ const ring = (c: Pt, r: number): Pt[] =>
   Array.from({ length: SIDES }, (_, i) => ({ x: c.x + r * Math.cos((i / SIDES) * Math.PI * 2), y: c.y + r * Math.sin((i / SIDES) * Math.PI * 2) }));
 
 const memo = new WeakMap<PathScene, Region[]>();
-/** The owner regions of a path scene, in route order. Entries, exits and groups stand for something else and are
- *  never part of a region. */
+/** Whose a scene node is: a hop's owner; a group's, if one owner runs every hop in it (a data centre inside the
+ *  internet). Entries and exits stand for something else and are never part of a region. */
+function ownerOf(r: Route, n: SNode): string | undefined {
+  if (n.kind === 'hop') return n.hop.owner;
+  const all = n.kind === 'group' ? ownersOf(r, false, n.id) : [];
+  return all.length === 1 && r.chain.every((h) => !within(r.hops, h, n.id) || h.owner) ? all[0] : undefined;
+}
+
+/** The owner regions of a path scene, in route order. */
 export function regionsOf(r: Route, ps: PathScene): Region[] {
   const hit = memo.get(ps);
   if (hit) return hit;
   const order = ownersOf(r, true), by = new Map<string, SNode[]>();
   for (const n of ps.nodes) {
-    const o = n.kind === 'hop' ? n.hop.owner : undefined;
+    const o = ownerOf(r, n);
     if (o) by.set(o, [...(by.get(o) ?? []), n]);
   }
   const out = [...by].map(([owner, ns]): Region => {
@@ -72,7 +79,7 @@ export function regionsOf(r: Route, ps: PathScene): Region[] {
     const h = hull([...ns.flatMap((n) => ring(n, n.size * REGION_PAD)), ...(at ? ring(at, SIGN_PAD) : [])]);
     const xs = h.map((p) => p.x), top = Math.min(...h.map((p) => p.y));
     return {
-      owner, tone: order.indexOf(owner), aside: ns.every((n) => n.hop.index < 0), d: roundPath(h),
+      owner, tone: order.indexOf(owner), aside: ns.every((n) => n.kind === 'hop' && n.hop.index < 0), d: roundPath(h),
       sign: at ?? { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: top }, nodes: ns.map((n) => n.id),
     };
   }).sort((a, b) => a.tone - b.tone);

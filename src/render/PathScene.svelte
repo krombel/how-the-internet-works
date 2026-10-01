@@ -7,7 +7,7 @@
   import { bezier, curvePath, WORLD_SIZE } from '../engine/geometry';
   import { pts, textBox } from '../engine/svg';
   import type { LivePacket } from '../engine/packets';
-  import { nodeArt, placeBackdrops } from '../model/components';
+  import { groupBackdrops, nodeArt, placeBackdrops } from '../model/components';
   import { badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
   import { labelY, type PathScene, type SNode } from '../model/layout';
   import { regionsOf } from '../model/regions';
@@ -34,6 +34,7 @@
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
+  const GroupBackdrop = $derived(ps.group ? groupBackdrops[route.hops[ps.group].node.id] : undefined);
   const regions = $derived(regionsOf(route, ps));
   // only the networks on the packets' way are named: a side branch is just faintly there
   const named = $derived(regions.filter((g) => !g.aside));
@@ -66,6 +67,7 @@
 
 <g class="scene scene-{ps.key}">
   <A.Backdrop kind={root ? 'root' : 'group'} orient={view.orient} w={W.w} h={W.h} time={view.time} />
+  {#if GroupBackdrop}<GroupBackdrop orient={view.orient} w={W.w} h={W.h} time={view.time} />{/if}
   {#if root}
     {#each backdrops as b (b.id)}
       {@const B = placeBackdrops[b.id]}

@@ -1,7 +1,8 @@
 import { defineSegment } from '$core/define';
 
-// From the ISP's core to the video server: out through the ISP's border router, across an internet exchange (or, as a
-// fallback, paid transit). Three networks: your internet company, the exchange and the video company (issue #20).
+// From the ISP's core to the video company's data centre: out through the ISP's border router, across an internet
+// exchange (or, as a fallback, paid transit). Three networks: your internet company, the exchange and the video company
+// (issue #20), whose data centre is the next segment.
 export default defineSegment({
   hops: [
     { at: 'core', in: 'internet', owner: 'isp' },
@@ -10,27 +11,26 @@ export default defineSegment({
     // the ISP's door to the other networks: it pops the last label (#25)
     { at: 'border', in: 'internet', owner: 'isp' },
     // from here on everyone is in the same building: short cross-connects to the exchange's switch (one big shared
-    // Ethernet, no MPLS labels across it) and from there to the video company's servers, a few rooms away
+    // Ethernet, no MPLS labels across it) and from there into the video company's data centre, a few rooms away
     { link: 'cross-connect', km: 0.2 },
     { at: 'ixp', in: 'internet', owner: 'ixp' },
     { link: 'cross-connect', km: 0.3 },
-    { at: 'cdn', in: 'internet', addr: '198.51.100.20', owner: 'cdn' },
   ],
   // the other door: a carrier the ISP pays to reach everything the exchange doesn't, met in the same building
   aside: [{ at: 'transit', in: 'internet', from: 'border', link: 'cross-connect', owner: 'transit' }],
   layout: {
     internet: {
       landscape: {
-        nodes: { core: [822, 680, 160], border: [1025, 450, 150, 'above'], transit: [1095, 170, 120, 'above'], ixp: [1240, 680, 150], cdn: [1430, 450, 160, 'above'] },
+        nodes: { core: [822, 680, 160], border: [1025, 450, 150, 'above'], transit: [1095, 170, 120, 'above'], ixp: [1240, 680, 150], datacentre: [1430, 450, 160] },
         links: { 'border-transit': { bend: 0.08 } },
         // the networks' signs (on the packets' way): over their devices' names, the exchange's under its own
         owners: { isp: [465, 265], ixp: [1385, 845], cdn: [1320, 265] },
       },
       portrait: {
-        nodes: { core: [250, 870, 160], border: [640, 720, 150], transit: [720, 540, 100, 'above'], ixp: [260, 560, 150], cdn: [600, 330, 160, 'above'] },
+        nodes: { core: [250, 870, 160], border: [640, 720, 150], transit: [720, 540, 100, 'above'], ixp: [260, 560, 150], datacentre: [640, 280, 150] },
         links: { 'border-transit': { bend: 0.08 } },
         // in the gaps the zigzag leaves
-        owners: { isp: [280, 1050], ixp: [220, 445], cdn: [270, 250] },
+        owners: { isp: [280, 1050], ixp: [220, 445], cdn: [275, 165] },
       },
     },
   },

@@ -1,21 +1,27 @@
 // The maths of the device dives' scenes (#9). They reach the engine through `$core/api`, which reads the browser's
 // state on import, hence the stubs and the late imports.
 import { beforeAll, describe, expect, it } from 'vitest';
-import { WORLD_SIZE } from '../engine/geometry';
+import { WORLD_SIZE, type Pt } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
 import type * as Router from '../../content/scenes/router-inside/router';
 import type * as Tower from '../../content/scenes/tower-inside/tower';
+import type * as Server from '../../content/scenes/server-inside/server';
+import type * as Fabric from '../../content/scenes/leaf-spine/fabric';
 import type { Box } from '../../content/scenes/router-inside/types';
+import type { Moving } from '../../content/scenes/server-inside/types';
 
-let router: typeof Router, tower: typeof Tower;
+let router: typeof Router, tower: typeof Tower, server: typeof Server, fabric: typeof Fabric;
 beforeAll(async () => {
   stubBrowser();
   router = await import('../../content/scenes/router-inside/router');
   tower = await import('../../content/scenes/tower-inside/tower');
+  server = await import('../../content/scenes/server-inside/server');
+  fabric = await import('../../content/scenes/leaf-spine/fabric');
 });
 
 const inside = (a: Box, b: Box) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
 const apart = (a: Box, b: Box) => a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
+const ptInside = (p: Pt, b: Box) => p.x >= b.x && p.y >= b.y && p.x <= b.x + b.w && p.y <= b.y + b.h;
 
 describe('inside the home router', () => {
   it('lays its rooms out in the box, apart, and the box in the world', () => {
@@ -95,5 +101,116 @@ describe('inside the cell tower', () => {
     expect(tower.parcelAt(9, true, trip)).toMatchObject({ stage: 'inside', alpha: 1, wrapped: true });
     expect(tower.formFor('radio')).toBe('wave');
     expect(tower.formFor('fibre')).toBe('light');
+  });
+});
+
+describe('inside the video server', () => {
+  it('lays its rooms out in the case, apart, and everything in the world', () => {
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = server.serverLayout(o, compact), W = { x: 0, y: 0, ...WORLD_SIZE[o] }, rooms = Object.values(L.rooms);
+      expect(inside(L.case, W)).toBe(true);
+      expect(ptInside(L.inNode, W)).toBe(true);
+      expect(ptInside(L.originNode, W)).toBe(true);
+      for (const [i, r] of rooms.entries()) {
+        expect(inside(r, L.case)).toBe(true);
+        for (const q of rooms.slice(i + 1)) expect(apart(r, q)).toBe(true);
+      }
+    }
+  });
+
+  it('routes a request from the rack switch to the app, then cache or origin back to the reader', () => {
+    const L = server.serverLayout('landscape');
+    expect(server.requestPath(L).at(0)).toEqual(L.inNode);
+    expect(server.requestPath(L).at(-1)).toEqual(server.appPoint(L));
+    expect(server.hitPath(L).at(0)).toEqual(server.cachePoint(L));
+    expect(server.hitPath(L).at(-1)).toEqual(L.inNode);
+    expect(server.originPath(L)).toEqual([server.appPoint(L), L.originNode]);
+    expect(server.missReturnPath(L).at(0)).toEqual(L.originNode);
+    expect(server.missReturnPath(L).at(-1)).toEqual(L.inNode);
+  });
+
+  it('alternates hit then miss cycles; still pose is a hit at the app', () => {
+    const L = server.serverLayout('landscape');
+    const hit = server.serverAt(server.PERIOD * 0.2, false, L, true);
+    expect(hit.hit).toBe(true);
+    expect(hit.request.stage).toBe('in');
+    const miss = server.serverAt(server.PERIOD * 1.34, false, L, true);
+    expect(miss.hit).toBe(false);
+    expect(['origin', 'hidden']).toContain(miss.request.stage);
+    expect(server.serverAt(server.PERIOD * 1.34, false, L, false).hit).toBe(true);
+    const still = server.serverAt(123, true, L, true);
+    expect(still.hit).toBe(true);
+    expect(still.request).toMatchObject({ stage: 'app', alpha: 1 });
+    expect(still.request.p.x).toBeCloseTo(server.appPoint(L).x);
+    expect(still.request.p.y).toBeCloseTo(server.appPoint(L).y);
+  });
+
+  it('keeps moving carriers inside the authored world', () => {
+    const carriers = <S extends string>(m: Moving<S>[]) => m.filter((p) => p.alpha > 0.02);
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = server.serverLayout(o, compact), W = { x: 0, y: 0, ...WORLD_SIZE[o] };
+      for (const hasOrigin of [true, false]) for (let i = 0; i < 120; i++) {
+        const s = server.serverAt((i / 60) * server.PERIOD, false, L, hasOrigin);
+        for (const c of carriers([s.request, s.video])) expect(ptInside(c.p, W)).toBe(true);
+      }
+    }
+  });
+});
+
+function allBoxes(L: ReturnType<typeof fabric.fabricLayout>) {
+  return [...fabric.SPINES.map((i) => fabric.spineBox(L, i)), ...fabric.LEAVES.map((l) => L.leafBoxes[l]), L.sticker];
+}
+
+describe('leaf-spine fabric scene maths', () => {
+  it('lays the fabric out inside the world without overlapping in landscape, portrait and compact', () => {
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = fabric.fabricLayout(o, compact), W = { x: 0, y: 0, ...WORLD_SIZE[o] };
+      for (const b of allBoxes(L)) expect(inside(b, W)).toBe(true);
+      for (const [i, b] of allBoxes(L).entries()) for (const q of allBoxes(L).slice(i + 1)) expect(apart(b, q)).toBe(true);
+      for (const p of [L.inPort, L.outPort, L.fabricTag, ...L.spines, ...fabric.LEAVES.map((l) => L.leaves[l])]) expect(ptInside(p, W)).toBe(true);
+    }
+  });
+
+  it('draws every leaf to every spine and highlights only this flow spine on the route leaves', () => {
+    const L = fabric.fabricLayout('landscape'), links = fabric.fabricLinks(L);
+    expect(links).toHaveLength(fabric.LEAVES.length * fabric.SPINES.length);
+    for (const leaf of fabric.LEAVES) expect(new Set(links.filter((l) => l.leaf === leaf).map((l) => l.spine))).toEqual(new Set(fabric.SPINES));
+    expect(links.filter((l) => l.highlighted).map((l) => [l.leaf, l.spine])).toEqual([['before', fabric.HIGHLIGHT_SPINE], ['after', fabric.HIGHLIGHT_SPINE]]);
+  });
+
+  it('keeps your parcel on the highlighted spine every period', () => {
+    const L = fabric.fabricLayout('landscape'), path = fabric.tripPath(L);
+    expect(path).toContainEqual(fabric.spinePort(L, fabric.HIGHLIGHT_SPINE));
+    expect(path).not.toContainEqual(fabric.spinePort(L, 0));
+    expect(path).not.toContainEqual(fabric.spinePort(L, 1));
+    expect(path).not.toContainEqual(fabric.spinePort(L, 3));
+    const at = (t: number) => fabric.parcelAt(t, false, L);
+    expect(at(0)).toMatchObject({ from: 'before', to: 'after', spine: fabric.HIGHLIGHT_SPINE, stage: 'in', alpha: 0 });
+    expect(at(fabric.PERIOD * 0.5)).toMatchObject({ from: 'before', to: 'after', spine: fabric.HIGHLIGHT_SPINE, stage: 'fabric', alpha: 1 });
+    expect(at(fabric.PERIOD * 0.95)).toMatchObject({ spine: fabric.HIGHLIGHT_SPINE, stage: 'out' });
+    expect(at(fabric.PERIOD * 1.35).p.x).toBeCloseTo(at(fabric.PERIOD * 0.35).p.x);
+    expect(at(fabric.PERIOD * 1.35).p.y).toBeCloseTo(at(fabric.PERIOD * 0.35).p.y);
+  });
+
+  it('spreads other flows over every spine during the period', () => {
+    const L = fabric.fabricLayout('portrait');
+    const used = new Set(fabric.OTHER_FLOWS.map((f) => f.spine));
+    for (let i = 0; i < 60; i++) for (const spec of fabric.OTHER_FLOWS) used.add(fabric.otherFlowAt((i / 60) * fabric.PERIOD, false, L, spec).spine);
+    expect(used).toEqual(new Set(fabric.SPINES));
+  });
+
+  it('has a stable still pose inside the world', () => {
+    const L = fabric.fabricLayout('landscape'), W = { x: 0, y: 0, ...WORLD_SIZE.landscape };
+    const a = fabric.parcelAt(0, true, L), b = fabric.parcelAt(123, true, L);
+    expect(a).toMatchObject({ stage: 'fabric', alpha: 1, spine: fabric.HIGHLIGHT_SPINE });
+    expect(a.p.x).toBeCloseTo(b.p.x);
+    expect(a.p.y).toBeCloseTo(b.p.y);
+    expect(ptInside(a.p, W)).toBe(true);
+    for (const spec of fabric.OTHER_FLOWS) {
+      const f0 = fabric.otherFlowAt(0, true, L, spec), f1 = fabric.otherFlowAt(123, true, L, spec);
+      expect(f0.p.x).toBeCloseTo(f1.p.x);
+      expect(f0.p.y).toBeCloseTo(f1.p.y);
+      expect(ptInside(f0.p, W)).toBe(true);
+    }
   });
 });

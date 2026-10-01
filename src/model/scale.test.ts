@@ -1,6 +1,6 @@
 // Issue #20: whose networks the packets pass through (owner regions), and how far they go (the links' km).
 import { describe, expect, it } from 'vitest';
-import { resolveRoute } from './resolve';
+import { resolveRoute, within } from './resolve';
 import { pathScene } from './layout';
 import { hull, regionsOf, roundPath } from './regions';
 import { FIBRE_KM_PER_MS, formatKm, formatLight, groupKm, kmTo, lightMs, ownersOf, tripKm } from './trip';
@@ -11,7 +11,7 @@ const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
 describe('owners', () => {
   it('lists the networks on the way in route order, side branches last', () => {
     expect(ownersOf(home)).toEqual(['isp', 'ixp', 'cdn']);
-    expect(ownersOf(home, true)).toEqual(['isp', 'ixp', 'cdn', 'transit']);
+    expect(ownersOf(home, true)).toEqual(['isp', 'ixp', 'cdn', 'transit', 'cloud']);
     expect(ownersOf(street, false, 'internet')).toEqual(['isp', 'ixp', 'cdn']);
   });
 
@@ -23,6 +23,9 @@ describe('owners', () => {
       // the layout's sign spot is where the sign goes
       expect(regions.find((g) => g.owner === 'isp')!.sign).toEqual(ps.signs.isp);
       expect(regionsOf(home, ps)).toBe(regions);
+      // a group inside it is in its owner's region; unfolded, it has the owner's region and the side branch's
+      expect(regions.find((g) => g.owner === 'cdn')!.nodes).toEqual(['datacentre']);
+      expect(regionsOf(home, pathScene(home, 'datacentre', o)).map((g) => [g.owner, g.aside])).toEqual([['cdn', false], ['cloud', true]]);
     }
   });
 
@@ -63,7 +66,8 @@ describe('trip scale', () => {
   });
 
   it('counts the links into and out of a group as part of it', () => {
-    const inner = home.links.filter((l) => home.hops[l.from].group === 'internet' || home.hops[l.to].group === 'internet');
+    // a group inside it (the data centre) is part of it too
+    const inner = home.links.filter((l) => within(home.hops, home.hops[l.from], 'internet') || within(home.hops, home.hops[l.to], 'internet'));
     expect(groupKm(home, 'internet')).toBeCloseTo(inner.reduce((s, l) => s + l.km!, 0));
     expect(groupKm(home, 'internet')).toBeLessThan(tripKm(home));
   });

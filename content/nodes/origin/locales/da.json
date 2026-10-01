@@ -1,0 +1,6 @@
+{
+  "name": "Origin",
+  "kid": "Hovedkopien af alle videoerne, gemt i en sky langt væk. En videoserver, der ikke har en video endnu, henter den herfra.",
+  "nerd": "Origin: hovedkopien i objektlager i en cloud-region, gemt tre gange (ofte i forskellige bygninger), så en død disk eller bygning ikke mister noget. Cache-miss fyldes op herfra, nogle gange på tværs af et hav.",
+  "tag": "Objektlager · 3 kopier"
+}

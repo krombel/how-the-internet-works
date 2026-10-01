@@ -11,7 +11,7 @@ export type Source = string;
 export interface Hop {
   id: string;
   node: WithId<NodeDef>;
-  /** The group node it lives inside, or null at the top level. */
+  /** The group node it lives inside, or null at the top level (for a group: the group it is nested in). */
   group: string | null;
   role: Role;
   addr?: string;
@@ -138,15 +138,15 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
     }
   }
 
-  const groups: Hop[] = (activity.groups ?? []).map((g) => {
-    const node = c.nodes[g];
-    return { id: g, node, group: null, role: node.role ?? 'router', source: `activity.${ch.activity}`, slot: null, index: -1 };
+  const groups: Hop[] = (activity.groups ?? []).map((spec) => {
+    const { id, in: parent } = groupSpec(spec), node = c.nodes[id];
+    return { id, node, group: parent, role: node.role ?? 'router', source: `activity.${ch.activity}`, slot: null, index: -1 };
   });
   for (const g of groups) hops[g.id] = g;
 
   const entry: Route['entry'] = {};
   for (const g of groups) {
-    const first = chain.findIndex((h) => h.group === g.id);
+    const first = chain.findIndex((h) => within(hops, h, g.id));
     if (first <= 0) continue;
     const before = chain[first - 1];
     // the segment that leads into the group may name a stand-in (e.g. the whole house instead of the router)
@@ -161,6 +161,15 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   };
   if (c === defaultContent) cache.set(key, route);
   return route;
+}
+
+/** An activity's group entry: a plain id (at the top level) or `{ id, in }` (inside another group). */
+export const groupSpec = (g: string | { id: string; in: string }) => (typeof g === 'string' ? { id: g, in: null } : g);
+
+/** Whether hop `h` lives inside group `g`, at any depth (a data centre's server is inside the internet too). */
+export function within(hops: Record<string, Hop>, h: Hop, g: string): boolean {
+  for (let p = h.group; p; p = hops[p]?.group ?? null) if (p === g) return true;
+  return false;
 }
 
 /** String namespaces for captions, most specific first: the places, the segments, then the activity. */

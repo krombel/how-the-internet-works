@@ -1,0 +1,66 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Inde i videoserveren",
+  "kid": "Videoserveren er en computer, der gemmer populære videoer tæt på dig. Lyset fra datacenterets forbindelse bliver til bits på netkortet. Video-appen kigger på hylderne; hvis stykket er der, sender den det straks tilbage. Hvis ikke, spørger den hovedkopien langt væk, gemmer en kopi og sender så din.",
+  "nerd": "En CDN-cache-server tager fiberen ind på et NIC, og forespørgslen lander hos videotjenesten i VM'er eller containere på en hypervisor, ofte planlagt som k8s-pods. Appen slår op i hot RAM og NVMe-SSD-cache. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
+  "describe": {
+    "kid": "Et åbent serverkabinet viser netkort, små computere, hukommelse og videohylder. En forespørgsel kommer ind som lys og når video-appen. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
+    "nerd": "Den åbne cache-server viser NIC, VM/container-vært, RAM og NVMe-SSD-cache. Forespørgslen kommer ind på fiber og når den markerede app. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
+  },
+  "app": "Video-app",
+  "hit": {
+    "kid": "Den var der!",
+    "nerd": "HIT · serveret fra cache"
+  },
+  "miss": {
+    "kid": "Ikke her: spørg hovedkopien",
+    "nerd": "MISS · hent fra origin, gem kopi"
+  },
+  "origin": {
+    "kid": "Hovedkopi langt væk",
+    "nerd": "Origin har 3 kopier"
+  },
+  "nic": {
+    "title": {
+      "kid": "Netkort",
+      "nerd": "NIC 2×100G"
+    },
+    "line": {
+      "kid": "Lys → bits",
+      "nerd": "Fiberframes → DMA"
+    }
+  },
+  "compute": {
+    "title": {
+      "kid": "Computeren",
+      "nerd": "Host-compute"
+    },
+    "line": {
+      "kid": "Små computere indeni",
+      "nerd": "KVM · containere · k8s-pods"
+    }
+  },
+  "memory": {
+    "title": {
+      "kid": "Hukommelse",
+      "nerd": "RAM-cache"
+    },
+    "line": {
+      "kid": "Hurtig hylde",
+      "nerd": "Varme objekter i RAM"
+    }
+  },
+  "ssd": {
+    "title": {
+      "kid": "SSD-hylder",
+      "nerd": "NVMe-SSD-cache"
+    },
+    "line": {
+      "kid": "Hylder med videoer",
+      "nerd": "Cache-objekter på disk"
+    }
+  }
+}

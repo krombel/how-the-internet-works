@@ -135,6 +135,12 @@ describe('validation messages', () => {
     expect(msg).toContain('missing English string "owner.acme.name"');
   });
 
+  it('checks groups: networks, and a group inside another one listed before it', () => {
+    const groups = (g: Content['activities'][string]['groups']) => broken((c) => { c.activities['watch-video'].groups = g; });
+    expect(groups([{ id: 'datacentre', in: 'internet' }, 'internet'])).toContain('watch-video/activity.ts › groups[0].in: "internet" is not a group listed before "datacentre"');
+    expect(groups(['internet', { id: 'cdn', in: 'internet' }])).toContain('groups[1].id: ');
+  });
+
   it('asks for missing English strings', () => {
     const msg = broken((c) => { c.nodes.gizmo = { ...c.nodes.phone, id: 'gizmo', file: 'content/nodes/gizmo/node.ts' }; c.layers.zip = { ...c.layers.ip, id: 'zip', file: 'content/layers/zip/layer.ts' }; });
     expect(msg).toContain('content/nodes/gizmo/node.ts › strings: missing English string "node.gizmo.name" (in content/nodes/gizmo/locales/en.json)');

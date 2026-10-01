@@ -1,0 +1,6 @@
+{
+  "name": "Data-centre fibre",
+  "kid": "Short glass cables between the boxes in one building, all belonging to the same company.",
+  "nerd": "Inside the fabric: 100–400G Ethernet over short single-mode fibre (or copper for the last metres to a server).",
+  "tag": "400GBASE-FR4 · SMF"
+}

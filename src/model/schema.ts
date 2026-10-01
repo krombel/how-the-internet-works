@@ -184,8 +184,9 @@ export const placeSlot = z.strictObject({
 /** An activity is what you do on the device (watch a video, send a message…): the flows and the rest of the route. */
 export const activity = z.strictObject({
   route: z.array(z.union([placeSlot, z.strictObject({ segment: id })])).min(1),
-  /** Network nodes that expand into their own path scene. */
-  groups: z.array(id).optional(),
+  /** Network nodes that expand into their own path scene; `{ id, in }` for one that lives inside another (a data
+   *  centre inside the internet): its hops say `in: <id>`, and it is drawn as one node in the outer group's scene. */
+  groups: z.array(z.union([id, z.strictObject({ id, in: id })])).optional(),
   flows: z.array(flow).min(1),
   layout: layout.optional(),
   order: z.number().optional(),
