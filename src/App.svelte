@@ -605,12 +605,12 @@
 
   // ------------------------------------------------------------------ frame loop, gestures, resize
   const orientFor = (w: number, h: number): Orient => (h > w * 1.1 ? 'portrait' : 'landscape');
-  /** Keep the caught packet in the part of the screen the peek panel doesn't cover. */
+  /** Keep the caught packet in the part of the screen the peek panel doesn't cover (the wider side of it). */
   function trackCentre() {
     const c = areaCentre(view.vp), r = document.querySelector('.peek')?.getBoundingClientRect();
     if (!r) return c;
     if (view.orient === 'portrait') return { x: c.x, y: (view.vp.top + r.top) / 2 };
-    return { x: r.left > view.vp.w / 2 ? r.left / 2 : (r.right + view.vp.w) / 2, y: c.y };
+    return { x: r.left > view.vp.w - r.right ? r.left / 2 : (r.right + view.vp.w) / 2, y: c.y };
   }
 
   /** The caption's fold when it was last measured for the viewport (it folds by the viewport, so a refit may refold it). */
