@@ -1,18 +1,21 @@
 // `npm run check:content` runs this file: the real content must validate, and authors get readable messages.
 import { beforeAll, describe, expect, it } from 'vitest';
+import type { Level } from '../define';
+import { describeKeys } from './describe';
 import { content, type Content } from './registry';
-import { loadAllPacks, packs } from './strings';
+import { loadAllPacks, lookupLevel, packs, type Json } from './strings';
 import { resolveRoute } from './resolve';
-import { childrenOf, diveSubject, sceneRef, sideways } from './tree';
+import { childrenOf, diveSubject, sceneRef, sideways, type SceneRef } from './tree';
 import { coverage, formatProblems, validate } from './validate';
 
 const files = Object.keys(import.meta.glob('/content/*/*/Scene.svelte'));
+const locales = import.meta.glob<Json>('/content/*/*/locales/*.json', { eager: true, import: 'default' });
 
 describe('content', () => {
   beforeAll(loadAllPacks);
 
   it('validates', () => {
-    const problems = validate({ content, packs, files });
+    const problems = validate({ content, packs, files, locales });
     if (problems.length) throw new Error(`\n${formatProblems(problems)}\n`);
   });
 
@@ -53,6 +56,24 @@ describe('content', () => {
     }
   });
 
+  it('describes every scene a reader can reach, at both levels, in every language (#53)', () => {
+    // as the app looks it up (most specific first, each key falling back to English), the description found must be
+    // in the language itself: a Danish reader never hears an English one
+    const bad = new Set<string>();
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) for (const o of ['landscape', 'portrait'] as const) {
+      const r = resolveRoute({ activity, places: [place] });
+      const walk = (ref: SceneRef): void => {
+        for (const keys of describeKeys(r, ref)) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
+          const k = keys.find((k) => lookupLevel(lang, k, level) !== undefined);
+          if (!k || !packs[lang].strings[`${k}.${level}`]) bad.add(`${lang} ${level} ${place}/${activity} /${ref.path.join('/')}: tried ${keys.join(', ')}`);
+        }
+        for (const c of childrenOf(r, ref, o)) walk(sceneRef(r, [...ref.path, c.step], o)!);
+      };
+      walk(sceneRef(r, [], o)!);
+    }
+    expect([...bad]).toEqual([]);
+  });
+
   it('names neighbouring stretches that dive into the same scene apart, in every language', () => {
     const bad: string[] = [];
     const title = (lang: string, dive: string, what: string) =>
@@ -85,7 +106,7 @@ describe('validation messages', () => {
   const broken = (patch: (c: Content) => void) => {
     const c: Content = structuredClone(content);
     patch(c);
-    return formatProblems(validate({ content: c, packs, files }));
+    return formatProblems(validate({ content: c, packs, files, locales }));
   };
 
   it('suggests a close technology id', () => {
@@ -150,6 +171,17 @@ describe('validation messages', () => {
     expect(broken((c) => { c.nodes.phone.dive = 'wifi-radio'; })).toContain('content/nodes/phone/node.ts › dive: "wifi-radio" explains a link; this needs a scene with `explains: \'node\'`.');
     expect(broken((c) => { c.nodes.internet.dive = nodeScene; })).toContain('content/nodes/internet/node.ts › dive: only a device has a dive (a network is drawn as a group, which opens up instead).');
     expect(broken((c) => { c.technologies.wifi.dive = nodeScene; })).toContain(`content/technologies/wifi/technology.ts › dive: "${nodeScene}" explains a node; this needs a scene with \`explains: 'link'\`.`);
+  });
+
+  it('checks spoken descriptions: both levels, short, in every locale file', () => {
+    const msg = formatProblems(validate({ content, packs, files, locales: {
+      '/content/scenes/wifi-radio/locales/da.json': { describe: { kid: 'En bølge.' }, role: { nat: { describe: { kid: 'x', nerd: 'y'.repeat(401), kids: 'z' } } } },
+      '/content/places/home/locales/en.json': { describe: 'A house.' },
+    } }));
+    expect(msg).toContain('content/scenes/wifi-radio/locales/da.json › describe.nerd:');
+    expect(msg).toContain('content/scenes/wifi-radio/locales/da.json › role.nat.describe.nerd:');
+    expect(msg).toContain('content/scenes/wifi-radio/locales/da.json › role.nat.describe:');
+    expect(msg).toContain('content/places/home/locales/en.json › describe:');
   });
 
   it('checks schemas and learn-more links', () => {

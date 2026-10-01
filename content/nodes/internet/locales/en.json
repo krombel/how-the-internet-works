@@ -6,6 +6,10 @@
   "inside": {
     "title": "Inside the internet",
     "kid": "The internet isn’t one big cloud. It’s lots of networks, each run by a different company, holding hands. The coloured patches show whose boxes your parcel passes – and the faint circles far away are a few of the many other networks.",
-    "nerd": "A network of networks: your ISP’s access network and MPLS core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you. Each shaded area is one operator; tens of thousands of other autonomous systems are out there too."
+    "nerd": "A network of networks: your ISP’s access network and MPLS core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you. Each shaded area is one operator; tens of thousands of other autonomous systems are out there too.",
+    "describe": {
+      "kid": "Inside the cloud, the path starts at your home. It runs through the street cabinet, backhaul switch, ISP gateway and ISP core. Then it reaches the border router, internet exchange and video server. A dashed side road shows transit.",
+      "nerd": "The expanded internet route starts at the home access edge, then crosses the cabinet, backhaul switch, BNG and ISP core. It continues to the border router, IXP and CDN cache. Request and video packets move in opposite directions over fibre, backbone and cross-connect links."
+    }
   }
 }

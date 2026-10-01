@@ -2,6 +2,10 @@
   "name": "At the desk",
   "kid": "No radio this time: the parcels run along a cable straight into the router, then out along a glass thread to the internet.",
   "nerd": "Wired: Ethernet frames go straight from the laptop's port to the home router, which NATs the packets and forwards them over the fibre uplink (GPON) to the ISP.",
+  "describe": {
+    "kid": "A cut-away house shows a desk, a laptop and the home router. A cable runs from the laptop to the router, then fibre leaves the house for the internet cloud. Small parcels move out as requests and back as video.",
+    "nerd": "This overview follows a wired path through the home. It starts at the laptop, crosses Ethernet to the router, then uses GPON fibre to reach the internet cloud. Request packets move upstream, and video packets return downstream."
+  },
   "tag": {
     "laptop": "Ethernet · 192.168.1.40",
     "router": "NAT → 203.0.113.7"

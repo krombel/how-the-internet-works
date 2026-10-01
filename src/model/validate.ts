@@ -6,7 +6,7 @@ import * as S from './schema';
 import { FACT, FACTS } from './packet';
 import { isLink } from './resolve';
 import type { Content } from './registry';
-import { FALLBACK, type Pack } from './strings';
+import { FALLBACK, type Json, type Pack } from './strings';
 
 export interface Problem { file: string; where: string; message: string }
 
@@ -29,17 +29,19 @@ export interface ValidateInput {
   packs: Record<string, Pack>;
   /** Paths of the component files that exist (e.g. "/content/scenes/ip-post/Scene.svelte"). */
   files: string[];
+  /** The locale files as written, by path ("/content/scenes/ip-post/locales/da.json"), to check their `describe`s. */
+  locales?: Record<string, Json>;
 }
 
-export function validate({ content: c, packs, files }: ValidateInput): Problem[] {
+export function validate({ content: c, packs, files, locales = {} }: ValidateInput): Problem[] {
   const out: Problem[] = [];
   const add = (file: string, where: string, message: string) => out.push({ file, where, message });
   const langs = Object.keys(packs);
   const en = packs[FALLBACK]?.strings ?? {};
 
-  const schema = <T>(file: string, s: z.ZodType<T>, v: unknown, skip: (path: PropertyKey[]) => boolean = () => false) => {
+  const schema = <T>(file: string, s: z.ZodType<T>, v: unknown, skip: (path: PropertyKey[]) => boolean = () => false, at: PropertyKey[] = []) => {
     const r = s.safeParse(v);
-    if (!r.success) for (const i of r.error.issues) if (!skip(i.path)) add(file, i.path.map(String).join('.').replace(/\.(\d+)/g, '[$1]'), i.message);
+    if (!r.success) for (const i of r.error.issues) if (!skip(i.path)) add(file, [...at, ...i.path].map(String).join('.').replace(/\.(\d+)/g, '[$1]'), i.message);
   };
   const strip = <T extends { id: string; file: string }>(d: T) => { const { id: _i, file: _f, ...rest } = d; return rest; };
   const ref = (file: string, where: string, kind: keyof Content, id: string | undefined, label: string) => {
@@ -213,6 +215,15 @@ export function validate({ content: c, packs, files }: ValidateInput): Problem[]
     checkLayout(a.file, a.layout);
     for (const opt of options) for (const d of opt) if (d) checkLayout(d.file, d.layout);
   }
+
+  // every spoken description is { kid, nerd }, each short (a missing level or a typo shows here, with its file)
+  const describes = (file: string, obj: Json, where: string[]) => {
+    for (const [k, v] of Object.entries(obj)) {
+      if (k === 'describe') schema(file, S.describeText, v, () => false, [...where, k]);
+      else if (typeof v === 'object') describes(file, v, [...where, k]);
+    }
+  };
+  for (const [path, json] of Object.entries(locales)) describes(path.slice(1), json, []);
 
   // de-duplicate (a place shared by several activities is checked once per activity)
   const seen = new Set<string>();

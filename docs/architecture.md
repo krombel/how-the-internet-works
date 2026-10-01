@@ -70,15 +70,17 @@ src/                      the engine: no content ids anywhere
   api.ts                  the only module Svelte content imports ($core/api)
   define.ts               defineNode/defineTechnology/… for definition files ($core/define; types only)
   main.ts App.svelte state.svelte.ts router.ts
-  engine/                 camera (semantic zoom), gestures, motion, packets, sound, svg, geometry, zoom
+  engine/                 camera (semantic zoom), gestures, motion, packets, sound, speech (read aloud), svg, geometry,
+                          zoom
   model/                  registry (content globs), components (Svelte globs), strings, schema + validate (zod),
                           resolve (route), layout (path scenes), tree (scene tree), packet (the packet model),
                           stack (LayerCtx), ladder (what lies below a scene), location (URL), regions (owner outlines),
-                          trip (km, light, owners)
+                          trip (km, light, owners), describe (the keys a scene's text and description are under)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
-  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, style, About), About,
-                          Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree, Change (a changed value),
+  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
+                          About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree, Change (a
+                          changed value),
                           Announcer + announce (what a screen reader hears)…
 content/
   locales/{en,da}/        meta.json ui.json
@@ -421,9 +423,23 @@ engine:
   focused element (`catchFrom`) and focuses the peek; letting go gives it back (`keepFocus`). The picker makes
   everything behind it `inert` and gives focus back to its opener.
 - **One announcer** (`ui/announce.svelte.ts`, `ui/Announcer.svelte`): `announce(text)` puts one short line in a
-  visually hidden `role="status"`. On arrival `arrival(title, body)` says the title and the first sentence
-  (`firstSentence`, `Intl.Segmenter` in the page's language); the peek announces each hop. No panel is `aria-live`, so
-  nothing re-reads 600 characters.
+  visually hidden `role="status"`. On arrival `arrival` says the title (left out when focus went to the heading, which
+  says it), what lies below ("3 doors lead further down", `ladder.doors`) and the scene's description (`describe`);
+  at a stop along the way, which has none, the first sentence of its caption (`firstSentence`, `Intl.Segmenter` in the
+  page's language). The peek announces each hop. No panel is `aria-live`, so nothing re-reads 600 characters.
+- **Descriptions** (`model/describe.ts`). `sceneKeys` gives the keys a scene's text is looked up under, most specific
+  first (a dive's subject, a layer dive's node, role and sealed variants, a group's route keys, the overview's places);
+  the caption uses them, and `describeKeys` adds `.describe`, so a description needs no engine concept of its own. The
+  caption carries it as `CaptionText.describe`. `validate.ts` checks every `describe` in the raw locale JSON
+  (`describeText`, zod), and `content.test.ts` walks every scene of every place × activity × orientation and fails
+  for one without a description at both levels in every language. Dive descriptions ride the lazy dive strings.
+- **Read aloud** (`engine/speech.ts`). A `Speaker` over the browser's `speechSynthesis`: `available(lang)` (a voice
+  whose language is the page's, `voiceFor`; the list may arrive late, `voiceschanged`), `say` (cuts off what it was
+  saying; kids hear it a little slower) and `cancel`. It is a toggle in ⋯ after Sound, offered only where there's a
+  voice for the language, off by default and remembered (`settings.speech`). Turning it on says so inside the tap
+  (that unlocks iOS). On arrival it reads the title, the description and the caption (`readAloud`, `spoken`); the
+  peek reads each hop; the caption gets "Read again". A navigation cancels it, and the quiet packet ticks wait while
+  it speaks.
 - **The focus ring** is the engine's (`:focus-visible` in `ui/ui.css`, `!important` so a theme's card outline can't
   hide it); themes can only recolour it with `--focus-ink` and `--focus-gap`, and the contrast test checks the pair.
 - **No content ids.** All of this is generic over the scene tree; the words are `ui.json` strings.

@@ -2,17 +2,29 @@
   "title": "Det hemmelige håndtryk",
   "kid": "Din telefon og videoserveren laver et hemmeligt håndtryk, før filmen starter. Telefonen tjekker serverens guldstempel og blander så farver, så begge ender får den samme låsefarve. Derefter rejser hver pakke låst.",
   "nerd": "TLS 1.3 starter med SNI og certifikatkontrol: video.example sender en kæde leaf → intermediate → root i trust store, med navn der passer og gyldige datoer. X25519 ECDHE udveksler offentlige værdier g^a og g^b; begge endepunkter udleder g^ab med HKDF og beskytter records med AEAD som AES-GCM eller ChaCha20-Poly1305 (RFC 8446, én round trip).",
+  "describe": {
+    "kid": "En vej forbinder din telefon og videoserveren. Det første kort viser et ID-kort og en bog med godkendte stempler. Det andet kort viser telefonens og serverens malerbøtter, der blandes. Kragen ser kun de offentlige blandinger. Så klikker en lås på pakken, og den låste pakke rejser videre.",
+    "nerd": "Kortene viser TLS 1.3 fra klient-endepunktet. ID-kortet viser certifikatkontrol. Malingsregnestykkerne viser nøgleaftale. Kragen ser offentlige handshake-værdier på forbindelsen, ikke hemmeligheder. Når blandingen er færdig, bliver pakken til en krypteret record og går mod serveren."
+  },
   "at": {
     "cdn": {
       "title": "Serveren viser hvem den er",
       "kid": "Videoserveren viser sit ID-kort med et guldstempel. Den blander også sin hemmelige farve, så den får præcis den samme låsefarve som din telefon. Så sender den videopakker, som kun de to ender kan åbne.",
-      "nerd": "Ved serverens endepunkt afsluttes TLS: certifikatet for video.example sendes, den valgte TLS 1.3 cipher suite bruges, og serverens X25519-hemmelighed kombineres med klientens offentlige værdi, så de samme trafiknøgler dannes. Records sendes videre som autentificeret krypteret tekst."
+      "nerd": "Ved serverens endepunkt afsluttes TLS: certifikatet for video.example sendes, den valgte TLS 1.3 cipher suite bruges, og serverens X25519-hemmelighed kombineres med klientens offentlige værdi, så de samme trafiknøgler dannes. Records sendes videre som autentificeret krypteret tekst.",
+      "describe": {
+        "kid": "Videoserveren er markeret for enden af vejen. Den viser sit stemplede ID-kort, blander sin maling med telefonens og ender med samme låsefarve. Kragen kan se blandingerne. Når låsen kommer på, rejser pakken som en låst kasse, som kun de to ender kan åbne.",
+        "nerd": "Ved server-endepunktet viser kortene certifikatkæden og ECDHE som maling. Serveren bidrager med sin offentlige værdi og udleder de samme trafiknøgler. Kragen på forbindelsen kan se handshake-metadata og offentlige værdier. Derefter bevæger kun autentificerede krypterede records sig som låste pakker."
+      }
     }
   },
   "sealed": {
     "title": "Det kragen kan se",
     "kid": "Dette stop bærer pakken, men kan ikke åbne låsen. Ligesom kragen ser det de orange og grønne blandinger og bagefter låste pakker med kruseduller. Selv kasserne, der bærer din pakke, kan ikke læse den.",
-    "nerd": "Ved {hop} er TLS forseglet ende til ende. Hoppet kan videresende lavere lags headers, men TLS-records er AEAD-krypteret tekst; det kan se SNI/certifikat-metadata og offentlige ECDHE-værdier, men ikke HTTP-requesten eller nøglerne."
+    "nerd": "Ved {hop} er TLS forseglet ende til ende. Hoppet kan videresende lavere lags headers, men TLS-records er AEAD-krypteret tekst; det kan se SNI/certifikat-metadata og offentlige ECDHE-værdier, men ikke HTTP-requesten eller nøglerne.",
+    "describe": {
+      "kid": "Et mellemstop står på vejen, mens telefonen og serveren er i enderne. Kortene viser stadig ID-tjek og maling, der blandes, og kragen kigger på de offentlige blandinger. Når låsen kommer på, bliver pakkens ansigt til kruseduller. Stoppet bærer bare den låste pakke videre.",
+      "nerd": "Denne ikke-endepunkt-visning viser TLS forseglet over hoppet. Det offentlige certifikat og ECDHE-værdier ses i kortenes historie, men enheden du er ved, videresender kun pakker fra lavere lag. Når records er beskyttet, er pakken låst og krusedullet som krypteret tekst, ikke læsbar HTTP."
+    }
   },
   "label": {
     "videoName": "video.example",

@@ -2,6 +2,10 @@
   "name": "Ved skrivebordet",
   "kid": "Ingen radio denne gang: pakkerne løber gennem et kabel direkte ind i routeren og så ud langs en glastråd til internettet.",
   "nerd": "Med kabel: Ethernet-rammer går direkte fra den bærbares port til hjemmerouteren, som NAT-oversætter pakkerne og sender dem videre over fiberforbindelsen (GPON) til internetudbyderen.",
+  "describe": {
+    "kid": "Et gennemskåret hus viser et skrivebord, en bærbar og hjemmerouteren. Et kabel går fra den bærbare til routeren, og fiber fortsætter ud til internetskyen. Små pakker går ud som forespørgsler og tilbage som video.",
+    "nerd": "Oversigten følger en kablet rute i hjemmet. Den starter ved den bærbare, går over Ethernet til routeren og videre med GPON-fiber til internetskyen. Forespørgsler går opstrøms, og videopakker kommer nedstrøms tilbage."
+  },
   "tag": {
     "laptop": "Ethernet · 192.168.1.40",
     "router": "NAT → 203.0.113.7"

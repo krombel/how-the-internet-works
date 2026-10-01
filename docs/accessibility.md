@@ -9,7 +9,7 @@ The work comes in four slices:
 |---|---|---|
 | 1 | Pause everything, the automated check (axe + keyboard) in `npm run evaluate` and CI, focus and announcer fixes | done |
 | 2 | A text map (list view) and the keyboard in the scene, sharing one focus model | to do |
-| 3 | Spoken descriptions of each scene (`describe`, kid/nerd, every language) and read aloud from the 🔈 | to do |
+| 3 | Spoken descriptions of each scene (`describe`, kid/nerd, every language) and read aloud from ⋯ | done (the text map's descriptions follow slice 2) |
 | 4 | Not by colour alone, non-text contrast, `forced-colors`, targets and 200 % zoom (with #45) | to do |
 
 ## What works today
@@ -36,9 +36,19 @@ The work comes in four slices:
     breadcrumb is a `nav` ("Where you are") with `aria-current="location"`.
   - `document.title` names the scene: "Radio waves · How the internet works".
   - **One announcer** (`ui/Announcer.svelte`, a visually hidden `role="status"`) says short lines instead of whole
-    panels: on arrival the scene's title and the first sentence of its caption (`arrival`, `firstSentence` in
-    `ui/announce.svelte.ts`); in the peek the hop ("Home router, 3 of 9. It swaps the address…"). Nothing else is
-    `aria-live`.
+    panels: on arrival the scene's title, what lies below it ("3 doors lead further down") and what the picture shows
+    (`arrival` in `ui/announce.svelte.ts`); when focus moved to the caption's heading, which says the title, just the
+    rest. At a stop along the way it says the stop's name and the first sentence of its caption. In the peek it says
+    the hop ("Home router, 3 of 9. It swaps the address…"). Nothing else is `aria-live`.
+- **Spoken descriptions.** Every scene has one (`describe`, kid and nerd, English and Danish): what the picture shows
+  and what moves, in short sentences in the order you'd see things. A test fails if a scene a reader can reach has
+  none in some language, at either level (no English fallback). How to write them: [authoring](authoring.md).
+- **Read aloud.** "Read aloud" in ⋯ (after Sound) has the browser's own voice read each scene as you arrive: its
+  title, its description and the caption. It is offered only where the system has a voice for the page's language
+  (no Danish voice, no Danish read aloud), is off by default, and is remembered. Turning it on says "Read aloud is
+  on" (that tap is what lets iOS speak). While it is on, the caption has "Read again"; in the peek each hop is read.
+  Going somewhere else cuts it off, and the quiet packet ticks wait while it speaks. Screen-reader users don't need
+  it: the announcer speaks in their own voice.
   - Toggles keep their name and say their state with `aria-pressed` ("Pause all motion, pressed"). The kid/nerd
     buttons say which one is on. The ladder's lists and the crumbs are disclosures (`aria-expanded`), not menus.
   - A changed header field reads "60, was 61" (`ui/Change.svelte`) instead of the struck-through old value and the
@@ -47,8 +57,9 @@ The work comes in four slices:
 - **Contrast.** The chrome's text pairs, including the "Change" link and the peek's old and new values, meet AA in day
   and night (`model/contrast.test.ts`).
 
-**Not yet** (slices 2–4): the picture itself has no text alternative (the stage SVG is `aria-hidden`; the caption
-chips and the ladder are the way in), the scene can't be walked by keyboard stop by stop, hints name gestures
+**Not yet** (slices 2 and 4): the stage SVG is still `aria-hidden` (its description is spoken on arrival, but there
+is no list view of it yet; the caption chips and the ladder are the way in), the scene can't be walked by keyboard
+stop by stop, hints name gestures
 ("Swipe…") but not keys, and colour carries meaning in places (owner regions, request vs response, fibre colours).
 
 ## How to check
@@ -65,12 +76,17 @@ animation or transition is running (`document.getAnimations()`), so nothing is j
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
-  and About, on a desktop, a portrait phone and a short landscape screen. **Zero violations** is the bar; there is no
+  and About, and read aloud on (the caption's "Read again", ⋯ with its toggle), on a desktop, a portrait phone and a
+  short landscape screen. **Zero violations** is the bar; there is no
   baseline of allowed ones.
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
   screen, or on a control without a visible ring.
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
-  the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), and the picker (Tab stays in it, Esc back to its button).
+  the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button),
+  and read aloud: turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the
+  title, the description and the caption, and "Read again" says them again. The browser's voices are replaced by a
+  fake one with an English and a Danish voice (a headless browser may have none), which notes what it was asked to
+  say.
 
 axe can't judge SVG text over art (it reports it as "needs review"); slice 4 covers the scene's own contrast.
 
@@ -82,13 +98,16 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
 **VoiceOver on macOS** (Safari, ⌘F5):
 - [ ] VO-U (rotor): landmarks "banner", "main", "Where you are" navigation; one heading level 1.
 - [ ] Tab from the top: every control is named; ⏸, ☀️/🌙 say "pressed" / "not pressed", not a changing name.
-- [ ] Open a door from the caption: you hear the new scene's title and first sentence once, and focus is on its
-      heading (VO-→ reads on into the caption).
+- [ ] Open a door from the caption: you hear the new scene's title once, then what lies below and its description,
+      and focus is on its heading (VO-→ reads on into the caption).
 - [ ] Step with ← →: each stop's title is spoken once; nothing re-reads the whole caption.
 - [ ] Catch a packet (its chip in the caption): focus moves to the peek; ◀ ▶ say "Home router, 3 of 9…"; a changed
       field says "…, was …"; Esc returns to where you were.
 - [ ] Ladder: the current rung's list opens and closes ("expanded" / "collapsed"); Esc folds it.
-- [ ] ⋯: a menu with Language (radio items), Sound (checkbox) and About; Esc returns to ⋯.
+- [ ] ⋯: a menu with Language (radio items), Sound and Read aloud (checkboxes) and About; Esc returns to ⋯.
+- [ ] Read aloud (with VoiceOver off): turned on it says so; each door reads the title, the description and the
+      caption; "Read again" repeats it; a new door cuts it off. In Danish it is only offered with a Danish voice
+      installed.
 - [ ] "Change" (the place): a dialog; Tab stays in it; Esc returns to "Change".
 - [ ] Switch to Dansk: the Danish voice is used for the page (and English for an English learn-more link).
 

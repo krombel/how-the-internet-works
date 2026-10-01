@@ -19,6 +19,18 @@ the pieces fit together.
 - **Imports.** Definition files (`*.ts`) import only from `$core/define` and relative files. Svelte files import only from `$core/api` and relative files. A test enforces this.
 - **Strings.** Every folder has `locales/en.json`; other languages are optional and fall back to English per string. Keys are namespaced for you: `content/nodes/laptop/locales/en.json` → `node.laptop.*`.
 - **Levels.** Any string can be split by level: `"kid": "…", "nerd": "…"`, or `"stop": { "router": { "kid": …, "nerd": … } }`.
+- **Spoken descriptions (`describe`, issue #53).** Every scene a reader can reach has a `"describe": { "kid": …, "nerd": … }`
+  next to its caption text, in **every** shipped language (no English fallback: a test fails if one is missing, and
+  lists the keys it tried). It is what the picture shows, for someone who can't see it: the announcer and read aloud
+  say it on arrival. Write it to be heard: two to four short sentences, in the order you'd see things (the big
+  picture, then along the path), saying what moves. Don't repeat the caption, which says what it means (it is read
+  after it), and stay under 400 characters. It sits under the same key as the scene's own text, so a variant for one
+  technology, device, hop or role is the same key with `.describe`:
+  - a link or device dive: `describe`, or `<tech or node id>.describe`
+  - a layer dive: `describe`, `<layer>.describe`, `role.<role>.describe`, `at.<node>.describe`, `sealed.describe`
+    (most specific first, as for `kid`/`nerd`; `{hop}`, `{yours}` and `{layer}` are filled in)
+  - the overview: the place's own `describe` (one per place on the route, said in turn)
+  - inside a group: the node's `inside.describe`, or a place's `inside.<group>.describe`
 - **Addresses.** Use the documentation ranges: 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24 for public addresses; 192.168.x, 10.x and 100.64/10 (CGNAT) for private ones.
 
 ## Worked example: a laptop on a cable at the desk
@@ -398,7 +410,8 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 ## Checklist
 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
-- [ ] `locales/en.json` has the required strings; `da.json` if you can.
+- [ ] `locales/en.json` has the required strings; `da.json` if you can. A new scene (or a new variant of one) has a
+  `describe` in English and Danish.
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes), with
   nothing overlapping at the size things grow to on a small phone, in any language (`model/overlap.test.ts` and
   `model/doors.test.ts` check).

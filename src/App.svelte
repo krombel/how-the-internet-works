@@ -9,6 +9,7 @@
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
+  import { speaker, spoken } from './engine/speech';
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
@@ -22,7 +23,7 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadDiveStrings, loadTheme, loc, nameW, nav, setPaused, settings, themeState, tr, view } from './state.svelte';
+  import { canSpeak, loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, setPaused, settings, themeState, tr, trCount, view } from './state.svelte';
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
@@ -202,6 +203,7 @@
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     navigated = true;
+    speaker.cancel();
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
     const from = validPrefix(route, prev.path), tv = switched ? null : travelOf(route, from, next.path, view.orient);
@@ -415,7 +417,7 @@
       const own = pathScene(route, ref.group, o), shown = morphScenes.get(m.key) ?? own;
       let list = livePackets(specsFor(own, route.activity.flows), shown.links, view.time, m.key);
       const ids = new Map(list.map((p) => [p.id, p]));
-      for (const [id, p] of prevIds.get(m.key) ?? []) if (!ids.has(id) && m.key === hereKey && p.age > p.spec.duration * 0.85) sfx.blip(false, p.dir);
+      for (const [id, p] of prevIds.get(m.key) ?? []) if (!ids.has(id) && m.key === hereKey && p.age > p.spec.duration * 0.85 && !speaker.speaking) sfx.blip(false, p.dir);
       prevIds.set(m.key, ids);
       if (caught) {
         list = list.filter((p) => p.id !== caught!.hide);
@@ -583,7 +585,8 @@
   // ------------------------------------------------------------------ focus + what a screen reader hears (#53)
   // Focus never falls to the page or stays on something hidden: when a navigation lands (or a caught packet is let
   // go) and focus was on what went away, it goes to the caption's title; otherwise focus stays put (◀ ▶, a crumb)
-  // and the announcer says where you are.
+  // and the announcer says where you are. Either way it says what lies below and what the picture shows (`describe`),
+  // and read aloud, when it's on, reads the whole caption.
   let navigated = false;
   let catchFrom: Element | null = null;
   const focusable = (e: Element | null): e is HTMLElement => !!e && e !== document.body && e.isConnected && !e.closest('[inert]');
@@ -594,13 +597,18 @@
   }
   $effect(() => {
     if (!showCaption || caught) return;
-    const { title, body } = caption;
+    const { title, body, describe } = caption;
+    const doors = !here.stop && below?.kind === 'doors' ? trCount('ladder.doors', below.doors.length) : '';
     untrack(() => {
       if (!navigated) return;
       navigated = false;
-      if (!keepFocus()) announce(arrival(title, body, loc.lang));
+      readAloud(spoken(title, describe, body));
+      const said = { title, below: doors, describe, body };
+      if (!keepFocus()) announce(arrival(said, loc.lang));
+      else if (describe) announce(arrival({ ...said, title: '' }, loc.lang));
     });
   });
+  const readAgain = $derived(settings.speech && canSpeak() ? () => readAloud(spoken(caption.title, caption.describe, caption.body)) : undefined);
   $effect(() => { document.title = `${caption.title} · ${tr('app.title')}`; });
 
   // ------------------------------------------------------------------ frame loop, gestures, resize
@@ -773,7 +781,7 @@
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
     <Caption text={caption} place={placeName} onplace={() => openPicker(0)} {explore} catches={catchable} oncatch={catchKind}
-      ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
+      ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
     {#if !peekOpen}
       <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
         canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />

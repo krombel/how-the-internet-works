@@ -6,12 +6,20 @@
     "nat": {
       "title": "Your router keeps its house number",
       "kid": "Your router hears the shared fibre, but it only keeps the light envelope marked House no. 1127. The others stay locked. Underneath, the envelope travels as flashes of light in a glass thread.",
-      "nerd": "At the ONT/router, downstream GEM frames for all ONTs arrive from the splitter. This ONT accepts GEM Port-ID 1127, discards other Port-IDs, and relies on per-port AES for privacy."
+      "nerd": "At the ONT/router, downstream GEM frames for all ONTs arrive from the splitter. This ONT accepts GEM Port-ID 1127, discards other Port-IDs, and relies on per-port AES for privacy.",
+      "describe": {
+        "kid": "The road points at your router. One card shows a cabinet, a splitter and four houses. Light envelopes go to every house, but only the one marked 1127 opens at your router. The neighbours stay locked. Another card shows the turn strip with slot 3 lit.",
+        "nerd": "The ONT and router view highlights downstream GEM Port-ID 1127 in the header. Broadcast envelopes fan out through the splitter. Other GEM frames stay locked, and the accepted one gets a check. The upstream card shows the 125 microsecond slot strip with turn 0x467 marked."
+      }
     },
     "bridge": {
       "title": "The cabinet hands out turns",
       "kid": "The cabinet is the boss of the shared fibre. It sends a little timetable so each house knows when to talk and nobody talks over anyone else.",
-      "nerd": "At the OLT, the downstream header carries a BWmap. Upstream bursts use Alloc-IDs/T-CONTs, DBA grants, and ranging equalisation delays so near and far ONTs land in their assigned 125 µs frame slots."
+      "nerd": "At the OLT, the downstream header carries a BWmap. Upstream bursts use Alloc-IDs/T-CONTs, DBA grants, and ranging equalisation delays so near and far ONTs land in their assigned 125 µs frame slots.",
+      "describe": {
+        "kid": "This scene is at the cabinet, with cards for the shared fibre. One card sends envelopes through the splitter to four houses. The turn card is active. Its timetable is split into four slots, slot 3 glows, and small bursts drop into their turns one by one.",
+        "nerd": "The OLT view makes the upstream scheduler card active. Four TDMA slots fill a 125 microsecond frame, with Alloc-ID 0x467 highlighted. Dots and bursts step through the grants. The downstream card still shows splitter broadcast and GEM Port-ID 1127."
+      }
     }
   },
   "label": {

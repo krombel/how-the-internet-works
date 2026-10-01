@@ -1,14 +1,14 @@
 <script lang="ts">
   // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (only where there is something to
   // explore: not in dives), pause (all motion), kid/nerd, day/night (when the theme has a night), and ⋯: a menu
-  // (Menu.svelte, entries in `entries` below) with the language, sound, the style (only when more than one theme is
-  // installed) and About. The controls keep to the end of the row, so one that comes and goes doesn't move the others;
-  // on a phone they wrap under the ladder, and on a short landscape screen it is one slim row. Toggles keep their name
-  // and say their state with aria-pressed.
+  // (Menu.svelte, entries in `entries` below) with the language, sound, read aloud (where there is a voice for the
+  // language), the style (only when more than one theme is installed) and About. The controls keep to the end of the
+  // row, so one that comes and goes doesn't move the others; on a phone they wrap under the ladder, and on a short
+  // landscape screen it is one slim row. Toggles keep their name and say their state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
-  import { hasNight, loc, setLevel, setMode, setSound, settings, syncUrl, THEME_IDS, themeSwatches, tr, view } from '../state.svelte';
+  import { canSpeak, hasNight, loc, setLevel, setMode, setSound, setSpeech, settings, syncUrl, THEME_IDS, themeSwatches, tr, view } from '../state.svelte';
   import type AboutT from './About.svelte';
   import Icon from './Icon.svelte';
   import Ladder from './Ladder.svelte';
@@ -55,6 +55,8 @@
       options: languages.map((l) => ({ id: l.code, label: l.name, lang: l.code })) },
     { kind: 'toggle', id: 'sound', icon: settings.sound ? 'soundOn' : 'soundOff', label: tr('ui.sound'), on: settings.sound,
       state: tr(settings.sound ? 'ui.on' : 'ui.off'), set: setSound },
+    ...(canSpeak() ? [{ kind: 'toggle' as const, id: 'speech', icon: 'speak' as const, label: tr('ui.speech'), on: settings.speech,
+      state: tr(settings.speech ? 'ui.on' : 'ui.off'), set: setSpeech } satisfies MenuEntry] : []),
     ...(THEME_IDS.length > 1 ? [{ kind: 'choice' as const, id: 'style', label: tr('ui.style'), value: settings.style,
       pick: (id) => { settings.style = id; syncUrl(); },
       options: THEME_IDS.map((id) => ({ id, label: tr(`theme.${id}.name`), swatch: themeSwatches[id] })) } satisfies MenuEntry] : []),

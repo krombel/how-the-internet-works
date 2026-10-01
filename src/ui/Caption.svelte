@@ -1,6 +1,7 @@
 <script lang="ts">
   // Bottom caption: title + kid/nerd text, the doors you can open from here (as chips, by verb: the keyboard and
-  // screen-reader way in), a gesture hint, where you are (tap to change) and "Want to know more?" (#4).
+  // screen-reader way in), "Read again" while read aloud is on (#53), a gesture hint, where you are (tap to change) and
+  // "Want to know more?" (#4).
   // It may fold (`fold`, from `captionFold`) so the scene keeps the screen; its title is then a button that opens the
   // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes:
   // - `pill` (a short landscape screen): a one-line pill with the title;
@@ -12,8 +13,10 @@
   import { loc, tr } from '../state.svelte';
   import type { CaptionDoor, CaptionFold, CaptionText } from './caption';
   import Icon from './Icon.svelte';
-  let { text, place, onplace, ondoor, onhot, explore, catches, oncatch, hidden, fold, el = $bindable() }: {
+  let { text, place, onplace, ondoor, onhot, explore, catches, oncatch, onread, hidden, fold, el = $bindable() }: {
     text: CaptionText; place: string; onplace: () => void;
+    /** Read the caption aloud again; no button without it (read aloud off, or no voice). */
+    onread?: () => void;
     /** Packet kinds to catch here (issue #17), and catching one. */
     catches: { kind: string; name: string }[]; oncatch: (kind: string) => void;
     /** Open a door / point at it (its badge in the scene glows) or stop pointing (null). */
@@ -85,6 +88,7 @@
           {/if}
         </div>
       {/if}
+      {#if onread}<button class="btn chip read" onclick={onread}><Icon name="speak" />{tr('caption.read')}</button>{/if}
       <button class="btn chip place" onclick={onplace}>{place} · <u>{tr('ui.change')}</u></button>
       {#if text.hint}<span class="hint">{text.hint}</span>{/if}
       {#if text.links.length}
