@@ -125,7 +125,7 @@ export function serverAt(t: number, still: boolean, L: ServerLayout, hasOrigin =
       video: video ?? hiddenVideo(cachePoint(L)),
       copyAlpha: 1,
       originActive: false,
-      statusAlpha: Math.min(1, Math.max(0, (phase - 0.24) / 0.12, (0.98 - phase) / 0.12)),
+      statusAlpha: Math.min(1, Math.max(0, Math.min((phase - 0.24) / 0.12, (0.98 - phase) / 0.12))),
     };
   }
 
@@ -137,7 +137,7 @@ export function serverAt(t: number, still: boolean, L: ServerLayout, hasOrigin =
     video: video ?? hiddenVideo(L.originNode),
     copyAlpha: Math.min(1, Math.max(0, (phase - 0.69) / 0.08)),
     originActive: phase >= 0.30 && phase <= 0.64,
-    statusAlpha: Math.min(1, Math.max(0, (phase - 0.24) / 0.12, (0.98 - phase) / 0.12)),
+    statusAlpha: Math.min(1, Math.max(0, Math.min((phase - 0.24) / 0.12, (0.98 - phase) / 0.12))),
   };
 }
 

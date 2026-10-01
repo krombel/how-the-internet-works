@@ -176,6 +176,7 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
     specs.forEach((g, i) => {
       const at = typeof a.groups![i] === 'string' ? `groups[${i}]` : `groups[${i}].id`;
       ref(a.file, at, 'nodes', g.id, 'a node');
+      if (specs.slice(0, i).some((p) => p.id === g.id)) add(a.file, at, `"${g.id}" is listed twice`);
       if (c.nodes[g.id] && c.nodes[g.id].kind !== 'network') add(a.file, at, `"${g.id}" is a ${c.nodes[g.id].kind}; only network nodes expand`);
       // a group nests in one listed before it, so nesting can't go round in a circle
       if (g.in && !specs.slice(0, i).some((p) => p.id === g.in)) add(a.file, `groups[${i}].in`, `"${g.in}" is not a group listed before "${g.id}"`);

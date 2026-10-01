@@ -145,6 +145,16 @@ describe('inside the video server', () => {
     expect(still.request.p.y).toBeCloseTo(server.appPoint(L).y);
   });
 
+  it('shows the hit or miss card only once the request reaches the app, and clears it before the next', () => {
+    const L = server.serverLayout('landscape');
+    const card = (t: number) => server.serverAt(t * server.PERIOD, false, L, true).statusAlpha;
+    for (const c of [0, 1]) {
+      expect(card(c + 0.1)).toBe(0);
+      expect(card(c + 0.6)).toBe(1);
+      expect(card(c + 0.99)).toBe(0);
+    }
+  });
+
   it('keeps moving carriers inside the authored world', () => {
     const carriers = <S extends string>(m: Moving<S>[]) => m.filter((p) => p.alpha > 0.02);
     for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
