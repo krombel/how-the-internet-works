@@ -6,6 +6,10 @@
   "title": "Strøm i kobber",
   "kid": "Ethernet sender små spændingsskub gennem snoede kobberpar. Snoningen hjælper støj med at udligne sig, og kablet kan tale begge veje på én gang. Efter cirka 100 m bliver skubbene for svage og udtværede. Sådan rejser kabel-kuverten.",
   "nerd": "1000BASE-T bruger differential signalering på alle fire Cat 5e-par. Hvert par kører 125 MBd med PAM-5-niveauer tæt på ±1 V, hybrider og ekkoudligning gør hvert par fuld duplex, og standarden budgetterer cirka 100 m til tab og krydstale.",
+  "describe": {
+    "kid": "To netværksbokse står i hver ende af et tykt kabel. Indeni ligger fire snoede par. Lysende spændingsskub bevæger sig begge veje gennem parrene. Kortene zoomer ind på snoningen, skubbene og dæmpningen efter cirka 100 meter.",
+    "nerd": "Kabelsnittet viser fire differentialpar med fuld duplex-pulser mellem enderne. Kortene viser modsatte spændinger på et snoet par, PAM-5-niveauer og et øjediagram. 100 meter-mærket viser kanalbudgettet, mens pulserne dæmpes."
+  },
   "pairs": "Fire snoede par i ét kabel",
   "pairsShort": "Fire snoede par",
   "bothWays": "Lysende skub løber begge veje på én gang",

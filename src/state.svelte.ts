@@ -5,6 +5,7 @@ import { tick } from 'svelte';
 import type { Level, Mode, Orient } from './define';
 import type { Viewport } from './engine/camera';
 import { sfx } from './engine/sound';
+import { speaker } from './engine/speech';
 import { clearMeasureCache, textBox } from './engine/svg';
 import type { Loc } from './model/location';
 import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
@@ -72,14 +73,16 @@ const metaOf = (id: string) => themeMeta[`/content/themes/${id}/meta.json`] ?? {
 export const THEME_IDS = Object.keys(themeModules).map(idOf).sort((a, b) => metaOf(a).order - metaOf(b).order || a.localeCompare(b));
 export const themeSwatches: Record<string, string> = Object.fromEntries(THEME_IDS.map((id) => [id, metaOf(id).swatch]));
 
-/** `paused`: the reader stopped all motion (remembered, like the level: it's an access need, WCAG 2.2.2). */
-export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean }
+/** `paused`: the reader stopped all motion (remembered, like the level: it's an access need, WCAG 2.2.2). `speech`:
+ *  read aloud (#53; remembered too). */
+export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean; speech: boolean }
 const pick = <T extends string>(v: string | null, ok: readonly T[], d: T): T => (v && (ok as readonly string[]).includes(v) ? (v as T) : d);
 export const settings = $state<Settings>({
   style: pick(q.get('style'), THEME_IDS, pick(localStorage.getItem('style'), THEME_IDS, THEME_IDS[0])),
   sound: false, // always muted on load
   mode: 'day', // set below
   paused: localStorage.getItem('paused') === '1',
+  speech: localStorage.getItem('speech') === '1',
 });
 
 /** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode`
@@ -101,6 +104,24 @@ export function setPaused(on: boolean) {
 export function setSound(on: boolean) {
   settings.sound = on;
   sfx.setEnabled(on);
+}
+
+/** Bumped when the system's voices change (they load after the page), so whether read aloud is offered updates. */
+const voices = $state({ n: 0 });
+speaker.onvoices(() => voices.n++);
+/** Whether read aloud can be offered: there's a voice for the page's language. */
+export const canSpeak = () => (voices.n, speaker.available(loc.lang));
+/** Turn read aloud on or off. Turned on, it says so straight away: inside the tap, which is what lets iOS speak. */
+export function setSpeech(on: boolean) {
+  settings.speech = on;
+  if (on) localStorage.setItem('speech', '1');
+  else localStorage.removeItem('speech');
+  if (on) speaker.say(tr('speech.on'), loc.lang, loc.level);
+  else speaker.cancel();
+}
+/** Read `text` aloud, if read aloud is on and there's a voice for it. */
+export function readAloud(text: string) {
+  if (settings.speech && canSpeak()) speaker.say(text, loc.lang, loc.level);
 }
 
 const placeholder = defineTheme({

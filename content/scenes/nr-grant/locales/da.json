@@ -6,12 +6,20 @@
     "bridge": {
       "title": "Masten deler radiopladser ud",
       "kid": "Masten er klassens hjælper. Din telefon rækker hånden op, masten giver telefon nr. 4601 en tur og tjekker hver bid. Nedenunder rejser kuverten som en radiostråle.",
-      "nerd": "Ved gNB’en fører en uplink-SR på PUCCH til et UL-grant i DCI på PDCCH, hvor CRC’en er scrambled med UE’ens C-RNTI 0x4601. Scheduler tildeler slot 6, RB 20–31; HARQ ACK/NACK kommer cirka 1 ms senere, med RLC ARQ ovenover for resterende tab og PDCP-kryptering plus SN bevaret."
+      "nerd": "Ved gNB’en fører en uplink-SR på PUCCH til et UL-grant i DCI på PDCCH, hvor CRC’en er scrambled med UE’ens C-RNTI 0x4601. Scheduler tildeler slot 6, RB 20–31; HARQ ACK/NACK kommer cirka 1 ms senere, med RLC ARQ ovenover for resterende tab og PDCP-kryptering plus SN bevaret.",
+      "describe": {
+        "kid": "Vejen viser telefon, mast og mobilkerne, og masten er størst. På det første kort beder telefonen om en tur. Mastens liste lyser ved telefon nummer 4601 i slot 6. På det andet kort flytter radiobidder sig, én bliver udtværet, “Igen!” dukker op, og en tydelig bid får flueben.",
+        "nerd": "gNB-kortet fremhæver vejen fra anmodning til grant for C-RNTI 0x4601, slot 6 og RB 20 til 31. HARQ-kortet animerer en dårlig transportblok, NACK, gensending med RV, soft combining og ACK. Mærker viser logisk kanal, RLC, PDCP og QoS-flow."
+      }
     },
     "endpoint": {
       "title": "Telefonen leder efter sit nummer",
       "kid": "Din telefon læser mastens liste og samler kun bidder op med telefon nr. 4601. Hvis en bid er utydelig, siger den “igen!” og beholder den tydelige kopi. Nedenunder rejser kuverten som en radiostråle.",
-      "nerd": "UE’en overvåger PDCCH-kandidater for DCI, hvis CRC kan unscrambles med C-RNTI 0x4601, og modtager derefter sin PDSCH-tildeling. Den sender HARQ ACK/NACK efter omtrent 1 ms; incremental redundancy og soft combining genskaber transportblokken, før RLC/PDCP ser den."
+      "nerd": "UE’en overvåger PDCCH-kandidater for DCI, hvis CRC kan unscrambles med C-RNTI 0x4601, og modtager derefter sin PDSCH-tildeling. Den sender HARQ ACK/NACK efter omtrent 1 ms; incremental redundancy og soft combining genskaber transportblokken, før RLC/PDCP ser den.",
+      "describe": {
+        "kid": "Telefonen er det største stop på vejen og holder øje med mastens liste. En cirkel leder, til telefon nummer 4601 lyser. Så rejser en kuvert med 4601 over radiostrålen. En udtværet bid beder om “Igen!”, og to kopier samles til én tydelig bid.",
+        "nerd": "UE-visningen scanner PDCCH-rækker for C-RNTI 0x4601 og viser derefter PDSCH-tildelingen til slot 6 og RB 20 til 31. HARQ-kortet viser NACK-boblen, gensendt redundans, soft combining til en afkrydset blok og RLC- og PDCP-sekvensmærker."
+      }
     }
   },
   "sealed": {

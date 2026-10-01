@@ -6,12 +6,20 @@
     "bridge": {
       "title": "Radio frame, cable frame",
       "kid": "At the access point, the Wi-Fi envelope comes off. The “then to” sticker becomes the cable envelope’s “for” sticker, but the parcel still says it came from your phone. Underneath, the envelope travels as radio waves.",
-      "nerd": "At the bridge, the uplink 802.11 QoS data frame has RA=AP, TA=STA and addr3=the distribution-system destination. The AP decapsulates it, verifies CCMP/FCS, then emits an Ethernet frame toward the router; the IP packet is untouched."
+      "nerd": "At the bridge, the uplink 802.11 QoS data frame has RA=AP, TA=STA and addr3=the distribution-system destination. The AP decapsulates it, verifies CCMP/FCS, then emits an Ethernet frame toward the router; the IP packet is untouched.",
+      "describe": {
+        "kid": "The road holds your phone, the access point and the router. Paper cards show addresses and taking turns. A radio envelope walks from the phone to the access point. It opens there and changes into a cable envelope for the router. The turn card shows listen, wait, bump, try again and “Got it!”.",
+        "nerd": "The address card shows the uplink 802.11 frame beside the Ethernet frame. It lists To DS, addr1 AP, addr2 STA and addr3 router, then DA and SA on cable. The airtime strip animates DIFS, backoff, data, no ACK, retry, SIFS plus ACK, and sequence, retry and CCMP labels."
+      }
     },
     "endpoint": {
       "title": "A radio envelope for you",
       "kid": "On the way back, the access point turns the cable envelope into a radio one: for your phone, from the access point, came from the router. Your phone opens it after saying “Got it!”. Underneath, the envelope travels as radio waves.",
-      "nerd": "On downlink the AP transmits an 802.11 QoS data frame with RA=STA, TA=AP and addr3=the distribution-system source. The phone verifies CCMP/FCS, ACKs after SIFS, drops duplicates by sequence number, and passes the payload up."
+      "nerd": "On downlink the AP transmits an 802.11 QoS data frame with RA=STA, TA=AP and addr3=the distribution-system source. The phone verifies CCMP/FCS, ACKs after SIFS, drops duplicates by sequence number, and passes the payload up.",
+      "describe": {
+        "kid": "The road shows the access point sending toward your phone. Paper cards show the outside envelope changing. A cable envelope reaches the access point, opens, and turns into a radio envelope for your phone. The timeline waits, sends, tries again after a bump, and ends with “Got it!”.",
+        "nerd": "The address card shows a downlink Ethernet frame becoming an 802.11 frame. It lists From DS, addr1 STA, addr2 AP and addr3 router. The moving radio frame heads to the phone you are at. The airtime strip steps through backoff, retry, ACK, sequence, FCS and CCMP markers."
+      }
     }
   },
   "label": {

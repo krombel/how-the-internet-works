@@ -17,6 +17,10 @@
     "title": "Lys delt af hele vejen",
     "kid": "Denne glastråd deles af alle husene på din vej. Ved splitteren går lyset på vej hjem til hvert eneste hus, og hvert hus beholder kun sine egne pakker. På vej op skiftes husene til, så deres lysglimt aldrig støder ind i hinanden.",
     "nerd": "Et passivt optisk net: en splitter uden strøm deler én fiber mellem 32–64 hjem. Nedstrøms på 1577 nm sendes til alle hjem, og hver ONT beholder kun sine egne (krypterede) rammer. Opstrøms på 1270 nm deles i tid: OLT'en tildeler hvert hjem sine tidsluker (XGS-PON).",
+    "describe": {
+      "kid": "En række huse deler én glastråd gennem en splitter. Blåt lys på vej hjem løber ned ad den fælles fiber og ud til alle huse. Rødt lys på vej op forlader husene én ad gangen. Små glimt hopper i glaskernen.",
+      "nerd": "Access-visningen viser et PON-træ. Dropfibre fra hjem mødes i en passiv splitter, og én delt fiber går mod OLT’en. Nedstrøms pulser sendes til alle ONT’er. Opstrøms pulser bruger tidsrum, så kun ét hjem sender på den delte strækning ad gangen. Mærket viser 1:32 og 1270/1577 nm."
+    },
     "down": "På vej hjem",
     "everyone": "til alle huse",
     "up": "Op ad gaden",
@@ -27,17 +31,29 @@
   "metro-fibre": {
     "title": "Farver deler én tråd",
     "kid": "En glastråd løber under gaden fra skab til skab, hele vejen til centralen. Lyset hopper frem inde i kernen, og nogle få farver deler den samme tråd uden at blive blandet sammen: hver farve er sin egen kanal.",
-    "nerd": "Metrofiber: single-mode-forbindelser mellem gadeskabe, aggregeringspunkter og centralen, typisk 10–100 Gbit/s Ethernet-optik, hvor CWDM eller DWDM lægger en håndfuld bølgelængder på ét fiberpar."
+    "nerd": "Metrofiber: single-mode-forbindelser mellem gadeskabe, aggregeringspunkter og centralen, typisk 10–100 Gbit/s Ethernet-optik, hvor CWDM eller DWDM lægger en håndfuld bølgelængder på ét fiberpar.",
+    "describe": {
+      "kid": "Én glasfiber går fra en lampeende til en modtagerende. Fire farvede lys samles i kernen, hopper gennem tråden og deles igen. Tekster peger på kernen, kappen og boksene, der samler farverne.",
+      "nerd": "Metrofiber-visningen viser fire bølgelængdekanaler, der går ind i en mux og gennem en single-mode-kerne. De forlader fiberen gennem en demux. Bevægelige pulser markerer hver kanal, mens tekster peger på kerne, kappe og DWDM. Mærket viser C-båndets 50 GHz grid."
+    }
   },
   "backbone": {
     "title": "Lys på tværs af landet",
     "kid": "Internettets motorveje er glastråde, hundredvis af kilometer lange, under vejene og endda under havet. Lyset bliver svagere undervejs, så cirka hver 80. km gør en forstærker alle farverne klare igen på én gang.",
     "nerd": "Long-haul DWDM: 64–96 bølgelængder i C-båndet, hver på 100–800 Gbit/s med kohærent optik. Erbium-doterede fiberforstærkere cirka hver 80. km forstærker alle farverne på én gang; søkabler krydser oceanerne.",
+    "describe": {
+      "kid": "En lang glastråd er delt i brede strækninger med forstærkere undervejs. Otte farvede lys løber sammen gennem kernen. De bliver svagere på turen og klare igen ved hver forstærker. Kilometermærker tæller den lange vej.",
+      "nerd": "Long-haul-visningen viser otte DWDM-bølgelængder i én fiber. Brudmærker står for lange strækninger. Pulser dæmpes over hver strækning, og EDFA’er forstærker alle kanaler ved punkter for hver 80 km. Mærket nævner 96 bølgelængder og EDFA hver 80 km."
+    },
     "booster": "Forstærker"
   },
   "cross-connect": {
     "title": "Over gangen",
     "kid": "I knudepunktets bygning har hvert firma sine egne bokse, og et kort glaskabel forbinder dem. Dine pakker krydser det på et øjeblik: nogle få farver deler tråden, og hver farve er sin egen kanal.",
-    "nerd": "En krydsforbindelse: en single-mode-patch gennem meet-me-rummet, højst et par hundrede meter. En 100GBASE-LR4-optik lægger fire 25G-baner på fire bølgelængder omkring 1310 nm (LAN-WDM) og deler dem igen i den anden ende."
+    "nerd": "En krydsforbindelse: en single-mode-patch gennem meet-me-rummet, højst et par hundrede meter. En 100GBASE-LR4-optik lægger fire 25G-baner på fire bølgelængder omkring 1310 nm (LAN-WDM) og deler dem igen i den anden ende.",
+    "describe": {
+      "kid": "Inde i knudepunktet ses en kort glastråd tæt på. Nogle farvede lys går ind, hopper gennem kernen og deles i den anden ende. De bevægende glimt krydser rummet meget hurtigt, én farve pr. kanal.",
+      "nerd": "Krydsforbindelsen bruger metro-tegningen til en kort patch gennem meet-me-rummet. Fire LAN-WDM-baner går ind i muxen, løber gennem single-mode-kernen og forlader demuxen. Mærket viser fire bølgelængder fra 1295 til 1310 nm, med pulser på hver bane."
+    }
   }
 }

@@ -5,10 +5,10 @@
 import type { LearnMore, Level, Orient } from '../define';
 import { isShort } from '../engine/camera';
 import { doorsOf } from '../model/doors';
+import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
-import { opens } from '../model/stack';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
@@ -16,8 +16,9 @@ import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } fr
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
-/** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). */
-export interface CaptionText { title: string; tag?: string; body: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
+/** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). `describe`:
+ *  what the picture shows, to be heard (#53: the announcer and read aloud say it; empty at a stop along the way). */
+export interface CaptionText { title: string; tag?: string; body: string; describe: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
 
 /** How the caption folds so the scene keeps the screen (Caption.svelte): a one-line pill on a short landscape screen,
  *  a card cut to its title, two lines and its doors on a narrow one (a portrait phone), else not at all. */
@@ -38,15 +39,19 @@ function captionDoors(r: Route, ps: PathScene, o: Orient, root: boolean, stop: s
   return out;
 }
 
-/** A layer dive's text, most specific first: at this kind of node, for its role, sealed (when it can't open the
- *  layer), then the scene's own; each first for this layer (a scene may serve several), then for any; with {hop},
- *  {yours} and {layer} filled in. */
+/** What a layer dive's text can fill in: {hop}, {yours} and {layer}. */
+const layerVars = (r: Route, ref: SceneRef) =>
+  ({ hop: nameOf(r.hops[ref.at!.hop]), yours: yours(r.chain[0]), layer: trl(`layer.${ref.at!.layer}.name`) });
+
+/** A layer dive's text, most specific first (`layerKeys`), filled in. */
 function layerText(r: Route, ref: SceneRef, suffix: string, level?: Level) {
-  const at = ref.at!, hop = r.hops[at.hop], base = `scene.${ref.dive}`, end = suffix ? `.${suffix}` : '';
-  const chain = (b: string) => [`${b}.at.${hop.node.id}`, `${b}.role.${hop.role}`, ...(opens(r, at.layer, hop.role) ? [] : [`${b}.sealed`]), b];
-  const keys = [...chain(`${base}.${at.layer}`), ...chain(base)];
-  const vars = { hop: nameOf(hop), yours: yours(r.chain[0]), layer: trl(`layer.${at.layer}.name`) };
-  return fill(trFirst(keys.map((k) => k + end), level), vars);
+  return fill(trFirst(layerKeys(r, ref).map((k) => (suffix ? `${k}.${suffix}` : k)), level), layerVars(r, ref));
+}
+
+/** A scene's spoken description: what its picture shows (the overview's, place after place), filled in like its text. */
+function describeOf(r: Route, ref: SceneRef, level: Level) {
+  const said = describeKeys(r, ref).map((keys) => trFirst(keys, level)).filter(Boolean).join(' ');
+  return ref.kind === 'layer' ? fill(said, layerVars(r, ref)) : said;
 }
 
 /** A hint, naming the keys when the last input was a key (#53), else the gestures. */
@@ -88,13 +93,14 @@ function scaleTag(r: Route, key: string, km: number, owners: string[] = []): str
 export function captionFor(r: Route, path: string[], stop: string | null, o: Orient): CaptionText {
   const ref = sceneRef(r, path, o);
   const lv = loc.level;
-  if (!ref) return { title: '', body: '', hint: '', doors: [], links: [] };
+  if (!ref) return { title: '', body: '', describe: '', hint: '', doors: [], links: [] };
   const c = r.content;
   if (ref.kind === 'layer') {
     const down = downFrom(r, ref);
     return {
       title: sceneTitle(r, path, o),
       body: layerText(r, ref, '', lv),
+      describe: describeOf(r, ref, lv),
       hint: hint('hint.layer'),
       doors: down ? [{ kind: 'down', id: down.join('/'), name: sceneTitle(r, down, o), path: down }] : [],
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
@@ -104,7 +110,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     return {
       title: sceneTitle(r, path, o),
       tag: stretchTag(r, ref, o),
-      body: trFirst([`scene.${ref.dive}.${diveSubject(ref)}`, `scene.${ref.dive}`], lv),
+      body: trFirst(sceneKeys(r, ref)[0], lv),
+      describe: describeOf(r, ref, lv),
       hint: hint('hint.zoomOut'),
       doors: carriedBy(r, ref, o).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
@@ -118,6 +125,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     title: tr(`node.${n.node.id}.name`),
     tag: n.kind === 'group' ? undefined : scaleTag(r, 'hop', kmTo(r, n.hop.index), n.hop.owner ? [n.hop.owner] : []),
     body: trFirst([...routeKeys(`stop.${n.id}`), `node.${n.node.id}`], lv),
+    describe: '',
     hint: hint(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore([...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
@@ -126,6 +134,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     title: tr(`tech.${l.link.tech.id}.name`),
     tag: scaleTag(r, 'link', l.link.km ?? 0),
     body: trFirst([...routeKeys(`stop.${l.id}`), `tech.${l.link.tech.id}`], lv),
+    describe: '',
     hint: hint(l.dive ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore(l.link.tech.learnMore ?? []),
@@ -136,7 +145,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     return {
       title: sceneTitle(r, path, o),
       tag: owners.length > 1 ? scaleTag(r, 'group', groupKm(r, g.id), owners) : undefined,
-      body: trFirst([...routeKeys(`inside.${g.id}`), `node.${g.node.id}.inside`], lv),
+      body: trFirst(sceneKeys(r, ref)[0], lv),
+      describe: describeOf(r, ref, lv),
       hint: hint('hint.group'),
       doors,
       links: learnMore(g.node.learnMore ?? []),
@@ -146,7 +156,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   return {
     title: sceneTitle(r, [], o),
     tag: scaleTag(r, 'trip', tripKm(r)),
-    body: [tr(`activity.${r.activity.id}.${lv}`), ...places.map((p) => trFirst([`place.${p.id}`], lv))].filter(Boolean).join(' '),
+    body: [tr(`activity.${r.activity.id}.${lv}`), ...sceneKeys(r, ref).map((keys) => trFirst(keys, lv))].filter(Boolean).join(' '),
+    describe: describeOf(r, ref, lv),
     hint: hint('hint.overview'),
     doors,
     links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),

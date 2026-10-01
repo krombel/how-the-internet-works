@@ -6,12 +6,20 @@
     "nat": {
       "title": "Din router beholder sit husnummer",
       "kid": "Din router hører den delte fiber, men den beholder kun lys-kuverten med Hus nr. 1127. De andre er stadig låst. Nedenunder rejser kuverten som lysglimt i en glastråd.",
-      "nerd": "Ved ONT'en/routeren kommer nedstrøms GEM-rammer til alle ONT'er fra splitteren. Denne ONT accepterer GEM-port-ID 1127, kasserer andre port-ID'er og bruger AES pr. port til privatliv."
+      "nerd": "Ved ONT'en/routeren kommer nedstrøms GEM-rammer til alle ONT'er fra splitteren. Denne ONT accepterer GEM-port-ID 1127, kasserer andre port-ID'er og bruger AES pr. port til privatliv.",
+      "describe": {
+        "kid": "Vejen peger på din router. Ét kort viser et kabinet, en splitter og fire huse. Lyskuverter går til alle huse, men kun den med 1127 åbner ved din router. Naboernes kuverter forbliver låst. Et andet kort viser tur-striben med slot 3 tændt.",
+        "nerd": "ONT- og routervisningen fremhæver nedstrøms GEM-port-ID 1127 i headeren. Broadcast-kuverter spredes gennem splitteren. Andre GEM-rammer forbliver låst, og den accepterede får flueben. Upstream-kortet viser 125 mikrosekunders slot-stribe med tur 0x467 markeret."
+      }
     },
     "bridge": {
       "title": "Kabinettet deler ture ud",
       "kid": "Kabinettet bestemmer over den delte fiber. Det sender en lille køreplan, så hvert hus ved, hvornår det må tale, uden at nogen taler oven i hinanden.",
-      "nerd": "Ved OLT'en bærer downstream-headeren en BWmap. Upstream-bursts bruger Alloc-ID'er/T-CONTs, DBA-tildelinger og ranging med equalisation delay, så nære og fjerne ONT'er lander i deres slots i 125 µs-rammen."
+      "nerd": "Ved OLT'en bærer downstream-headeren en BWmap. Upstream-bursts bruger Alloc-ID'er/T-CONTs, DBA-tildelinger og ranging med equalisation delay, så nære og fjerne ONT'er lander i deres slots i 125 µs-rammen.",
+      "describe": {
+        "kid": "Scenen er ved kabinettet, med kort for den delte fiber. Ét kort sender kuverter gennem splitteren til fire huse. Tur-kortet er aktivt. Køreplanen er delt i fire slots, slot 3 lyser, og små bursts falder ned i deres ture én efter én.",
+        "nerd": "OLT-visningen gør upstream-planlæggerkortet aktivt. Fire TDMA-slots fylder en ramme på 125 mikrosekunder, og Alloc-ID 0x467 er markeret. Prikker og bursts går gennem tildelingerne. Downstream-kortet viser stadig splitter-broadcast og GEM-port-ID 1127."
+      }
     }
   },
   "label": {

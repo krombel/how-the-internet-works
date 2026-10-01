@@ -165,6 +165,7 @@ button { cursor: pointer; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 0; border-radius: 99px; background: var(--btn); font-weight: 800; }
 .caption .chip u { text-underline-offset: 2px; color: var(--link); }
+.caption .read svg { width: 15px; height: 15px; }
 /* doors, by verb: "Look inside: Wi-Fi · Fibre   Open up: The internet" */
 .caption .doors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
 .caption .verb { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }

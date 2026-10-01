@@ -1,9 +1,9 @@
 <script lang="ts">
   // The list view (issue #53): every scene of the route as text, nested as the scene tree is (model/textmap), for the
   // keyboard, screen readers, print and anyone who'd rather read. Each scene has a heading (deeper scenes, deeper
-  // headings) and its caption's text; a path scene lists its stops in stepping order, each with its text and the
-  // scenes it opens. Where you are and the caught packet's hop are marked. A dialog over the app (inert meanwhile):
-  // it opens at where you are, and Esc or × closes it.
+  // headings), what its picture shows (`describe`) and its caption's text; a path scene lists its stops in stepping
+  // order, each with its text and the scenes it opens. Where you are and the caught packet's hop are marked. A dialog
+  // over the app (inert meanwhile): it opens at where you are, and Esc or × closes it.
   import { onMount } from 'svelte';
   import type { Loc } from '../model/location';
   import type { Route } from '../model/resolve';
@@ -46,7 +46,7 @@
       {c.title}{#if at}<span class="map-mark">{tr('map.here')}</span>{/if}
     </p>
     {#if c.tag}<p class="map-tag">{c.tag}</p>{/if}
-    <!-- the scene's own description (#53, the `describe` contract) goes here, before its caption text -->
+    {#if c.describe}<p>{c.describe}</p>{/if}
     <p>{c.body}</p>
     <button class="btn" aria-label="{tr(verb(s))}: {c.title}" onclick={() => ongo(s.path, null)}>
       {#if s.via}<Icon name={s.via === 'expand' ? 'open' : 'look'} />{/if}{tr(verb(s))}
