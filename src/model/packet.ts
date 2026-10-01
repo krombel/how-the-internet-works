@@ -57,6 +57,14 @@ export function stepHop(r: Route, h: number, dir: Dir, d: -1 | 1): number | null
   const n = d > 0 ? nextHop(h, dir) : nextHop(h, dir === 'up' ? 'down' : 'up');
   return n >= 0 && n < r.chain.length ? n : null;
 }
+/** Where a packet going `dir` enters a view: the first hop on its way (from its sender) that the view draws
+ *  (`drawn`). Path scenes lay the chain out left → right, so a request enters on the left (portrait: the bottom) and a
+ *  response on the right (the top). Null if the view draws none. */
+export function entryHop(r: Route, dir: Dir, drawn: (h: number) => boolean): number | null {
+  let h: number | null = dir === 'up' ? 0 : r.chain.length - 1;
+  while (h !== null && !drawn(h)) h = stepHop(r, h, dir, 1);
+  return h;
+}
 /** Where a packet caught on chain link `i` is shown: the hop it's heading to, or the one it just left if only that
  *  one is drawn (`drawn`). */
 export function hopAhead(i: number, dir: Dir, drawn: (h: number) => boolean): number {

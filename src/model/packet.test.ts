@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { caughtSpot } from '../engine/packets';
 import { pathScene } from './layout';
-import { hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
+import { entryHop, hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
 import { resolveRoute, type Route } from './resolve';
 import { content } from './registry';
+import { bezier } from '../engine/geometry';
 import { chainOf, childrenOf, hopScenePath, sceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
@@ -202,6 +203,52 @@ describe('catching and stepping a packet', () => {
     expect(hopScenePath(home, at(home, 'core'), 'landscape', [])).toEqual(['internet']);
     expect(hopScenePath(home, at(home, 'core'), 'portrait', ['internet'])).toEqual(['internet']);
     expect(hopScenePath(home, at(home, 'phone'), 'landscape', ['internet'])).toEqual([]);
+  });
+
+  it('catches by kind where that kind enters the view: a request on the left (bottom), a response on the right (top)', () => {
+    const entry = (r: Route, path: string[], dir: 'up' | 'down', o: 'landscape' | 'portrait' = 'landscape') =>
+      r.chain[entryHop(r, dir, (h) => hopScenePath(r, h, o, path)?.join('/') === path.join('/'))!].id;
+    for (const o of ['landscape', 'portrait'] as const) {
+      expect([entry(home, [], 'up', o), entry(home, [], 'down', o)]).toEqual(['phone', 'router']);
+      expect([entry(home, ['internet'], 'up', o), entry(home, ['internet'], 'down', o)]).toEqual(['cabinet', 'cdn']);
+      expect([entry(street, [], 'up', o), entry(street, [], 'down', o)]).toEqual(['phone', 'cell-tower']);
+      expect([entry(street, ['internet'], 'up', o), entry(street, ['internet'], 'down', o)]).toEqual(['mobile-core', 'cdn']);
+    }
+    expect(entryHop(home, 'up', () => false)).toBeNull();
+
+    // every place, activity, path scene, orientation and direction: the entry hop is the first drawn one the packet
+    // reaches, at the edge it comes in by, with a spot to wait at; it glides in from outside (never back from further
+    // on), and stepping on from there passes every hop the scene draws
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      const walk = (path: string[]): void => {
+        const ref = sceneRef(r, path)!;
+        for (const o of ['landscape', 'portrait'] as const) {
+          const ps = pathScene(r, ref.kind === 'path' ? ref.group : null, o);
+          const drawn = (h: number) => hopScenePath(r, h, o, path)?.join('/') === path.join('/');
+          // along the chain on screen: x in landscape, up the screen in portrait
+          const along = (p: { x: number; y: number }) => (o === 'landscape' ? p.x : -p.y);
+          const nodeAt = (h: number) => ps.nodes.find((n) => n.kind === 'hop' && n.hop.index === h)!;
+          const shown = r.chain.map((h) => h.index).filter(drawn);
+          for (const dir of ['up', 'down'] as const) {
+            const what = `${place} ${activity} /${path.join('/')} ${o} ${dir}`;
+            const h = entryHop(r, dir, drawn)!;
+            expect(h, what).not.toBeNull();
+            const ahead: number[] = [];
+            for (let k: number | null = h; k !== null; k = stepHop(r, k, dir, 1)) ahead.push(k);
+            expect(shown.every((k) => ahead.includes(k)), what).toBe(true);
+            const xs = shown.map((k) => along(nodeAt(k)));
+            expect(along(nodeAt(h)), what).toBe(dir === 'up' ? Math.min(...xs) : Math.max(...xs));
+            const spot = caughtSpot(ps, h, dir)!;
+            expect(spot, what).not.toBeNull();
+            const from = along(bezier(spot.link, dir === 'up' ? 0 : 1)), at = along(bezier(spot.link, spot.t));
+            expect(dir === 'up' ? from <= at : from >= at, what).toBe(true);
+          }
+        }
+        for (const c of childrenOf(r, ref)) if (c.kind === 'expand') walk([...path, c.step]);
+      };
+      walk([]);
+    }
   });
 
   it('waits just before the hop on the link it arrives on', () => {
