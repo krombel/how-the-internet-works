@@ -77,7 +77,8 @@ src/                      the engine: no content ids anywhere
                           trip (km, light, owners)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
-  ui/                     Chrome (language, level, pause, sound), Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree…
+  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, style, About), About,
+                          Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -374,6 +375,23 @@ in the scene's own folder, so a new dive needs no theme change.
 - **Headings.** The chrome's headings use `--heading` (by default `--accent`), so a theme can keep a bright accent
   for buttons and use a darker colour for text.
 
+**The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, kid/nerd,
+☀️/🌙). Settings you set once go in the ⋯ menu (`ui/Menu.svelte`): language, sound, the style (only with more than one
+theme) and About.
+- **Entries are data.** `Chrome.svelte` builds a list of `MenuEntry` (`ui/menu.ts`): a `choice` (a label and its
+  options, each a `menuitemradio`, e.g. "Language: English | Dansk"), a `toggle` (a `menuitemcheckbox` that shows its
+  value, "Sound: off") or an `action` (a `menuitem`, e.g. About). A new setting is one more entry.
+- **Keyboard and screen readers.** The WAI-ARIA menu pattern: ⋯ has `aria-haspopup` and `aria-expanded`; opening it
+  focuses the first item; the arrow keys, Home and End move (`menuMove`, tested in `ui/menu.test.ts`); Esc closes it
+  and gives focus back to ⋯, Tab closes it and moves on, and a click outside closes it. Choices and toggles leave it
+  open so you see the new value.
+- **About** (`ui/About.svelte`) is a small `role="dialog"` panel: the credit, © and AGPL-3.0-or-later, no warranty,
+  the screenshot permission, and links to the source, `LICENSE` and `NOTICE.md`. It takes the focus when it opens,
+  and Esc gives it back to ⋯. It is the AGPL's Appropriate Legal Notices and its offer of the source to network users,
+  so a modified version must keep it ([NOTICE.md](../NOTICE.md)). Who and where come from `package.json` (`author`,
+  `homepage`, `license`) through `__ABOUT__` in `vite.config.ts`, so the engine names no project.
+- **Load.** The menu and About are lazy chunks; the menu loads when ⋯ is pointed at or focused.
+
 ## Strings and languages
 
 - **Namespacing.** Each folder's `locales/<lang>.json` is namespaced by kind and id (`nodes/phone` → `node.phone.*`).
@@ -483,7 +501,7 @@ Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame
 `text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
 made the zoom out of the router's dive miss frames at 6×; geometric text is scaled as drawn.
 
-Initial JS is about 80.2 kB gz (about 1.0 kB of it the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is about 81.4 kB gz (about 1.2 kB of it the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

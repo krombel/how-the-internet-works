@@ -83,5 +83,17 @@
   "ladder.doors.one": "{n} dør fører længere ned",
   "ladder.doors.other": "{n} døre fører længere ned",
   "ladder.stack.kid": "{hop}: kuverterne",
-  "ladder.stack.nerd": "{hop}: lagene"
+  "ladder.stack.nerd": "{hop}: lagene",
+  "about.open": "Om denne app",
+  "about.title": "Om",
+  "about.credit": "{name} af {author}",
+  "about.legal": "Fri software: du må bruge, dele og ændre den under GNU Affero General Public License, version 3 eller senere. Den kommer uden nogen garanti.",
+  "about.shots": "Skærmbilleder må deles under CC BY 4.0 med kreditering.",
+  "about.source": "Kildekode",
+  "about.license": "Licens",
+  "about.terms": "Vilkår og kreditering",
+  "ui.more": "Mere",
+  "ui.sound": "Lyd",
+  "ui.on": "til",
+  "ui.off": "fra"
 }

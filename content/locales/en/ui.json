@@ -83,5 +83,17 @@
   "ladder.doors.one": "{n} door leads further down",
   "ladder.doors.other": "{n} doors lead further down",
   "ladder.stack.kid": "{hop}: the envelopes",
-  "ladder.stack.nerd": "{hop}: the layers"
+  "ladder.stack.nerd": "{hop}: the layers",
+  "about.open": "About this app",
+  "about.title": "About",
+  "about.credit": "{name} by {author}",
+  "about.legal": "Free software: you may use, share and change it under the GNU Affero General Public License, version 3 or later. It comes with no warranty.",
+  "about.shots": "Screenshots may be shared under CC BY 4.0, with credit.",
+  "about.source": "Source code",
+  "about.license": "License",
+  "about.terms": "Terms and credit",
+  "ui.more": "More",
+  "ui.sound": "Sound",
+  "ui.on": "on",
+  "ui.off": "off"
 }
