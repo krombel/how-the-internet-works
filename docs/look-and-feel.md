@@ -208,7 +208,7 @@ Night is a **mode** of Storybook, not a fifth style: the same picture book, read
 ## How a style plugs in
 
 A style is a folder, discovered with `import.meta.glob`. Nothing in the core names a style. The slimmed
-prototype still works this way with just [`themes/storybook`](../prototype/themes/storybook); the other three
+prototype still works this way with just [`themes/storybook`](https://github.com/tkjaer/how-the-internet-works/tree/spikes/look-and-feel-v1/prototype/themes/storybook); the other three
 are at the tag ([neon](https://github.com/tkjaer/how-the-internet-works/tree/spikes/look-and-feel-v1/prototype/themes/neon), [sketchbook](https://github.com/tkjaer/how-the-internet-works/tree/spikes/look-and-feel-v1/prototype/themes/sketchbook),
 [papercut](https://github.com/tkjaer/how-the-internet-works/tree/spikes/look-and-feel-v1/prototype/themes/papercut)).
 

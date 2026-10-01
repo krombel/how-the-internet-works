@@ -12,10 +12,13 @@
 //                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
 //                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
+// Runs take turns machine-wide (a lock in the temp dir, see below); EVALUATE_NO_LOCK=1 opts out.
 import { chromium } from 'playwright';
 import { gzipSync } from 'node:zlib';
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const args = process.argv.slice(2);
 const flag = (k) => args.find((a) => a.startsWith(`--${k}=`))?.split('=')[1];
@@ -30,6 +33,33 @@ const STYLES = flag('style')
 const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true }, short: { w: 844, h: 390, dpr: 2, touch: true } };
 // GPU-backed headless where available (macOS: Metal via ANGLE); CPU swiftshader otherwise.
 const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'];
+
+// One evaluate at a time on this machine (another lane's headless Chrome skews frame timings): an atomic mkdir lock in
+// the temp dir, with the holder's pid and worktree. A dead holder's lock is cleared. EVALUATE_NO_LOCK=1 skips it (CI).
+const LOCK = join(tmpdir(), 'hitw-evaluate.lock'), OWNER = join(LOCK, 'owner.json');
+const alive = (pid) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
+async function lock() {
+  let said = '';
+  for (;;) {
+    try { mkdirSync(LOCK); break; } catch (e) { if (e.code !== 'EEXIST') throw e; }
+    let who = null;
+    try { who = JSON.parse(readFileSync(OWNER, 'utf8')); } catch { /* not written yet, or gone */ }
+    // a holder that died between its mkdir and writing owner.json leaves an empty lock: clear it after a while
+    let stale = who && !alive(who.pid);
+    if (!who) try { stale = Date.now() - statSync(LOCK).mtimeMs > 30000; } catch { continue; /* released meanwhile */ }
+    if (stale) { rmSync(LOCK, { recursive: true, force: true }); continue; }
+    const line = who ? `waiting for ${who.pid} (${who.cwd})` : 'waiting for the evaluate lock';
+    if (line !== said) console.log(`  ${(said = line)}`);
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  writeFileSync(OWNER, JSON.stringify({ pid: process.pid, cwd: process.cwd(), args, since: new Date().toISOString() }));
+  const release = () => {
+    try { if (JSON.parse(readFileSync(OWNER, 'utf8')).pid === process.pid) rmSync(LOCK, { recursive: true, force: true }); } catch { /* already gone */ }
+  };
+  process.on('exit', release);
+  for (const [sig, code] of [['SIGINT', 130], ['SIGTERM', 143]]) process.on(sig, () => process.exit(code));
+}
+if (!process.env.EVALUATE_NO_LOCK) await lock();
 
 mkdirSync('docs/img', { recursive: true });
 const browser = await chromium.launch({ args: ARGS });

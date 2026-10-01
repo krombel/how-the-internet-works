@@ -519,14 +519,29 @@ under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× 
 keeps the same p95. `--diff=<url>` compares every screenshot against another build instead, pixel by pixel. Use it
 to show that a change leaves the day untouched.
 
+Runs take turns machine-wide: another worktree's headless Chrome running at the same time (an overnight lane taking
+shots, say) doubled p95 in some phases. Each run, shots and diffs included (they keep several CPU cores busy), takes an
+atomic `mkdir` lock, `hitw-evaluate.lock` in the OS temp dir, with the holder's pid and worktree in `owner.json`. A run
+that finds it held logs "waiting for <pid> (<worktree>)" and polls every 2 s. It clears the lock when the holder's
+pid is dead, or after 30 s when it has no owner yet. A run lets go on exit, Ctrl‑C or SIGTERM. `EVALUATE_NO_LOCK=1`
+skips the lock (CI, where nothing else runs).
+
 Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
-5G and down to copper, and opening a layer dive; it varies a few ms between runs). Animated scenes avoid group
+5G and down to copper, and opening a layer dive; it varies a few ms between runs, up to about 13 ms). On a quiet
+machine (five runs, medians) no phase is over a frame; the 33.3 ms once seen for `openLayer` came from other work on the
+machine at the same time. Animated scenes avoid group
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves). The device dives draw their text with
 `text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
-made the zoom out of the router's dive miss frames at 6×; geometric text is scaled as drawn.
+made the zoom out of the router's dive miss frames at 6×; geometric text is scaled as drawn. App-wide, or on every
+dive panel, it is a trade rather than a clear win (issue #51, A/B rounds at 6×, each against main runs interleaved with
+it). It saves about 30 % CPU on the fly down to copper and 15–30 % on sideways travel. Where `legibleSize` resizes
+labels every frame it costs more, because the text is laid out again anyway and is then drawn unhinted. App-wide,
+catching a packet on the overview costs about 35 % more; even on dive panels only, the fly into 5G, already the
+heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
+between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 81.4 kB gz (about 1.2 kB of it the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is about 81.5 kB gz (about 1.2 kB of it the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

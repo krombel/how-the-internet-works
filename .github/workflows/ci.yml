@@ -45,7 +45,9 @@ jobs:
         run: npm run evaluate -- --only=a11y
         env:
           SWIFTSHADER: '1'
+          EVALUATE_NO_LOCK: '1'
       - name: Accessibility, night
         run: npm run evaluate -- --only=a11y --mode=night
         env:
           SWIFTSHADER: '1'
+          EVALUATE_NO_LOCK: '1'
