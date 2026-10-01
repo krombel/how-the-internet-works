@@ -2,12 +2,13 @@
 <script lang="ts">
   // Metro: a few colours share one thread, each its own channel (combined at one end, split at the other).
   import { TagAt, Text, strings, view } from '$core/api';
-  import { DWDM, FIBRE, channelRoute, fibrePulses, trackMatrix } from './light';
+  import { DWDM, FIBRE, channelRoute, fibrePulses, metroTag, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
   import Emitter from './art/Emitter.svelte';
   import Prism from './art/Prism.svelte';
   import Pulse from './art/Pulse.svelte';
+  let { tech }: { tech: string } = $props();
   const S = strings('scene.fibre-light');
   const F = FIBRE;
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
@@ -40,4 +41,4 @@
 <Text x={L.clad.x} y={L.clad.y} text={S('cladding')} size={30} kind="big" />
 <Text x={L.mux.x} y={L.mux.y} text={S('mux')} size={28} kind="big" />
 <Text x={L.demux.x} y={L.demux.y} text={S('demux')} size={28} kind="big" />
-<TagAt x={L.tag.x} y={L.tag.y} text={S('tag.dwdm')} size={24} />
+<TagAt x={L.tag.x} y={L.tag.y} text={S(metroTag(tech))} size={24} />

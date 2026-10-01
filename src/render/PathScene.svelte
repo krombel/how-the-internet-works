@@ -1,17 +1,19 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // A path scene: backdrop, links, nodes, labels, nerd tags, doors and packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
-  // start device. Doors (model/doors.ts) are drawn in two parts: a glow around what they open, under the nodes, and a
-  // badge over them.
+  // A path scene: backdrop, owner regions, links, nodes, labels, nerd tags, doors and packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
+  // start device; a group's scene draws the road the packets take through it. Doors (model/doors.ts) are drawn in two
+  // parts: a glow around what they open, under the nodes, and a badge over them. Owner regions (model/regions.ts) too:
+  // their areas under the road, their signs over the devices.
   import { bezier, curvePath, WORLD_SIZE } from '../engine/geometry';
-  import { textBox } from '../engine/svg';
+  import { pts, textBox } from '../engine/svg';
   import type { LivePacket } from '../engine/packets';
   import { nodeArt, placeBackdrops } from '../model/components';
   import { badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
   import { labelY, type PathScene, type SNode } from '../model/layout';
-  import { diveRuns } from '../model/tree';
+  import { regionsOf } from '../model/regions';
+  import { chainOf, diveRuns } from '../model/tree';
   import type { Route } from '../model/resolve';
-  import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, view } from '../state.svelte';
+  import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import { getScene, getWorld } from './ctx';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
@@ -32,6 +34,13 @@
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
+  const regions = $derived(regionsOf(route, ps));
+  // only the networks on the packets' way are named: a side branch is just faintly there
+  const named = $derived(regions.filter((g) => !g.aside));
+  const road = $derived(root ? '' : `M${pts(chainOf(route, ps.group, view.orient).pts)}`);
+  // the road is the route's final shape: during a place morph it fades in with the route's newcomers
+  const roadAlpha = $derived(Math.min(1, ...ps.links.filter((l) => ps.route.includes(l.id)).map((l) => l.alpha)));
+  const signPx = $derived(Math.max(24, themeState.current.labelMinPx / (world.cam.k * scene.frame.s)));
   const doors = $derived(doorsOf(ps, root, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW));
   const doorPx = $derived(badgeSize(themeState.current.labelMinPx, world.cam.k * scene.frame.s));
   const doorTime = $derived(view.still ? 0 : view.time);
@@ -63,6 +72,12 @@
       {#if B}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={view.time} /></g>{/if}
     {/each}
   {/if}
+  {#each regions as g (g.owner)}
+    <A.Region part="area" d={g.d} tone={g.tone} aside={g.aside} x={g.sign.x} y={g.sign.y} label="" size={signPx} />
+  {/each}
+  {#if road && roadAlpha > 0}
+    <g opacity={roadAlpha < 1 ? roadAlpha : undefined}><A.Road d={road} orient={view.orient} time={view.time} /></g>
+  {/if}
   {#each ps.links as l (l.id)}
     <g opacity={l.alpha < 1 ? l.alpha : undefined}>
       <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} />
@@ -74,6 +89,10 @@
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
       <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} />
     </g>
+  {/each}
+  <!-- beneath the node names and tags: when it gets crowded (nerd tags), the boxes stay readable -->
+  {#each named as g (g.owner)}
+    <A.Region part="sign" d={g.d} tone={g.tone} aside={g.aside} x={g.sign.x} y={g.sign.y} label={trl(`owner.${g.owner}.name`)} size={signPx} />
   {/each}
   {#each ps.nodes as n (n.id)}
     {@const tag = nodeTag(n)}

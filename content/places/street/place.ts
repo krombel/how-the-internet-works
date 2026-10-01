@@ -5,13 +5,13 @@ export default definePlace({
   order: 2,
   hops: [
     { at: 'phone', addr: '100.64.12.7' },
-    { link: 'nr' },
+    { link: 'nr', km: 0.3 },
     { at: 'cell-tower', addr: '10.20.0.5' },
     // the tower tunnels your packets (GTP-U) to the mobile core over fibre
-    { link: 'metro-fibre', stack: ['ethernet', 'gtp'] },
+    { link: 'metro-fibre', stack: ['ethernet', 'gtp'], km: 12 },
     // carrier-grade NAT: thousands of phones share one outside address, so it hands out ports too
-    { at: 'mobile-core', in: 'internet', addr: '10.20.0.1', natTo: '192.0.2.44:20517' },
-    { link: 'backbone' },
+    { at: 'mobile-core', in: 'internet', addr: '10.20.0.1', natTo: '192.0.2.44:20517', owner: 'isp' },
+    { link: 'backbone', km: 25 },
   ],
   layout: {
     overview: {
@@ -32,8 +32,8 @@ export default definePlace({
       },
     },
     internet: {
-      landscape: { nodes: { 'cell-tower': [130, 640, 150], 'mobile-core': [520, 460, 190, 'above'] } },
-      portrait: { nodes: { 'cell-tower': [220, 1440, 160], 'mobile-core': [640, 1150, 200] } },
+      landscape: { nodes: { 'cell-tower': [110, 680, 140], 'mobile-core': [460, 460, 180, 'above'] } },
+      portrait: { nodes: { 'cell-tower': [200, 1440, 150], 'mobile-core': [620, 1150, 180] }, owners: { isp: [250, 1100] } },
     },
   },
   learnMore: [

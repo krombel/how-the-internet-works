@@ -1,6 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Node, Text, fakeMac, fill, legibleSize, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
+  import { Node, Text, fakeLabel, fakeMac, fill, legibleSize, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import StickerParcel from './art/StickerParcel.svelte';
   import { bob, layoutFor, moment, parcelX, ramp, type LayerKind, type RoleKind } from './sticker';
@@ -18,9 +18,15 @@
   const m = $derived(moment(view.still ? 5.4 : view.time));
   const x = $derived(parcelX(L, m));
   const moving = $derived(m.phase === 'arrive' || m.phase === 'reply' || m.phase === 'straight');
+  const labelled = (i: number) => !!subject.route.links[i]?.stack.includes(subject.layer);
+  const labelIn = $derived(labelled(ctx.to.index - 1)), labelOut = $derived(labelled(ctx.to.index));
+  // the labels each next router asked for, as the packet model has them
+  const inLabel = $derived(fakeLabel(ctx.to.id, 'up'));
+  const outLabel = $derived(fakeLabel(subject.route.chain[ctx.to.index + 1]?.id ?? ctx.to.id, 'up'));
   const action = $derived.by(() => {
     if (layer === 'vlan') return ctx.to.id === 'bng' ? 'vlan.bng' : 'vlan.pass';
-    if (layer === 'mpls') return ctx.to.id === 'core' ? 'mpls.pop' : (ctx.to.id === 'bng' || ctx.to.id === 'mobile-core') ? 'mpls.push' : 'mpls.swap';
+    // told the way requests go: a label on the way in and out is swapped, only on the way out pushed, only in popped
+    if (layer === 'mpls') return labelIn && labelOut ? 'mpls.swap' : labelIn ? 'mpls.pop' : 'mpls.push';
     return role === 'bridge' ? 'ethernet.bridge' : 'ethernet.me';
   });
   const actionTint = $derived(layer === 'vlan' ? 'var(--teal)' : layer === 'mpls' ? 'var(--berry)' : role === 'bridge' ? 'var(--sun)' : 'var(--orange)');
@@ -34,10 +40,10 @@
     ? [['S-VID', '101'], ['C-VID', '2042'], [S('book.owner'), nerd ? S('book.subscriber') : S('book.you')]]
     : [[S('book.street'), '101'], [S('book.house'), '2042'], [S('book.otherStreet'), '102']]);
   const mplsRows = $derived(action === 'mpls.push'
-    ? [['IP', `${S('book.push')} 24012`], ['24012', `${S('book.door')} 3`]]
+    ? [['IP', `${S('book.push')} ${outLabel}`], [outLabel, `${S('book.door')} 3`]]
     : action === 'mpls.pop'
-      ? [['17003', S('book.pop')], ['IP', S('book.readNext')]]
-      : [[`${S('book.in')} 24012`, `${S('book.door')} 3`], [S('book.out'), '17003']]);
+      ? [[inLabel, S('book.pop')], ['IP', S('book.readNext')]]
+      : [[`${S('book.in')} ${inLabel}`, `${S('book.door')} 3`], [S('book.out'), outLabel]]);
   const bookRows = $derived.by(() => {
     if (layer === 'vlan') return laneRows;
     if (layer === 'mpls') return mplsRows;
@@ -64,7 +70,7 @@
   const rowPx = $derived(L.compact ? legible(42) : 0);
   // each drawing is lopsided around its origin; nudge it back to the card's middle
   const actionDx = $derived(layer === 'mpls' ? 0 : layer === 'vlan' ? 10 : role === 'bridge' ? 39 : -73);
-  const steps = $derived([S(`mini.${action}.a`), S(`mini.${action}.b`)]);
+  const steps = $derived([S(`mini.${action}.a`), S(`mini.${action}.b`)].map((t) => fill(t, { in: inLabel, out: outLabel })));
   const fieldsLine = $derived(layer === 'vlan'
     ? '0x88a8 S101 · 0x8100 C2042'
     : layer === 'mpls'
@@ -72,8 +78,8 @@
       : role === 'bridge'
         ? `dst …${nextMac.slice(-5)} · src …${fromMac.slice(-5)} · 0x0800`
         : `dst …${boxMac.slice(-5)} · src …${nextMac.slice(-5)} · 0x0800`);
-  const mplsLeft = $derived(action === 'mpls.push' ? 'IP' : action === 'mpls.pop' ? '17003' : '24012');
-  const mplsRight = $derived(action === 'mpls.push' ? '24012' : action === 'mpls.pop' ? 'IP' : '17003');
+  const mplsLeft = $derived(action === 'mpls.push' ? 'IP' : inLabel);
+  const mplsRight = $derived(action === 'mpls.pop' ? 'IP' : outLabel);
   const mplsMid = $derived(action === 'mpls.pop' ? 'pop' : '');
 </script>
 

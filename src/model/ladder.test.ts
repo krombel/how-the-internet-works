@@ -21,7 +21,7 @@ describe('depth ladder (#22)', () => {
     };
     expect(doors(home, [])).toEqual(['dive:phone-ap', 'dive:ap-router', 'dive:router-internet', 'expand:internet']);
     // a stretch of links is one door
-    expect(doors(home, ['internet'])).toEqual(['dive:internet/home-cabinet', 'dive:internet/cabinet-backhaul', 'dive:internet/bng-core']);
+    expect(doors(home, ['internet'])).toEqual(['dive:internet/home-cabinet', 'dive:internet/cabinet-backhaul', 'dive:internet/bng-core', 'dive:internet/border-ixp']);
     expect(doors(street, [])).toEqual(['dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     expect(belowOf(home, ['no-such-step'], 'landscape')).toBeNull();
   });
@@ -36,9 +36,9 @@ describe('layer ladder (#14, #32)', () => {
     expect(stack(belowOf(home, ['router~ethernet'], 'landscape'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~ap-router']);
     expect(stack(belowOf(desk, ['router~ethernet'], 'landscape', 'router-cabinet'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~laptop-router']);
     expect(stack(belowOf(home, ['phone~tls'], 'portrait'))).toEqual(['*phone~tls', 'phone~tcp', 'phone~ip', 'phone~wifi', '~phone-ap']);
-    // MPLS is on the link into the core only; the core's other side carries plain Ethernet
-    expect(stack(belowOf(home, ['internet', 'core~mpls'], 'landscape'))?.slice(-3)).toEqual(['*internet/core~mpls', 'internet/core~ethernet', '~internet/bng-core']);
-    expect(stack(belowOf(home, ['internet', 'core~ethernet'], 'landscape', 'core-ixp'))?.slice(-3)).toEqual(['internet/core~ip', '*internet/core~ethernet', '~internet/bng-core']);
+    // MPLS rides the long haul into the border router (#25); its other side, the cross-connect, carries plain Ethernet
+    expect(stack(belowOf(home, ['internet', 'border~mpls'], 'landscape'))?.slice(-3)).toEqual(['*internet/border~mpls', 'internet/border~ethernet', '~internet/bng-core']);
+    expect(stack(belowOf(home, ['internet', 'border~ethernet'], 'landscape', 'border-ixp'))?.slice(-3)).toEqual(['internet/border~ip', '*internet/border~ethernet', '~internet/border-ixp']);
   });
 
   it('stacks what a signal carries over it: the envelopes on all its links, then what they carry', () => {
@@ -48,12 +48,13 @@ describe('layer ladder (#14, #32)', () => {
     expect(stack(belowOf(street, ['cell-tower-internet'], 'landscape'))).toEqual(
       ['cell-tower~tls!', 'cell-tower~tcp!', 'cell-tower~ip', 'cell-tower~gtp', 'cell-tower~ethernet', '*~cell-tower-internet']);
     expect(stack(belowOf(home, ['internet', 'home-cabinet'], 'landscape'))?.slice(-2)).toEqual(['internet/cabinet~gpon', '*~internet/home-cabinet']);
-    // a stretch of links (#34) shares only what all of them carry: no MPLS from its first link
+    // a stretch of links (#34) shares what all of them carry: the long haul is label-switched all along
     const run = belowOf(home, ['internet', 'bng-core'], 'landscape');
-    expect(stack(run)).toEqual(['internet/core~tls!', 'internet/core~tcp!', 'internet/core~ip', 'internet/core~ethernet', '*~internet/bng-core']);
-    expect(run?.kind === 'stack' && run.link).toBe('core-ixp');
-    // and so does the caption's What it carries
-    expect(carriedBy(home, sceneRef(home, ['internet', 'bng-core'], 'landscape')!, 'landscape').map((u) => u.layer)).toEqual(['ethernet']);
+    expect(stack(run)).toEqual(['internet/core~tls!', 'internet/core~tcp!', 'internet/core~ip', 'internet/core~mpls', 'internet/core~ethernet', '*~internet/bng-core']);
+    expect(run?.kind === 'stack' && run.link).toBe('bng-core');
+    // and so does the caption's What it carries; the exchange's cross-connects carry plain Ethernet, no label
+    expect(carriedBy(home, sceneRef(home, ['internet', 'bng-core'], 'landscape')!, 'landscape').map((u) => u.layer)).toEqual(['ethernet', 'mpls']);
+    expect(carriedBy(home, sceneRef(home, ['internet', 'border-ixp'], 'landscape')!, 'landscape').map((u) => u.path.join('/'))).toEqual(['internet/ixp~ethernet']);
   });
 
   // generic: whatever content exists, every scene of every place × activity, both orientations

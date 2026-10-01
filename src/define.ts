@@ -6,6 +6,7 @@ import type * as S from './model/schema';
 export type LearnMore = z.infer<typeof S.learnMore>;
 export type Role = z.infer<typeof S.role>;
 export type NodeDef = z.infer<typeof S.node>;
+export type OwnerDef = z.infer<typeof S.owner>;
 export type TechDef = z.infer<typeof S.technology>;
 export type LayerDef = z.infer<typeof S.layer>;
 export type SceneDef = z.infer<typeof S.scene>;
@@ -28,6 +29,7 @@ export type Orient = 'landscape' | 'portrait';
 export type Mode = 'day' | 'night';
 
 export const defineNode = (d: NodeDef) => d;
+export const defineOwner = (d: OwnerDef) => d;
 export const defineTechnology = (d: TechDef) => d;
 export const defineLayer = (d: LayerDef) => d;
 export const defineScene = (d: SceneDef) => d;

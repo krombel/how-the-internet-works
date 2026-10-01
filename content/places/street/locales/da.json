@@ -17,7 +17,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "Mobilkernen (5GC) afslutter radiotunnelen og laver carrier-grade NAT; derfra er det det samme internet: udbyderens kerne, peering i et IXP (eller betalt transit) og en CDN-cache tæt på dig."
+      "nerd": "Mobilkernen (5GC) afslutter radiotunnelen og laver carrier-grade NAT; derfra er det det samme internet: udbyderens kerne, peering i et IXP (eller betalt transit) og en CDN-cache tæt på dig. Hvert farvet felt er én operatørs net."
     }
   }
 }

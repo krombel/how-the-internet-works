@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Inside the big network a quick sticker says which motorway to take, so nobody has to read the address.",
-    "nerd": "Label-switched through the core; the label is swapped at every LSR and popped before the edge."
+    "nerd": "Label-switched through the core: the label is swapped at every LSR and popped at the edge (the border router, or the hop before it with penultimate-hop popping)."
   },
   "line": "MultiProtocol Label Switching, Label: {label}, TTL: {ttl}",
   "field": {

@@ -8,6 +8,8 @@ type Mode = 'access' | 'metro' | 'long-haul';
 const MODES: Record<string, Mode> = { gpon: 'access', backbone: 'long-haul' };
 /** How this stretch of fibre is told, from its technology (any other fibre is metro). */
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'metro';
+/** The nerd tag of a metro-told thread: a cross-connect's optic puts its few colours close together (LAN-WDM). */
+export const metroTag = (tech: string) => (tech === 'cross-connect' ? 'tag.lan-wdm' : 'tag.dwdm');
 
 /** SVG transform that maps track space into the scene: identity in landscape, a 90° turn in portrait
  *  (track x → up the screen), so the physical flow runs bottom → top like the portrait overview. */

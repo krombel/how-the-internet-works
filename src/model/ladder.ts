@@ -45,8 +45,8 @@ function stackAt(r: Route, path: string[], carried: string[], o: Orient): Rung[]
 const stretchOf = (r: Route, ref: SceneRef, o: Orient) =>
   diveRuns(r, sceneRef(r, parentPath(ref.path), o)!.group, o).byLink.get(ref.link!.id)!.links.map((l) => l.link);
 
-/** What a signal carries all along it: its link's envelopes that every link of its stretch carries (the backbone
- *  stretch inside the internet is plain Ethernet: MPLS rides only its first link), each at the hop that reads it. */
+/** What a signal carries all along it: its link's envelopes that every link of its stretch carries (a layer only some
+ *  of them carry is left out), each at the hop that reads it. */
 export function carriedBy(r: Route, ref: SceneRef, o: Orient): { layer: string; path: string[] }[] {
   const run = stretchOf(r, ref, o);
   return upFrom(r, ref).filter((u) => run.every((l) => l.stack.includes(u.layer)));

@@ -22,7 +22,7 @@ export interface LayerVal { id: string; fields: FieldVal[]; bytes: number }
 /** The facts header templates can use, as {name} (documented in docs/authoring.md). */
 export const FACTS = [
   'src', 'dst', 'sport', 'dport', 'ttl', 'mac.src', 'mac.dst', 'mac.tx', 'mac.rx', 'tunnel.src', 'tunnel.dst',
-  'len', 'payload', 'sum', 'crc',
+  'len', 'payload', 'sum', 'crc', 'label',
 ] as const;
 const INNER = 'inner.';
 /** {fact}, {inner.<code>}, or a size with an offset: {payload+8}. */
@@ -41,6 +41,9 @@ function hash(parts: string[]): number {
   for (const p of parts) for (const ch of p) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
   return h >>> 0;
 }
+/** A stable, made-up MPLS label: the one the receiving hop asked for, per direction (16–15 999 are reserved or
+ *  static in real networks; these land in 16 000–31 999). */
+export const fakeLabel = (rx: string, dir: Dir) => String(16000 + (hash([rx, dir]) % 16000));
 const hex = (n: number, digits: number) => `0x${(n >>> 0).toString(16).padStart(8, '0').slice(-digits)}`;
 
 /** Travel order: the hop after chain hop `h` for a packet going `dir`. */
@@ -119,7 +122,7 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
   const port = (p?: number): Val => ({ text: p === undefined ? '' : String(p) });
   const base: Record<string, Val> = {
     src: me.addr, dst: them.addr, sport: port(me.port), dport: port(them.port), ttl: { text: String(ttlAt(r, i, dir)) },
-    'mac.tx': macOf(tx), 'mac.rx': macOf(rx),
+    'mac.tx': macOf(tx), 'mac.rx': macOf(rx), label: { text: fakeLabel(rx.id, dir) },
     'mac.src': macOf(walkTo(r, tx.index, back, (h) => l2End(r, h))),
     'mac.dst': macOf(walkTo(r, rx.index, -back, (h) => l2End(r, h))),
   };

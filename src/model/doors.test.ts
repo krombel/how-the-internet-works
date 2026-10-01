@@ -23,8 +23,8 @@ describe('doors', () => {
     expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     // a stretch of same-technology links is one dive: one badge, and it lights up all of them
     const inside = doorsIn(home, 'internet', 'landscape');
-    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core']);
-    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-ixp', 'ixp-cdn']]);
+    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core', 'dive:border-ixp']);
+    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-border'], ['border-ixp', 'ixp-cdn']]);
   });
 
   // generic: holds for whatever content exists, in every language (names about as wide as the label font draws them)

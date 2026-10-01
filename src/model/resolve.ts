@@ -18,6 +18,8 @@ export interface Hop {
   /** NAT: the client's outside address, and its outside port if the NAT rewrites the port too. */
   natTo?: string;
   natPort?: number;
+  /** Who runs it (an owner id). */
+  owner?: string;
   source: Source;
   /** Index of the place slot it came from (null for fixed segments and groups). */
   slot: number | null;
@@ -33,6 +35,8 @@ export interface Link {
   /** Lower layers for this link, outermost first. */
   stack: string[];
   dive: string | null;
+  /** Roughly how long it is, in km. */
+  km?: number;
   source: Source;
   slot: number | null;
   /** Joins chain[index] → chain[index + 1]; -1 for side branches. */
@@ -101,13 +105,13 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
     const [natTo, port] = h.natTo?.split(':') ?? [];
     return {
       id: h.at, node, group: h.in ?? null, role: h.role ?? node.role ?? 'router', addr: h.addr, natTo, natPort: port ? Number(port) : undefined,
-      source, slot, index,
+      owner: h.owner, source, slot, index,
     };
   };
   const mkLink = (l: LinkDef, from: string, to: string, source: Source, slot: number | null, index: number, aside = false): Link => {
     const tech = c.technologies[l.link];
     const dive = l.dive === false ? null : l.dive ?? tech.dive ?? null;
-    return { id: `${from}-${to}`, from, to, tech, stack: l.stack ?? tech.stack, dive, source, slot, index, aside };
+    return { id: `${from}-${to}`, from, to, tech, stack: l.stack ?? tech.stack, dive, km: l.km, source, slot, index, aside };
   };
 
   let pending: { def: LinkDef; source: Source; slot: number | null } | null = null;

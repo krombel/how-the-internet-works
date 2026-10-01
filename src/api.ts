@@ -7,7 +7,7 @@ export type { LayerSubject, LinkSubject } from './render/ctx';
 export type * from './render/theme-types';
 
 export { pts, textBox } from './engine/svg';
-export { fakeMac } from './model/packet';
+export { fakeLabel, fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';
 export { legibleSize } from './render/ctx';
 export { fill, nameOf, view, yours } from './state.svelte';

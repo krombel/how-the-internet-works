@@ -55,9 +55,9 @@ describe('the packet on each link', () => {
 
   it('counts the TTL down at every router, not at bridges', () => {
     const ttls = home.links.map((l) => val(home, l.id, 'ip.ttl'));
-    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '61', '61']);
+    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '61', '60', '60']);
     expect(val(home, 'bng-core', 'mpls.ttl')).toBe('62');
-    expect(val(home, 'phone-ap', 'ip.ttl', 'down')).toBe('61');
+    expect(val(home, 'phone-ap', 'ip.ttl', 'down')).toBe('60');
   });
 
   it('keeps MAC addresses across bridges and writes new ones at routers', () => {
@@ -117,12 +117,23 @@ describe('one hop: received → used / changed → sent', () => {
     expect(used(v)).toEqual(expect.arrayContaining(['ip.dst', 'ip.ttl', 'tcp.sport', 'tcp.dport']));
   });
 
-  it('ISP core router: TTL − 1, pops the MPLS label, hashes the 5-tuple', () => {
+  it('ISP core router: swaps the MPLS label for the one the next router asked for, TTL − 1', () => {
     const v = view(home, 'core');
+    expect(shape(v)).toBe('ethernet mpls ip (tcp) (tls) [http]');
+    expect(changed(v)).toEqual(expect.arrayContaining(['mpls.label', 'mpls.ttl', 'ip.ttl']));
+    expect(field(v, 'mpls.label').before?.text).toBe(val(home, 'bng-core', 'mpls.label'));
+    expect(field(v, 'mpls.label').value.text).toBe(val(home, 'core-border', 'mpls.label'));
+    // each direction has its own labels
+    expect(val(home, 'core-border', 'mpls.label', 'down')).not.toBe(val(home, 'core-border', 'mpls.label'));
+  });
+
+  it('ISP border router: pops the last label at the edge, hashes the 5-tuple, plain IP over the exchange', () => {
+    const v = view(home, 'border');
     expect(shape(v)).toBe('ethernet -mpls ip (tcp) (tls) [http]');
     expect(changed(v)).toEqual(['ethernet.dst', 'ethernet.src', 'ethernet.type', 'ethernet.fcs', 'ip.ttl', 'ip.checksum']);
     expect(used(v)).toEqual(expect.arrayContaining(['ip.src', 'ip.dst', 'ip.proto', 'tcp.sport', 'tcp.dport']));
     expect(used(v)).not.toContain('tcp.seq');
+    expect(onLink(home, 'border-ixp').map((l) => l.id)).toEqual(['ethernet', 'ip', 'tcp', 'tls', 'http']);
   });
 
   it('5G: the tower wraps into GTP-U, the mobile core unwraps and NATs', () => {
