@@ -173,6 +173,15 @@ Navigating the scene shows a packet's physical life; catching one shows its laye
   button, arrow key or flick pointing the way the packet moves on screen takes it on (`hopStepFor`): ▶ for a request,
   ◀ for the video coming back (▲ / ▼ in portrait). That button is the filled one. When the next hop is drawn in another scene (`hopScenePath`: into the internet, back out to the house), the
   camera flies there. The camera tracks the ghost until the user pans or zooms.
+- **Catch by kind** (the caption's chips, "Catch: Request · Video"; issue #74) starts the packet where that kind enters
+  the scene on screen, so ◀ ▶ can take it all the way across and on into the next scene: at the first hop on its way
+  that the scene draws (`entryHop`, walking from its sender with `stepHop`, with the same `drawn` test as `hopAhead`).
+  As the chain is laid out left → right, that is the left (portrait: the bottom) for a request and the right (the top)
+  for a response. A collapsed group isn't one of its hops: on the overview the video waits at the first device outside
+  the internet. The ghost glides in along the link it arrives by, from that link's far end (the scene's entry node, the
+  group, or the sender itself), never back from further on, and the camera tracks it there even if the reader had
+  panned away. It looks like the scene's own packets of that kind (their flow, colour and spec, `specsFor`), whether or
+  not one is moving right now, and hides none of them. Tapping a packet still catches that one where it is.
 
 ### The packet model (`model/packet.ts`)
 
@@ -229,7 +238,7 @@ caption and the strings (`door.*`):
 | **Change** | `swap` | the start device (root only) | the place / activity picker | berry rounded square with arrows |
 
 A fourth verb, **Catch**, is for packets (issue #17, above): the caption lists the flow's packet kinds ("Catch: Request ·
-Video") and a chip catches the youngest packet of that kind on screen.
+Video") and a chip catches a packet of that kind where it enters the scene on screen (issue #74, above).
 
 Dives have two more, caption chips only (issue #13), joining an envelope and the signal that carries it:
 
@@ -489,7 +498,9 @@ Vitest (`npm test`) covers:
 - the packet model: every value on every link resolves; NAT and CGNAT rewrites, the TTL count-down, MAC continuity
   across bridges, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
   router, core, tower, mobile core, both ends); catching and stepping (`hopAhead`, `stepHop`, `caughtSpot`,
-  `hopScenePath`)
+  `hopScenePath`); catching by kind (`entryHop`): for every place, activity, path scene, orientation and direction,
+  the entry hop is at the edge the packet comes in by, it glides in from outside, and stepping on passes every hop the
+  scene draws
 - the URL round trip
 - string fallback and lazy language packs
 - the import rules

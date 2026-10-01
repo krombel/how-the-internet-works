@@ -15,7 +15,7 @@
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
-  import { hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
+  import { entryHop, hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
@@ -287,7 +287,7 @@
   // Pause stops all motion, everywhere (#53, WCAG 2.2.2): everything that moves runs on the scene clock. Catching a
   // packet pauses it too, while it's held (issue #17). The caught packet waits at a hop (just before it, on the link it
   // arrives by) and ◀ ▶ step it along its path, gliding from hop to hop; the peek panel shows its layers at that hop.
-  interface Caught { flow: string; kind: string; dir: Dir; colour?: string; spec: LivePacket['spec']; hop: number; hide: string }
+  interface Caught { flow: string; kind: string; dir: Dir; colour?: string; spec: LivePacket['spec']; hop: number; hide?: string }
   interface Spot { key: string; link: SLink; t: number }
   let packets = $state.raw(new Map<string, LivePacket[]>());
   let prevIds = new Map<string, Map<string, LivePacket>>();
@@ -312,22 +312,28 @@
     const s = caughtSpot(pathScene(route, ref.group, view.orient), h, dir);
     return s && { key: keyOf(path), ...s };
   }
-  function catchPacket(p: LivePacket, key: string) {
-    const path = key ? key.split('/') : [];
-    const drawn = (h: number) => keyOf(hopScenePath(route, h, view.orient, path) ?? []) === key;
-    const hop = hopAhead(p.pose.link.link.index, p.dir, drawn);
-    const spot = spotAt(path, hop, p.dir);
-    if (!spot) return;
+  /** Whether the scene at `path` draws chain hop `h` (not just the group it is in). */
+  const drawnIn = (path: string[]) => (h: number) => keyOf(hopScenePath(route, h, view.orient, path) ?? []) === keyOf(path);
+  /** Hold `c`: its ghost glides from `from` to `to` along that link (then jumps to `then`), the camera tracking it. */
+  function grab(c: Caught, from: Spot, to: number, then: Spot | null) {
     if (!caught) catchFrom = document.activeElement;
-    caught = { flow: p.flow, kind: p.kind, dir: p.dir, colour: p.colour, spec: p.spec, hop, hide: p.id };
-    // glide from where it was caught to its hop (back to the start of its link if the hop ahead isn't drawn here)
-    const t = tOf(p), same = p.pose.link.id === spot.link.id;
-    ghost = { key, link: p.pose.link, t };
-    glide = { a: t, b: same ? spot.t : p.dir === 'up' ? 0 : 1, t0: performance.now(), then: same ? null : spot };
+    caught = c;
+    ghost = from;
+    glide = { a: from.t, b: to, t0: performance.now(), then };
     view.followId = CAUGHT_ID;
     track = true;
     dropTrans();
     sfx.pop();
+  }
+  function catchPacket(p: LivePacket, key: string) {
+    const path = key ? key.split('/') : [];
+    const hop = hopAhead(p.pose.link.link.index, p.dir, drawnIn(path));
+    const spot = spotAt(path, hop, p.dir);
+    if (!spot) return;
+    // glide from where it was caught to its hop (back to the start of its link if the hop ahead isn't drawn here)
+    const t = tOf(p), same = p.pose.link.id === spot.link.id;
+    grab({ flow: p.flow, kind: p.kind, dir: p.dir, colour: p.colour, spec: p.spec, hop, hide: p.id },
+      { key, link: p.pose.link, t }, same ? spot.t : p.dir === 'up' ? 0 : 1, same ? null : spot);
   }
   // The peek panel (with its envelopes and protocol tree) loads on the first catch, to keep the first load small.
   let PeekPanel = $state.raw<typeof PeekPanelT | null>(null);
@@ -335,12 +341,19 @@
     if (caught && !PeekPanel) Promise.all([import('./ui/PeekPanel.svelte'), loadDiveStrings()]).then(([m]) => (PeekPanel = m.default));
   });
   $effect(() => { if (stepInfo.kind !== 'stop') void loadDiveStrings(); });
-  /** Catch the youngest packet of a kind in the scene on screen (the caption's "Catch" chips). */
+  /** Catch a packet of a kind where it enters the scene on screen (the caption's "Catch" chips, issue #74): at the
+   *  first hop on its way that this scene draws, gliding in along the link it arrives by, so ◀ ▶ can take it on across
+   *  the scene. It looks like the packets of that kind here (the scene's own spec of it), moving or not. */
   function catchKind(kind: string) {
-    const list = (packets.get(hereKey) ?? []).filter((k) => k.id !== CAUGHT_ID);
-    const p = list.filter((k) => k.kind === kind).sort((x, y) => x.age / x.spec.duration - y.age / y.spec.duration)[0] ?? list[0];
-    if (p) catchPacket(p, hereKey);
-    return !!caught;
+    const ref = sceneRef(route, here.path, view.orient);
+    if (ref?.kind !== 'path') return false;
+    const spec = specsFor(pathScene(route, ref.group, view.orient), route.activity.flows).find((s) => s.kind === kind);
+    if (!spec) return false;
+    const hop = entryHop(route, spec.dir, drawnIn(here.path));
+    const spot = hop === null ? null : spotAt(here.path, hop, spec.dir);
+    if (hop === null || !spot) return false;
+    grab({ flow: spec.flow, kind, dir: spec.dir, colour: spec.colour, spec, hop }, { ...spot, t: spec.dir === 'up' ? 0 : 1 }, spot.t, null);
+    return true;
   }
   /** The packet kinds to catch here, named (path scenes only). */
   const catchable = $derived(stepInfo.kind === 'stop'
@@ -686,7 +699,7 @@
     Object.assign(window, {
       __app: {
         go, loc: () => nav.loc, busy: () => !!trans || !!morph || divesLoading(),
-        /** Catch the youngest packet of a kind in the scene on screen; then `step` it (±1 hop). */
+        /** Catch a packet of a kind where it enters the scene on screen; then `step` it (±1 hop). */
         catch: (kind = 'video') => catchKind(kind),
         step(d: -1 | 1) { if (caught) stepCaught(d); },
         caught: () => caught && { hop: route.chain[caught.hop].id, dir: caught.dir },
