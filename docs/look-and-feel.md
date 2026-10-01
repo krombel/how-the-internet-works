@@ -148,7 +148,11 @@ Night is a **mode** of Storybook, not a fifth style: the same picture book, read
 
   Glows are wide translucent strokes, never SVG filters. At 6× throttle night costs the same frame rate as day.
 - **Contrast.** Text in the chrome (caption, chips, peek, tags, buttons, links) meets WCAG AA in both modes, and a test
-  checks it (`src/model/contrast.test.ts`). The day palette was darkened slightly where it fell short.
+  checks it (`src/model/contrast.test.ts`). The day palette was darkened slightly where it fell short. Edges,
+  what is on and the rings reach 3:1. In the scene, marks and text on a bright body (a sun-yellow sticker, a lit
+  row, a mustard plate) are drawn in `--face`, never `--line`, which turns pale by night. A label in a data colour is
+  mixed into the ink; one in a palette colour uses its `-ink` tone (`--leaf-ink`, `--teal-ink`, `--berry-ink`). See
+  [accessibility](accessibility.md).
 
 | | Day | Night |
 |---|---|---|

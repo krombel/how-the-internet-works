@@ -2,12 +2,16 @@
 // layer dives, languages and a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
-// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y] [--style=id]
+// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
 //                        ring; focus comes back after a door, a catch and the picker; read aloud and the announcer
-//                        say a scene's description). Prints what fails, exits 1 if anything does; writes nothing.
+//                        say a scene's description); every control at least 24 px, not cut off (at 200 % zoom too:
+//                        the zoom view) and not under another; every scene's labels at 4.5:1 (3:1 when large) on
+//                        their halo or what's behind them. Prints what fails, exits 1 if anything does; writes nothing.
+//   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
+//                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
 //                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
 //                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
@@ -197,7 +201,7 @@ function focusProblem() {
 }
 /** In the page: what's wrong with the controls you can see (#53). Each is at least 24 × 24 px (WCAG 2.5.8, inline
  *  links too), inside the window or a box that scrolls (nothing cut off, at 200 % zoom too), and on top: no other
- *  control lies over it. */
+ *  control lies over it (bar an open pop-up, which Esc closes; one scrolled out of its box is checked when there). */
 function controlProblems() {
   const out = [];
   const name = (e) => `${e.tagName.toLowerCase()} "${(e.getAttribute('aria-label') || e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 30)}"`;
@@ -209,10 +213,10 @@ function controlProblems() {
     if (r.width < 1 || r.height < 1) continue;
     if (r.width < 23.5 || r.height < 23.5) out.push(`${name(e)} is ${Math.round(r.width)} × ${Math.round(r.height)} px`);
     // cut off by the window, or by a box that hides its overflow (one that scrolls is fine: you can get there)
-    let clip = { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+    let clip = { left: 0, top: 0, right: innerWidth, bottom: innerHeight }, scroller = null;
     for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
       const cs = getComputedStyle(a);
-      if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) { clip = null; break; }
+      if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) { clip = null; scroller = a.getBoundingClientRect(); break; }
       if (/hidden|clip/.test(cs.overflowX + cs.overflowY)) {
         const b = a.getBoundingClientRect();
         clip = { left: Math.max(clip.left, b.left), top: Math.max(clip.top, b.top), right: Math.min(clip.right, b.right), bottom: Math.min(clip.bottom, b.bottom) };
@@ -220,9 +224,10 @@ function controlProblems() {
     }
     if (clip && (r.left < clip.left - 1 || r.top < clip.top - 1 || r.right > clip.right + 1 || r.bottom > clip.bottom + 1)) out.push(`${name(e)} is cut off`);
     else {
-      const x = Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1), y = Math.min(Math.max(r.top + r.height / 2, 0), innerHeight - 1);
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight || (scroller && (x < scroller.left || y < scroller.top || x > scroller.right || y > scroller.bottom))) continue;
       const over = document.elementFromPoint(x, y)?.closest(CONTROL);
-      if (over && !e.contains(over) && !over.contains(e)) out.push(`${name(e)} is under ${name(over)}`);
+      if (over && !e.contains(over) && !over.contains(e) && !over.closest('.pop:not(.pinned)')) out.push(`${name(e)} is under ${name(over)}`);
     }
   }
   return out;
