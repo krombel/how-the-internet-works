@@ -13,6 +13,7 @@
   --env-name: var(--accent); --link: var(--accent);
   --env-used: rgba(62, 240, 255, 0.16); --env-change: #ffb35c;
   --lbl-weight: 700; --lbl-halo: rgba(0, 0, 0, 0.55); --lbl-halo-w: 0.18em;
+  --bar-fade: var(--bg);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -47,6 +48,9 @@ button { cursor: pointer; }
 .chrome { position: fixed; inset: 0 0 auto 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
   padding: max(10px, env(safe-area-inset-top)) 12px 8px; pointer-events: none; }
 .chrome > * { pointer-events: auto; }
+/* the scene fades out under the bar, so a label that slides up under it doesn't show between the buttons */
+.chrome::before { content: ''; position: absolute; inset: 0 0 -18px; z-index: -1; pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--bar-fade) 92%, transparent) calc(100% - 30px), transparent); }
 .crumbs { display: flex; align-items: center; gap: 2px; padding: 3px 6px; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 16px; min-height: 46px; }
 .crumbs .btn { background: none; color: var(--muted); font-size: inherit; font-weight: inherit; font-family: inherit; }
 .crumbs .here { padding: 6px 10px; }
@@ -58,7 +62,6 @@ button { cursor: pointer; }
 .controls > .card > .btn { background: none; }
 .icon-btn[aria-pressed='true'], .explore-btn[aria-pressed='true'] { background: var(--btn-on) !important; color: var(--btn-on-ink); }
 .explore-btn { min-height: 36px; padding: 6px 12px 6px 9px; font-size: 13px; }
-.explore-btn:disabled { opacity: 0.45; cursor: default; filter: none; }
 .pop { position: absolute; z-index: 20; top: 100%; margin-top: 4px; padding: 10px; min-width: 220px; inset-inline-end: 12px; }
 .pop h3 { margin: 4px 6px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 800; }
 /* the ⋯ menu (Menu.svelte): a row per entry, a choice's options side by side */
@@ -139,7 +142,7 @@ button { cursor: pointer; }
 .caption h2 { margin: 0 0 3px; font-family: var(--heading-font); font-weight: var(--heading-weight); text-transform: var(--heading-transform);
   letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--heading); }
 .caption .tag { margin: 0 0 3px; font-size: 12.5px; font-weight: 800; color: var(--door-ink); }
-.caption p { margin: 0; font-size: 15.5px; line-height: 1.42; max-height: 4.3em; overflow: auto; }
+.caption p { margin: 0; font-size: 15.5px; line-height: 1.42; }
 .caption .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 0; border-radius: 99px; background: var(--btn); font-weight: 800; }
@@ -165,9 +168,20 @@ button { cursor: pointer; }
 .cap-toggle { display: flex; align-items: center; gap: 4px; max-width: 100%; min-height: 40px; padding: 0; border: 0; background: none;
   font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
 .cap-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.caption.open .cap-toggle span { white-space: normal; }
 .cap-toggle svg { width: 22px; height: 22px; flex: none; }
+.caption.open .cap-in { background: linear-gradient(var(--card), var(--card)), var(--bg); }
 .caption.compact.open .cap-in { position: absolute; bottom: calc(-1 * var(--card-edge-w)); left: 50%; translate: -50% 0;
   width: min(760px, calc(100vw - 20px)); max-height: calc(100vh - 20px); overflow: auto; padding: 2px 16px 12px; }
+/* folded card (a portrait phone): the title (a button that opens the rest), two lines of text and the doors; open, the
+   whole caption lies over the scene, from the folded card's bottom up to the top bar at most (scrolling past that) */
+.caption.folded .cap-toggle { width: 100%; min-height: 32px; justify-content: space-between; text-align: start; }
+.caption.folded .cap-toggle span { white-space: normal; }
+.caption.folded:not(.open) p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.caption.folded:not(.open) :is(.tag, .place, .hint, .more) { display: none; }
+.caption.folded.open .cap-in { position: absolute; inset-inline: calc(-1 * var(--card-edge-w)); bottom: calc(-1 * var(--card-edge-w));
+  max-height: calc(100dvh - var(--top-h, 110px) - max(10px, env(safe-area-inset-bottom))); overflow: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; padding: 10px 14px; }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
@@ -194,7 +208,11 @@ button { cursor: pointer; }
 /* ---------------- step buttons */
 .step { position: fixed; z-index: 9; width: 58px; height: 58px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 .step svg { width: 28px; height: 28px; }
-.step[aria-disabled='true'] { opacity: 0.4; }
+/* nothing that way: a small ghost at its edge of the screen (it keeps focus, and a press still nudges it) */
+.step { transition: scale 0.25s ease, opacity 0.25s ease; }
+.step[aria-disabled='true'] { opacity: 0.35; scale: 0.6; }
+.step.prev { transform-origin: 0 50%; }
+.step.next { transform-origin: 100% 50%; }
 .step.nudge { animation: nudge 0.3s ease; }
 @keyframes nudge { 30% { translate: var(--nx) var(--ny); } 60% { translate: calc(var(--nx) * -0.6) calc(var(--ny) * -0.6); } }
 /* physical left/right: the diagrams are not mirrored in RTL */
@@ -202,6 +220,8 @@ button { cursor: pointer; }
 .step.next { right: 14px; }
 .land .step { top: 50%; margin-top: -29px; }
 .port .step { bottom: calc(var(--cap-h, 150px) + 16px); }
+.port .step.prev { transform-origin: 0 100%; }
+.port .step.next { transform-origin: 100% 100%; }
 
 /* ---------------- peek (a caught packet at one hop) */
 .peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 96px);
@@ -300,14 +320,19 @@ button { cursor: pointer; }
 @media (max-width: 700px) {
   .chrome { padding-inline: 8px; gap: 6px; }
   .crumbs { font-size: 14px; min-height: 42px; }
-  .controls { margin-inline-start: 0; width: 100%; justify-content: space-between; gap: 6px; }
+  .controls { gap: 6px; }
   .seg .btn { padding: 6px 7px; min-width: 34px; }
   .controls .btn { min-width: 36px; padding-inline: 7px; }
   .controls > .card { padding: 2px; }
   .caption { padding: 10px 14px; }
   .caption h2 { font-size: 17px; }
-  .caption p { font-size: 14px; max-height: 5.7em; }
+  .caption p { font-size: 14px; }
   .step { width: 54px; height: 54px; }
+  /* a portrait phone: smaller, docked on the caption's top corners so they cover less of the scene */
+  .port .step { width: 44px; height: 44px; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--cap-h, 150px) + 6px); }
+  .port .step.prev { left: 10px; }
+  .port .step.next { right: 10px; }
+  .port .step svg { width: 24px; height: 24px; }
 }
 /* a short landscape screen (a phone on its side, `isShort` in engine/camera.ts): one slim top row, so the scene gets
    the height; the breadcrumb keeps its last two steps (Ladder.svelte) and cuts long names short */
@@ -323,4 +348,4 @@ button { cursor: pointer; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
   .menu, .about-box { max-height: calc(100dvh - 76px); }
 }
-@media (prefers-reduced-motion: reduce) { .env, .picker, .trip { animation: none; } .caption { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .env, .picker, .trip { animation: none; } .caption, .step { transition: none; } }

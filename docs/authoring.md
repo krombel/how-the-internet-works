@@ -394,7 +394,8 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
 - [ ] `locales/en.json` has the required strings; `da.json` if you can.
-- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes).
+- [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes). Device names
+      mustn't touch at the size they grow to on a phone, in any language (a test in `model/doors.test.ts` checks).
 - [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.

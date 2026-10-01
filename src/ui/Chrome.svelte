@@ -1,7 +1,9 @@
 <script lang="ts">
-  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?", pause, kid/nerd, day/night (when the
-  // theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the language, sound, the style
-  // (only when more than one theme is installed) and About. On a short landscape screen it is one slim row.
+  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (only where there is something to
+  // explore: not in dives), pause, kid/nerd, day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries
+  // in `entries` below) with the language, sound, the style (only when more than one theme is installed) and About. The
+  // controls keep to the end of the row, so one that comes and goes doesn't move the others; on a phone they wrap
+  // under the ladder, and on a short landscape screen it is one slim row.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
@@ -20,7 +22,7 @@
     short: boolean;
     /** Room for the long "What can I explore?" label. */
     wide: boolean;
-    /** "What can I explore?" is on / there's anything to explore in this scene. */
+    /** "What can I explore?" is on / there's anything to explore in this scene (else it isn't shown). */
     explore: boolean; canExplore: boolean; ontoggle: () => void;
     /** Traffic is frozen; pausing is offered (path scenes only). */
     paused: boolean; onpause?: () => void;
@@ -61,13 +63,15 @@
 
 <svelte:window {onpointerdown} />
 <nav class="chrome" data-ui>
-  <Ladder {crumbs} {below} {short} {roomy} {quiet} {onhot} />
+  <Ladder {crumbs} {below} {small} {short} {roomy} {quiet} {onhot} />
   <div class="controls">
-    <div class="card">
-      <button class="btn explore-btn" aria-pressed={explore} disabled={!canExplore} title={tr('explore.title')} onclick={ontoggle}>
-        <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
-      </button>
-    </div>
+    {#if canExplore}
+      <div class="card">
+        <button class="btn explore-btn" aria-pressed={explore} title={tr('explore.title')} onclick={ontoggle}>
+          <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
+        </button>
+      </div>
+    {/if}
     {#if onpause}
       <div class="card">
         <button class="btn icon-btn" aria-pressed={paused} title={tr(paused ? 'ui.play' : 'ui.pause')} onclick={onpause}><Icon name={paused ? 'play' : 'pause'} /></button>

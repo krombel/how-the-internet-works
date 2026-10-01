@@ -82,6 +82,8 @@
   "peek.role.nat.down.nerd": "NAT retur: modtageren omskrives tilbage via tabellen, checksummer rettes, og så routes den (TTL − 1).",
   "ladder.doors.one": "{n} dør fører længere ned",
   "ladder.doors.other": "{n} døre fører længere ned",
+  "ladder.ways.one": "{n} vej ned",
+  "ladder.ways.other": "{n} veje ned",
   "ladder.stack.kid": "{hop}: kuverterne",
   "ladder.stack.nerd": "{hop}: lagene",
   "about.open": "Om denne app",

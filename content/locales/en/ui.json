@@ -82,6 +82,8 @@
   "peek.role.nat.down.nerd": "NAT reverse: the destination is rewritten back from the mapping table, checksums fixed, then routed (TTL − 1).",
   "ladder.doors.one": "{n} door leads further down",
   "ladder.doors.other": "{n} doors lead further down",
+  "ladder.ways.one": "{n} way down",
+  "ladder.ways.other": "{n} ways down",
   "ladder.stack.kid": "{hop}: the envelopes",
   "ladder.stack.nerd": "{hop}: the layers",
   "about.open": "About this app",

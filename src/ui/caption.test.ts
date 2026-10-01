@@ -53,3 +53,25 @@ describe('caption scale tag', () => {
     state.setLevel('kid');
   });
 });
+
+describe('caption fold', () => {
+  it('folds to a pill on a short landscape screen, to a card on a portrait phone, not at all on a big screen', () => {
+    expect(caption.captionFold(844, 390)).toBe('pill');
+    expect(caption.captionFold(390, 844)).toBe('card');
+    expect(caption.captionFold(360, 740)).toBe('card');
+    expect(caption.captionFold(1440, 900)).toBe(null);
+    expect(caption.captionFold(820, 1180)).toBe(null);
+  });
+});
+
+describe('counts in words', () => {
+  it('picks the plural form of the language', () => {
+    state.setLang('en');
+    expect(state.trCount('ladder.ways', 1)).toBe('1 way down');
+    expect(state.trCount('ladder.ways', 4)).toBe('4 ways down');
+    state.setLang('da');
+    expect(state.trCount('ladder.ways', 1)).toBe('1 vej ned');
+    expect(state.trCount('ladder.ways', 4)).toBe('4 veje ned');
+    state.setLang('en');
+  });
+});
