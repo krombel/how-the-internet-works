@@ -82,7 +82,8 @@ src/                      the engine: no content ids anywhere
   ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
                           list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
                           Change (a changed value), Announcer + announce (what a screen reader hears), SceneKeys (the
-                          keyboard in the scene), TextMap (the list view)…
+                          keyboard in the scene), TextMap (the list view), CoachMarks + coach, coach-marks (the
+                          first-run coach marks)…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -269,6 +270,18 @@ dive; `CaptionDoor.path` carries where they go.
   stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
   SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
+- **First-run coach marks** (issue #21). A visit that starts at the top (`firstRun` in `ui/coach.ts`: the overview, no
+  stop) and has never had them gets, after 700 ms of the scene moving, three cards (`ui/CoachMarks.svelte` with
+  `ui/coach-marks.ts`, one lazy chunk loaded only then): the first *Open up*, the first *Look inside*
+  (`coachMarks(doors)`; what the scene lacks is left out), then "What can I explore?". They reuse what is there: the
+  doors are lit as by "What can I explore?" (`lit`), the door pointed at is `hot`, and the scene holds still on the
+  pause's clock (`paused`; ⏸ shows only the reader's own pause, `held`). `placeMark` puts each card below its target,
+  else above, else beside it, in the room the top bar and the caption leave, with its tail on the target; a door's
+  badge is found with the same `layoutDoors` as the hit test (`badgesNow`). A tap anywhere but the card's buttons
+  ends them on `pointerup`, after the stage has taken the tap, so it still opens what it hit; so do Esc and any
+  navigation. `coached` in `localStorage` is set as soon as they show. A link straight into a scene or a stop gets
+  none and leaves them for a later visit at the top. The card's CSS is in its component (so it comes with the chunk),
+  tokens only. The evaluate sets `coached` on every page it opens except the coach marks' own checks.
 
 ### The depth ladder: where you are and what lies below (issues #22, #14, #32)
 
@@ -596,7 +609,9 @@ catching a packet on the overview costs about 35 % more; even on dive panels onl
 heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
 between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 83.4 kB gz (about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
+Initial JS is about 92.4 kB gz (about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
+chunk of about 2.2 kB with their CSS, loaded only on a first visit; 91.7 kB before them, with the accessibility work of
+#53; about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the
 peek panel (with its envelopes and protocol tree, about 4.8 kB) and the English dive strings (the layers' and the
 dive scenes', about 14.6 kB), which load on the first catch or dive.

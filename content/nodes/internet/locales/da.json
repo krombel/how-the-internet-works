@@ -4,6 +4,7 @@
   "nerd": "~75 000 autonome systemer, der udveksler ruter med BGP. Tryk for at folde vejen gennem udbyderen ud.",
   "tag": "AS64500 · BGP",
   "inside": {
+    "coach": "Der er en hel verden inde i internettet — åbn den!",
     "title": "Inde i internettet",
     "kid": "Internettet er ikke én stor sky. Det er en masse net, som hvert drives af et firma, og som holder hinanden i hånden. De farvede felter viser, hvis bokse din pakke kommer forbi – og de svage cirkler langt væk er nogle få af de mange andre net.",
     "nerd": "Et net af net: udbyderens adgangsnet og MPLS-kerne, derefter gratis peering i et internetknudepunkt (eller betalt transit) og til sidst en CDN-cache tæt på dig. Hvert farvet felt er én operatør; derude findes titusinder af andre autonome systemer.",
