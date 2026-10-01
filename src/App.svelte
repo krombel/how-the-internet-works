@@ -210,21 +210,21 @@
   }
 
   // Sideways stepping: path scenes step through their stops; link dives between the parent's dives; layer dives up and
-  // down the layers of their hop, and from the lowest down to the signal that carries it (#32).
+  // down the depth ladder: the layers on the link you're on, from the lowest down to its signal (#14, #32).
   let nudge = $state({ dir: 0, n: 0 });
   const stepInfo = $derived(sideways(route, here.path, here.stop, view.orient));
-  /** What lies below the scene you're in (the depth ladder); in a layer dive, the signal at the bottom of its stack. */
-  const below = $derived(belowOf(route, here.path, view.orient));
-  const signal = $derived.by(() => {
-    const last = stepInfo.kind === 'layer' && below?.kind === 'stack' ? below.rungs.at(-1) : undefined;
-    return last && !last.layer ? last.path : undefined;
-  });
+  /** The link of the last stack you stood on, so a layer both sides of a hop carry (IP) keeps you on your side. */
+  let via = $state<string | null>(null);
+  /** What lies below the scene you're in (the depth ladder). */
+  const below = $derived(belowOf(route, here.path, view.orient, untrack(() => via)));
+  $effect(() => { via = below?.kind === 'stack' ? below.link : null; });
+  const ladder = $derived(stepInfo.kind === 'layer' && below?.kind === 'stack' ? below : null);
   function step(d: -1 | 1) {
     if (caught) return stepCaught(hopStepFor(caught.dir, d));
-    const { kind, steps, i, min } = stepInfo, ni = i + d;
-    if (ni < min && signal) return go({ path: signal });
-    if (ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
-    if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
+    const { kind, steps, i, min } = stepInfo, ni = ladder ? ladder.here - d : i + d;
+    if (ladder ? ni < 0 || ni >= ladder.rungs.length : ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    if (ladder) go({ path: ladder.rungs[ni].path });
+    else if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
     else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
@@ -686,7 +686,8 @@
   <Caption text={caption} place={placeName} onplace={() => (picker = { slot: 0 })} {explore} catches={catchable} oncatch={catchKind}
     ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} hidden={!showCaption || peekOpen} compact={short} bind:el={captionEl} />
   {#if !peekOpen}
-    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={stepInfo.i > stepInfo.min || !!signal} canNext={stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
+    <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
+      canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
   {/if}
   {#if trip}
     <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
