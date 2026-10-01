@@ -3,12 +3,13 @@
   // Places a node's own art (content/nodes/<id>/art/Device.svelte) and gives it the storybook look: chunky brown
   // outlines, paper colours, a blinking face and a gentle bob in dives. The node art only uses the shared classes.
   import type { DeviceProps } from '$core/api';
-  let { id, x, y, size, time, Art, face, context, focused }: DeviceProps = $props();
+  let { id, x, y, size, time, Art, face, context, focused, kbd }: DeviceProps = $props();
   const blink = $derived(Math.sin(time * 3 + id.length * 0.7) > 0.93);
   const bob = $derived(context === 'dive' ? Math.sin(time * 1.5 + id.length) * 3 : 0);
 </script>
 
 <g class="storybook-device dev-{id}" class:focused transform="translate({x - size / 2} {y - size / 2 + bob}) scale({size / 200})">
+  {#if kbd}<g class="kbd"><circle class="kbd-gap" cx="100" cy="100" r="108" /><circle class="kbd-ink" cx="100" cy="100" r="108" /></g>{/if}
   {#if focused}<circle class="focus" cx="100" cy="100" r="98" />{/if}
   {#if Art}<Art {time} />{:else}<rect class="body peach" x="34" y="44" width="132" height="112" rx="26" />{/if}
   {#if face || !Art}
@@ -22,6 +23,10 @@
 </g>
 
 <style>
+  /* the keyboard's ring, as the engine draws focus (this theme keeps its colours: ink over a gap in the page colour), outside the stop's own glow */
+  .kbd circle { fill: none; }
+  .kbd-gap { stroke: var(--bg); stroke-width: 18; }
+  .kbd-ink { stroke: var(--ink); stroke-width: 7; }
   .focus { fill: var(--paper); stroke: var(--focus-ring); stroke-width: 7; opacity: .8; }
   .storybook-device :global(.body), .storybook-device :global(.screen) { stroke: var(--line); stroke-width: 6; stroke-linejoin: round; }
   .storybook-device :global(.body) { fill: var(--tan); }

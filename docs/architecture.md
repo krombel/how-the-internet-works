@@ -75,13 +75,14 @@ src/                      the engine: no content ids anywhere
   model/                  registry (content globs), components (Svelte globs), strings, schema + validate (zod),
                           resolve (route), layout (path scenes), tree (scene tree), packet (the packet model),
                           stack (LayerCtx), ladder (what lies below a scene), location (URL), regions (owner outlines),
-                          trip (km, light, owners), describe (the keys a scene's text and description are under)
+                          trip (km, light, owners), describe (the keys a scene's text and description are under),
+                          focus (a scene's spots: the keys' and the list view's), textmap (the scene tree as a list)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
   ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
-                          About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree, Change (a
-                          changed value),
-                          Announcer + announce (what a screen reader hears)…
+                          list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
+                          Change (a changed value), Announcer + announce (what a screen reader hears), SceneKeys (the
+                          keyboard in the scene), TextMap (the list view)…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -375,7 +376,8 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 | Validation | `model/validate.ts` | runs every schema and cross-reference; dev + tests only |
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
-`Device` (places the node art, adds a face and a focus ring, and a fallback body), `Link` (by `look`), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
+`Device` (places the node art, adds a face and a focus ring, and a fallback body; `kbd`: the keyboard's two-tone ring
+round it), `Link` (by `look`; `kbd` likewise round the link), `Packet`, `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
 `glow` round what it opens under the devices and a `badge` over everything, with its label, `hot` and the reduced-motion
 clock), `Region` (an owner's area under the path and its sign, drawn in two parts like `Hint`, with a `tone` and
 `aside`), `Road` (the way the packets go through a group, under its links: the path, apart from the things around
@@ -421,7 +423,21 @@ engine:
   landed) focus moves to its heading (`tabindex="-1"`) if the control that was used has gone or turned `inert`,
   otherwise the arrival is announced. Hidden UI is `inert`, never only transparent. Catching a packet remembers the
   focused element (`catchFrom`) and focuses the peek; letting go gives it back (`keepFocus`). The picker makes
-  everything behind it `inert` and gives focus back to its opener.
+  everything behind it `inert` and gives focus back to its opener. Where focus has nowhere better to go it goes to
+  where you are in the scene (SceneKeys' button with `tabindex="0"`), else the caption's heading.
+- **One focus model** (`model/focus.ts`, `spotsOf`): a scene's spots, the whole scene then its stops in `sideways`
+  order, each with its doors (`doorsOf`, the expand first, then the dive, then the swap) and their rects in the
+  scene's frame. Both ways in use it, so they can't disagree (tested against `sideways` and `doorsOf` in every place,
+  activity and orientation):
+  - **SceneKeys** (`ui/SceneKeys.svelte`): a button per spot in one layer over the stage, moved by the same camera
+    matrix as the scene (no layout per frame); a roving tabindex on where you are. Focusing a stop goes there
+    (`go(…, true)`), stepping moves focus; while the keyboard is in it (`:focus-visible`) `World` gets `kbd` and the
+    theme rings the stop, and the stop's door is `hot` (its label shows).
+  - **The list view** (`ui/TextMap.svelte`, a lazy chunk with the dive strings, from ⋯ or the skip link): `mapOf`
+    (`model/textmap.ts`) hangs every scene of `childrenOf` under the stop that opens it (a layer dive under its hop, a
+    run's dive under its first link), each scene exactly once (tested against a full `childrenOf` walk), with its
+    description (`describe`) before its text. It is a `dialog` like the picker; going somewhere from it closes it and focuses that spot in the scene.
+  - **Hints** (`captionFor`) use `hint.*.keys` when the last input was a key (`view.keys`, set in `App.svelte`).
 - **One announcer** (`ui/announce.svelte.ts`, `ui/Announcer.svelte`): `announce(text)` puts one short line in a
   visually hidden `role="status"`. On arrival `arrival` says the title (left out when focus went to the heading, which
   says it), what lies below ("3 doors lead further down", `ladder.doors`) and the scene's description (`describe`);

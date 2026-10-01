@@ -27,10 +27,17 @@ export interface DeviceProps {
   /** 'path' = in a path scene; 'dive' = drawn big inside a dive scene. */
   context: 'path' | 'dive';
   focused: boolean;
+  /** Focused from the keyboard (issue #53): draw the engine's focus ring round it, the ink (--focus-ink, else --ink)
+   *  over a gap in the page colour (--focus-gap, else --bg) so it shows on anything, in a group with class "kbd". */
+  kbd?: boolean;
 }
 /** Links are drawn by their technology's look. */
 type LinkLook = 'radio' | 'cable' | 'fibre' | 'trunk';
-export interface LinkProps { look: LinkLook; d: string; curve: Curve; colour: string; dashed: boolean; time: number; focused: boolean }
+export interface LinkProps {
+  look: LinkLook; d: string; curve: Curve; colour: string; dashed: boolean; time: number; focused: boolean;
+  /** Focused from the keyboard: the focus ring along it, as for a device. */
+  kbd?: boolean;
+}
 export interface PacketProps {
   kind: string; pose: Pose; colour: string; time: number;
   /** The user is following this packet (draw a reticle / highlight). */
