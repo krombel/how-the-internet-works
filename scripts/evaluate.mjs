@@ -240,7 +240,8 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
   'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
   'home/watch-video/internet/cabinet~ethernet', 'home/watch-video/internet/backhaul~vlan', 'home/watch-video/internet/core~mpls',
-  'home/watch-video/router~gpon', 'street/watch-video/phone~nr'];
+  'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
+  'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn'];
 /** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
  *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
  *  when large: 24 px, or 18.7 px bold). */
