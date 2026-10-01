@@ -4,6 +4,7 @@ import { defineNode } from '$core/define';
 export default defineNode({
   kind: 'device',
   role: 'router',
+  dive: 'border-inside',
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Border_Gateway_Protocol', title: 'BGP', level: 'nerd', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/Multiprotocol_Label_Switching', title: 'MPLS (penultimate hop popping)', level: 'nerd', lang: 'en' },
