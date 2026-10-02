@@ -5,6 +5,7 @@ import { definePlace } from '$core/define';
 export default definePlace({
   variantOf: 'home',
   order: 1.6,
+  era: '1995',
   hops: [
     { at: 'laptop', addr: '203.0.113.7' },
     { link: 'dialup', km: 2.5 },

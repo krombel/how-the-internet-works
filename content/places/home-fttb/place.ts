@@ -6,6 +6,7 @@ import home from '../home/place';
 export default definePlace({
   variantOf: 'home',
   order: 1.2,
+  era: 'today',
   hops: [
     { at: 'phone', addr: '192.168.1.23' },
     { link: 'wifi', km: 0.005 },

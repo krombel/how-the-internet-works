@@ -168,7 +168,7 @@ button { cursor: pointer; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 24px; border-radius: 99px; background: var(--btn); font-weight: 800; }
 .caption .chip u { text-underline-offset: 2px; color: var(--link); }
-.caption .read svg { width: 15px; height: 15px; }
+.caption :is(.read, .time) svg { width: 15px; height: 15px; }
 /* doors, by verb: "Look inside: Wi-Fi · Fibre   Open up: The internet" */
 .caption .doors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
 .caption .verb { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
@@ -200,7 +200,7 @@ button { cursor: pointer; }
 .caption.folded .cap-toggle { width: 100%; min-height: 32px; justify-content: space-between; text-align: start; }
 .caption.folded .cap-toggle span { white-space: normal; }
 .caption.folded:not(.open) p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-.caption.folded:not(.open) :is(.tag, .place, .hint, .more) { display: none; }
+.caption.folded:not(.open) :is(.tag, .place, .time, .hint, .more) { display: none; }
 .caption.folded:not(.open) p.note { -webkit-line-clamp: 1; line-clamp: 1; }
 .caption.folded.open .cap-in { position: absolute; inset-inline: calc(-1 * var(--card-edge-w)); bottom: calc(-1 * var(--card-edge-w));
   max-height: calc(100dvh - var(--top-h, 110px) - max(10px, env(safe-area-inset-bottom))); overflow: auto; overscroll-behavior: contain;

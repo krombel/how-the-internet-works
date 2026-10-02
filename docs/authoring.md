@@ -369,8 +369,25 @@ the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
 - Variants are one level deep: a variant of a variant fails validation, as does a missing `access`.
 - URLs name the variant (`#/en/home-dsl/watch-video`), so every link, dive and list view works as for any place.
 
-A later era switch (issue #59) picks among a family by an era on each variant; `placeFamily(id)` in
-`src/model/registry.ts` lists a place and its variants, `basePlace(id)` the base.
+`placeFamily(id)` in `src/model/registry.ts` lists a place and its variants, `basePlace(id)` the base.
+
+### Add an era (issue #59)
+
+An era is a time the place looked different: the home in 1995 (dial-up), 2010 (DSL) and today (fibre). The time
+machine (🕰️ in the caption, "Travel in time" in the list view) switches between the members of a place family by
+their era, so an era switch is a place switch: no new route, URL or dive.
+- `content/eras/<id>/era.ts`: `defineEra({ year: 1995 })`. The folder name is the id (`today` is the present,
+  whose `year` is the current one). The panel lists eras by `year`.
+- Strings in `locales/<lang>.json`: `name` (the year, or "Today"), `kid`/`nerd` (what home internet was like then, as
+  the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
+  device that connects the home (the last device before the access link). Write `describe` in English and Danish.
+  The era texts load with the dive strings, when the panel opens.
+- On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
+  where only some members have an era, and on a family whose members all share one era (a time machine needs two).
+  Two members of one era are fine (`home` and `home-fttb` are both `today`): the time machine goes to the place you
+  are at if it's of that era, else to the first by `order`.
+- The internet inside is today's for every era for now; say so in the place's `inside.internet.nerd` where it
+  matters (the 1995 home has no CDN to reach).
 
 ## Add an activity
 
@@ -467,8 +484,8 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 ## Checklist
 
 - [ ] The folder name is the id; every hop, link and layer name exists (the dev overlay says what doesn't).
-- [ ] `locales/en.json` has the required strings; `da.json` if you can. A new scene (or a new variant of one) has a
-  `describe` in English and Danish.
+- [ ] `locales/en.json` has the required strings; `da.json` if you can. A new scene (or a new variant of one), and a
+  new era, has a `describe` in English and Danish.
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes), with
   nothing overlapping at the size things grow to on a small phone, in any language (`model/overlap.test.ts` and
   `model/doors.test.ts` check).

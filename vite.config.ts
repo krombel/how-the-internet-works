@@ -8,14 +8,14 @@ const root = decodeURIComponent(new URL('.', import.meta.url).pathname);
  *  language's strings (content/locales/<lang>/ui.json + every content/<kind>/<id>/locales/<lang>.json). English ships
  *  in the main bundle as the fallback, so adding a language costs nothing for anyone who doesn't pick it; except its
  *  dive strings (layers: header field names and meanings; dive scenes: their captions and labels), only needed once a
- *  packet is caught or a dive is opened: `virtual:dive-strings` loads them as one chunk. */
+ *  packet is caught or a dive is opened, and the eras' (the time machine's): `virtual:dive-strings` loads them as one chunk. */
 function stringPacks(): Plugin {
   const ID = 'virtual:string-packs', PACK = 'virtual:string-pack/', DIVES = 'virtual:dive-strings';
   return {
     name: 'string-packs',
     resolveId: (id) => (id === ID || id === DIVES || id.startsWith(PACK) ? `\0${id}` : undefined),
     load(id) {
-      if (id === `\0${DIVES}`) return `export const folders = import.meta.glob(['/content/layers/*/locales/en.json', '/content/scenes/*/locales/en.json'], { eager: true, import: 'default' });\n`;
+      if (id === `\0${DIVES}`) return `export const folders = import.meta.glob(['/content/layers/*/locales/en.json', '/content/scenes/*/locales/en.json', '/content/eras/*/locales/en.json'], { eager: true, import: 'default' });\n`;
       if (id === `\0${ID}`) {
         const langs = readdirSync(`${root}content/locales`).filter((l) => l !== 'en' && !l.startsWith('.'));
         return `export default {${langs.map((l) => `${JSON.stringify(l)}: () => import(${JSON.stringify(PACK + l)})`).join(', ')}};`;

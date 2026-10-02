@@ -67,6 +67,18 @@ describe('caption fold', () => {
   });
 });
 
+describe('the time machine chip (#59)', () => {
+  it('shows on the overview of a place with eras: the year in an older era, none in the newest; nowhere else', () => {
+    const at = (place: string, path: string[] = []) => caption.timeChip(resolveRoute({ activity: 'watch-video', places: [place] }), path);
+    expect(at('home')).toEqual({ year: null });
+    expect(at('home-fttb')).toEqual({ year: null });
+    expect(at('home-dsl')).toEqual({ year: 2010 });
+    expect(at('home-dialup')).toEqual({ year: 1995 });
+    expect(at('home', ['internet'])).toBe(null);
+    expect(at('street')).toBe(null);
+  });
+});
+
 describe('counts in words', () => {
   it('picks the plural form of the language', () => {
     state.setLang('en');
