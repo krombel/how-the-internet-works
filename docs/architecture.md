@@ -601,8 +601,9 @@ Vitest (`npm test`) covers:
 - contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
   night, with translucent cards composited over the page background
 
-CI runs `npm ci && npm test && npm run build`, and beside it the accessibility check (`npm run evaluate --
---only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`, about 15 min each).
+CI runs `npm ci && npm test && npm run build` on every PR and push to main. The accessibility check (`npm run
+evaluate -- --only=a11y`, below) runs locally before a merge, and in CI only on demand (Run workflow) as two parallel
+jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`, about 18 min each), to save Actions minutes.
 
 ## Performance
 
