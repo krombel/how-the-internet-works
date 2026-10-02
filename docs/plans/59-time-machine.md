@@ -1,332 +1,450 @@
 # Plan: the time machine (issue #59)
 
-Status: **PRs 1 and 2 built** (together, in one PR): the eras 1995, 2010 and today on the home family, the 🕰️ chip
-and its lazy panel. PRs 3 onward are not started. Part of #59. It builds on the access technologies of #3 (PRs #82
-and #83).
+Status: **revised 2026-10-02** after user feedback, before any more code. Part of #59. What is on main (#94, the first
+plan's PRs 1 and 2): the eras 1995, 2010 and today as content (`content/eras/`), an `era` on the four home places,
+`timeStops`, a "Travel in time" chip in the caption of the home's overview, and the lazy panel
+(`ui/TimeMachine.svelte`). Everything in *PRs, in order* is new work. It builds on the access technologies of #3
+(#82, #83) and the data centre of #35 (#78).
+
+What changed from the first plan, in short:
+- **Time travel is a headline feature**, reachable from every screen (the top bar), not a chip on one overview.
+- **An era is a whole trip**: the device, the way online, the internet, the data centre, the server *and what you do*.
+  1995 is a beige desktop PC on dial-up opening a web page from a server room across the Atlantic; 2010 is a laptop on
+  Wi‑Fi and DSL watching a small YouTube-era video from a CDN and a three-tier data centre; today is a phone on fibre
+  (or 5G) streaming from a cache nearby, through a leaf–spine fabric.
+- This drops two decisions of the first plan: "an era switch is only a place switch within a family" and "the
+  internet inside stays today's". The first plan's PR 5 (the 1995 PC and props) and optional PR 7 (the internet in
+  time) move to the front. Activities get era variants too (user feedback, the same day).
+- **A light "era flavour" layer**: a few small, charming props per era (a wall calendar and a blinking modem in 1995,
+  a router with antennas in 2010, a smart speaker today), lazy and per era. It takes in the first plan's "props" PR.
+- Later, optional: **1985, before the internet** (a home computer dials one BBS), and a **communication line** across
+  the eras (BBS → IRC → instant messaging → an end-to-end encrypted messenger).
 
 ## Goal and audience
 
-Turn a dial, pick a year, and see the same trip with the technology of that year: watching a video at home over
-dial-up in 1995, over the phone line in 2010, or over fibre today. The point is what **changed** (the way online, the
-devices, the speed) and what **stayed the same** for 30 years (packets, addresses, envelopes, the internet's routers).
+Turn a dial, pick a year, and take *the same kind of trip* with the technology of that year. The point is what
+**changed** (devices, ways online, speed, who is in the middle, what you could even do) and what **stayed the same**
+for 30 years (packets, addresses, envelopes inside envelopes, routers reading the address).
 
-- **Kids** see the house change around them: a beige computer with a deep screen and a telephone that's busy while
-  you're online, then a router with blinking lights, then the fibre box. They hear the modem (behind 🔈). One line
-  tells them how long the video would take: "In 1995 this video would take about 2 hours to arrive."
-- **Nerds** get the numbers and the protocols: V.90 and PPP, ADSL band plans and PPPoE, VDSL2 vectoring, GPON; the
-  bottleneck rate of each era and how long one video takes over it; and, later, what the internet looked like inside
-  (no CDNs in 1995, few exchanges).
+- **Kids** see the whole world change: a beige computer with a deep screen and a telephone that is busy while you're
+  online; a laptop on the sofa with a blinking box by the phone socket; today's phone. They open the internet and find
+  a small room with a few computers on shelves in 1995, a big hall in 2010, a huge one nearby today. One line tells
+  them how long things took: "In 1995 this page with one picture took about 15 seconds to arrive."
+- **Nerds** get the numbers and the protocols: V.34 and PPP, a leased E1 line to a carrier, a transatlantic cable with
+  a few gigabits for *everyone*; ADSL2+/VDSL2, CDNs, three-tier networks with spanning tree; GPON, leaf–spine and ECMP;
+  plain HTTP in 1995 and 2010, TLS everywhere today.
 
 ## What the user sees
 
-1. On the overview of a place whose family has eras (today: `home`), the caption gets a **🕰️ Travel in time** chip
-   next to *Change*. In an older era it shows the year instead ("🕰️ 1995", from the era's `year`, so it needs no
-   lazy string).
-2. The chip opens a small **time machine** panel (a card on wide screens, a bottom sheet on a portrait phone, a
-   compact sheet in short landscape). It shows the eras as stops on a dial, oldest to newest, each with its year, its
-   way online ("Dial-up", "Phone line (DSL)", "Fibre to the house") and the start device's picture. The current era
-   is marked.
-3. Picking an era closes the panel and **morphs** the scene to that era's place, the same morph as a place switch
-   (devices that stay glide, the rest shrink away or pop in, the backdrops slide). The URL becomes that place's
-   (`#/en/home-dialup/watch-video`), so Back undoes the trip in time.
-4. Inside a dive, the rules of a place switch apply: the path falls back to its longest valid prefix, and a layer
-   dive survives when its hop is in both routes.
-5. The caption's trip line gains **how long the video takes** at this era's bottleneck, and for nerds the rate
-   ("56k modem: about 2 h for this 50 MB video; under a second over today's fibre").
-6. A place whose family has no eras (the street, the desk) shows no chip. The picker's access chips stay as they are.
+1. **A time button in the top bar, on every screen** (overview, inside the internet, in any dive). It shows a clock
+   and the era you are in: "Today", "2010", "1995" ("I dag" in Danish). It is the "where in time am I" sign and the
+   way in, so the old open question "should the era show all the time?" is answered: yes, there.
+2. **On the overview** the caption keeps its "Travel in time" chip, now on **every place's** overview (the street and
+   the desk too), so the first screen a new reader sees has a clear, named entry.
+3. **The first-run coach marks** get a last card pointing at the top-bar button: "Hop in the time machine: see this
+   trip in 1995 or 2010." Readers who already had the coach marks see only this new card, once.
+4. **The panel** is the one on main (the user liked it): a dialog with a native radio dial, each era with its picture,
+   year and way online, its text on choosing, and a "Travel to 1995" button. Two changes:
+   - Every era is offered from everywhere. The picture of an era is now **its start device** (the PC, the laptop,
+     the phone), the most telling thing about it.
+   - When your place has no trip in that era, the stop says where you'll land instead: "In 1995 you'd have done
+     this at home. You'll travel there." (Phones on the street were only for calls then.)
+5. **Travelling morphs the whole trip**: the house's devices swap (the phone shrinks away, the PC pops in), the
+   backdrop slides, and if you are inside the internet or the data centre, that scene morphs too: the 1995 server
+   room's three shelves replace today's halls. The URL becomes that era's (`#/en/home-dialup/watch-video/internet`),
+   so Back undoes the trip in time.
+6. **What you do changes with the era** (the activity's wording, packets and layers): open a web page with a picture
+   in 1995, watch a small video in 2010, stream one today. The caption says how long it takes, like with like.
+7. **Small era touches** around the house: a calendar on the wall, a modem whose lights blink as the page arrives, a
+   buffering wheel in 2010, a smart speaker today (*Era flavour*, below).
+8. **The picker** ("Where are you?") marks the ways online with their year ("Dial-up · 1995") and says when a place
+   would take you back to today.
 
 ```mermaid
 graph LR
-  Chip["🕰️ chip in the caption (eager)"] -- "import()" --> Panel["TimeMachine.svelte + era strings (lazy)"]
-  Panel -- "placeForEra(here, era)" --> Pick["pick({ places })"]
-  Pick --> Morph["place morph (exists)"]
-  Pick --> URL["#/en/home-dialup/…"]
+  Top["⏲ top-bar button (eager, every screen)"] -- "import()" --> Panel["TimeMachine.svelte (lazy)"]
+  Chip["caption chip (every overview)"] --> Panel
+  Panel -- "eraTrip(here, era)" --> Go["go({ places, path })"]
+  Go --> Resolve["resolveRoute: the era picks the place, segment and activity variants"]
+  Resolve --> Morph["place morph, in every mounted path scene"]
 ```
 
 ## How it fits the engine
 
-The groundwork is there from #82 and #83:
-- A **place variant** (`variantOf: 'home'`) is another way online from the same place: `home-dsl`, `home-fttb` and
-  `home-dialup`. The picker shows the base once, with a row of `access` chips.
-- `placeFamily(id, among?)` in `src/model/registry.ts` lists a place and its variants in `order`; `basePlace(id)`
-  gives the base.
-- The URL names the variant, so every link, dive, list view and Back works as for any place.
-- `architecture.md` already says: "An era on each place variant; the switch picks the family member (`placeFamily`)
-  of that era, and the route, URL and dives follow as for any place."
+### One rule: the era picks a member of every family
 
-So **an era switch is a place switch within a family**, and the engine change is small:
-- **No new URL parameter.** The era is a property of the place (`eraOf(place)`), so `#/en/home-dialup/watch-video`
-  already says "1995". The issue suggested `?era=1995`; with the era on the place, a second source of truth could
-  only disagree with the first. (Decision, see the end.)
-- **One function picks the family member**: `placeForEra(id, era, among?)` in `registry.ts`, next to `placeFamily`.
-  It returns `id` if that place is already of the era, else the first family member (by `order`) of that era, else
-  `null`. Pure, and tested on the real content and on fixtures.
-- **Switching place keeps the era where it can.** At `home-dialup` (1995), picking another place in the picker would
-  ask `placeForEra(target, eraOf(here))` and fall back to the target itself. No other family has eras yet, so this
-  lands with the first one that does (PR 6), not before.
-- **The engine names no era.** Eras are content (below). The engine knows only that a place may have an era, and that
-  an era has a year.
+On main a **place** has variants (`variantOf: 'home'`) and an `era`. The revision gives **segments** and **activities**
+the same two fields, and lets the route's era pick among them:
+
+- **The route's era** is the era of the first place slot that has one, else the newest era (`today`). Places without
+  an era (the street, the desk) are today's. The place is still the only thing the reader chooses, so there is still
+  **one source of truth and no `?era=`**: `#/en/home-dialup/…` says 1995, and everything else follows.
+- **Segments**: `content/segments/isp-to-cdn-1995/segment.ts` says `variantOf: 'isp-to-cdn', era: '1995'`. When the
+  activity's route says `{ segment: 'isp-to-cdn' }`, the resolver takes the family member of the route's era, else the
+  base. The base has no era: it serves every era without its own variant (2010 can reuse today's internet with its own
+  words and still be honest, see *Era-accurate content*).
+- **Activities**: `content/activities/watch-video-1995/activity.ts` says `variantOf: 'watch-video', era: '1995'`, with
+  its own `route`, `groups`, `flows` (packet kinds, pace, sizes, upper stack) and strings. The URL and the picker name
+  the **base** (`watch-video`, the family: "get something big from far away"); the era picks the variant. The id
+  `watch-video` is internal; what readers see is the variant's title ("Open a web page"). A variant's strings fall
+  back to its base's, so it only says what differs.
+- **Groups**: an activity's group spec may name the node that draws it: `{ id: 'datacentre', in: 'internet', node:
+  'server-room' }`. The instance id (`datacentre`, and so the URL step) stays the same in every era; its art, backdrop,
+  name and text come from `server-room`. This is the hop's `{ at, node }` override (`home-dsl` already draws `router`
+  as a `dsl-router`), for groups.
+- **Nodes** need no new mechanism: an era's segment or place uses `{ at: 'spine', node: 'aggregation' }`. The rule for
+  authors (in `authoring.md`): **an instance id names a job in the story, the node names what does it in that era.**
+  Keeping ids for the same job (`bng` is "where the ISP lets you in": a modem bank in 1995, a BNG today; `cdn` is "the
+  server that sends it to you") keeps URLs and dives alive across a trip in time. Ids for jobs that only exist in one
+  era are that era's own.
+- **The engine names no era and no content id.** It knows that places, segments and activities may have `variantOf`
+  and `era`, that eras have a year, and that the newest is "now".
+
+Validation (with negative fixtures): a variant's base exists and is not itself a variant; members of a family have
+distinct eras; a segment's or activity's base has no era; an activity variant has the same place slots as its base;
+every era has at least one place (else the dial couldn't go there); an override group node is `kind: 'network'`. The
+existing walks over every place × activity (routes, the scene tree, "all the way down", `describe` at both levels in
+every language, overlap at small-screen sizes) then cover every era's trip for free, because each place resolves to its
+era's segments and activity. An optional `since: <year>` on technologies, layers and nodes, checked against the route's
+era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
+
+### What the time machine does from where you are
+
+`timeStops` becomes `eraTrip(choice, path, era)`, pure and tested, used by the panel, the chip and the list view:
+
+1. **The place.** Your place's family member of that era (`home` → `home-dialup`); else **the era's own trip**: the
+   first place of that era by `order` (from the street in 1995 → `home-dialup`), and the panel and the arrival
+   announcement say so ("In 1995 you'd have done this at home"). From an older era back to today you land on the
+   family's today member (`home-dialup` → `home`); Back returns to the street if that's where you came from.
+2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
+   of your activity doesn't exist sends you to that era's first activity, and says so.)
+3. **The path** is kept as deep as it can be:
+   - A step naming **the old start device** (the first hop of the place: `phone`, `phone~tcp`) is rewritten to the new
+     place's start device (`pc`, `pc~tcp`). This "counterpart" rule is generic and helps every place switch (the
+     street's phone ↔ the desk's laptop).
+   - Other steps keep their instance ids, so `internet/datacentre` stays `internet/datacentre` (the server room in
+     1995), and `internet/datacentre/spine` (the leaf–spine dive today) lands on the 2010 three-tier dive, because the
+     2010 `spine` hop is an `aggregation` switch with its own dive.
+   - Then the **longest valid prefix**, as for any place switch: `internet/datacentre/spine` in 1995 (no spine)
+     becomes `internet/datacentre`. A layer dive survives when its hop and layer exist in both trips (`pc~ip` yes,
+     `router~ip` in 1995 no: there is no router).
+4. **The morph** runs in every mounted path scene, as today. One engine change: a hop whose **node changed** under the
+   same instance id (`spine`: a leaf–spine spine → an aggregation switch) cross-fades in place instead of swapping its
+   art in one frame.
+
+**Place switching and eras.** The picker keeps the era where it can: in 1995, picking another place takes that
+place's 1995 member; a place with none (the street) takes you back to today, and the picker says so under it
+("Only today"), and so does the arrival. The access chips stay: they list the whole family, each with its year
+("Fibre · today", "Fibre to the building · today", "DSL · 2010", "Dial-up · 1995"), so `home-dsl`, `home-fttb` and
+`home-dialup` work as before, and picking "Dial-up" is a trip to 1995 (the top bar says so).
+
+**URLs** (no new parameter; the place carries the era):
+
+| URL | Is |
+|---|---|
+| `#/en/home-dialup/watch-video` | 1995: the PC, dial-up, "open a web page" |
+| `#/en/home-dialup/watch-video/internet/datacentre` | the 1995 server room (same steps as today's data centre) |
+| `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
+| `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
+| `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
+| later: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
 
-1. **A new content kind, `content/eras/<id>/`** (a registry glob, a schema, validation; the kinds and folder-layout
-   tables in `architecture.md` get a row):
+1. `variantOf` and `era` on **segments** and **activities** (the schema, the registry's family helpers generalised
+   from `placeFamily`, the resolver, validation).
+2. `node` on an activity's **group spec**.
+3. **Strings**: a variant activity's keys fall back to its base's (`activity.watch-video-1995.title` →
+   `activity.watch-video.title`); the caption, peek and picker ask through one helper instead of building
+   `activity.<id>.…` themselves (four call sites). Variant segments are their own string source, as places are.
+4. **`rate` on technologies** (`{ down, up }` in bit/s), overridable per link (`{ link: 'dialup', rate: … }`, since the
+   1995 modem is a 28.8k), and **`size` on a packet kind** (bytes of the whole thing the reader waits for: the page,
+   the clip, the video). The caption's "how long it takes" line uses the bottleneck of the route and the era's own
+   `size`, so it compares like with like.
+5. **Era strings** (`era.<id>.name/kid/nerd/describe`) stay as they are; `describe` is rewritten for the new pictures
+   (the start devices). New `ui.json` strings: `time.now` (the top bar's "Today"), `time.instead` ("In {era} you'd
+   have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`.
 
-   ```ts
-   // content/eras/1995/era.ts
-   import { defineEra } from '$core/define';
-   export default defineEra({ year: 1995 });
-   ```
+## Era-accurate content
 
-   - `year` sorts the dial and dates "how long would it take" texts. Ids are kebab-case (`1995`, `2002`, `2010`,
-     `today`; the id regex already allows digits). `today` has the current year.
-   - Strings (`locales/en.json`, `da.json`): `name` ("1995", "Today"), `kid`/`nerd` (a sentence or two for the panel:
-     what home internet was like) and `describe` (what the panel's picture of that stop shows, see *Accessibility*).
-   - Eras are global, not per family, so a later street family uses the same stops and "1995" means the same
-     everywhere (decision: one dial for everything, the issue's second open question).
+Simplified on purpose, but every simplification is one a nerd would accept. Instance ids in the tables are jobs that
+carry over between eras (bold) or the era's own.
 
-2. **`era` on places** (the `place` schema): `era: '<era id>'`, optional.
-   - Validation: the era exists ("did you mean"); within a family either no member has an era or all do; a family with
-     eras has at least two distinct ones (else the chip is pointless). Two members may share one: `home` and
-     `home-fttb` are both `today`, and the dial picks the first by `order`.
-   - Today's content: `home-dialup: '1995'`, `home-dsl: '2010'`, `home` and `home-fttb: 'today'`.
+### 1995: a desktop PC on dial-up, a page from across the Atlantic
 
-3. **`rate` on technologies** (PR 3): `rate: { down, up }` in bit/s, data like `colour`. Only access technologies need
-   it (dial-up 50 k / 33.6 k, VDSL2 100 M / 40 M, GPON 1 G, Wi‑Fi). A link without `rate` is never the bottleneck.
-
-4. **`size` on a flow's packet kind** (PR 3): `{ kind: 'video', …, size: 50_000_000 }`, the whole thing the reader
-   waits for (one short video), so the caption can say how long it takes. An activity without a `size` says nothing.
-
-5. **Era-specific words** need no new mechanism where a place can already say them: the variant place is the most
-   specific string source on its route, so `place.home-dialup.*` already overrides the stops' captions and
-   `inside.internet.nerd`. If the activity's own title must change per era ("You wait for a video to download"),
-   PR 3 checks whether a place can already override `activity.<id>.title`; if not, it adds
-   `place.<id>.activity.<activity>.*` as the most specific source in `model/describe.ts` (`sceneKeys`), tested.
-
-### The internet in 1995
-
-The first version keeps **today's internet** inside the cloud for every era, and says so: the 1995 place's
-`inside.internet.nerd` (it exists) gains "In 1995 there were no CDNs; the video would come from one server, maybe
-across the Atlantic". Making the internet itself era-aware (no CDN, one origin far away, a thin transatlantic line)
-needs era alternatives for segments (`{ segment: 'isp-to-cdn', era: { '1995': 'isp-to-origin' } }`): a bigger engine
-change, left as an open question and an optional PR 7.
-
-## New scenes, dives and places
-
-Every new scene, and every new variant of one, gets a `describe` in English and Danish, kid and nerd
-(`content.test.ts` walks every place × activity × orientation and fails without one). Drafts are below; the Danish is
-a first draft for review.
-
-### PR 4: the 2002 era, `home-adsl`
-
-A new place variant: a laptop on early Wi‑Fi (802.11b) to a Wi‑Fi box, a cable to an ADSL modem-router, then the
-phone line to a DSLAM **in the exchange** (ADSL ran from the exchange, not the street cabinet: about 3 km), then the
-ISP. PPP lives on (PPPoE/PPPoA), so the `ppp` layer and its `ppp-hello` dive carry over from dial-up: a nice "what
-stayed the same".
-
-- Technology `adsl`: look `cable`, stack `['ppp']`, `rate` 8 M / 1 M, dive `dsl-tones`.
-- `dsl-tones` gets an **ADSL mode** picked from `subject.link.tech` (as `fibre-light` picks its access, metro and long
-  haul modes): fewer and lower bands (up to 1.1 MHz, against VDSL2's 17 MHz), and the phone's voice band kept free at
-  the bottom with a **splitter**, so the phone and the internet work at the same time (the change from dial-up kids
-  should notice). It gets its own `adsl.title`.
-- Reused devices: `laptop`, `ap`, `dsl-router`, `dslam`, `exchange`. Layout: the home's spots, the laptop where the
-  phone is.
-
-| Key | en kid | en nerd |
+| Part | What | Notes |
 |---|---|---|
-| `place.home-adsl.describe` | The cut-away house has a laptop on the sofa and a Wi‑Fi box on the wall. A cable runs to a little modem by the telephone, and the phone line goes out to the internet cloud. Requests go out and video comes back, faster than dial-up but still slowly. | The overview of a 2002 home: a laptop on 802.11b Wi‑Fi to an access point, Ethernet to an ADSL modem-router, then the copper phone pair to a DSLAM in the exchange. The router does NAT and runs PPPoE to the ISP. Requests go up and video comes down at a few Mbit/s. |
-| `scene.dsl-tones.adsl.describe` | A phone line runs from the house to the exchange. At the bottom of a long ladder of notes, your voice has its own low corner; above it, many small notes carry the internet, a few going up and many coming down. A splitter by the phone keeps them apart. | A frequency plot of one copper pair: voice below 4 kHz, then ADSL's discrete multitone, 25 upstream tones up to 138 kHz and 223 downstream up to 1.1 MHz, each loaded with bits by its noise. A splitter separates voice and data. The bars shrink with distance from the exchange. |
+| Device | **`pc`** (new node): a beige tower and a deep CRT, an internal modem | Start device; the panel's picture. |
+| Access | `dialup` (exists), `rate` 28.8 kbit/s both ways | V.34 (1994); 33.6k came in 1996 and 56k (V.90) in 1998. The era text on main already says so. |
+| Exchange | `exchange` (exists): the phone company connects the call | `modem-call` and `ppp-hello` dives exist. |
+| ISP | **`bng`** as a `modem-bank` (new node: a rack of modems and a terminal server), then **`core`** as a small ISP's one router | PPP gives the PC a public address; no NAT. |
+| Out of the ISP | a leased line (`leased-line`, new technology: E1, 2 Mbit/s, PPP/HDLC framing, dive `copper-pulses` in an E1 mode) to an upstream carrier (`transit`, as the main path) | A small ISP bought its whole internet as one line from a bigger network. |
+| Across the sea | `submarine` (exists) across the Atlantic, ~6,000 km | CANTAT-3 (1994) landed at Blåbjerg in Denmark: 3 × 2.5 Gbit/s for every phone call and every byte between Scandinavia and North America. Today's cables carry hundreds of Tbit/s each. |
+| The far end | the server room (**`datacentre`** drawn as `server-room`, new network node with a backdrop: a few tower servers on shelves), a router, a 10 Mbit/s hub, **`cdn`** as a `web-server` (a beige tower) | No CDN (Akamai began in 1998–99), no load balancer, no origin aside: this one server *is* the original. Its dive is a new, small `tower-inside` (one program, one disk), lazy. |
+| Activity | `watch-video-1995`: "Open a web page with a picture", flow `ip › tcp › http` (no TLS), a 40 kB page + picture | SSL 2.0 shipped in Netscape in 1995 for shops, but pages and pictures were plain HTTP. Video was barely possible: stamp-sized clips (160 × 120, a few frames a second) that you mostly downloaded first; the nerd text says so in one sentence. |
+| How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | |
 
-| Key | da kid | da nerd |
+### 2010: a laptop on Wi‑Fi, DSL, a small video from a CDN
+
+| Part | What | Notes |
 |---|---|---|
-| `place.home-adsl.describe` | Huset er skåret op: en bærbar i sofaen og en Wi‑Fi-boks på væggen. Et kabel går til et lille modem ved telefonen, og telefonlinjen går ud til internetskyen. Forespørgsler går ud, og video kommer tilbage, hurtigere end med opkald, men stadig langsomt. | Oversigten over et hjem i 2002: en bærbar på 802.11b-Wi‑Fi til et access point, Ethernet til en ADSL-router og så telefonens kobberpar til en DSLAM i centralen. Routeren laver NAT og kører PPPoE til udbyderen. Forespørgsler går op, og video kommer ned med nogle få Mbit/s. |
-| `scene.dsl-tones.adsl.describe` | En telefonlinje går fra huset til centralen. Nederst på en lang stige af toner har din stemme sit eget dybe hjørne; ovenover bærer mange små toner internettet, nogle få op og mange ned. En splitter ved telefonen holder dem adskilt. | Et frekvensplot af ét kobberpar: tale under 4 kHz, derover ADSL's mange bærebølger, 25 op til 138 kHz og 223 ned til 1,1 MHz, hver fyldt med bit efter støjen. En splitter skiller tale og data. Søjlerne bliver lavere, jo længere der er til centralen. |
+| Device | **`laptop`** (exists) on Wi‑Fi | Replaces the phone in `home-dsl`; its text is overridden there (`place.home-dsl.stop.laptop.*`: on Wi‑Fi, not a cable). |
+| Access | `home-dsl` as on main: Wi‑Fi (802.11n, 2009) → `dsl-router` → `vdsl` to a DSLAM in the street cabinet | Most Danish DSL in 2010 was still ADSL2+ from the exchange; VDSL2 from cabinets was new (TDC from about 2008; ~21 % of broadband by 2012). See *Decisions to confirm*. |
+| ISP and internet | today's `isp-to-cdn` (no variant): core, border router, an exchange, a CDN | CDNs and exchanges were everywhere by 2010. The 2010 activity's nerd text says the cache was usually in a bigger city further away. |
+| Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
+| Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
+| How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". |
 
-The eras' own `describe` (for the panel's pictures) follows the same pattern, e.g. `era.1995.describe`: kid "A beige
-computer with a deep, heavy screen, and a telephone beside it" / "En beige computer med en dyb, tung skærm og en
-telefon ved siden af"; nerd "A desktop PC with a CRT and an internal 56k modem on the phone line" / "En stationær pc
-med en billedrørsskærm og et indbygget 56k-modem på telefonlinjen".
+### Today: a phone, fibre (or 5G), a cache nearby
 
-### PR 5: props for 1995
+As on main: the phone on Wi‑Fi, FTTH (`home`), FTTB, or the street's 5G; the ISP, an exchange, the CDN's data centre
+next door with leaf–spine and the cache server; `ip › tcp › tls › http`; HD video ("arrives about 100× faster than you
+watch it"). The base activity `watch-video` is today's.
 
-- A node `pc` (a beige tower with a deep CRT) replaces the `laptop` in `home-dialup`, with a `face` on the screen.
-- A small wall calendar in each era's backdrop ("1995", "2002", …), drawn with `Text` (it gets a halo by itself) so it
-  stays readable at night. No new scene, so no new `describe` key, but the 1995 overview's `describe` changes ("a beige
-  computer with a deep screen") in both languages and at both levels.
+### Sources (checked 2026-10-02)
 
-No other new dives are needed for the first eras: `modem-call` (the handshake, with its sound), `ppp-hello`,
-`dsl-tones` and the fibre dives cover them. Mobile eras (PR 6) would add a **`gsm-slots`** dive (eight time slots
-taking turns: GPRS), with its `describe` drafted in that PR.
+- Modems: Wikipedia, *Modem* and *V.34*; *Dial-up Internet access*.
+- Web video in 1995: Tech Monitor, "VDOnet launches VDOLive … using a 28kbps modem" (1995); Wikipedia, *RealNetworks*.
+- CDNs: Wikipedia, *Akamai Technologies* (founded 1998, service 1999).
+- Transatlantic: Wikipedia, *CANTAT-3*; atlantic-cable.com, *Danish PTT*; Wikipedia, *MAREA* (today's capacity).
+- Danish DSL: Wikipedia, *Internet in Denmark*; Ericsson/TDC VDSL2 announcement (2007–08).
+- Data centres: Al-Fares et al., "A scalable, commodity data center network architecture" (SIGCOMM 2008); Facebook
+  Engineering, "Introducing data center fabric" (2014); Wikipedia, *Clos network*.
+- Wi‑Fi: Wikipedia, *IEEE 802.11n-2009*. YouTube: Wikipedia, *YouTube* (HD 2008); Google Transparency Report, *HTTPS
+  encryption* (YouTube).
+- BBSes and FidoNet: Wikipedia, *Bulletin board system* and *FidoNet* (1984, nightly mail hour); textfiles.com, *BBS
+  documentary*. IRC: Wikipedia, *IRC* (Jarkko Oikarinen, Finland, 1988). Messengers: Wikipedia, *MSN Messenger*,
+  *Skype*, *Signal Protocol*.
+
+## Era flavour (decided)
+
+Not a restyle: a few small, cute details per era that make each trip feel like its time, on top of the theme. They
+are decoration, so they never carry meaning the text doesn't; the place's `describe` mentions the one or two a reader
+would notice ("a calendar on the wall says 1995").
+
+| Era | Picks |
+|---|---|
+| 1985 (with its PR) | Green phosphor text on the home computer's and the BBS's screens; a blocky, pixel-art welcome banner on the BBS (drawn with rectangles, no font); a floppy disk on the desk; **the parcel as a little floppy**. |
+| 1995 | A soft CRT glow round the PC's screen; a wall calendar ("1995"); a mouse on a mouse pad; an external modem whose lights blink while packets are on the dial-up line; an hourglass by the screen while the page loads; **the parcel with a little stamp**. |
+| 2010 | Two antennas on the DSL router; a buffering wheel on the laptop's screen while the video starts; a slider phone on the sofa; a star sticker on the laptop's lid; **the parcel with a glossy highlight**. |
+| today | A smart speaker on the shelf (a plain cylinder with a light ring); a skeleton loader (grey bars) on the phone's screen while the video starts; the parcel as it is. |
+
+The 1995 server room and the 2010 data centre carry their era in their own backdrops (beige towers, a hall of grey
+racks); no props there.
+
+How it fits:
+- **Lazy, per era.** `content/eras/<id>/art/Props.svelte` and, optionally, `content/eras/<id>/art/Packet.svelte`,
+  found by a non-eager glob in `model/components.ts` and loaded when a route of that era is first shown (and
+  prefetched when that era is chosen in the panel). Until loaded, nothing is drawn: decoration needs no placeholder.
+  Eager cost: the glob and the mount point, about 0.15 kB.
+- **Where they go.** A place's overview layout gets named prop spots per orientation (`props: { wall: [x, y, size],
+  desk: […], shelf: […], screen: […] }`); `Props.svelte` gets `{ orient, w, h, time, still, spots, busy }` and draws
+  into the spots it knows, skipping those a place lacks. `busy` (packets on the access link) drives the modem's lights,
+  the hourglass, the buffering wheel and the skeleton loader. Props sit over the backdrop and under the devices, and
+  fade and slide with the place backdrop in the morph.
+- **The parcel touch**: the theme's `Packet` slot draws the era's `Packet.svelte` (if any) as a small mark inside
+  its own shape, so up and down still differ by shape (#53), not by the era's touch.
+- **The top-bar button keeps its clock in every era**, so it stays recognisable; the era is its word.
+- **Tokens only**: no colour literals, no SVG filters (`art-colours.test.ts`). The CRT glow is layered shapes with
+  opacity; phosphor green needs two new theme tokens (`--phosphor`, `--phosphor-ink`), day and night, in
+  `contrast.test.ts`. Text on props (the calendar's year) goes through `Text` with its halo.
+- **Motion**: the blinking, the hourglass and the wheel follow `view.time`, so pause stops them, and under reduced
+  motion they are still (lit, turned, shown).
+- **No brands**: no logos and no product shapes that read as one (a generic slider phone, a plain speaker).
+- **Accessibility**: props are `aria-hidden` and not focusable; they never cover a device, a label or a door (the
+  overlap test gets the prop spots).
+
+## Later: 1985, before the internet (optional)
+
+A 1985 stop shows the world **before** home internet: a home computer and its modem (300 or 1200 bit/s) phone **one
+BBS**, a computer with one phone line in someone's house. There is no network in between: just the call through the
+exchange. You read the message board or download a small picture, a character at a time. Nerd note: at night, during
+the "mail hour", BBSes called each other to pass mail on (FidoNet, 1984), drawn as a dashed side branch from the BBS to
+another BBS (an `aside`, which exists).
+
+What it needs from the engine (it is the first trip that is not "client → internet → server"):
+- **A route that is only a place**: the variant activity's route is `[{ place: 'me' }]`, the place `home-1985` ends at
+  the BBS (an endpoint), and it lists no groups (no internet to open). The caption and the ladder must cope with a
+  route without groups; the content tests already walk it.
+- **A flow without IP**: `watch-video-1985` ("Download a picture from a BBS") with a stack of one new layer,
+  `xmodem` (128-byte blocks, a checksum, ACK or NAK and send again), and its dive `xmodem-blocks`. The packet model
+  and `LayerCtx` must allow a flow with no IP layer (no addresses, no ports); a test fixture first.
+- **Per-era activities** (above) and the time machine's activity rule (step 2 of *What the time machine does*).
+- Its era flavour (green phosphor, the pixel banner, the floppy parcel), as in *Era flavour*.
+- Nodes `home-computer` (generic, no brand) and `bbs`; era `1985`; `rate` 1200 bit/s, so the line says "about 4
+  minutes for this little picture".
+
+## Later: the communication line (optional; decided: after the content line)
+
+A second activity family with era variants, the "send a message" idea of #10, so the dial tells a second story: who is
+in the middle, and who can read your message.
+
+| Era | What | Who can read it |
+|---|---|---|
+| 1985 | a BBS message board or a one-line chat: everyone dials into the same computer | the BBS's owner (sysop) |
+| 1995 | IRC: your server relays to the next and the next, to your friend's | every server on the way |
+| 2010 | instant messaging (MSN- or Skype-style): one company's central server reads and forwards | the company |
+| today | an end-to-end encrypted messenger: the server forwards but can't read | only you and your friend |
+
+What the engine needs: **two place slots** (`me` and `friend`, designed in but unused) with the friend's access path
+walked backwards; **relay paths** (the server ends one connection and starts the next: two legs, each with its own
+`LayerCtx`); a message layer per era with `openAt` saying who can read it (`e2ee` sealed even at the server, `im`
+open there); **store-and-forward** timing for the BBS (the message waits until your friend calls); the picker's second
+slot; and the time machine moving **both** slots to the era. It gets its own update of this plan (or #10's) before
+code.
 
 ## Accessibility
 
 The rules of #53 (`docs/accessibility.md`), applied to the new parts:
-- **The panel** is a `role="dialog"` with `aria-modal` and `aria-labelledby`, like the place picker: everything behind
-  it is `inert`, it takes focus on open (on the current era), Esc closes it and gives focus back to the chip, and a
-  click outside closes it.
-- **The dial** is native: a `fieldset` with a `legend` ("When?") and one `input type="radio"` per era, so the arrow
-  keys move between eras without our code and a screen reader says "1995, dial-up, 1 of 3". Each option's name is
-  the year and the way online; the era's `kid`/`nerd` text is its description (`aria-describedby`). Targets are at
-  least 44 px (#79), and the focus ring is the engine's (`:focus-visible`).
-- **After picking**, the navigation rules apply as for a place switch: when the morph lands, focus goes to the
-  caption's heading (the panel has gone), and the announcer says the arrival: the title, the doors below and the
-  place's `describe`, which is the era's own ("a beige computer…").
-- **The list view** (`TextMap`) already names the place in its heading. It gets the same "Travel in time" button as
-  the caption, so a keyboard or screen-reader user can change era without the scene.
-- **Read aloud** reads the new place's description on arrival, as for any navigation.
-- **Night**: all new art (the CRT, the calendar, the panel's device pictures) uses tokens only (`--screen`, and
-  `--window` for a CRT that glows at night; `--line` and `--paper` for ink), no colour literals
-  (`art-colours.test.ts`) and no SVG filters. Labels on art get halos (`Text`, or `stroke="var(--paper)"
-  paint-order="stroke"` on raw `<text>`), and `npm run evaluate -- --only=a11y --mode=night` checks every label
-  against what is behind it.
-- **Reduced motion**: under `prefers-reduced-motion` the camera already cuts instead of flying (#41). PR 2 checks
-  that the place morph does the same (a cut under a short cross-fade); if it still glides, PR 2 makes it cut, which
-  helps every place switch. The panel adds no motion of its own (a dial needle may swing, but not then).
-- **Colour is never the only cue**: the current era has a ring and a "now" word, not only a tint.
+- **The top-bar button** is a `button` with `aria-haspopup="dialog"` and `aria-expanded`. Its name contains its
+  visible text (WCAG 2.5.3): "Travel in time: 1995". It sits after Explore and before pause, so it never moves when
+  Explore comes and goes. 44 px target (#79), the engine's focus ring, the theme's ink for its icon (forced colours
+  too). Esc in the panel gives focus back to whichever control opened it (top bar, caption chip, list view).
+- **The panel** stays as built: `role="dialog"`, `aria-modal`, everything behind `inert`, a native radio group,
+  choosing separate from going. The "you'll land at home instead" line is part of the radio's description
+  (`aria-describedby`), so it is heard before going.
+- **After travelling**, focus goes to the caption's heading and the announcer says the arrival: the era, the place's
+  `describe`, and, if you were moved, why ("In 1995 you'd have done this at home"). If the path fell back to a
+  shallower scene, the announcer says the scene you are in (as for any fallback).
+- **The coach mark** is the existing pattern (a card pointing at a control, Next, Skip, Esc).
+- **The list view** keeps its "Travel in time" button, now on every place.
+- **Night, contrast, art**: new art (the PC, the server room, the tower server, the modem bank, the aggregation
+  switch, the BBS later) uses tokens only (`art-colours.test.ts`), no filters, labels with halos; the top-bar
+  button's text pairs join `contrast.test.ts`; `npm run evaluate -- --only=a11y --mode=night` per PR.
+- **Reduced motion**: the morph is the existing short cross-fade (`view.still`); the node cross-fade in place adds
+  no motion.
+- **Colour is never the only cue**: the era is a word in the top bar, the current era a ring and "You are here".
 
 ## Viewports and modes
 
-- **Desktop**: the panel is a card near the caption, the eras in a row.
-- **Portrait phone (390×844)**: a bottom sheet like the picker, the eras as large cards in a row that scrolls
-  sideways if there are more than three.
-- **Short landscape (844×390)**: a compact sheet no taller than the caption: year and way online only, no device
-  pictures, so nothing scrolls vertically.
-- **Day and night**: tokens only (#43, #46). The panel is chrome (the `ui.css` card tokens), so `contrast.test.ts`
-  covers its text pairs once they are listed there.
+- **Desktop**: the top-bar button with its icon and era name; the panel as on main.
+- **Portrait phone (390 × 844)**: the controls wrap under the ladder; the button shows icon + era name ("1995" is
+  short; "Today"/"I dag" too). PR 1 measures the row at 360 and 390 px in both languages; if it doesn't fit, Explore
+  goes icon-only below 400 px before anything else (pause must stay one tap away).
+- **Short landscape (844 × 390)**: the slim row; icon + year.
+- **Day and night**: tokens only.
 
 ## Lazy loading and the eager-JS budget
 
-Main is about **92.7 kB gz eager** today. The whole time machine should add **about 1 kB gz eager at most**:
+Main is about **94 kB gz eager** (measured as `architecture.md`'s "Initial JS" paragraph does). Each PR reports its
+eager delta against main and updates that paragraph. The **first wave (PRs 1–8) should add at most about 3 kB gz
+eager in all**.
 
-| Piece | Where | Eager? | Estimate |
-|---|---|---|---|
-| Era definitions (numbers only) and the places' `era` fields | registry (eager globs) | yes | ~0.1 kB |
-| `eraOf`, `placeForEra` | `registry.ts` | yes | ~0.1 kB |
-| The 🕰️ chip and its `import()` | caption | yes | ~0.2 kB |
-| `TimeMachine.svelte` (the panel) | lazy chunk, fetched when the chip is pointed at or focused (like ⋯) | no | ~2 kB |
-| Era strings (`era.*`) | the lazy dive-strings chunk (below) | no | ~0.5 kB a language |
-| Bottleneck and "how long" line (PR 3) | `model/trip.ts`, caption | yes | ~0.3 kB |
-| `pc` device art (PR 5) | node art loads up front | yes | ≤ 0.4 kB |
+| PR | Eager (estimate) | Lazy |
+|---|---|---|
+| 1. Prominence, a device per era | ~0.6 kB (button + wiring ~0.25, global stops + counterpart rule ~0.15, `pc` art ~0.3, or ~0.05 after #91) | coach card (coach chunk), panel changes |
+| 2. Era flavour | ~0.15 kB (lazy glob, mount point, prop spots in the layouts) | each era's `Props.svelte` and `Packet.svelte` (~1–2 kB each) |
+| 3. Era variants (engine) + honest flows | ~0.5 kB (schema, resolver, strings fallback, cross-fade; two activity variants' data and English strings) | |
+| 4. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units) | |
+| 5. 1995: the internet | ~0.8 kB (segment + layouts ~0.3, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `copper-pulses` E1 mode (its chunk) |
+| 6. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `tower-inside` dive |
+| 7. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
+| 8. The picker and eras | ~0.1 kB | |
+| 9. 1985 (later) | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
 
-- **Era strings stay out of the main bundle.** The `string-packs` plugin in `vite.config.ts` already keeps the
-  English strings of layers and scenes out of the main bundle, in the lazy `virtual:dive-strings` chunk (its glob of
-  `content/{layers,scenes}/*/locales/en.json`). PR 2 adds `content/eras/*/locales/en.json` to that glob; the chip's
-  own label is a `ui.json` string. The panel awaits `loadDiveStrings()` before it opens, as the list view does. Other
-  languages load whole on first use anyway, so nothing changes for them.
-- **New dives are lazy by design** (`render/dives.svelte.ts`): the ADSL mode lives in `dsl-tones`' own chunk.
-- **Device art is eager**, so the `pc` stays lean: the theme's vocabulary classes, no gradients, and **no `{...attrs}`
-  spreads** in Svelte art (a spread pulls in Svelte's attribute-spreading runtime and defeats static attributes);
-  write each attribute out.
-- Each PR reports its eager delta (`npm run build`, the entry chunk gzipped) against main, and updates the "Initial
-  JS" paragraph of `architecture.md`.
+- **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 5–7's eager cost is new device art and
+  the server room's backdrop. Best order: #91 before PR 5. Era props are lazy whether or not #91 has landed.
+  Whichever lands first, the time machine must not show placeholders mid-trip: once #91 is in, choosing an era in the panel **prefetches the target trip's art** (the
+  devices of its route and its backdrop), and the panel awaits its era pictures' art as it loads (it is lazy anyway).
+- **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main). The English strings of era variants
+  (places, segments and activities with an older era) are eager like all place strings. If the first wave passes
+  +3 kB, the `string-packs` plugin keeps them in a lazy pack that is awaited before an older era's route is shown
+  (as `loadDiveStrings`), worth ~1 kB.
+- **New dives are lazy by design** (`render/dives.svelte.ts`). Device art stays lean: vocabulary classes, no
+  gradients, no `{...attrs}` spreads.
 
 ## Performance
 
-The era switch is the existing place morph (about 750 ms), which `npm run evaluate` already measures for the street.
-PR 2 adds one phase, **the morph from `home` to `home-dialup`** (other devices, the backdrop sliding), and its idle.
-Budget as everywhere: p95 ≤ 16.8 ms at 6× CPU. The panel is DOM, opened and closed once. Runs take the evaluate lock
-(`scripts/evaluate.mjs`).
+The trip in time is the place morph (about 750 ms), now possibly inside the internet and the data centre too, with more
+nodes popping than any morph so far. `npm run evaluate` gets phases for the morph today → 1995 at the overview and at
+`internet/datacentre`, and 2010 → today at `internet/datacentre`, with their idles. Budget as everywhere: p95 ≤ 16.8
+ms at 6× CPU. Runs take the evaluate lock.
 
 ## Tests
 
-- `eraOf` and `placeForEra`, on the real content (every family member reachable from every era of its family; `home`
-  and `home-fttb` both `today`, the first by order wins) and on fixtures (a family without eras, an era it lacks).
-- Validation, with negative fixtures: an unknown era (with "did you mean"); a family with eras on some members only;
-  a family with a single era; a missing English `name`.
-- Strings: every era has `name`, `kid`, `nerd` and `describe` in every shipped language (as for scene descriptions:
-  no English fallback for `describe`).
-- PR 3: the bottleneck along each place's route; the duration format in en and da (`Intl.NumberFormat` units, not
-  `Intl.DurationFormat`, which older Safari lacks); a link without `rate` is never the bottleneck.
-- PR 4: the existing walks cover a new place for free (routes, the scene tree, doors, overlap at small-screen sizes
-  in every language, the ladder, `describe` at both levels).
-- The a11y run gets a keyboard journey: Tab to the chip, open it, arrow to 1995, Enter; focus lands on the caption's
-  heading and the announcer says the 1995 home.
+- `eraTrip` on the real content and fixtures: the family member, else the era's first place (said), the counterpart
+  rule, the longest valid prefix, Back. Every scene path of every era maps to a valid path (or its prefix) in every
+  other era.
+- Variant resolution: each place resolves to its era's segments and activity; a base serves eras without a variant.
+- Validation fixtures for every rule in *One rule* (and `since`, if added).
+- Strings: variant fallback; `describe` for every new scene and variant at both levels, en and da (the existing walk).
+- The how-long line: the bottleneck along each era's route; formats in en and da.
+- The a11y run's keyboard journey from the top bar inside a dive: open, arrow to 1995, Enter; focus on the caption's
+  heading; the announcer names the era and, from the street, why you moved.
 
 ## PRs, in order
 
-Each is small and leaves main working; each says "Part of #59", and the last one closes it.
+Each is small, leaves main working and says "Part of #59".
 
-1. **Eras as content.** `content/eras/` (1995, 2010, today) with en+da strings; `era` on the four home places; the
-   schema, the registry glob, `eraOf` and the validation's family rules, with tests; "Add an era" in
-   `authoring.md`, a row in `architecture.md`'s tables. Readers see no change yet. Eager delta about 0.1 kB.
-2. **The time machine.** `placeForEra` (its first caller), the 🕰️ chip, the lazy `TimeMachine.svelte`, era strings in
-   the lazy chunk, ui.json strings (en+da), the a11y above, the evaluate phase and the keyboard journey. Screenshots
-   day and night on phone, desktop and short landscape, and a clip of the morph.
-3. **Then and now.** `rate` on the access technologies, `size` on the video, the caption's "how long it takes" line
-   (kid and nerd) and a nerd tag with the rate; per-era activity wording if a place can't already override it.
-4. **2002: ADSL.** `home-adsl`, the `adsl` technology, the ADSL mode of `dsl-tones` with its describes, era `2002`.
-5. **Props.** The `pc` node for 1995, an era calendar in each backdrop, the 1995 overview's describe updated.
-6. **Mobile eras** (optional; update this plan first): `street` variants for 2002 (GPRS, a `gsm-slots` dive) and 2010
-   (4G, `nr-radio` in an LTE mode); the picker keeps the era on a place switch; the 1995 street greyed out in the panel
-   ("phones were only for calls").
-7. **The internet in time** (optional): era alternatives for segments, and a 1995 internet without a CDN.
+1. **Prominent, and a device per era.** The top-bar time button on every screen; the caption chip on every overview;
+   `eraTrip` with "the era's own trip" for places without one (and the panel's and the announcer's line saying so);
+   the counterpart rule for the start device; a coach card (and the one-time card for readers who had the coach
+   marks); the `pc` node in `home-dialup` and the `laptop` on Wi‑Fi in `home-dsl` (own layouts); the panel's pictures
+   become the start devices and the eras' `describe` is rewritten for them (en + da, kid + nerd). The internet stays
+   today's in every era for one more PR. Screenshots day and night on phone, desktop and short landscape.
+2. **Era flavour.** The lazy per-era props and parcel touches for 1995, 2010 and today (the picks above), prop spots
+   in the home places' layouts, the 1995 overview's `describe` updated (en + da, kid + nerd). Takes in the first
+   plan's PR 5 ("props"). Screenshots day and night.
+3. **Era variants as content.** `variantOf`/`era` on segments and activities, the route's era, group `node`,
+   variant string fallback, the cross-fade for a changed node, validation and tests. First callers: the 1995 and 2010
+   activity variants with honest flows (no TLS) and wording ("Open a web page with a picture", "Watch a small video").
+4. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
+   and nerd), like with like.
+5. **1995: the internet.** `isp-to-cdn-1995`: the modem bank, the small ISP's router, a leased line to a carrier,
+   the transatlantic cable; `leased-line` and the E1 mode of `copper-pulses`; owners' words; describes.
+6. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and its
+   `tower-inside` dive; no CDN, no origin.
+7. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
+   away in words, the 2010 nerd texts.
+8. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
+   the arrival line when the picker takes you back to today.
+9. **1985: before the internet** (optional; update this plan first): `home-1985`, the BBS, the `xmodem` layer and dive,
+   a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
+10. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
+    slots, relays, `e2ee`.
+
+Also optional, any time after PR 3: a 2002 stop (ADSL from the exchange, the `dsl-tones` ADSL mode drafted in the
+first plan), and mobile eras on the street (a 2010 phone on 3G).
 
 ## Risks
 
-- **Era and access chips overlap.** The picker's access row and the time machine switch among the same family. The
-  picker keeps its row (what kind of home) and the panel is about *when*; their labels differ (way online vs year).
-  If the kids find it confusing, the access row could list only today's members.
-- **`home-fttb` isn't an era.** Fibre to the building is a kind of building, not a time. It shares `today` with
-  `home`, and the dial only lands on it if you're already there.
-- **Anachronisms.** The shared internet is today's in every era (decision), so a 1995 house goes through an exchange
-  with a route server. Captions say so; PR 7 could fix it. A cheap guard against mistakes inside places (Wi‑Fi in
-  1995) is an optional `since` year on technologies, checked by the validation against the place's era.
-- **Eager growth.** Device art and the caption line are eager; each PR measures and reports its delta.
-- **The morph between very different routes** (no router in 1995, three devices today) pops more nodes than any morph
-  so far; the new evaluate phase watches p95.
-- **The Danish drafts** need a native review.
+- **Three whole trips is a lot of content**: layouts for both orientations, describes in two languages and two levels
+  for every new scene. The walks catch omissions; the Danish drafts need a native review.
+- **Instance-id discipline.** If an era renames a job's id, its URLs and dives stop surviving a trip. The "every path
+  maps" test makes that visible.
+- **The top bar on small phones** may not fit one more control (see *Viewports*).
+- **Era flavour creep**: props are fun to add. Keep to the picks above (four or five an era) and to the prop spots, so
+  they never crowd the scene or cost frames; the evaluate phases include the 1995 overview with its blinking modem.
+- **Eager growth**: device art and English strings; mitigations above (#91, a lazy era pack).
+- **Anachronisms**: the optional `since` check; each content PR lists its sources.
+- **Morph cost**: inside the data centre whole regions swap; the new evaluate phases watch p95.
+- **Two "switch" UIs** (the picker's access row, the dial) reach the same places. The year tags make the overlap a
+  feature: the access row is "what kind of home", the dial is "when".
 
-## Open questions / decisions made
+## Decisions
 
-Decided for now (the user may overrule any of them):
-- **No `?era=` URL parameter.** The era is the place's, so the URL already carries it and can't disagree with it.
-- **One dial for everything.** Eras are global content (`content/eras/`), not per segment; "an old phone in a new
-  home" would need a place per combination, and isn't planned.
-- **Start with three eras on the home**: 1995 (dial-up), 2010 (DSL) and today (fibre), from the variants that exist.
-  2002 (ADSL) follows in PR 4.
-- **The era changes the access and the devices, not the internet's inside**, at first (the issue's first open
-  question); PR 7 if wanted.
-- **No era palette** (sepia tokens) at first: it would double the contrast matrix (era × day/night) for little gain;
-  props carry the era instead.
-- **The way in is a chip in the caption**, not a top-bar button (no room on a phone) and not in the ⋯ menu (which is
-  for settings you set once, and where kids wouldn't find it).
+Decided (the user may overrule any of them):
+- **No `?era=`**: the place carries the era; segments and activities follow.
+- **One dial for everything**: eras are global content.
+- **Whole trips per era**, each with its own device, access, internet, data centre and activity (2026-10-02).
+- **Activities change per era** as variants of one family, named by the base in the URL (2026-10-02).
+- **Content line first; the communication line later** (user, 2026-10-02).
+- **No era palette** (sepia): devices and the era flavour carry the era.
+- **An era flavour layer**: a few small, lazy, token-only props per era, no brands (user, 2026-10-02).
 
-Decided while building PRs 1 and 2 (together, in one PR):
-- **One helper, `timeStops(place, among?)`**, instead of `eraOf` and `placeForEra`: it lists the family's eras, oldest
-  first, each with the member to go to (the place itself for its own era, else the first of that era by `order`). The
-  chip, the panel and the list view all need the whole list, so one function serves them, tested on the real content
-  and on fixtures. `place.era` is the "era of" lookup.
-- **The chip draws a clock icon (`time` in `ui/icons.ts`), not the 🕰️ emoji**: it takes the theme's ink, day and
-  night, and forced colours, like the other chips' icons. Today it reads "Travel in time"; in another era the year
-  ("1995"), with "Travel in time:" for screen readers. It shows on the overview only, like *Change*; it hides when the
-  caption is folded, like *Change*. The list view's "Travel in time" button is there at every depth of the place.
-- **Choosing an era doesn't travel yet.** A tap or the arrows choose an era and show its text under the dial; the
-  button ("Travel to 1995", or "Stay here" on your own era, which closes the panel) or Enter on a radio goes. With a
-  native radio group the arrows both move and choose, so going on choosing would send a keyboard user to 2010 on the
-  way to 1995; and a reader can read each era's text before going.
-- **The picture of an era is the device that connects the home then** (the last device of the place before its
-  access link: the dial-up computer, the DSL router, the fibre router), drawn by the theme's existing device art. Each
-  era's `describe` is written for that picture. When another family gets eras, its eras' pictures may need their own
-  describe (or a per-place one).
-- **The panel is the picker's dialog**: the same classes, stacking (its backdrop at `z-index` 20 and the card at 21,
-  over the chrome and the caption), backdrop, sheet in portrait and Esc handling, so it stays in step with the picker and the ⋯ menu;
-  it is centred like the picker, not anchored to the caption. In short landscape it is compact: the title row with the
-  button and ×, then the eras in a row with year and way online only.
-- **Strings**: the panel's own strings (`time.*`) are in `ui.json`, so the eager chip needs nothing lazy; the eras'
-  texts (`era.*`) are in the lazy dive-strings chunk, which the panel awaits as it loads (pointing at or focusing the
-  chip starts both).
-- **Eager JS grew about 0.8 kB gz**, more than the plan's 0.2–0.5 kB: the App wiring (open, close, travel, focus on
-  arrival, `inert`, the list view's button) is about 0.4 kB, the era definitions, schema, validation and `timeStops`
-  about 0.3 kB, the chip and its icon about 0.1 kB. The panel (about 1.8 kB JS and 0.8 kB CSS gz) is lazy. The
-  panel's radios are checked and focused from code, not with `bind:group` or `checked=`, whose runtime would load up
-  front with the app.
-- **The 1995 home's nerd text for the internet** says that the internet inside is today's (no CDNs then), in one
-  short sentence.
-- **Reduced motion**: the place morph is already a short cross-fade under `prefers-reduced-motion` (`view.still`), so
-  the time machine needed no change there.
+Kept from building #94: one helper for the stops (now `eraTrip`); the clock icon from `ui/icons.ts`, not the emoji;
+choosing separate from going; the panel is the picker's dialog; panel strings in `ui.json`, era strings lazy; radios
+checked from code; the morph's reduced-motion cross-fade. Revised: the picture of an era is its **start device**, not
+the home's connecting box; the first plan's "props" PR became the era flavour; the way in is the **top bar** plus the overview chip, not the chip alone.
 
-Still open:
-- Should the era show all the time (a small "1995" badge on the overview), or only in the caption?
-- Is 2010 the right year for today's `home-dsl` (VDSL2 with vectoring is more like 2014 in Denmark)?
-- How much sound: only the modem handshake (it exists), or also a short "time travel" whoosh on the switch (behind 🔈)?
-- Should the panel compare the eras side by side (speed bars for each), or is the caption's line enough?
+## Decisions to confirm
+
+1. **The way in**: a time button in the top bar on every screen showing the era, plus the chip on every overview,
+   plus a coach card. *Recommended.* (Alternative: the top bar only.)
+2. **Places with no trip in an era** (the street in 1995): travel to that era's home trip and say so. *Recommended.*
+   (Alternative: grey the era out from there.)
+3. **1995's activity**: "open a web page with a picture" (15 s), with stamp-sized clips as a nerd note.
+   *Recommended*, rather than a tiny clip as the main activity.
+4. **2010's DSL**: keep `home-dsl`'s VDSL2 from the street cabinet (new then, already built) and say in the nerd
+   text that most homes still had ADSL2+. *Recommended*, rather than rebuilding it as ADSL2+ from the exchange.
+5. **1985 BBS**: plan it as the optional PR 9, after the three trips, not before. *Recommended.*
