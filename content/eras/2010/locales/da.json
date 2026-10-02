@@ -5,5 +5,11 @@
   "describe": {
     "kid": "En bærbar, slået op på bordet. Den er på Wi‑Fi, uden kabel: kassen med modemmet indeni synger ned ad telefonlinjen.",
     "nerd": "En bærbar på 802.11n-Wi‑Fi til en DSL-modemrouter, der laver NAT og sender DMT-toner ned ad telefonparret."
+  },
+  "instead": {
+    "street": {
+      "kid": "I 2010 kunne du også se video på din telefon, over 3G. Den tur er ikke bygget endnu, så her er turen derhjemme.",
+      "nerd": "I 2010 så telefoner også video, over 3G (HSPA): HSDPA toppede ved 7,2–14,4 Mbit/s, langt mindre i praksis, så 360p var det typiske. Den tur er ikke bygget endnu, så her er turen derhjemme."
+    }
   }
 }

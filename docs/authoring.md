@@ -388,8 +388,11 @@ place of that era, and says so.
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
   start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
   Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
-  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). The era texts
-  load with the dive strings, when the panel opens.
+  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where people
+  really did this somewhere else in that era but the trip isn't built yet, `instead.<place>` (kid and nerd) replaces
+  "In 2010 you'd have done this at home. You'll travel there." and must say where you'll go itself (2010's
+  `instead.street`: a phone on 3G, "so here's the one at home"). The era texts load with the dive strings, when the
+  panel opens.
 - Each base place says where it is, `where` ("at home", "on the street"), for the time machine's "In 1995 you'd have
   done this at home." Validation fails on a base place without it.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family

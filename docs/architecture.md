@@ -376,7 +376,8 @@ shows the time machine's button on every screen (`.time-btn`, `ui/Chrome.svelte`
 time" button. They open `ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking): a native
 radio group of the eras, each with a picture of its start device (the place's first hop: a PC, a laptop, a phone), its
 year and way online. Choosing one shows its text, and for the era's own trip a line saying so ("In 1995 you'd have
-done this at home. You'll travel there."; for nerds, what there was where you are, `era.<era>.away.<place>`); its
+done this at home. You'll travel there.", or the era's own line for where you are, `era.<era>.instead.<place>`: a
+phone on 3G on the street in 2010, a trip not built yet; for nerds, what there was where you are, `era.<era>.away.<place>`); its
 button (or Enter) goes there with `eraTrip` (`model/era-trip.ts`, loaded with the panel): slot 0 becomes the stop's
 place, the steps naming the old start device (`phone~tcp`, `phone-ap`) name the new one (`pc~tcp`, `pc-internet`), and
 the path is kept as far as it still exists. When the morph lands, focus goes to the caption's heading and the

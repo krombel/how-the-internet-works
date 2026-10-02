@@ -125,6 +125,12 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
      from a laptop plugged into a GSM phone or with a PC-card modem. Billed by the minute like a call, rare and very
      nerdy, so it gets no trip of its own." The key is generic content, `era.<era>.away.<place>` (here
      `era.1995.away.street`, nerd only, en + da), shown when it exists; no place id in `src/`.
+   - **Street → 2010: a phone on 3G, not built yet.** By 2010 phones watched video over 3G, so "you'd have done this
+     at home" would be wrong. An era may give its own line for where you are, `era.<era>.instead.<place>` (kid and
+     nerd, en + da), which takes the place of "In 2010 you'd have done this at home. You'll travel there." in the
+     panel and the arrival: "In 2010 you could watch on your phone too, over 3G. That trip isn't built yet, so here's
+     the one at home." (nerds: HSPA, HSDPA's 7.2–14.4 Mbit/s peak and far less in practice, 360p). Step 4 builds the
+     trip (#113).
 2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
    of your activity doesn't exist sends you to that era's first activity, and says so.)
 3. **The path** is kept as deep as it can be:
@@ -156,7 +162,8 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
-| PR 9: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
+| `#/en/street/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (a phone on 3G then, not built yet; said so) |
+| PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
 
@@ -295,7 +302,7 @@ How it fits:
 - **Accessibility**: props are `aria-hidden` and not focusable; they never cover a device, a label or a door (the
   overlap test gets the prop spots).
 
-## 1985, before the internet (PR 9, decided: after the three trips)
+## 1985, before the internet (PR 10, decided: after the three trips)
 
 A 1985 stop shows the world **before** home internet: a home computer and its modem (300 or 1200 bit/s) phone **one
 BBS**, a computer with one phone line in someone's house. There is no network in between: just the call through the
@@ -368,7 +375,7 @@ The rules of #53 (`docs/accessibility.md`), applied to the new parts:
 ## Lazy loading and the eager-JS budget
 
 Main is about **94 kB gz eager** (measured as `architecture.md`'s "Initial JS" paragraph does). Each PR reports its
-eager delta against main and updates that paragraph. The **first wave (PRs 1–8) should add at most about 3 kB gz
+eager delta against main and updates that paragraph. The **first wave (PRs 1–9) should add at most about 3 kB gz
 eager in all**.
 
 | PR | Eager (estimate) | Lazy |
@@ -376,15 +383,16 @@ eager in all**.
 | 1. Prominence, a device per era | ~0.6 kB (button + wiring ~0.25, global stops + counterpart rule ~0.15, `pc` art ~0.3, or ~0.05 after #91) | coach card (coach chunk), panel changes |
 | 2. Era flavour | ~0.15 kB (lazy glob, mount point, prop spots in the layouts) | each era's `Props.svelte` and `Packet.svelte` (~1–2 kB each) |
 | 3. Era variants (engine) + honest flows | ~0.5 kB (schema, resolver, strings fallback, cross-fade; two activity variants' data and English strings) | |
-| 4. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units) | |
-| 5. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
-| 6. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `server-inside`'s 1995 mode (its chunk) |
-| 7. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
-| 8. The picker and eras | ~0.1 kB | |
-| 9. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
+| 4. The street in 2010 (#113) | ~0.4 kB (a 2010 street place and segment with layouts, a 3G technology, English strings) | |
+| 5. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units) | |
+| 6. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
+| 7. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `server-inside`'s 1995 mode (its chunk) |
+| 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
+| 9. The picker and eras | ~0.1 kB | |
+| 10. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
 
-- **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 5–7's eager cost is new device art and
-  the server room's backdrop. Best order: #91 before PR 5. Era props are lazy whether or not #91 has landed.
+- **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 6–8's eager cost is new device art and
+  the server room's backdrop. Best order: #91 before PR 6. Era props are lazy whether or not #91 has landed.
   Whichever lands first, the time machine must not show placeholders mid-trip: once #91 is in, choosing an era in the panel **prefetches the target trip's art** (the
   devices of its route and its backdrop), and the panel awaits its era pictures' art as it loads (it is lazy anyway).
 - **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main). The English strings of era variants
@@ -431,26 +439,29 @@ Each is small, leaves main working and says "Part of #59".
    variant string fallback, the cross-fade for a changed node, the route's era on a dive's subject (for `<key>.<era>`
    strings), validation and tests. First callers: the 1995 and 2010
    activity variants with honest flows (no TLS) and wording ("Open a web page with a picture", "Watch a small video").
-4. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
+4. **The street in 2010: a phone on 3G** (#113). A 2010 member of the street's family: the phone on 3G (HSPA) to a
+   NodeB and the mobile core, with era-true words (en + da, kid + nerd); the time machine then goes there from the
+   street in 2010, and `era.2010.instead.street` (added in PR 2) goes. The eras should show what was really available
+   at the time (the user's principle): where people really did this in an era, that era gets a trip there.
+5. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
    and nerd), like with like.
-5. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
+6. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
    bank, the small ISP's router, an `e1` to the upstream (DIX as the aside), CANTAT-3 (`submarine-sdh`), the US
    backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
    `atm` layer with `atm-cells`; 1995 strings for `fibre-light` and `copper-pulses`; owners' words; describes. If it
    grows past one review, split off `atm` and `atm-cells` (the backbone drawn as an `e1`-like circuit until then).
-6. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
+7. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
    mode of `server-inside`; no CDN, no origin.
-7. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
+8. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
    away in words, the 2010 nerd texts.
-8. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
+9. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
    the arrival line when the picker takes you back to today.
-9. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
+10. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
    a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
-10. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
+11. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
     slots, relays, `e2ee`.
 
-Also optional, any time after PR 3: a mobile trip on the street in 2010 (a phone on 3G). No ADSL or 2002 era
-(decided): 2010's ADSL2+ is a remark in its nerd text.
+No ADSL or 2002 era (decided): 2010's ADSL2+ is a remark in its nerd text.
 
 ## Risks
 
@@ -486,7 +497,7 @@ Decided by the user (2026-10-02), the five questions of the first draft of this 
 3. **1995's activity** is "open a web page with a picture" (about 15 s), with stamp-sized clips as a nerd note.
 4. **2010's DSL** stays `home-dsl`'s VDSL2 from the street cabinet, with the nerd remark that most homes still had
    ADSL2+. No separate ADSL or 2002 era.
-5. **1985's BBS** is wanted: PR 9, the step after the three trips, no longer optional. The communication line stays
+5. **1985's BBS** is wanted: PR 10, the step after the three trips, no longer optional. The communication line stays
    later and optional.
 
 Kept from building #94: one helper for the stops (now `eraTrip`); the clock icon from `ui/icons.ts`, not the emoji;
@@ -515,7 +526,7 @@ Made while building PR 1 (the way in and a device per era):
 - **The start devices**: a new `pc` node (a beige box with a CRT, its own `learnMore`) in `home-dialup`; `home-dsl`
   gets the laptop on Wi‑Fi with its own overview layout (copied from the home's, the internet's reused). The Wi‑Fi
   frame's bystander device is now whichever of phone and laptop isn't yours, so 2010 shows a phone next door.
-- **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (PR 4, rates; done in PR 2); the dives (TCP, Wi‑Fi frame) still say
+- **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (rates; done in PR 2); the dives (TCP, Wi‑Fi frame) still say
   "your phone" in 1995 and 2010 (PR 3, `<key>.<era>` strings).
 - **Eager JS**: +1.1 kB gz against main (the plan said ~0.6): the button and wiring ~0.26, the stops ~0.19 (in the
   caption's chunk), the `pc` art ~0.18, and English strings ~0.4 that the estimate left out (the `pc` node's, the
@@ -540,9 +551,14 @@ Made while building PR 2 (era flavour):
 - **The modem is external** (on a shelf, with lights), so the place's words say so; and the speed is now 1995's:
   28.8 kbit/s, V.34, in `home-dialup` (en + da, kid + nerd) and the `dialup` technology (33.6k came in 1996 and
   56k/V.90 in 1998). The modem-call dive still says V.90 and 56k (its strings, the photo's timing in `modem.ts` and
-  `modem-scene.test.ts`): left for PR 4 (how long it takes), where the rates are.
+  `modem-scene.test.ts`): left for PR 5 (how long it takes), where the rates are.
 - **"your phone" in the dives** (TCP, Wi‑Fi frame) can't be reworded per place: dive keys are per scene and per
   device (`scene.<id>.<node>`), not per place or era. Left for PR 3 (`<key>.<era>` strings), as PR 1 said.
+- **Street → 2010 says what was really there** (asked during review; the user's principle: the eras should show
+  what was really available at the time). `era.<era>.instead.<place>` (generic, in `ui/time.ts`, loaded with the
+  panel's strings) replaces "In 2010 you'd have done this at home. You'll travel there." for the street in 2010, kid
+  and nerd, en + da, so the two lines can't contradict each other; `away` stays the extra note (1995's GSM). The trip
+  itself is a new step 4 (#113); later steps moved up by one.
 - **The dial-up handshake isn't played when switching to 1995** (it would get old switching back and forth); it
   stays in the modem-call dive. Tapping the modem to play it was skipped: it would make a decoration a real button
   (focus, a name in en + da, keys, and a door-sized target clear of the labels), more than this PR's small touches.

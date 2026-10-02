@@ -5,5 +5,11 @@
   "describe": {
     "kid": "A laptop, open on the table. It’s on Wi‑Fi, with no cable: the box with the modem inside sings down the phone line.",
     "nerd": "A laptop on 802.11n Wi‑Fi to a DSL modem-router, which does NAT and sends DMT tones down the phone pair."
+  },
+  "instead": {
+    "street": {
+      "kid": "In 2010 you could watch on your phone too, over 3G. That trip isn’t built yet, so here’s the one at home.",
+      "nerd": "In 2010 phones watched too, over 3G (HSPA): HSDPA peaked at 7.2–14.4 Mbit/s, far less in practice, so 360p was typical. That trip isn’t built yet, so here’s the one at home."
+    }
   }
 }
