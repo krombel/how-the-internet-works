@@ -123,9 +123,11 @@ export function setSpeech(on: boolean) {
   if (on) speaker.say(tr('speech.on'), loc.lang, loc.level);
   else speaker.cancel();
 }
+/** Whether read aloud is on and there's a voice for it. */
+export const reading = () => settings.speech && canSpeak();
 /** Read `text` aloud, if read aloud is on and there's a voice for it. */
 export function readAloud(text: string) {
-  if (settings.speech && canSpeak()) speaker.say(text, loc.lang, loc.level);
+  if (reading()) speaker.say(text, loc.lang, loc.level);
 }
 
 const placeholder = defineTheme({

@@ -141,10 +141,13 @@ machine (#70). It checks:
   it, a nerd's extra in a dive, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
 - **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
-  and not under another control (an open pop-up aside).
+  and not under another control (an open pop-up aside). An open pop-up's own controls must be on top of everything,
+  so ⋯ over a caught packet's panel is checked too (#90).
 - **The scene's labels** in every path scene and dive, kid and nerd on a desktop and kid on a phone, the clock held
   still: each visible text (not faded below 60 %, not under the chrome or later art) against its halo, or the median
-  of the pixels behind it with the text hidden, whichever is more.
+  of the pixels behind it with the text hidden, whichever is more. A halo in the ink's own tone (dark round dark)
+  smears the letters, so it fails whatever the picture behind. No text may leave its panel (inside the frame) or, at
+  the top level, the window; the path scenes are checked that way in Danish and nerd and in short landscape too (#90).
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
   screen, or on a control without a visible ring (for the scene's keys: on a stop, the theme's ring in the scene).
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in

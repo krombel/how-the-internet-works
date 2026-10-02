@@ -12,7 +12,7 @@ import { timeStops } from '../model/registry';
 import type { Route } from '../model/resolve';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
-import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
+import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
@@ -173,7 +173,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       tag: owners.length > 1 ? scaleTag(r, 'group', groupKm(r, g.id), owners) : undefined,
       body: trFirst(sceneKeys(r, ref)[0], lv),
       describe: describeOf(r, ref, lv),
-      hint: hint('hint.group'),
+      // tapping a box reads it out only with read aloud on (#90)
+      hint: hint(reading() && !view.keys ? 'hint.group.speech' : 'hint.group'),
       doors,
       links: learnMore([...rushLinks(r), ...(g.node.learnMore ?? [])]),
       notes: rushNotes(r, lv),

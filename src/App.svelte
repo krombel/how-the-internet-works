@@ -25,7 +25,7 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { busy, canSpeak, loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, setPaused, settings, themeState, tr, trCount, updateRush, view } from './state.svelte';
+  import { busy, loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, updateRush, view } from './state.svelte';
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
@@ -705,7 +705,7 @@
       else if (describe) announce(arrival({ ...said, title: '' }, loc.lang));
     });
   });
-  const readAgain = $derived(settings.speech && canSpeak() ? () => readAloud(spoken(caption.title, caption.describe, caption.body, ...caption.notes.map((n) => n.text))) : undefined);
+  const readAgain = $derived(reading() ? () => readAloud(spoken(caption.title, caption.describe, caption.body, ...caption.notes.map((n) => n.text))) : undefined);
   $effect(() => { document.title = `${caption.title} · ${tr('app.title')}`; });
 
   // ------------------------------------------------------------------ frame loop, gestures, resize

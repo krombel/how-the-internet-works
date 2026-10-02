@@ -13,6 +13,9 @@ beforeAll(async () => {
   // the caption's doors measure their names: no canvas here, so the rough width
   vi.stubGlobal('getComputedStyle', () => ({ getPropertyValue: () => '' }));
   vi.stubGlobal('document', { documentElement: {}, createElement: () => ({ getContext: () => null }) });
+  // an English voice, so read aloud can be turned on
+  vi.stubGlobal('speechSynthesis', { getVoices: () => [{ lang: 'en-GB', default: true, localService: true }], addEventListener: () => {}, speak: () => {}, cancel: () => {}, speaking: false });
+  vi.stubGlobal('SpeechSynthesisUtterance', class {});
   await (await import('../model/strings')).loadAllPacks();
   [caption, state] = await Promise.all([import('./caption'), import('../state.svelte')]);
 });
@@ -103,6 +106,25 @@ describe('caption hints', () => {
       expect(k).not.toMatch(/^hint\.|Tap|Swipe|Pinch/);
       expect(k).not.toBe(taps[i]);
     });
+  });
+});
+
+describe('a group scene\'s hint (#90)', () => {
+  it('says a tap reads a box out only while read aloud is on, with a voice for the language', () => {
+    state.setLang('en'); state.setLevel('kid');
+    const hint = () => caption.captionFor(home, ['internet'], null, 'landscape').hint;
+    expect(state.settings.speech).toBe(false);
+    expect(hint()).toBe('Tap a box to see what it does. Swipe to walk along.');
+    state.settings.speech = true;
+    expect(hint()).toBe('Tap a box to hear what it does. Swipe to walk along.');
+    state.view.keys = true;
+    expect(hint()).toMatch(/^The arrow keys/);
+    state.view.keys = false;
+    // only an English voice here
+    state.setLang('da');
+    expect(hint()).toBe('Tryk på en boks for at se, hvad den gør. Swipe for at gå videre.');
+    state.settings.speech = false;
+    state.setLang('en');
   });
 });
 

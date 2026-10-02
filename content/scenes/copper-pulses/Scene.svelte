@@ -134,7 +134,7 @@
 {:else}
   {@const K = L.kid}
   <Card x={K.x} y={K.y} w={K.w} h={K.h} tint="var(--sun)" />
-  <text x={K.x + K.w / 2} y={K.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--face)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('pushTitle')}</text>
+  <text x={K.x + K.w / 2} y={K.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--face)">{S('pushTitle')}</text>
   <path d={pulseD} fill="none" stroke="var(--line)" stroke-width="17" stroke-linejoin="round" stroke-linecap="round" opacity="0.26" />
   <path d={pulseD} fill="none" stroke="var(--accent)" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" />
   <g transform={`translate(${K.x + 78} ${K.y + (portrait ? 224 : 212)})`}>

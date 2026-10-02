@@ -18,24 +18,36 @@
     }
   },
   "sealed": {
-    "title": "What the crow can see",
-    "kid": "This stop carries the parcel, but it cannot open the lock. Like the crow, it sees the orange and green mixtures and then locked parcels with scrambled marks. Even the boxes that carry your parcel cannot read it.",
-    "nerd": "At {hop}, TLS is sealed end to end. The hop can forward lower-layer headers, but TLS records are AEAD ciphertext; it may observe SNI/certificate handshake metadata and ECDHE public shares, not the HTTP request or keys.",
+    "title": "Locked on the way",
+    "kid": "Step by step: 1. The phone checks the video server's ID. 2. Each side mixes in a secret colour and swaps only the mix. 3. Both get the same colour, and it locks the parcel. {hop} just carries it. Like the crow, it sees only the mixes and a locked box.",
+    "nerd": "At {hop}, TLS is sealed end to end: 1. the certificate proves the server, 2. ECDHE agrees a key, 3. AEAD seals every record. The hop forwards lower-layer headers; it may observe SNI/certificate handshake metadata and the ECDHE public shares, not the HTTP request or the keys.",
     "describe": {
-      "kid": "A middle stop sits on the road while the phone and server are at the ends. The cards still show the ID check and paint mixing, and the crow watches the public mixes. When the lock appears, the parcel’s face turns into scribbles. The stop just carries the locked parcel onward.",
+      "kid": "A middle stop sits on the road while the phone and server are at the ends. Card 1 shows the ID check and card 2 the paint mixing, and the crow watches the public mixes. When the lock appears, the parcel’s face turns into scribbles. The stop just carries the locked parcel onward.",
       "nerd": "This non-endpoint view shows TLS sealed above the hop. The public certificate and ECDHE shares are visible in the card story, but the device you are at only forwards lower-layer packets. Once records are protected, the moving parcel is locked and scrambled as ciphertext, not readable HTTP."
     }
   },
   "label": {
     "videoName": "video.example",
     "stamps": "Trusted stamps",
-    "locked": "Locked!",
+    "locked": "3 · Locked!",
     "crow": "Crow sees only mixes",
     "crowShort": "Only mixes",
-    "prove": "Prove identity",
-    "proveShort": "ID check",
-    "paint": "Mix paint",
-    "paintShort": "Paint",
+    "prove": {
+      "kid": "1 · Check the ID",
+      "nerd": "1 · Certificate"
+    },
+    "proveShort": {
+      "kid": "1 · ID",
+      "nerd": "1 · Cert"
+    },
+    "paint": {
+      "kid": "2 · Mix colours",
+      "nerd": "2 · Key exchange"
+    },
+    "paintShort": {
+      "kid": "2 · Paint",
+      "nerd": "2 · Keys"
+    },
     "phone": "Phone",
     "server": "Server",
     "tick": "Stamp OK",
