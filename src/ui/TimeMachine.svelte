@@ -6,8 +6,8 @@
   // which is told what to say first on landing (`landing`). Where the place has no way online in an era, the stop
   // is that era's own trip, and a line says so (also in the radio's description, so it is heard before going). A
   // dialog like the place picker: a card on wide screens, a bottom sheet on a portrait phone, one compact row (no
-  // pictures, no era text) in short landscape. It loads, with the era strings and its pictures, when its button is pointed at; choosing
-  // an era fetches its props (the era flavour) and the art of where it goes (#91) ahead of the trip.
+  // pictures, no era text) in short landscape. It loads, with the era strings and its pictures, when its button is
+  // pointed at; choosing an era fetches its props (the era flavour) and the art of where it goes (#91) ahead of the trip.
   import { onMount, untrack } from 'svelte';
   import { isShort } from '../engine/camera';
   import { startDevice, type EraStop } from '../model/era';
