@@ -17,14 +17,17 @@ export default definePlace({
   entry: { internet: 'home' },
   layout: {
     overview: {
-      // the computer on the desk; the line runs past the telephone and out of the house
+      // the computer on the desk; the line runs past the telephone and out of the house. The era's props: a calendar
+      // on the wall, a mouse on the desk, the modem on a shelf between the desk and the telephone
       landscape: {
-        nodes: { pc: [420, 575, 220] },
-        links: { 'pc-internet': { curve: [[530, 575], [900, 455], [1290, 430]], label: [40, 70] } },
+        nodes: { pc: [400, 575, 220] },
+        links: { 'pc-internet': { curve: [[510, 575], [900, 455], [1290, 430]], label: [40, 70] } },
+        props: { wall: [215, 545, 90, 100], desk: [502, 644, 48, 24], modem: [640, 600, 80, 52] },
       },
       portrait: {
-        nodes: { pc: [300, 1345, 250] },
-        links: { 'pc-internet': { curve: [[420, 1320], [860, 1000], [610, 480]], label: [-150, 30] } },
+        nodes: { pc: [280, 1345, 250] },
+        links: { 'pc-internet': { curve: [[400, 1320], [860, 1000], [610, 480]], label: [-150, 30] } },
+        props: { wall: [760, 1222, 76, 96], desk: [418, 1404, 52, 24], modem: [600, 1290, 84, 54] },
       },
     },
     internet: {

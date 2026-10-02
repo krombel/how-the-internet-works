@@ -30,6 +30,8 @@ export default definePlace({
           'ap-router': { bend: 0.18, label: [-30, 95, 'end'] },
           'router-internet': { curve: [[1090, 590], [1250, 595], [1290, 430]], label: [10, 70, 'start'] },
         },
+        // the era's prop: a shelf on the wall, between the Wi-Fi box and the router
+        props: { shelf: [820, 515, 110, 80] },
       },
       portrait: {
         // the Wi-Fi box and the phone downstairs, the router up in the attic, the fibre out through the roof
@@ -39,6 +41,7 @@ export default definePlace({
           'ap-router': { bend: 0.2, label: [-50, 40, 'end'] },
           'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
+        props: { shelf: [690, 1440, 100, 90] },
       },
     },
     internet: {

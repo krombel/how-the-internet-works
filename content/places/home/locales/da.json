@@ -5,8 +5,8 @@
   "kid": "Små pakker med data suser gennem luften, ned ad et kabel og langs en glastråd ud til internettet – og videoen kommer tilbage samme vej!",
   "nerd": "Hjemme forlader pakkerne telefonen via 802.11-Wi-Fi, bliver brokoblet over på Ethernet i adgangspunktet, NAT-oversat af hjemmerouteren og sendt videre over en fiberforbindelse til internetudbyderen.",
   "describe": {
-    "kid": "Et gennemskåret hus ligger mellem grønne bakker. Ruten starter ved din telefon, hopper med Wi‑Fi til adgangspunktet, går gennem kabel til routeren og videre på fiber til internetskyen. Pakker går ud som forespørgsler og tilbage som video.",
-    "nerd": "Hjemmevisningen viser LAN-ruten fra telefon til adgangspunkt, router og fiber-uplink. Pakker går opstrøms over Wi‑Fi, Ethernet og GPON. Videopakker kommer nedstrøms tilbage ad samme rute."
+    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en smart højttaler på en hylde. Ruten starter ved din telefon, hopper med Wi‑Fi til adgangspunktet, går gennem kabel til routeren og videre på fiber til internetskyen. Pakker går ud som forespørgsler og tilbage som video.",
+    "nerd": "Hjemmevisningen viser LAN-ruten fra telefon til adgangspunkt, router og fiber-uplink med en smart højttaler på væghylden. Pakker går opstrøms over Wi‑Fi, Ethernet og GPON. Videopakker kommer nedstrøms tilbage ad samme rute."
   },
   "tag": {
     "phone": "Wi-Fi 6 · 192.168.1.23",

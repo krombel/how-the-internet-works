@@ -234,18 +234,19 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       for (const x of d?.aside ?? []) instances.add(x.at);
       for (const e of Object.values(d?.entry ?? {})) instances.add(e);
     }
-    const checkLayout = (file: string, layout: Record<string, Record<string, { nodes?: Record<string, unknown>; owners?: Record<string, unknown> } | undefined>> | undefined) => {
+    const checkLayout = (file: string, layout: Record<string, Record<string, { nodes?: Record<string, unknown>; owners?: Record<string, unknown>; props?: object } | undefined>> | undefined, place = false) => {
       for (const [key, byOrient] of Object.entries(layout ?? {})) {
         if (key !== 'overview' && !groupIds.has(key)) add(file, `layout.${key}`, `"${key}" is not a path scene: use "overview" or a group (${[...groupIds].join(', ')})`);
         for (const [o, l] of Object.entries(byOrient)) {
           for (const id of Object.keys(l?.nodes ?? {}))
             if (!instances.has(id)) add(file, `layout.${key}.${o}.nodes.${id}`, `"${id}" is not a hop in any route of "${a.id}".${suggest(id, [...instances])}`);
           for (const id of Object.keys(l?.owners ?? {})) ref(file, `layout.${key}.${o}.owners.${id}`, 'owners', id, 'an owner');
+          if (l?.props && !(place && key === 'overview')) add(file, `layout.${key}.${o}.props`, 'prop spots belong in a place\'s overview');
         }
       }
     };
     checkLayout(a.file, a.layout);
-    for (const opt of options) for (const d of opt) if (d) checkLayout(d.file, d.layout);
+    for (const opt of options) for (const d of opt) if (d) checkLayout(d.file, d.layout, c.places[d.id] === d);
   }
 
   // every spoken description is { kid, nerd }, each short (a missing level or a typo shows here, with its file)

@@ -4,12 +4,16 @@ import type { EraStop } from '../model/era';
 import { basePlace, nowEra } from '../model/registry';
 import { fill, loc, tr, trFirst } from '../state.svelte';
 
-/** Why a stop is somewhere else (`instead`): "In 1995 you'd have done this at home.", and, for nerds, what there was
- *  where you are then (`era.<era>.away.<place>`, if there is one: GSM data on the street in 1995). Null if it isn't. */
-function insteadOf(stop: EraStop, from: string): { why: string; away: string } | null {
+/** Why a stop is somewhere else (`instead`): "In 1995 you'd have done this at home.", or the era's own line for where
+ *  you are (`era.<era>.instead.<place>`: a phone on 3G on the street in 2010, a trip not built yet), which says where
+ *  you'll go itself; and, for nerds, what there was where you are then (`era.<era>.away.<place>`, if there is one: GSM
+ *  data on the street in 1995). Null if it isn't somewhere else. */
+function insteadOf(stop: EraStop, from: string): { why: string; there: string; away: string } | null {
   if (!stop.instead) return null;
+  const own = trFirst([`era.${stop.era}.instead.${basePlace(from)}`], loc.level);
   return {
-    why: fill(tr('time.instead'), { year: stop.year, where: tr(`place.${basePlace(stop.place)}.where`) }),
+    why: own || fill(tr('time.instead'), { year: stop.year, where: tr(`place.${basePlace(stop.place)}.where`) }),
+    there: own ? '' : tr('time.there'),
     away: trFirst([`era.${stop.era}.away.${basePlace(from)}`], loc.level),
   };
 }
@@ -18,7 +22,7 @@ function insteadOf(stop: EraStop, from: string): { why: string; away: string } |
  *  isn't somewhere else. */
 export function elsewhere(stop: EraStop, from: string) {
   const i = insteadOf(stop, from);
-  return i ? [i.why, tr('time.there'), i.away].filter(Boolean).join(' ') : '';
+  return i ? [i.why, i.there, i.away].filter(Boolean).join(' ') : '';
 }
 
 /** What the announcer says first on arriving in another era: the era ("It's 1995.", "Back to today."), and why you

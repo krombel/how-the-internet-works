@@ -1,5 +1,5 @@
 // The Svelte side of content discovery (kept apart from registry.ts so the data model also runs in tests):
-// node art and place and group backdrops, found by folder. Dive scenes load on demand (render/dives.svelte.ts).
+// node art and place and group backdrops, found by folder. Dive scenes load on demand (render/lazy.svelte.ts).
 import type { Component } from 'svelte';
 import type { PlaceBackdropProps } from '../render/theme-types';
 

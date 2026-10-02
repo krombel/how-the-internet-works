@@ -22,7 +22,7 @@
   import type { Route } from './model/resolve';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
-  import { divesLoading } from './render/dives.svelte';
+  import { artLoading } from './render/lazy.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
   import { loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, view } from './state.svelte';
@@ -813,7 +813,7 @@
     // Test/screenshot hook (scripts/evaluate.mjs).
     Object.assign(window, {
       __app: {
-        go, loc: () => nav.loc, busy: () => !!trans || !!morph || divesLoading(),
+        go, loc: () => nav.loc, busy: () => !!trans || !!morph || artLoading(),
         /** Catch a packet of a kind where it enters the scene on screen; then `step` it (±1 hop). */
         catch: (kind = 'video') => catchKind(kind),
         step(d: -1 | 1) { if (caught) stepCaught(d); },

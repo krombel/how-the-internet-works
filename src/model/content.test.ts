@@ -131,6 +131,15 @@ describe('validation messages', () => {
     expect(msg).toContain('layout.overview.landscape.nodes.phnoe: "phnoe" is not a hop in any route of "watch-video". Did you mean "phone"?');
   });
 
+  it('keeps prop spots (the era flavour, #59) to a place’s overview', () => {
+    const msg = broken((c) => {
+      c.segments['isp-to-cdn'].layout!.internet!.landscape!.props = { shelf: [1, 2, 3, 4] };
+      c.places.home.layout!.overview!.portrait!.props = { wall: [1, 2, 3, 4] };
+    });
+    expect(msg).toContain('layout.internet.landscape.props: prop spots belong in a place\'s overview');
+    expect(msg).not.toContain('overview.portrait.props');
+  });
+
   it('checks owners: known ids on hops and layout signs, and a name', () => {
     const msg = broken((c) => {
       (c.segments['isp-to-cdn'].hops[0] as { owner?: string }).owner = 'ips';

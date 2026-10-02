@@ -105,6 +105,9 @@ export const sceneLayout = z.strictObject({
   owners: z.record(id, pt).optional(),
   /** Keyed by "<from>-<to>" instance ids as seen in that scene. */
   links: z.record(z.string(), linkLayout).optional(),
+  /** A place's overview only: where its era's props may go (#59, the era flavour), [x, y, w, h] (the centre and size
+   *  of the box a prop keeps in), by spot name (`wall`, `desk`, `shelf`…); the era's art knows its spots. */
+  props: z.record(id, z.tuple([z.number(), z.number(), z.number().positive(), z.number().positive()])).optional(),
 });
 /** Keyed by path scene: "overview" or a group node instance (e.g. "internet"). */
 export const layout = z.record(id, z.strictObject({ landscape: sceneLayout.optional(), portrait: sceneLayout.optional() }));
