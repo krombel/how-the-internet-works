@@ -8,7 +8,7 @@
   import { perPx, pts } from '../engine/svg';
   import type { LivePacket } from '../engine/packets';
   import { groupBackdrops, nodeArt, placeBackdrops } from '../model/components';
-  import { badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
+  import { badgeBox, badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
   import { placeTexts, type Per } from '../model/labels';
   import type { PathScene, SNode } from '../model/layout';
   import { regionsOf } from '../model/regions';
@@ -59,12 +59,12 @@
   const labelW = (d: Door) => per(doorLabel(d), 'label') * doorPx;
   const linkTag = (l: PathScene['links'][number]) => (nerd ? trFirst([...routeKeys(`tag.${l.id}`), `tech.${l.link.tech.id}.tag`]) : '');
   const texts = $derived.by(() => {
-    const b = doorPx * 2.4;
+    const badges = doors.map((d) => badgeBox(d.at, doorPx));
     return placeTexts({
       nodes: ps.nodes.map((n) => ({ n, name: nameOf(n.node.id), tag: nodeTag(n) })),
-      links: root ? ps.links.map((l) => ({ l, name: tr(`tech.${l.link.tech.id}.name`), tag: linkTag(l) })) : [],
+      links: root ? ps.links.map((l) => ({ l, name: tr(`tech.${l.link.tech.id}.name`), tag: linkTag(l), badge: badges[doors.findIndex((d) => d.links.includes(l.id))] })) : [],
       signs: named.map((g) => ({ at: g.sign, name: trl(`owner.${g.owner}.name`) })),
-      badges: doors.map((d) => ({ x: d.at.x - b / 2, y: d.at.y - b / 2, w: b, h: b })),
+      badges,
     }, sizes, per, W, portrait);
   });
   const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW));
@@ -115,7 +115,7 @@
     {@const at = texts.nodes[i]}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
       <Text x={at.name.x} y={at.name.y} text={nameOf(n.node.id)} size={28} kind="node" />
-      {#if at.tag}<TagAt x={at.tag.x} y={at.tag.y} text={nodeTag(n)} anchor={at.tag.anchor} />{/if}
+      {#if at.tag}<TagAt x={at.tag.x} y={at.tag.y} text={at.tag.text} anchor={at.tag.anchor} />{/if}
     </g>
   {/each}
   {#if root}
@@ -123,7 +123,7 @@
       {@const at = texts.links[i]}
       <g opacity={l.alpha < 1 ? l.alpha : undefined}>
         <Text x={at.name.x} y={at.name.y} text={tr(`tech.${l.link.tech.id}.name`)} size={24} kind="link" colour={l.link.tech.colour} anchor={at.name.anchor} />
-        {#if at.tag}<TagAt x={at.tag.x} y={at.tag.y} text={linkTag(l)} anchor={at.tag.anchor} />{/if}
+        {#if at.tag}<TagAt x={at.tag.x} y={at.tag.y} text={at.tag.text} anchor={at.tag.anchor} />{/if}
       </g>
     {/each}
   {/if}

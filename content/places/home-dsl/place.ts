@@ -27,18 +27,18 @@ export default definePlace({
   layout: {
     overview: {
       landscape: {
-        nodes: { laptop: [230, 590, 210], ap: [590, 560, 180, 'above'], router: [1015, 600, 190] },
+        nodes: { laptop: [225, 590, 210], ap: [655, 540, 180, 'above'], router: [1015, 618, 190] },
         links: {
           'laptop-ap': { bend: -0.15, label: [0, 90] },
-          'ap-router': { bend: 0.18, label: [0, -50] },
-          'router-internet': { curve: [[1090, 590], [1250, 600], [1290, 430]], label: [40, 70] },
+          'ap-router': { bend: 0.18, label: [-30, 95, 'end'] },
+          'router-internet': { curve: [[1090, 590], [1250, 595], [1290, 430]], label: [10, 70, 'start'] },
         },
       },
       portrait: {
         nodes: { laptop: [220, 1400, 210], ap: [650, 1150, 170], router: [464, 885, 180, 'above'] },
         links: {
-          'laptop-ap': { bend: -0.2, label: [5, -50] },
-          'ap-router': { bend: 0.2, label: [200, 0] },
+          'laptop-ap': { bend: -0.3, label: [5, -50] },
+          'ap-router': { bend: 0.2, label: [-50, 40, 'end'] },
           'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
       },

@@ -342,11 +342,15 @@ documentation AS numbers 64496–64511).
 - `place.ts` (`definePlace`) starts with the reader's device and ends with the link into the activity's next segment.
 - `art/Backdrop.svelte` is optional.
 - Strings: `name` (required), `kid`/`nerd`, `tag.<instance>`, `stop.<instance or link id>`, and `inside.<group>`.
-- A link's `label: [dx, dy]` is the offset of its name from the link's midpoint, where its door badge sits. A third
-  entry, `'end'` or `'start'`, puts that end of the name there instead of its middle, so a long translation grows
-  away from the link (the street's fibre in portrait: `label: [-66, 15, 'end']`).
-- On a small screen, names and badges draw up to twice their authored size. Leave room for that:
-  `overlap.test.ts` fails when names, badges, owner signs and devices overlap at that size, in any language.
+- A link's `label: [dx, dy]` is the offset of its name from its door badge (the link's midpoint, unless the badge
+  slid along the link to keep off a device's name). A third entry, `'end'` or `'start'`, puts that end of the name
+  there instead of its middle, so a long translation grows away from the link (the street's fibre in portrait:
+  `label: [-66, 15, 'end']`). As the name and badge grow on a small screen the name moves out to stay clear of the
+  badge, and where its spot is taken it goes to the nearest free side of the badge.
+- On a small screen, names and badges draw up to about twice their authored size. Leave room for that:
+  `overlap.test.ts` fails when names, badges, owner signs, nerd tags and devices overlap at that size, in any
+  language. Tags shorten to their first fact, or wait for a zoom, where they have no room, but never on a big screen.
+  When it fails, nudge the devices a little (it prints which two meet, at which size).
 
 Validation checks that the place makes a well-formed route with every activity. To keep an activity to some places,
 use `only: [...]` on its place slot.

@@ -514,6 +514,8 @@ Made while building PR 1 (the way in and a device per era):
   frame's bystander device is now whichever of phone and laptop isn't yours, so 2010 shows a phone next door.
 - **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (PR 4, rates); the dives (TCP, Wi‑Fi frame) still say
   "your phone" in 1995 and 2010 (PR 3, `<key>.<era>` strings).
-- **Eager JS**: +1.0 kB gz against main (the plan said ~0.6): the button and wiring ~0.26, the stops ~0.19 (in the
+- **Eager JS**: +1.1 kB gz against main (the plan said ~0.6): the button and wiring ~0.26, the stops ~0.19 (in the
   caption's chunk), the `pc` art ~0.18, and English strings ~0.4 that the estimate left out (the `pc` node's, the
-  laptop's stop, `where`, the time keys). Of the wave's 3 kB, 2.0 kB remain; the lazy era pack stays the lever.
+  laptop's stop, `where`, the time keys). Of the wave's 3 kB, 1.9 kB remain; the lazy era pack stays the lever.
+- **`home-dsl`'s overview** is the home's (after #72's relayout) with the laptop for the phone; it adds no known
+  overlaps.
