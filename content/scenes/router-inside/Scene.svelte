@@ -1,10 +1,11 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // Look inside the home router: the switch's cable sockets, the Wi‑Fi radio, the brain (routing and NAT) and the
-  // fibre ONT. A parcel comes in on the link before (electric pushes on a cable), is plain bits inside, has its sender
-  // swapped by the brain and leaves on the link after (as light on the fibre): the rooms it uses follow those links.
+  // uplink: the fibre ONT, the modem for the phone line, or a cable socket of its own. A parcel comes in on the link
+  // before (electric pushes on a cable), is plain bits inside, has its sender swapped by the brain and leaves on the
+  // link after (as light on the fibre, tones on the phone line): the rooms it uses follow those links.
   import { Node, Text, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
-  import { centre, formFor, parcelAt, roomFor, routerLayout, tripPath } from './router';
+  import { centre, formFor, parcelAt, roomFor, routerLayout, tripPath, uplinkOf } from './router';
   import type { Look, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
   import Room from './art/Room.svelte';
@@ -26,9 +27,12 @@
   // a route always has a link on at least one side of a hop; with none on one side, the parcel comes in and goes out the same way
   const inLink = $derived((subject.in ?? subject.out)!);
   const outLink = $derived((subject.out ?? subject.in)!);
-  const inRoom = $derived(roomFor(inLink.tech.look as Look));
-  const outRoom = $derived(roomFor(outLink.tech.look as Look));
-  const path = $derived(tripPath(L, inLink.tech.look as Look, outLink.tech.look as Look));
+  const techOf = (l: typeof inLink) => ({ id: l.tech.id, look: l.tech.look as Look });
+  const inRoom = $derived(roomFor(techOf(inLink), 'in'));
+  const outRoom = $derived(roomFor(techOf(outLink), 'out'));
+  // the uplink room is an ONT, a modem or a cable socket, by the line out (an ONT when this trip doesn't use it)
+  const uplink = $derived(outRoom === 'ont' ? uplinkOf(techOf(outLink)) : 'ont');
+  const path = $derived(tripPath(L, inRoom, outRoom));
   const parcel = $derived(parcelAt(view.time, view.still, path));
   const onLink = $derived(parcel.stage === 'in' ? inLink : parcel.stage === 'out' ? outLink : null);
 
@@ -37,11 +41,14 @@
     ? [client.addr ?? '', subject.hop.natTo ?? subject.hop.addr ?? '']
     : [nameOf(client), S('outside')].map((who) => fill(S('from'), { who })));
   const used = (r: RoomId) => r === 'brain' || r === inRoom || r === outRoom;
-  const line = (r: RoomId) => (compact ? '' : S(`${r}.${used(r) ? 'line' : 'idle'}`));
+  const key = (r: RoomId) => (r === 'ont' ? uplink : r);
+  const line = (r: RoomId) => (compact ? '' : S(`${key(r)}.${used(r) ? 'line' : 'idle'}`));
   const tints: Record<RoomId, string> = { switch: 'var(--orange)', wifi: 'var(--teal)', brain: 'var(--berry)', ont: 'var(--blue)' };
   const ROOMS: RoomId[] = ['switch', 'wifi', 'brain', 'ont'];
   const wire = (a: { x: number; y: number }, b: { x: number; y: number }) => `M${a.x} ${a.y} L${b.x} ${b.y}`;
   const linkName = (id: string) => strings(`tech.${id}`)('name');
+  /** A little bundle of tones (a squiggle getting quicker), centred on x, y. */
+  const tones = (x: number, y: number) => `M${x - 40} ${y} q7 -18 14 0 t14 0 q4 -14 8 0 t8 0 t8 0 q2.5 -10 5 0 t5 0 t5 0 t5 0`;
 </script>
 
 <!-- geometric text: the camera scales this panel every frame, and hinted text would be laid out again each time -->
@@ -62,9 +69,9 @@
     {@const c = centre(b)}
     {@const top = b.y + T.head * 1.9}
     {@const mid = (top + b.y + b.h - (T.body ? T.body * 1.9 : 0)) / 2}
-    <Room box={b} tint={tints[r]} title={S(`${r}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body}>
+    <Room box={b} tint={tints[r]} title={S(`${key(r)}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body}>
       {#if r === 'switch'}
-        <!-- four cable sockets; the one the cable comes in by is lit -->
+        <!-- four cable sockets; the one the cable comes in (or goes out) by is lit -->
         {#each [0, 1, 2, 3] as k (k)}
           {@const sx = c.x + (k - 1.5) * (portrait ? 110 : 54)}
           <rect x={sx - 21} y={mid - 22} width="42" height="40" rx="5" fill={k === 0 && used(r) ? inLink.tech.colour : 'var(--paper-2)'} stroke="var(--line)" stroke-width="5" />
@@ -83,11 +90,19 @@
           <rect x={b.x + 18} y={sy - T.sticker * 0.85} width={b.w - 36} height={T.sticker * 1.7} rx="8" fill={on ? 'var(--kraft)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width="4" />
           <text x={c.x} y={sy + T.sticker * 0.36} text-anchor="middle" font-family={S('mode') === 'nerd' ? 'var(--tag-font)' : 'var(--label-font)'} font-size={T.sticker} font-weight="800" fill="var(--line)" text-decoration={k === 0 && parcel.swapped ? 'line-through' : undefined}>{s}</text>
         {/each}
+      {:else if uplink === 'wan'}
+        <!-- one cable socket of its own, for the cable out of the home; lit, as it's the way out -->
+        <rect x={c.x - 21} y={mid - 22} width="42" height="40" rx="5" fill={outLink.tech.colour} stroke="var(--line)" stroke-width="5" />
+        <rect x={c.x - 9} y={mid + 10} width="18" height="10" fill="var(--line)" />
       {:else}
-        <!-- electric pushes in, flashes of light out -->
+        <!-- electric pushes in, flashes of light out (an ONT), or tones out on the phone line (a modem) -->
         <Carrier p={{ x: c.x - (portrait ? 110 : 68), y: mid }} form="spark" colour="var(--sun)" alpha={1} time={0} night={false} />
         <path d={`M${c.x - 30} ${mid} H${c.x + 22} m-14 -14 l14 14 l-14 14`} fill="none" stroke="var(--line)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-        <Carrier p={{ x: c.x + (portrait ? 110 : 68), y: mid }} form="light" colour="var(--teal)" alpha={1} time={0} night={false} />
+        {#if uplink === 'modem'}
+          <path d={tones(c.x + (portrait ? 110 : 68), mid)} fill="none" stroke="var(--berry)" stroke-width="7" stroke-linecap="round" />
+        {:else}
+          <Carrier p={{ x: c.x + (portrait ? 110 : 68), y: mid }} form="light" colour="var(--teal)" alpha={1} time={0} night={false} />
+        {/if}
       {/if}
     </Room>
   {/each}

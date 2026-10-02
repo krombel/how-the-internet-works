@@ -1,0 +1,6 @@
+{
+  "name": "Basement switch",
+  "kid": "A box on the basement wall. Cables from every flat meet here, and one glass thread leaves for the internet company.",
+  "nerd": "An ISP-owned access switch: copper (or G.fast) ports for the flats, a fibre uplink, and a VLAN per flat towards the BNG.",
+  "tag": "L2 · VLAN per flat"
+}

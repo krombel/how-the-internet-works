@@ -37,18 +37,28 @@ describe('inside the home router', () => {
 
   it('takes a parcel in and out by the rooms its links need, through the brain', () => {
     const L = router.routerLayout('landscape');
-    const trip = router.tripPath(L, 'cable', 'fibre');
+    const trip = router.tripPath(L, 'switch', 'ont');
     expect([trip[0], trip.at(-1)]).toEqual([L.inNode, L.outNode]);
     expect(trip.slice(2, 5)).toEqual([router.centre(L.rooms.switch), router.centre(L.rooms.brain), router.centre(L.rooms.ont)]);
     // in at the socket side facing the device before, out of the side facing the one after
     expect(trip[1]).toEqual({ x: L.rooms.switch.x, y: router.centre(L.rooms.switch).y });
     expect(trip[5]).toEqual({ x: L.rooms.ont.x + L.rooms.ont.w, y: router.centre(L.rooms.ont).y });
     // over the air: by the antennas
-    expect(router.tripPath(L, 'radio', 'fibre')[2]).toEqual(router.centre(L.rooms.wifi));
+    expect(router.tripPath(L, 'wifi', 'ont')[2]).toEqual(router.centre(L.rooms.wifi));
+  });
+
+  it('picks the rooms by technology: a home cable at the sockets, the line out at the ONT, the modem or the WAN port', () => {
+    const t = (id: string, look: 'radio' | 'cable' | 'fibre') => ({ id, look });
+    expect(router.roomFor(t('wifi', 'radio'), 'in')).toBe('wifi');
+    expect(router.roomFor(t('ethernet', 'cable'), 'in')).toBe('switch');
+    expect(router.roomFor(t('ethernet', 'cable'), 'out')).toBe('ont');
+    expect(router.roomFor(t('gpon', 'fibre'), 'out')).toBe('ont');
+    expect(router.roomFor(t('vdsl', 'cable'), 'out')).toBe('ont');
+    expect(['gpon', 'vdsl', 'ethernet'].map((id) => router.uplinkOf(t(id, id === 'gpon' ? 'fibre' : 'cable')))).toEqual(['ont', 'modem', 'wan']);
   });
 
   it('carries a parcel in, through the brain (which swaps its sender) and out, once a period', () => {
-    const trip = router.tripPath(router.routerLayout('portrait'), 'cable', 'fibre');
+    const trip = router.tripPath(router.routerLayout('portrait'), 'switch', 'ont');
     const at = (t: number) => router.parcelAt(t, false, trip);
     expect(at(0)).toMatchObject({ stage: 'in', alpha: 0, swapped: false });
     expect(at(router.PERIOD * 0.2)).toMatchObject({ alpha: 1 });

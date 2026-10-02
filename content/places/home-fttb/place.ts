@@ -1,0 +1,38 @@
+import { definePlace } from '$core/define';
+import home from '../home/place';
+
+// At home in a block of flats with fibre to the building (FTTB): the phone on Wi-Fi, a cable to the flat's router,
+// a cable down the stairs to the ISP's switch in the basement, and from there a glass thread to the ISP.
+export default definePlace({
+  variantOf: 'home',
+  order: 1.2,
+  hops: [
+    { at: 'phone', addr: '192.168.1.23' },
+    { link: 'wifi', km: 0.005 },
+    { at: 'ap' },
+    { link: 'ethernet', km: 0.005 },
+    { at: 'router', node: 'flat-router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
+    { link: 'ethernet', km: 0.03 },
+    { at: 'basement', node: 'building-switch', in: 'internet', owner: 'isp' },
+    { link: 'fttb', stack: ['ethernet', 'vlan'], km: 3 },
+    { at: 'backhaul', in: 'internet', owner: 'isp' },
+    { link: 'metro-fibre', stack: ['ethernet', 'vlan'], km: 18 },
+    { at: 'bng', in: 'internet', owner: 'isp' },
+    { link: 'backbone', km: 25 },
+  ],
+  // inside the internet, the block of flats stands for "where you came from"
+  entry: { internet: 'flats' },
+  layout: {
+    // the flat is laid out like the house: the same room, the same spots
+    ...home.layout,
+    // the basement switch where the street cabinet is at home
+    internet: {
+      landscape: { nodes: { flats: [140, 620, 120], basement: [278, 440, 150, 'above'], backhaul: [440, 680, 150], bng: [650, 450, 150, 'above'] } },
+      portrait: { nodes: { flats: [200, 1470, 130], basement: [700, 1380, 150], backhaul: [180, 1230, 150], bng: [720, 1060, 150] } },
+    },
+  },
+  learnMore: [
+    { url: 'https://en.wikipedia.org/wiki/Fiber_to_the_x', title: 'Fibre to the building', level: 'both', lang: 'en' },
+    { url: 'https://da.wikipedia.org/wiki/Fiber_to_the_x', title: 'Fiber til bygningen', level: 'both', lang: 'da' },
+  ],
+});

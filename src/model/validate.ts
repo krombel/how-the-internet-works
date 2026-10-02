@@ -157,6 +157,13 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
     segmentLike(p.file, p, S.place, strip(p));
     need(p.file, `place.${p.id}.name`);
     learnMore(p.file, p.learnMore);
+    // a variant hangs off a place of its own; both name their way of getting online for the picker
+    if (p.variantOf !== undefined) {
+      ref(p.file, 'variantOf', 'places', p.variantOf, 'a place');
+      const of = c.places[p.variantOf];
+      if (of?.variantOf !== undefined) add(p.file, 'variantOf', `"${p.variantOf}" is itself a variant of "${of.variantOf}"; use "${of.variantOf}"`);
+      need(p.file, `place.${p.id}.access`);
+    } else if (Object.values(c.places).some((v) => v.variantOf === p.id)) need(p.file, `place.${p.id}.access`);
   }
 
   for (const a of Object.values(c.activities)) {

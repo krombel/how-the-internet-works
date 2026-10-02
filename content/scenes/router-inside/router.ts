@@ -2,10 +2,15 @@
 // ONT) and a parcel's trip through them. It comes in on one medium, is plain bits inside, and leaves on another: the
 // room it enters and leaves by follows the links either side. Pure: the scene draws what this computes.
 import { along, lengths, type Orient } from '$core/api';
-import type { Box, Form, Look, Pt, Room, RouterLayout, Stage } from './types';
+import type { Box, Form, Look, Pt, Room, RouterLayout, Stage, Tech, Uplink } from './types';
 
-/** The room a medium comes in or goes out through: radio at the Wi‑Fi radio, copper at the switch, light at the ONT. */
-export const roomFor = (look: Look): Room => (look === 'radio' ? 'wifi' : look === 'cable' ? 'switch' : 'ont');
+/** Copper that leaves the home through the router's modem (the phone line), not through a plain cable socket. */
+const MODEMS = new Set(['vdsl']);
+/** The room a link comes in or goes out through: radio at the Wi‑Fi radio, a home cable on the inside at the switch,
+ *  the line out (light, the phone line or a cable to the building's switch) at the uplink room. */
+export const roomFor = (tech: Tech, side: 'in' | 'out'): Room => (tech.look === 'radio' ? 'wifi' : tech.look === 'cable' && side === 'in' && !MODEMS.has(tech.id) ? 'switch' : 'ont');
+/** What the uplink room is for this line: the fibre's ONT, the phone line's modem, or a plain Ethernet socket (WAN). */
+export const uplinkOf = (tech: Tech): Uplink => (MODEMS.has(tech.id) ? 'modem' : tech.look === 'cable' ? 'wan' : 'ont');
 /** How a parcel travels on a medium: a radio wave, electric pushes or light. */
 export const formFor = (look: Look): Form => (look === 'radio' ? 'wave' : look === 'cable' ? 'spark' : 'light');
 
@@ -50,8 +55,7 @@ function mouth(L: RouterLayout, room: Room, towards: Pt): Pt {
 
 /** The trip: from the device before, into the room its medium arrives at, through the brain, out of the room the next
  *  medium leaves from, to the device after. The parcel changes form in the middle of the rooms it enters and leaves by. */
-export function tripPath(L: RouterLayout, inLook: Look, outLook: Look): Pt[] {
-  const a = roomFor(inLook), b = roomFor(outLook);
+export function tripPath(L: RouterLayout, a: Room, b: Room): Pt[] {
   return [L.inNode, mouth(L, a, L.inNode), centre(L.rooms[a]), centre(L.rooms.brain), centre(L.rooms[b]), mouth(L, b, L.outNode), L.outNode];
 }
 const BRAIN = 3;

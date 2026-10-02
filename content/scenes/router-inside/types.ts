@@ -2,6 +2,10 @@ export interface Pt { x: number; y: number }
 export interface Box { x: number; y: number; w: number; h: number }
 export type Room = 'switch' | 'wifi' | 'brain' | 'ont';
 export type Look = 'radio' | 'cable' | 'fibre' | 'trunk';
+/** A link's technology, as far as the rooms care. */
+export interface Tech { id: string; look: Look }
+/** The uplink room: an ONT for fibre, a modem for the phone line, an Ethernet socket for a cable to the building's switch. */
+export type Uplink = 'ont' | 'modem' | 'wan';
 /** A parcel as it travels: on a radio wave, as electric pushes, as light, or inside the box as plain bits. */
 export type Form = 'wave' | 'spark' | 'light' | 'parcel';
 /** Where a parcel is: on the link it came in on, inside the box, or on the link it leaves on. */
