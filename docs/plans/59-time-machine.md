@@ -1,6 +1,6 @@
 # Plan: the time machine (issue #59)
 
-Status: **revised 2026-10-02** after user feedback, before any more code. Part of #59. What is on main (#94, the first
+Status: **revised and decided 2026-10-02** after user feedback, before any more code. Part of #59. On main (#94, the first
 plan's PRs 1 and 2): the eras 1995, 2010 and today as content (`content/eras/`), an `era` on the four home places,
 `timeStops`, a "Travel in time" chip in the caption of the home's overview, and the lazy panel
 (`ui/TimeMachine.svelte`). Everything in *PRs, in order* is new work. It builds on the access technologies of #3
@@ -17,8 +17,10 @@ What changed from the first plan, in short:
   time) move to the front. Activities get era variants too (user feedback, the same day).
 - **A light "era flavour" layer**: a few small, charming props per era (a wall calendar and a blinking modem in 1995,
   a router with antennas in 2010, a smart speaker today), lazy and per era. It takes in the first plan's "props" PR.
-- Later, optional: **1985, before the internet** (a home computer dials one BBS), and a **communication line** across
-  the eras (BBS → IRC → instant messaging → an end-to-end encrypted messenger).
+- **1985, before the internet** (a home computer dials one BBS) is the step after the three trips (decided).
+  Later and optional: a **communication line** across the eras (BBS → IRC → instant messaging → an end-to-end
+  encrypted messenger).
+- **The decisions are settled** (user, 2026-10-02): see *Decisions*. No separate ADSL or 2002 era.
 
 ## Goal and audience
 
@@ -48,7 +50,8 @@ for 30 years (packets, addresses, envelopes inside envelopes, routers reading th
    - Every era is offered from everywhere. The picture of an era is now **its start device** (the PC, the laptop,
      the phone), the most telling thing about it.
    - When your place has no trip in that era, the stop says where you'll land instead: "In 1995 you'd have done
-     this at home. You'll travel there." (Phones on the street were only for calls then.)
+     this at home. You'll travel there." (Phones on the street were only for calls then; nerds get a note on GSM
+     data, below.)
 5. **Travelling morphs the whole trip**: the house's devices swap (the phone shrinks away, the PC pops in), the
    backdrop slides, and if you are inside the internet or the data centre, that scene morphs too: the 1995 server
    room's three shelves replace today's halls. The URL becomes that era's (`#/en/home-dialup/watch-video/internet`),
@@ -116,6 +119,11 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
    first place of that era by `order` (from the street in 1995 → `home-dialup`), and the panel and the arrival
    announcement say so ("In 1995 you'd have done this at home"). From an older era back to today you land on the
    family's today member (`home-dialup` → `home`); Back returns to the street if that's where you came from.
+   - **Nerd-only note, street → 1995.** Under the arrival line, at the nerd level only: "Getting online from the
+     street was just possible in 1995: GSM's circuit-switched data (CSD) sent 9.6 kbit/s, a third of a home modem,
+     from a laptop plugged into a GSM phone or with a PC-card modem. Billed by the minute like a call, rare and very
+     nerdy, so it gets no trip of its own." The key is generic content, `era.<era>.away.<place>` (here
+     `era.1995.away.street`, nerd only, en + da), shown when it exists; no place id in `src/`.
 2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
    of your activity doesn't exist sends you to that era's first activity, and says so.)
 3. **The path** is kept as deep as it can be:
@@ -147,7 +155,7 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
-| later: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
+| PR 9: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
 
@@ -163,7 +171,8 @@ place's 1995 member; a place with none (the street) takes you back to today, and
    `size`, so it compares like with like.
 5. **Era strings** (`era.<id>.name/kid/nerd/describe`) stay as they are; `describe` is rewritten for the new pictures
    (the start devices). New `ui.json` strings: `time.now` (the top bar's "Today"), `time.instead` ("In {era} you'd
-   have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`.
+   have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`; and the
+   optional, nerd-only `era.<era>.away.<place>` (the GSM note above).
 
 ## Era-accurate content
 
@@ -189,7 +198,7 @@ carry over between eras (bold) or the era's own.
 | Part | What | Notes |
 |---|---|---|
 | Device | **`laptop`** (exists) on Wi‑Fi | Replaces the phone in `home-dsl`; its text is overridden there (`place.home-dsl.stop.laptop.*`: on Wi‑Fi, not a cable). |
-| Access | `home-dsl` as on main: Wi‑Fi (802.11n, 2009) → `dsl-router` → `vdsl` to a DSLAM in the street cabinet | Most Danish DSL in 2010 was still ADSL2+ from the exchange; VDSL2 from cabinets was new (TDC from about 2008; ~21 % of broadband by 2012). See *Decisions to confirm*. |
+| Access | `home-dsl` as on main: Wi‑Fi (802.11n, 2009) → `dsl-router` → `vdsl` to a DSLAM in the street cabinet | Decided: keep VDSL2, and the nerd text remarks that most Danish DSL in 2010 was still ADSL2+ from the exchange; VDSL2 from cabinets was new (TDC from about 2008; ~21 % of broadband by 2012). No separate ADSL era. |
 | ISP and internet | today's `isp-to-cdn` (no variant): core, border router, an exchange, a CDN | CDNs and exchanges were everywhere by 2010. The 2010 activity's nerd text says the cache was usually in a bigger city further away. |
 | Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
 | Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
@@ -204,6 +213,8 @@ watch it"). The base activity `watch-video` is today's.
 ### Sources (checked 2026-10-02)
 
 - Modems: Wikipedia, *Modem* and *V.34*; *Dial-up Internet access*.
+- Mobile data in 1995: Wikipedia, *Circuit Switched Data* (one GSM time slot, 9.6 kbit/s, dialled like a modem call);
+  Nokia Collection, *Nokia DTP-2 Cellular Data Card* (a PC-card GSM modem, 9600 bit/s, mid-1990s).
 - Web video in 1995: Tech Monitor, "VDOnet launches VDOLive … using a 28kbps modem" (1995); Wikipedia, *RealNetworks*.
 - CDNs: Wikipedia, *Akamai Technologies* (founded 1998, service 1999).
 - Transatlantic: Wikipedia, *CANTAT-3*; atlantic-cable.com, *Danish PTT*; Wikipedia, *MAREA* (today's capacity).
@@ -254,7 +265,7 @@ How it fits:
 - **Accessibility**: props are `aria-hidden` and not focusable; they never cover a device, a label or a door (the
   overlap test gets the prop spots).
 
-## Later: 1985, before the internet (optional)
+## 1985, before the internet (PR 9, decided: after the three trips)
 
 A 1985 stop shows the world **before** home internet: a home computer and its modem (300 or 1200 bit/s) phone **one
 BBS**, a computer with one phone line in someone's house. There is no network in between: just the call through the
@@ -340,7 +351,7 @@ eager in all**.
 | 6. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `tower-inside` dive |
 | 7. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
 | 8. The picker and eras | ~0.1 kB | |
-| 9. 1985 (later) | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
+| 9. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
 
 - **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 5–7's eager cost is new device art and
   the server room's backdrop. Best order: #91 before PR 5. Era props are lazy whether or not #91 has landed.
@@ -377,7 +388,8 @@ ms at 6× CPU. Runs take the evaluate lock.
 Each is small, leaves main working and says "Part of #59".
 
 1. **Prominent, and a device per era.** The top-bar time button on every screen; the caption chip on every overview;
-   `eraTrip` with "the era's own trip" for places without one (and the panel's and the announcer's line saying so);
+   `eraTrip` with "the era's own trip" for places without one (and the panel's and the announcer's line saying so,
+   plus the nerd-only GSM note from the street to 1995);
    the counterpart rule for the start device; a coach card (and the one-time card for readers who had the coach
    marks); the `pc` node in `home-dialup` and the `laptop` on Wi‑Fi in `home-dsl` (own layouts); the panel's pictures
    become the start devices and the eras' `describe` is rewritten for them (en + da, kid + nerd). The internet stays
@@ -398,13 +410,13 @@ Each is small, leaves main working and says "Part of #59".
    away in words, the 2010 nerd texts.
 8. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
    the arrival line when the picker takes you back to today.
-9. **1985: before the internet** (optional; update this plan first): `home-1985`, the BBS, the `xmodem` layer and dive,
+9. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
    a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
 10. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
     slots, relays, `e2ee`.
 
-Also optional, any time after PR 3: a 2002 stop (ADSL from the exchange, the `dsl-tones` ADSL mode drafted in the
-first plan), and mobile eras on the street (a 2010 phone on 3G).
+Also optional, any time after PR 3: a mobile trip on the street in 2010 (a phone on 3G). No ADSL or 2002 era
+(decided): 2010's ADSL2+ is a remark in its nerd text.
 
 ## Risks
 
@@ -432,19 +444,18 @@ Decided (the user may overrule any of them):
 - **No era palette** (sepia): devices and the era flavour carry the era.
 - **An era flavour layer**: a few small, lazy, token-only props per era, no brands (user, 2026-10-02).
 
+Decided by the user (2026-10-02), the five questions of the first draft of this plan:
+1. **The way in**: a time button in the top bar on every screen showing the era, the chip on every overview, and a
+   coach card.
+2. **Places with no trip in an era** (the street in 1995) travel to that era's home trip and say so; the street → 1995
+   arrival adds the nerd-only GSM data note (CSD, 9.6 kbit/s; see *What the time machine does*).
+3. **1995's activity** is "open a web page with a picture" (about 15 s), with stamp-sized clips as a nerd note.
+4. **2010's DSL** stays `home-dsl`'s VDSL2 from the street cabinet, with the nerd remark that most homes still had
+   ADSL2+. No separate ADSL or 2002 era.
+5. **1985's BBS** is wanted: PR 9, the step after the three trips, no longer optional. The communication line stays
+   later and optional.
+
 Kept from building #94: one helper for the stops (now `eraTrip`); the clock icon from `ui/icons.ts`, not the emoji;
 choosing separate from going; the panel is the picker's dialog; panel strings in `ui.json`, era strings lazy; radios
 checked from code; the morph's reduced-motion cross-fade. Revised: the picture of an era is its **start device**, not
 the home's connecting box; the first plan's "props" PR became the era flavour; the way in is the **top bar** plus the overview chip, not the chip alone.
-
-## Decisions to confirm
-
-1. **The way in**: a time button in the top bar on every screen showing the era, plus the chip on every overview,
-   plus a coach card. *Recommended.* (Alternative: the top bar only.)
-2. **Places with no trip in an era** (the street in 1995): travel to that era's home trip and say so. *Recommended.*
-   (Alternative: grey the era out from there.)
-3. **1995's activity**: "open a web page with a picture" (15 s), with stamp-sized clips as a nerd note.
-   *Recommended*, rather than a tiny clip as the main activity.
-4. **2010's DSL**: keep `home-dsl`'s VDSL2 from the street cabinet (new then, already built) and say in the nerd
-   text that most homes still had ADSL2+. *Recommended*, rather than rebuilding it as ADSL2+ from the exchange.
-5. **1985 BBS**: plan it as the optional PR 9, after the three trips, not before. *Recommended.*
