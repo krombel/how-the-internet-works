@@ -7,6 +7,11 @@ import { content as defaultContent, eraOf, nowEra, placeFamily, placeIds, type C
  *  so it is the era's own trip (its first place), somewhere else ("In 1995 you'd have done this at home"). */
 export interface EraStop { era: string; year: number; place: string; instead: boolean }
 
+/** The device you start on at a place (its first hop's node: a PC, a laptop, a phone), the time machine's picture. */
+export const startDevice = (place: string, c: Content = defaultContent) => {
+  const h = c.places[place].hops.find((h) => 'at' in h) as { at: string; node?: string };
+  return h.node ?? h.at;
+};
 /** A route's era: its first place's that has one, else the newest. */
 export const routeEra = (r: Route) => r.slots.map((s) => r.content.places[s.place].era).find(Boolean) ?? nowEra(r.content);
 /** A route's year for the time machine's button and chip, or null in the newest era (it says "Today"). */

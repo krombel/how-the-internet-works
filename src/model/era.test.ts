@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { eraStops, eraYear } from './era';
+import { eraStops, eraYear, startDevice } from './era';
 import { eraTrip } from './era-trip';
 import { eraOf, nowEra } from './registry';
 import { resolveRoute } from './resolve';
@@ -28,6 +28,8 @@ describe('the time machine (#59)', () => {
     const away = [{ ...home[0], instead: true }, { ...home[1], instead: true }];
     expect(eraStops('street')).toEqual([...away, { era: 'today', year: now, place: 'street', instead: false }]);
     expect(eraStops('desk')).toEqual([...away, { era: 'today', year: now, place: 'desk', instead: false }]);
+    // each stop's picture: the device you start on then
+    expect(eraStops('home').map((s) => startDevice(s.place))).toEqual(['pc', 'laptop', 'phone']);
     // only where the activity allows
     expect(eraStops('home', ['street', 'home-dsl', 'home'])).toEqual(home.slice(1));
     expect(eraStops('street', ['street', 'desk'])).toEqual([{ era: 'today', year: now, place: 'street', instead: false }]);
