@@ -670,7 +670,9 @@ skips the lock (CI, where nothing else runs).
 Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
 5G and down to copper, and opening a layer dive; it varies a few ms between runs, up to about 13 ms). On a quiet
 machine (five runs, medians) no phase is over a frame; the 33.3 ms once seen for `openLayer` came from other work on the
-machine at the same time. Animated scenes avoid group
+machine at the same time. In the refresh after #99 (two runs on a busy machine), the day kept every phase within a
+frame; at night the fly three levels down (`flyDeep`) came in at 33.3 ms p95 at 6× in both runs, and the step on to
+the undersea cable in one. Animated scenes avoid group
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves). The device dives draw their text with
 `text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
