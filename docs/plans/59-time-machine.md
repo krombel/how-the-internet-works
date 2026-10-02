@@ -456,7 +456,7 @@ Each is small, leaves main working and says "Part of #59".
      about 35,000× slower than today's fibre). The caption's "how long it takes" line carries the real difference.
      Under reduced motion and pause it follows the clock as packets do now; it stays within the perf budget (the
      evaluate phases' p95).
-   - **Not on rush hour**: rush hour is being removed (#114), so this step doesn't build on it.
+   - **Not on rush hour**: rush hour was removed (#114), so this step doesn't build on it.
 6. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
    bank, the small ISP's router, an `e1` to the upstream (DIX as the aside), CANTAT-3 (`submarine-sdh`), the US
    backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
@@ -587,7 +587,7 @@ Made while building PR 2 (era flavour):
   (focus, a name in en + da, keys, and a door-sized target clear of the labels), more than this PR's small touches.
 - **One loader for dives and eras**: `render/dives.svelte.ts` became `render/lazy.svelte.ts`, a small generic
   `lazy()` used by both (and by the busy spinner), which costs less eagerly than a second module.
-- **Eager JS**: +1.1 kB gz against main (96.9 against 95.8; the plan said ~0.15): the loader and era glob ~0.3, the
+- **Eager JS**: +1.1 kB gz against main (96.2 against 95.2 after rush hour went, #114; the plan said ~0.15): the loader and era glob ~0.3, the
   mount in the root scene and the parcel's mark ~0.35, the places' prop spots ~0.15, and the English words for the
   props in the places' `describe` ~0.16. Mounting the props lazily too was tried and cost more (it split the layout
   chunk). Of the wave's 3 kB, about 0.8 kB remain; the lazy era pack (~1 kB) stays the lever, and PR 3 should take it.
