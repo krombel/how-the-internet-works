@@ -177,7 +177,9 @@ Navigating the scene shows a packet's physical life; catching one shows its laye
   link. Stepping is spatial like every ◀ ▶: path scenes lay the chain out left → right (portrait: bottom → top), so the
   button, arrow key or flick pointing the way the packet moves on screen takes it on (`hopStepFor`): ▶ for a request,
   ◀ for the video coming back (▲ / ▼ in portrait). That button is the filled one. When the next hop is drawn in another scene (`hopScenePath`: into the internet, back out to the house), the
-  camera flies there. The camera tracks the ghost until the user pans or zooms.
+  camera flies there. The camera tracks the ghost until the user pans or zooms (`followStep` in `engine/camera.ts`:
+  an exponential ease, which lands exactly on the ghost once within a twentieth of a pixel, so where it rests doesn't
+  depend on the frame timing that got it there, #40).
 - **Catch by kind** (the caption's chips, "Catch: Request · Video"; issue #74) starts the packet where that kind enters
   the scene on screen, so ◀ ▶ can take it all the way across and on into the next scene: at the first hop on its way
   that the scene draws (`entryHop`, walking from its sender with `stepHop`, with the same `drawn` test as `hopAhead`).
@@ -563,8 +565,8 @@ Vitest (`npm test`) covers:
 - contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
   night, with translucent cards composited over the page background
 
-CI runs `npm ci && npm test && npm run build`, and in a second job the accessibility check (`npm run evaluate --
---only=a11y`, day and night, below).
+CI runs `npm ci && npm test && npm run build`, and beside it the accessibility check (`npm run evaluate --
+--only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`, about 15 min each).
 
 ## Performance
 
@@ -586,7 +588,11 @@ keyboard journeys; it exits non-zero on any problem and writes nothing): see [ac
 `--mode=night` runs the same shots and phases at night. The results go to `app-<style>-night-*.jpg`, and the metrics
 under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× (the halos in the long-haul fibre) and
 keeps the same p95. `--diff=<url>` compares every screenshot against another build instead, pixel by pixel. Use it
-to show that a change leaves the day untouched.
+to show that a change leaves the day untouched. For a diff, each side screenshots until two in a row match: under load
+the GPU now and then hands over a frame with some tiles (the dot grid, shadows, blurs) not final yet. Two runs of the
+same build then match in all shots but about one a run, where a pixel or a few on an edge differ, mostly by a level or
+two (GPU rasterisation; one pixel of the 5G NR frame dive in nerd mode on desktop, by 62/765, nearly every run, #40). Every catch (shots, accessibility states, vision sheets) checks where the packet waits
+(`__app.caught().hop`) after the catch and after each step, and fails the run if it isn't the expected hop.
 
 Runs take turns machine-wide: another worktree's headless Chrome running at the same time (an overnight lane taking
 shots, say) doubled p95 in some phases. Each run, shots and diffs included (they keep several CPU cores busy), takes an

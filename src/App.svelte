@@ -3,7 +3,7 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, tick, untrack } from 'svelte';
-  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, followStep, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
@@ -720,12 +720,9 @@
         const p = packets.get(ghost.key)?.find((k) => k.id === CAUGHT_ID);
         if (p) {
           const info = sceneInfo(route, ghost.key ? ghost.key.split('/') : [], view.orient);
-          const w = toRoot(info.frame, p.pose), k = fit(info.fit, view.vp).k * (view.orient === 'portrait' ? 1.6 : 1.8);
-          const c = trackCentre(), a = 1 - Math.exp(-dt * 4);
-          const tk = cam.k * Math.pow(k / cam.k, a);
-          const cur = toWorldPt(cam, c.x, c.y);
-          const wc = { x: cur.x + (w.x - cur.x) * a, y: cur.y + (w.y - cur.y) * a };
-          cam = { k: tk, x: c.x - wc.x * tk, y: c.y - wc.y * tk };
+          const k = fit(info.fit, view.vp).k * (view.orient === 'portrait' ? 1.6 : 1.8);
+          const next = followStep(cam, toRoot(info.frame, p.pose), k, trackCentre(), dt);
+          if (next.k !== cam.k || next.x !== cam.x || next.y !== cam.y) cam = next;
         }
       }
       if (grow) frameGrow(now);

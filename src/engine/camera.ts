@@ -146,5 +146,18 @@ export function zoomAbout(cam: Cam, f: number, sx: number, sy: number): Cam {
   const wx = (sx - cam.x) / cam.k, wy = (sy - cam.y) / cam.k;
   return { k, x: sx - wx * k, y: sy - wy * k };
 }
+/** One frame of following a world point `w` (a caught packet): it eases towards screen point `c` at zoom `k`, a share
+ *  `1 - e^(-4·dt)` of the way. Within a twentieth of a pixel it lands exactly on the target, so where it comes to rest
+ *  doesn't depend on the frame timing that got it there (pixel diffs of a caught packet, #40). */
+export function followStep(cam: Cam, w: Pt, k: number, c: Pt, dt: number): Cam {
+  const end = { k, x: c.x - w.x * k, y: c.y - w.y * k };
+  const s = toScreen(cam, w);
+  if (Math.hypot(s.x - c.x, s.y - c.y) < 0.05 && Math.abs(cam.k / k - 1) < 1e-4) return end;
+  const a = 1 - Math.exp(-dt * 4);
+  const tk = cam.k * Math.pow(k / cam.k, a);
+  const cur = toWorldPt(cam, c.x, c.y);
+  const wc = { x: cur.x + (w.x - cur.x) * a, y: cur.y + (w.y - cur.y) * a };
+  return { k: tk, x: c.x - wc.x * tk, y: c.y - wc.y * tk };
+}
 export const toScreen = (cam: Cam, p: Pt): Pt => ({ x: p.x * cam.k + cam.x, y: p.y * cam.k + cam.y });
 export const toWorldPt = (cam: Cam, sx: number, sy: number): Pt => ({ x: (sx - cam.x) / cam.k, y: (sy - cam.y) / cam.k });
