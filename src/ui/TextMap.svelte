@@ -22,7 +22,7 @@
     ongo: (path: string[], stop: string | null) => void;
     /** Change where you are (the start device's door). */
     onswap: () => void;
-    /** Open the time machine (#59), where the place has eras. */
+    /** Open the time machine (#59), where there is somewhere else in time to go (every place, with eras in the content). */
     ontime?: () => void;
   } = $props();
   const map = $derived(mapOf(route, view.orient));

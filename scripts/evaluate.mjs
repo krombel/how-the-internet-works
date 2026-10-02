@@ -77,13 +77,14 @@ const metrics = { ...old };
 
 /** `speech`: give the page a fake speechSynthesis with an English and a Danish voice (a headless browser may have no
  *  voices at all), which notes what it was asked to say in `window.__said`; `on` also turns read aloud on (#53).
- *  `coach`: a first visit, which gets the coach marks (#21); every other page has had them already, so no shot, timing
- *  or check sees them unasked. */
+ *  `coach`: a first visit, which gets the coach marks (#21), or what a returning reader has stored (`'1'`: they had
+ *  them before the time machine's card, #59); every other page has had them all already, so no shot, timing or check
+ *  sees them unasked. */
 async function open(view, url, speech = null, coach = false) {
   const v = VIEWS[view];
   const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch, colorScheme: MODE === 'night' ? 'dark' : 'light' });
   const p = await ctx.newPage();
-  if (!coach) await p.addInitScript(coached);
+  if (coach !== true) await p.addInitScript(coached, coach || undefined);
   if (speech) await p.addInitScript(fakeSpeech, speech.on);
   p.on('pageerror', (e) => console.log('  pageerror', e.message));
   p.on('console', (m) => m.type() === 'error' && console.log('  console', m.text()));
@@ -92,7 +93,8 @@ async function open(view, url, speech = null, coach = false) {
   await p.evaluate(() => document.fonts.ready);
   return { ctx, p };
 }
-function coached() { localStorage.setItem('coached', '1'); }
+/** Had the coach marks (all of them, '2', unless told), unless the page has stored otherwise since. */
+function coached(was = '2') { if (localStorage.getItem('coached') === null) localStorage.setItem('coached', was); }
 function fakeSpeech(on) {
   const said = (window.__said = []);
   const voices = [{ lang: 'en-GB', default: true, localService: true, name: 'en' }, { lang: 'da-DK', default: false, localService: true, name: 'da' }];
@@ -202,9 +204,12 @@ const A11Y_STATES = [
   // another way online (#3): the phone line's dive, and the picker with its access row on a variant
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
   { name: 'picker-dsl', where: 'home-dsl/watch-video', picker: true, views: ['phone'] },
-  { name: 'dialup', where: 'home-dialup/watch-video/laptop-internet', views: ['desktop', 'phone', 'short'] },
-  // the time machine (#59): its panel, on today's home
+  { name: 'dialup', where: 'home-dialup/watch-video/pc-internet', views: ['desktop', 'phone', 'short'] },
+  // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, which is the era's own
+  // trip at home (`timeTo`: how many eras back), said in a line; from its chip on the 2010 overview
   { name: 'time', where: 'home/watch-video', time: true, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'time-street', where: 'street/watch-video/phone~tcp', q: '&level=nerd', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'time-chip', where: 'home-dsl/watch-video', lang: 'da', time: 'chip', views: ['desktop', 'phone'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   // the ⋯ menu over a caught packet's layers (#90)
@@ -220,10 +225,12 @@ const A11Y_STATES = [
   { name: 'rush', where: 'home/watch-video', q: '&rush=on&level=nerd', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'extra', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=nerd', views: ['desktop', 'phone', 'short'] },
   { name: 'rush-map', where: 'home/watch-video', q: '&rush=on&level=nerd', map: true, views: ['desktop', 'phone'] },
-  // a first visit's coach marks (#21): the first, on "Open up", and the last, on "What can I explore?" (`coach`: how
-  // many times Next was pressed)
+  // a first visit's coach marks (#21): the first, on "Open up", "What can I explore?" and the last, on the time machine
+  // (`coach`: how many times Next was pressed); and the one card a reader who had them before the time machine gets
   { name: 'coach', where: 'home/watch-video', coach: 0, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'coach-explore', where: 'home/watch-video', coach: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'coach-time', where: 'home/watch-video', coach: 3, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'coach-new', where: 'home/watch-video', coach: 0, coachWas: '1', lang: 'da', views: ['desktop', 'phone', 'short'] },
 ];
 /** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
  *  null. */
@@ -300,8 +307,8 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home-fttb/watch-video', 'home-fttb/watch-video/router', 'home-fttb/watch-video/internet',
   'home-fttb/watch-video/internet/basement-backhaul',
   // and dial-up: the call, its PPP envelope at both ends, and the telephone exchange on the way
-  'home-dialup/watch-video', 'home-dialup/watch-video/laptop-internet', 'home-dialup/watch-video/internet',
-  'home-dialup/watch-video/laptop~ppp', 'home-dialup/watch-video/internet/bng~ppp'];
+  'home-dialup/watch-video', 'home-dialup/watch-video/pc-internet', 'home-dialup/watch-video/internet',
+  'home-dialup/watch-video/pc~ppp', 'home-dialup/watch-video/internet/bng~ppp'];
 /** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
  *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
  *  when large: 24 px, or 18.7 px bold). */
@@ -417,13 +424,16 @@ async function a11y(style) {
   const fails = [];
   const fail = (where, what) => { fails.push(`${where}: ${what}`); console.log(`  ✗ ${where}: ${what}`); };
   const prep = async (s, view) => {
-    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null, s.coach !== undefined);
+    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null, s.coachWas ?? s.coach !== undefined);
     await still(p);
     if (s.coach !== undefined) { await p.waitForSelector('.coach.placed'); for (let i = 0; i < s.coach; i++) await p.click('.coach-next'); }
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
     if (s.picker) await p.evaluate(() => window.__app.picker(true));
-    if (s.time) { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); await p.waitForSelector('.picker.time'); }
+    if (s.time === 'chip') { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); }
+    else if (s.time) await p.click('.time-btn');
+    if (s.time) await p.waitForSelector('.picker.time');
+    for (let i = 0; i < (s.timeTo ?? 0); i++) await p.keyboard.press('ArrowLeft');
     if (s.ladder) await p.click('.crumbs .here');
     if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
     if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
@@ -448,9 +458,9 @@ async function a11y(style) {
       await ctx.close();
     }
   // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
-  //    the browser's own controls, which the page sees as focus on <body>: that ends the round. (Danish nerd and the
-  //    last coach mark Tab like the overview and the first one.)
-  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da' && x.name !== 'coach-explore')) {
+  //    the browser's own controls, which the page sees as focus on <body>: that ends the round. (Danish nerd, the later
+  //    coach marks and the panel from its chip Tab like the overview, the first mark and the panel from the top bar.)
+  for (const s of A11Y_STATES.filter((x) => !['nerd-da', 'coach-explore', 'coach-time', 'time-chip'].includes(x.name))) {
     const { ctx, p } = await prep(s, 'desktop');
     // a long route has many stops (the list view has a button for each), so the round may take as many Tabs as the
     // page has things to focus, and a few more
@@ -516,6 +526,25 @@ async function a11y(style) {
   await p.focus('.caption .chip.time'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
   await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight'); await p.keyboard.press('Enter'); await still(p);
   if ((await p.evaluate(() => window.__app.loc().places[0])) !== 'home') fail('journey: time machine', 'it does not come back to today');
+  // from the top bar, inside a dive: the PC's TCP in 1995, focus on the caption's title, and the announcer names the
+  // era first; from the street, also why you are at home now. Esc gives focus back to the button.
+  const told1st = () => p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 3000 }).then((h) => h.jsonValue(), () => '');
+  for (const [from, says] of [['home', 'It’s 1995. '], ['street', 'It’s 1995. In 1995 you’d have done this at home. ']]) {
+    await p.evaluate((f) => window.__app.go({ places: [f], path: ['phone~tcp'] }), from); await still(p);
+    await p.focus('.time-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+    if (!(await p.evaluate(() => document.querySelector('.time-btn')?.getAttribute('aria-expanded') === 'true'))) fail('journey: time machine', 'its top-bar button is not expanded');
+    await p.keyboard.press('Escape'); await still(p);
+    if (!(await p.evaluate(() => document.activeElement?.matches('.time-btn')))) fail('journey: time machine', 'focus is not back on the top bar\'s button');
+    await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+    await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowLeft'); await p.keyboard.press('Enter'); await still(p);
+    const l = await p.evaluate(() => window.__app.loc());
+    if (`${l.places[0]}/${l.path.join('/')}` !== 'home-dialup/pc~tcp') fail('journey: time machine', `from the ${from}'s TCP, 1995 is ${l.places[0]}/${l.path.join('/')}`);
+    if (!(await p.evaluate(() => document.activeElement?.matches('.caption h2')))) fail('journey: time machine', `from the ${from}, focus is not on the caption after the trip`);
+    const heard = await told1st();
+    if (!heard.startsWith(says) || heard.length < says.length + 40) fail('journey: time machine', `from the ${from}, the announcer says "${heard}"`);
+    if ((await p.evaluate(() => document.querySelector('.time-btn')?.textContent?.trim())) !== '1995') fail('journey: time machine', 'the top bar\'s button does not say 1995');
+  }
+  await p.evaluate(() => window.__app.go({ places: ['home'], path: [] })); await still(p);
   // the scene's keys (#53): into the picture, two stops along, in through the Wi‑Fi's door and back out
   const at = () => p.evaluate(() => { const l = window.__app.loc(); return `${l.path.join('/')}:${l.stop}`; });
   await p.focus('.scene-key'); await check('the scene');
@@ -594,20 +623,20 @@ async function coachJourney(style, fail) {
   let { ctx, p, shown } = await first('home/watch-video', true);
   if (!shown) fail('journey: coach marks', 'none on a first visit');
   else {
-    const says = 'Getting started. 1 of 3.';
+    const says = 'Getting started. 1 of 4.';
     const heard = await p.waitForFunction((s) => document.querySelector('[role=status]')?.textContent?.trim().startsWith(s), says, { timeout: 10000 })
       .then(() => says, () => p.evaluate(() => document.querySelector('[role=status]')?.textContent?.trim() ?? ''));
     if (heard !== says) fail('journey: coach marks', `the announcer says "${heard}"`);
     await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
     if (!(await p.evaluate(() => document.querySelector('.skip') && document.activeElement?.matches('.coach button')))) fail('journey: coach marks', 'they are not the next Tab stop after the skip link');
     await p.keyboard.press('Tab'); await p.keyboard.press('Enter');
-    if (!(await p.locator('.coach', { hasText: '2 of 3' }).count())) fail('journey: coach marks', 'Next does not step on');
+    if (!(await p.locator('.coach', { hasText: '2 of 4' }).count())) fail('journey: coach marks', 'Next does not step on');
     if (!(await p.evaluate(() => document.activeElement?.matches('.coach-next')))) fail('journey: coach marks', 'focus is not on Next after it');
     await p.keyboard.press('Escape'); await still(p);
     if (await p.$('.coach')) fail('journey: coach marks', 'Esc does not end them');
     const bad = await p.evaluate(focusProblem);
     if (bad) fail('journey: coach marks', `after Esc: ${bad}`);
-    if ((await coached(p)) !== '1') fail('journey: coach marks', 'they are not remembered');
+    if ((await coached(p)) !== '2') fail('journey: coach marks', 'they are not remembered');
     await p.reload(); await p.waitForFunction(() => window.__app); await still(p); await p.waitForTimeout(1500);
     if (await p.$('.coach')) fail('journey: coach marks', 'they come again');
   }
@@ -622,6 +651,22 @@ async function coachJourney(style, fail) {
     await p.mouse.click(x, y); await still(p);
     if (await p.$('.coach')) fail('journey: coach marks', 'a tap on the scene does not end them');
     if ((await p.evaluate(() => window.__app.loc().path.join('/'))) !== 'internet') fail('journey: coach marks', 'a tap on "Open up" does not open it');
+  }
+  await ctx.close();
+  // a reader who had them before the time machine (#59): its card only, once, said as new, with no count
+  ({ ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'), null, '1'));
+  await still(p);
+  if (!(await p.waitForSelector('.coach.placed', { timeout: 20000 }).then(() => true, () => false))) fail('journey: coach marks', 'no time machine card for a returning reader');
+  else {
+    const says = 'New. Hop in the time machine: see this trip in 1995 or 2010.';
+    const heard = await p.waitForFunction((s) => document.querySelector('[role=status]')?.textContent?.trim().startsWith(s), says, { timeout: 10000 })
+      .then(() => says, () => p.evaluate(() => document.querySelector('[role=status]')?.textContent?.trim() ?? ''));
+    if (heard !== says) fail('journey: coach marks', `for a returning reader, the announcer says "${heard}"`);
+    if ((await p.locator('.coach').count()) !== 1 || (await p.locator('.coach-count').count())) fail('journey: coach marks', 'a returning reader gets more than the time machine\'s card');
+    await p.keyboard.press('Escape'); await still(p);
+    if ((await coached(p)) !== '2') fail('journey: coach marks', 'the time machine\'s card is not remembered');
+    await p.reload(); await p.waitForFunction(() => window.__app); await still(p); await p.waitForTimeout(1500);
+    if (await p.$('.coach')) fail('journey: coach marks', 'the time machine\'s card comes again');
   }
   await ctx.close();
 }

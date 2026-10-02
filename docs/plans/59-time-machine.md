@@ -490,3 +490,30 @@ Kept from building #94: one helper for the stops (now `eraTrip`); the clock icon
 choosing separate from going; the panel is the picker's dialog; panel strings in `ui.json`, era strings lazy; radios
 checked from code; the morph's reduced-motion cross-fade. Revised: the picture of an era is its **start device**, not
 the home's connecting box; the first plan's "props" PR became the era flavour; the way in is the **top bar** plus the overview chip, not the chip alone.
+
+## Open questions / decisions made
+
+Made while building PR 1 (the way in and a device per era):
+- **Where the stops come from**: `eraStops` (`model/era.ts`) replaces `timeStops`; the place's era is `eraOf` in
+  `registry.ts`. `eraTrip` and the panel's words (`ui/time.ts`) load with the panel, not up front.
+- **Saying where the era's own trip is** needs a word for each base place: a `where` string ("at home", "on the
+  street", "at the desk"), required on base places by validation. The panel line is "In 1995 you'd have done this at
+  home. You'll travel there." (`time.instead`, `time.there`); the arrival says "It's 1995." or "Back to today."
+  (`time.then`, `time.back`) before why. The GSM note is `era.1995.away.street`, nerd only.
+- **The panel's way label** falls back to the place's name where it has no `access` (the street, the desk).
+- **The top-bar button is 40 px tall**, like its neighbours (`.btn`), not the 44 px the a11y section suggests; the
+  project's floor is 24 px and the row stays even. Its name is "Travel in time: 1995"; its colours are pairs
+  `contrast.test.ts` already checks (ink on card, `--btn-on-ink` on `--btn-on` when open).
+- **Small phones**: at 360 px the row with the new button overflowed in both languages; below 400 px "What can I
+  explore?" is its icon (its name stays, visually hidden), as *Viewports* planned. 390 px fits either way.
+- **The coach card**: the fourth card of the first run, on the button. A reader who had the coach marks before
+  (`coached` `'1'`) gets it alone, once, labelled "New" with no count and the doors not lit; then `coached` is `'2'`.
+  Its line names the other eras from where you are ("…in 1995 or 2010", `Intl.ListFormat` disjunction).
+- **The start devices**: a new `pc` node (a beige box with a CRT, its own `learnMore`) in `home-dialup`; `home-dsl`
+  gets the laptop on Wi‑Fi with its own overview layout (copied from the home's, the internet's reused). The Wi‑Fi
+  frame's bystander device is now whichever of phone and laptop isn't yours, so 2010 shows a phone next door.
+- **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (PR 4, rates); the dives (TCP, Wi‑Fi frame) still say
+  "your phone" in 1995 and 2010 (PR 3, `<key>.<era>` strings).
+- **Eager JS**: +1.0 kB gz against main (the plan said ~0.6): the button and wiring ~0.26, the stops ~0.19 (in the
+  caption's chunk), the `pc` art ~0.18, and English strings ~0.4 that the estimate left out (the `pc` node's, the
+  laptop's stop, `where`, the time keys). Of the wave's 3 kB, 2.0 kB remain; the lazy era pack stays the lever.

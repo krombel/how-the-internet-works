@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { describeKeys } from './describe';
-import { basePlace, content, placeFamily, timeStops, type Content } from './registry';
+import { basePlace, content, placeFamily, type Content } from './registry';
 import { loadAllPacks, lookupLevel, packs, type Json } from './strings';
 import { resolveRoute } from './resolve';
 import { childrenOf, diveSubject, sceneRef, sideways, type SceneRef } from './tree';
@@ -164,21 +164,16 @@ describe('validation messages', () => {
     expect(broken((c) => { c.places.street.variantOf = 'desk'; })).toContain('missing English string "place.street.access"');
   });
 
+  it('needs a base place to say where it is, in a sentence (the time machine, #59)', () => {
+    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts' }; }))
+      .toContain('missing English string "place.lake.where"');
+  });
+
   it('groups a place with its variants, base first, in order (the picker shows one place and its ways online)', () => {
     expect([basePlace('home-dsl'), basePlace('home'), basePlace('street')]).toEqual(['home', 'home', 'street']);
     expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl', 'home-dialup']);
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
     expect(placeFamily('street')).toEqual(['street']);
-  });
-
-  it('finds the time machine’s stops (#59): one per era of the family, oldest first, the place itself for its own era', () => {
-    const now = new Date().getFullYear();
-    const home = [{ era: '1995', place: 'home-dialup', year: 1995 }, { era: '2010', place: 'home-dsl', year: 2010 }, { era: 'today', place: 'home', year: now }];
-    expect(timeStops('home')).toEqual(home);
-    expect(timeStops('home-dialup')).toEqual(home);
-    expect(timeStops('home-fttb')).toEqual([...home.slice(0, 2), { era: 'today', place: 'home-fttb', year: now }]);
-    expect(timeStops('home', ['street', 'home-dsl', 'home'])).toEqual(home.slice(1));
-    expect(timeStops('street')).toEqual([]);
   });
 
   it('checks eras (#59): known, named and described, and two of them or none in a family', () => {

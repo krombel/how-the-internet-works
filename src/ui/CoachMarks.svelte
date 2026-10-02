@@ -1,6 +1,7 @@
 <script lang="ts">
   // First-run coach marks (issue #21; coach.ts, coach-marks.ts): a card pointing at the scene's first "Open up", then
-  // its first "Look inside", then "What can I explore?". Meanwhile the app lights the doors as "What can I explore?"
+  // its first "Look inside", then "What can I explore?", then the time machine's button (#59); a reader who had the
+  // others before it came gets only that one, as "New". Meanwhile the app lights the doors as "What can I explore?"
   // does, makes the pointed-at one hot and pauses the scene (all three are App's). It doesn't block anything: a tap
   // anywhere but its buttons ends it and still does what it would have done (the stage has hit-tested the tap before
   // it gets here); so do Esc and going anywhere (App). Not a dialog: it takes no focus and traps none; it comes after
@@ -8,13 +9,21 @@
   import { untrack } from 'svelte';
   import type { Rect } from '../engine/geometry';
   import type { Door } from '../model/doors';
-  import { fill, nav, readAloud, routeKeys, tr, trFirst, view } from '../state.svelte';
+  import type { EraStop } from '../model/era';
+  import { nowEra } from '../model/registry';
+  import { fill, loc, nav, readAloud, routeKeys, tr, trFirst, view } from '../state.svelte';
+  import { spoken } from '../engine/speech';
   import { announce } from './announce.svelte';
-  import { coachMarks, placeMark } from './coach-marks';
+  import type { CoachRun } from './coach';
+  import { coachMarks, otherEras, placeMark } from './coach-marks';
 
-  let { doors, canExplore, wide, rectOf, onhot, onend }: {
+  let { run, doors, canExplore, wide, eras, era, rectOf, onhot, onend }: {
+    /** Which marks: all, or only the time machine's. */
+    run: Exclude<CoachRun, null>;
     /** The scene's doors, and whether "What can I explore?" is offered (with its long label: `wide`). */
     doors: Door[]; canExplore: boolean; wide: boolean;
+    /** The time machine's stops and the era you are in (its card names the others: "…in 1995 or 2010"). */
+    eras: EraStop[]; era: string;
     /** A door's badge on screen. */
     rectOf: (d: Door) => Rect | null;
     /** The door pointed at (it glows), or null. */
@@ -22,24 +31,28 @@
     onend: () => void;
   } = $props();
 
-  const marks = untrack(() => coachMarks(doors, canExplore));
+  const marks = untrack(() => coachMarks(doors, canExplore, eras.length > 1, run));
+  const others = $derived(new Intl.ListFormat(loc.lang, { type: 'disjunction' })
+    .format(otherEras(eras, era, nowEra()).map((y) => (y === null ? tr('time.today') : String(y)))));
   let i = $state(0), w = $state(0), h = $state(0);
   const mark = $derived(marks[i]);
   const last = $derived(i === marks.length - 1);
   // what opens up may say what's inside it (the group's `inside.coach`, which the route's places may override)
   const text = $derived.by(() => {
     if (!mark) return '';
-    if (mark.kind === 'explore') return fill(tr('coach.explore'), { button: tr(wide ? 'explore.title' : 'explore.short') });
+    if (!mark.door) return mark.kind === 'time' ? fill(tr('coach.time'), { eras: others }) : fill(tr('coach.explore'), { button: tr(wide ? 'explore.title' : 'explore.short') });
     const g = nav.route.hops[mark.door.id];
     return mark.kind === 'expand' && g ? trFirst([...routeKeys(`inside.${g.id}.coach`), `node.${g.node.id}.inside.coach`, 'coach.expand']) : tr(`coach.${mark.kind}`);
   });
-  const count = $derived(fill(tr('coach.count'), { n: i + 1, of: marks.length }));
-  // the explore button is in the chrome: measured again when the window changes
+  // one card alone has no count
+  const count = $derived(marks.length > 1 ? fill(tr('coach.count'), { n: i + 1, of: marks.length }) : '');
+  const label = $derived(tr(run === 'time' ? 'coach.new' : 'coach.label'));
+  // the explore and time buttons are in the chrome: measured again when the window changes
   const target = $derived.by(() => {
     if (!mark) return null;
     if (mark.door) return rectOf(mark.door);
     void view.vp;
-    const r = document.querySelector('.explore-btn')?.getBoundingClientRect();
+    const r = document.querySelector(`.${mark.kind}-btn`)?.getBoundingClientRect();
     return r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
   });
   const at = $derived(target && w && h ? placeMark(target, { w, h }, view.vp) : null);
@@ -51,7 +64,7 @@
   $effect(() => onhot(mark?.door?.id ?? null));
   $effect(() => {
     if (!text) return;
-    const said = i === 0 ? `${tr('coach.label')}. ${count}. ${text}` : `${count}. ${text}`;
+    const said = spoken(i === 0 ? label : '', count, text);
     untrack(() => { announce(said); readAloud(text); });
   });
 
@@ -67,12 +80,12 @@
 
 <svelte:window {onpointerup} />
 {#if mark}
-  <aside class="coach card {at?.side ?? ''}" class:placed={!!at} class:shown aria-label={tr('coach.label')} data-ui bind:offsetWidth={w} bind:offsetHeight={h}
+  <aside class="coach card {at?.side ?? ''}" class:placed={!!at} class:shown aria-label={label} data-ui bind:offsetWidth={w} bind:offsetHeight={h}
     onanimationend={() => (shown = true)}
     style:left="{at?.x ?? 0}px" style:top="{at?.y ?? 0}px" style:--tail="{at?.tail ?? 0}px">
     <p dir="auto">{text}</p>
     <div class="coach-foot">
-      <span class="coach-count">{count}</span>
+      {#if count}<span class="coach-count">{count}</span>{/if}
       <button class="btn coach-skip" onclick={onend}>{tr('coach.skip')}</button>
       <button class="btn coach-next" onclick={next}>{tr(last ? 'coach.done' : 'coach.next')}</button>
     </div>
@@ -86,7 +99,7 @@
   .coach.placed { visibility: visible; animation: coach-in 0.25s ease-out both; }
   .coach.placed.shown { transition: left 0.3s ease, top 0.3s ease; }
   .coach p { margin: 0 0 8px; font-size: 16px; font-weight: 700; line-height: 1.35; }
-  .coach-foot { display: flex; align-items: center; gap: 8px; }
+  .coach-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
   .coach-count { flex: 1; color: var(--muted); font-size: 13px; font-weight: 700; }
   .coach-next { background: var(--btn-on); color: var(--btn-on-ink); }
   /* the tail: a square turned 45°, only its outer half shown, with the card's edge on its two outer sides */

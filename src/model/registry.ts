@@ -50,15 +50,7 @@ export const basePlace = (id: string, c: Content = content) => c.places[id]?.var
 export const placeFamily = (id: string, among?: string[], c: Content = content) =>
   (among ?? placeIds(c)).filter((p) => basePlace(p, c) === basePlace(id, c));
 export const activityIds = (c: Content = content) => byOrder(Object.values(c.activities)).map((a) => a.id);
-/** The time machine's stops from a place (issue #59): one per era its family has among `among`, oldest first. Each
- *  stop is the family's first place of that era, or the place itself for its own era. None when it has no eras. */
-export function timeStops(id: string, among?: string[], c: Content = content): { era: string; place: string; year: number }[] {
-  const stops = new Map<string, string>();
-  const own = c.places[id]?.era;
-  if (own) stops.set(own, id);
-  for (const p of placeFamily(id, among, c)) {
-    const era = c.places[p].era;
-    if (era && !stops.has(era)) stops.set(era, p);
-  }
-  return [...stops].map(([era, place]) => ({ era, place, year: c.eras[era].year })).sort((a, b) => a.year - b.year);
-}
+/** The newest era (today). */
+export const nowEra = (c: Content = content) => Object.values(c.eras).reduce((a, b) => (b.year > a.year ? b : a)).id;
+/** A place's era (#59). A place without one (the street, the desk) is today's. */
+export const eraOf = (place: string, c: Content = content) => c.places[place]?.era ?? nowEra(c);

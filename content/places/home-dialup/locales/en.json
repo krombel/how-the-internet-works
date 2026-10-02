@@ -8,11 +8,11 @@
     "nerd": "The overview of a 1990s home: one computer whose modem dials the ISP over the phone line, which the telephone shares. No LAN, no NAT: PPP runs from the computer to the ISP's gateway. Requests go up, and video comes back at modem speed."
   },
   "tag": {
-    "laptop": "56k modem · 203.0.113.7",
+    "pc": "56k modem · 203.0.113.7",
     "bng": "Modem bank · PPP"
   },
   "stop": {
-    "laptop": {
+    "pc": {
       "kid": "The computer has a modem inside. It dials the internet company’s phone number, then sings your parcel down the phone line as whistles and hisses.",
       "nerd": "No router: the modem's PPP link makes the computer itself a host on the internet, with the public address 203.0.113.7 it got from IPCP for this call."
     },

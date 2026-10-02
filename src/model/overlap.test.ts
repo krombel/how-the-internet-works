@@ -81,7 +81,7 @@ function clearLength(l: PathScene['links'][number], ss: Shape[]): number {
 const MIN_CLEAR = 120;
 
 // Known crowding, still to be laid out better: an entry here that no longer happens fails too, so the lists only shrink.
-// A place variant that borrows its base's layout (home-dsl, home-fttb's flat) shares the base's entries; they go together.
+// A place variant laid out like its base (home-dsl, home-fttb's flat) shares the base's entries; they go together.
 // FTTB's basement switch is one more dive in the internet's portrait (the building's own fibre, then the ISP's).
 const KNOWN_OVERLAPS = [
   'desk × watch-video landscape /: internet name × dive badge router-internet',
@@ -112,21 +112,21 @@ const KNOWN_OVERLAPS = [
   'home × watch-video portrait /internet: bng name × isp sign',
   'home × watch-video portrait /internet: cabinet name × dive badge home-cabinet',
   'home × watch-video portrait /internet: isp sign × dive badge cabinet-backhaul',
-  'home-dialup × watch-video landscape /: laptop-internet name × dive badge laptop-internet',
-  'home-dialup × watch-video portrait /: laptop-internet name × dive badge laptop-internet',
+  'home-dialup × watch-video landscape /: pc-internet name × dive badge pc-internet',
+  'home-dialup × watch-video portrait /: pc-internet name × dive badge pc-internet',
   'home-dialup × watch-video portrait /internet: exchange name × dive badge home-exchange',
   'home-dsl × watch-video landscape /: ap art × ap-router name',
-  'home-dsl × watch-video landscape /: ap name × swap badge phone',
+  'home-dsl × watch-video landscape /: ap name × swap badge laptop',
   'home-dsl × watch-video landscape /: ap-router name × dive badge ap-router',
   'home-dsl × watch-video landscape /: ap-router name × dive badge router',
   'home-dsl × watch-video landscape /: internet name × dive badge router-internet',
-  'home-dsl × watch-video landscape /: phone-ap name × dive badge phone-ap',
+  'home-dsl × watch-video landscape /: laptop-ap name × dive badge laptop-ap',
   'home-dsl × watch-video landscape /: router art × ap-router name',
   'home-dsl × watch-video landscape /: router art × router-internet name',
   'home-dsl × watch-video landscape /: router-internet name × dive badge router-internet',
-  'home-dsl × watch-video portrait /: ap name × dive badge phone-ap',
+  'home-dsl × watch-video portrait /: ap name × dive badge laptop-ap',
   'home-dsl × watch-video portrait /: ap-router name × dive badge ap-router',
-  'home-dsl × watch-video portrait /: phone-ap name × dive badge phone-ap',
+  'home-dsl × watch-video portrait /: laptop-ap name × dive badge laptop-ap',
   'home-dsl × watch-video portrait /: router-internet name × dive badge router-internet',
   'home-dsl × watch-video portrait /internet: bng art × isp sign',
   'home-dsl × watch-video portrait /internet: bng name × isp sign',
@@ -163,7 +163,7 @@ const KNOWN_SHORT = [
   'home-dialup × watch-video landscape /internet border-ixp',
   'home-dialup × watch-video landscape /internet home-exchange',
   'home-dialup × watch-video portrait /internet border-transit',
-  'home-dsl × watch-video landscape / phone-ap',
+  'home-dsl × watch-video landscape / laptop-ap',
   'home-dsl × watch-video landscape /internet backhaul-bng',
   'home-dsl × watch-video landscape /internet border-ixp',
   'home-dsl × watch-video landscape /internet home-cabinet',

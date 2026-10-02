@@ -7,7 +7,7 @@ export default definePlace({
   order: 1.6,
   era: '1995',
   hops: [
-    { at: 'laptop', addr: '203.0.113.7' },
+    { at: 'pc', addr: '203.0.113.7' },
     { link: 'dialup', km: 2.5 },
     { at: 'exchange', in: 'internet' },
     { link: 'dialup', km: 20 },
@@ -19,12 +19,12 @@ export default definePlace({
     overview: {
       // the computer on the desk; the line runs past the telephone and out of the house
       landscape: {
-        nodes: { laptop: [420, 575, 220] },
-        links: { 'laptop-internet': { curve: [[530, 575], [900, 455], [1290, 430]], label: [40, 70] } },
+        nodes: { pc: [420, 575, 220] },
+        links: { 'pc-internet': { curve: [[530, 575], [900, 455], [1290, 430]], label: [40, 70] } },
       },
       portrait: {
-        nodes: { laptop: [300, 1345, 250] },
-        links: { 'laptop-internet': { curve: [[420, 1320], [860, 1000], [610, 480]], label: [-150, 30] } },
+        nodes: { pc: [300, 1345, 250] },
+        links: { 'pc-internet': { curve: [[420, 1320], [860, 1000], [610, 480]], label: [-150, 30] } },
       },
     },
     internet: {

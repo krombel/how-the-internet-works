@@ -1,11 +1,13 @@
 <script lang="ts">
   // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (only where there is something to
-  // explore: not in dives), pause (all motion), kid/nerd, day/night (when the theme has a night), and ⋯: a menu
-  // (Menu.svelte, entries in `entries` below) with the language, sound, read aloud (where there is a voice for the
-  // language), when it is rush hour (#44: evenings by the reader's clock, always or never), the style (only when more
-  // than one theme is installed), the list view (TextMap.svelte, opened by the app) and About. The controls keep to the end of the row, so one that comes and goes doesn't move the others; on a
-  // phone they wrap under the ladder, and on a short landscape screen it is one slim row. Toggles keep their name and
-  // say their state with aria-pressed.
+  // explore: not in dives), the time machine (#59: on every screen, showing the era you're in), pause (all motion),
+  // kid/nerd, day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the
+  // language, sound, read aloud (where there is a voice for the language), when it is rush hour (#44: evenings by the
+  // reader's clock, always or never), the style (only when more than one theme is installed), the list view
+  // (TextMap.svelte, opened by the app) and About. The controls keep to the end of the row, so one that comes and goes
+  // doesn't move the others; on a phone they wrap under the ladder (below 400 px, "Explore" is its icon, so the time
+  // machine's button fits), and on a short landscape screen it is one slim row. Toggles keep their name and say their
+  // state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
@@ -17,7 +19,7 @@
   import type MenuT from './Menu.svelte';
   import type { MenuEntry } from './menu';
 
-  let { crumbs, below, roomy, onhot, small, short, wide, explore, canExplore, ontoggle, paused, onpause, quiet, onmap }: {
+  let { crumbs, below, roomy, onhot, small, short, wide, explore, canExplore, ontoggle, time, timeOpen, ontime, onpretime, paused, onpause, quiet, onmap }: {
     crumbs: { title: string; path: string[] }[]; small: boolean;
     /** What lies below the scene you're in (the ladder's last rung), room to keep a stack open, pointing at a door. */
     below: Below | null; roomy: boolean; onhot: (id: string | null) => void;
@@ -27,6 +29,9 @@
     wide: boolean;
     /** "What can I explore?" is on / there's anything to explore in this scene (else it isn't shown). */
     explore: boolean; canExplore: boolean; ontoggle: () => void;
+    /** The time machine's button: the year you're in (null: today), or no button (nowhere else in time to go). It
+     *  opens the time machine (loaded when pointed at), and says whether it is open. */
+    time: { year: number | null } | null; timeOpen: boolean; ontime: () => void; onpretime: () => void;
     /** All motion is paused (by the reader, or while a packet is caught). */
     paused: boolean; onpause: () => void;
     /** Hide the breadcrumb (a caught packet's panel names what you're looking at). */
@@ -78,8 +83,15 @@
     {#if canExplore}
       <div class="card">
         <button class="btn explore-btn" aria-pressed={explore} title={tr('explore.title')} onclick={ontoggle}>
-          <Icon name="explore" /><span dir="auto">{tr(wide ? 'explore.title' : 'explore.short')}</span>
+          <Icon name="explore" /><span dir="auto" class:sr={view.vp.w < 400}>{tr(wide ? 'explore.title' : 'explore.short')}</span>
         </button>
+      </div>
+    {/if}
+    {#if time}
+      {@const era = time.year === null ? tr('time.now') : String(time.year)}
+      <div class="card">
+        <button class="btn time-btn" aria-haspopup="dialog" aria-expanded={timeOpen} aria-label="{tr('time.title')}: {era}" title={tr('time.title')}
+          onpointerenter={onpretime} onfocus={onpretime} onclick={ontime}><Icon name="time" /><span dir="auto">{era}</span></button>
       </div>
     {/if}
     <div class="card">

@@ -83,6 +83,10 @@ button { cursor: pointer; }
 .controls > .card > .btn { background: none; }
 .icon-btn[aria-pressed='true'], .explore-btn[aria-pressed='true'] { background: var(--btn-on) !important; color: var(--btn-on-ink); }
 .explore-btn { min-height: 36px; padding: 6px 12px 6px 9px; font-size: 13px; }
+.explore-btn:has(.sr) { padding-inline: 9px; }
+/* the time machine's button (#59): as tall as its neighbours, the era in the heading font */
+.time-btn { padding: 6px 12px 6px 9px; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 15px; }
+.time-btn[aria-expanded='true'] { background: var(--btn-on) !important; color: var(--btn-on-ink); }
 .pop { position: absolute; z-index: 20; top: 100%; margin-top: 4px; padding: 10px; min-width: 220px; inset-inline-end: 12px; }
 .pop h3 { margin: 4px 6px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 800; }
 /* the ⋯ menu (Menu.svelte): a row per entry, a choice's options side by side */
@@ -434,7 +438,7 @@ button { cursor: pointer; }
   .caption .door { border: 2px solid LinkText; color: LinkText; }
   .caption .verb-name, .caption .tag, .caption .note-name, .ladder .rung svg { color: CanvasText; }
   .ladder .rung.signal { outline: 2px solid CanvasText; outline-offset: -2px; }
-  :is(.seg .btn.on, .menu-opts .btn.on, .ladder .rung.on, .peek header .chip.on, [aria-pressed='true'], .more-btn[aria-expanded='true'],
+  :is(.seg .btn.on, .menu-opts .btn.on, .ladder .rung.on, .peek header .chip.on, [aria-pressed='true'], .more-btn[aria-expanded='true'], .time-btn[aria-expanded='true'],
     .caption .door:hover, .caption .doors.lit .door) { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
   :focus-visible { outline-color: Highlight !important; }
   .scene-key[data-kind='scene']:focus-visible { outline-color: Highlight !important; }
