@@ -355,8 +355,9 @@ async function a11y(style) {
       await ctx.close();
     }
   // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
-  //    the browser's own controls, which the page sees as focus on <body>: that ends the round.
-  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da')) {
+  //    the browser's own controls, which the page sees as focus on <body>: that ends the round. (Danish nerd and the
+  //    last coach mark Tab like the overview and the first one.)
+  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da' && x.name !== 'coach-explore')) {
     const { ctx, p } = await prep(s, 'desktop');
     // a long route has many stops (the list view has a button for each), so the round may take as many Tabs as the
     // page has things to focus, and a few more
