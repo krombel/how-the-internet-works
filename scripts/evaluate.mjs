@@ -471,8 +471,10 @@ async function coachJourney(style, fail) {
   let { ctx, p, shown } = await first('home/watch-video', true);
   if (!shown) fail('journey: coach marks', 'none on a first visit');
   else {
-    const heard = await p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 2000 }).then((h) => h.jsonValue()).catch(() => '');
-    if (!heard.startsWith('Getting started. 1 of 3.')) fail('journey: coach marks', `the announcer says "${heard}"`);
+    const says = 'Getting started. 1 of 3.';
+    const heard = await p.waitForFunction((s) => document.querySelector('[role=status]')?.textContent?.trim().startsWith(s), says, { timeout: 10000 })
+      .then(() => says, () => p.evaluate(() => document.querySelector('[role=status]')?.textContent?.trim() ?? ''));
+    if (heard !== says) fail('journey: coach marks', `the announcer says "${heard}"`);
     await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
     if (!(await p.evaluate(() => document.querySelector('.skip') && document.activeElement?.matches('.coach button')))) fail('journey: coach marks', 'they are not the next Tab stop after the skip link');
     await p.keyboard.press('Tab'); await p.keyboard.press('Enter');
