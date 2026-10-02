@@ -32,9 +32,10 @@ for 30 years (packets, addresses, envelopes inside envelopes, routers reading th
   online; a laptop on the sofa with a blinking box by the phone socket; today's phone. They open the internet and find
   a small room with a few computers on shelves in 1995, a big hall in 2010, a huge one nearby today. One line tells
   them how long things took: "In 1995 this page with one picture took about 15 seconds to arrive."
-- **Nerds** get the numbers and the protocols: V.34 and PPP, a leased E1 line to a carrier, a transatlantic cable with
-  a few gigabits for *everyone*; ADSL2+/VDSL2, CDNs, three-tier networks with spanning tree; GPON, leaf–spine and ECMP;
-  plain HTTP in 1995 and 2010, TLS everywhere today.
+- **Nerds** get the numbers and the protocols: V.34 and PPP, calls handed to the ISP on an E1 PRI, a leased E1 line
+  to a carrier, a transatlantic cable with a few gigabits for *everyone*, an ATM backbone with its cell tax, a T1;
+  ADSL2+/VDSL2, CDNs, three-tier networks with spanning tree; GPON, leaf–spine and ECMP; plain HTTP in 1995 and 2010,
+  TLS everywhere today.
 
 ## What the user sees
 
@@ -185,11 +186,32 @@ carry over between eras (bold) or the era's own.
 |---|---|---|
 | Device | **`pc`** (new node): a beige tower and a deep CRT, an internal modem | Start device; the panel's picture. |
 | Access | `dialup` (exists), `rate` 28.8 kbit/s both ways | V.34 (1994); 33.6k came in 1996 and 56k (V.90) in 1998. The era text on main already says so. |
-| Exchange | `exchange` (exists): the phone company connects the call | `modem-call` and `ppp-hello` dives exist. |
-| ISP | **`bng`** as a `modem-bank` (new node: a rack of modems and a terminal server), then **`core`** as a small ISP's one router | PPP gives the PC a public address; no NAT. |
-| Out of the ISP | a leased line (`leased-line`, new technology: E1, 2 Mbit/s, PPP/HDLC framing, dive `copper-pulses` in an E1 mode) to an upstream carrier (`transit`, as the main path) | A small ISP bought its whole internet as one line from a bigger network. |
-| Across the sea | `submarine` (exists) across the Atlantic, ~6,000 km | CANTAT-3 (1994) landed at Blåbjerg in Denmark: 3 × 2.5 Gbit/s for every phone call and every byte between Scandinavia and North America. Today's cables carry hundreds of Tbit/s each. |
-| The far end | the server room (**`datacentre`** drawn as `server-room`, new network node with a backdrop: a few tower servers on shelves), a router, a 10 Mbit/s hub, **`cdn`** as a `web-server` (a beige tower) | No CDN (Akamai began in 1998–99), no load balancer, no origin aside: this one server *is* the original. Its dive is a new, small `tower-inside` (one program, one disk), lazy. |
+| Exchange | `exchange` (exists): the phone company connects the call and hands it to the ISP on **`pri`** (new technology: an E1 ISDN PRI, 30 calls of 64 kbit/s each in one 2 Mbit/s line) | `modem-call` and `ppp-hello` dives exist; `modem-call`'s "slot 7 of 32" card *is* this PRI. Small ISPs still had walls of ordinary modems on ordinary lines; PRI-fed digital modem racks (Ascend MAX, USR Total Control) took over from about 1995 and made 56k possible later. One nerd sentence. |
+| ISP | **`bng`** as a `modem-bank` (new node: a digital modem rack and terminal server), a 10 Mbit/s `ethernet` (10BASE-T) in the rack to **`core`**, the small ISP's one router | PPP gives the PC a public address; no NAT. |
+| Out of the ISP | **`e1`** (new technology: a leased line, 2 Mbit/s, PPP or Cisco HDLC framing) to the upstream carrier (**`transit`**, now the main path, in Copenhagen). Aside: **`ixp`** drawn as DIX (founded 1994 at DTU in Lyngby), from `core` over its own `e1`, for Danish traffic only | A small ISP bought its whole internet as one line from a bigger network, often only 64 kbit/s (one timeslot of an E1); some bought a Frame Relay circuit instead (a nerd note). Traffic to the US never touches DIX. |
+| Across the sea | **`submarine-sdh`** (new technology, the `submarine` look): CANTAT-3, ~6,000 km to North America; the upstream rents a circuit of a few Mbit/s inside it | CANTAT-3 (1994) landed at Blåbjerg in Denmark: 3 × 2.5 Gbit/s of SDH for every phone call and every byte between Scandinavia and North America. Today's cables carry hundreds of Tbit/s each. |
+| The US | **`backbone`** (new instance, node `router`, owner `us-backbone`: "a big American network") over **`atm`** (new technology: IP over ATM on SONET OC-3, 155 Mbit/s, or a DS3 at 45 Mbit/s), ~1,500 km | 1995 backbones (MCI, Sprint, the vBNS) ran DS3s and OC-3 ATM. Packet over SONET took over from about 1997 (Sprint's OC-12 POS backbone), so in 1995 POS is a nerd note at most. |
+| The far end | **`t1`** (new technology: 1.5 Mbit/s, 24 timeslots) into a university or company server room in the US (**`datacentre`** drawn as `server-room`, new network node with a backdrop: a few tower servers on shelves), its router, a 10 Mbit/s hub, **`cdn`** as a `web-server` (a beige tower) | In Europe the same site would have an E1, or 64k or ISDN if small. No CDN (Akamai began in 1998–99), no load balancer, no origin aside: this one server *is* the original. Its dive is `server-inside` in a new 1995 mode (one program, one disk, no cache), lazy. |
+
+**Link technologies by era.** The 1995 trip is all **circuits and timeslots** (TDM) until the ATM backbone; no
+Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`, `e1`, `t1`, `submarine-sdh` and
+`atm`, plus a layer `atm`. They reuse the dives there are and add two, so the dive count stays small:
+
+| Technology | Stack | Dive |
+|---|---|---|
+| `pri` (exchange → modem bank) | `ppp` (still inside the modem's tones) | **`tdm-frames`** (new, one dive for every E1/T1), mode PRI: 30 callers in their slots, slot 0 for sync, slot 16 the D channel ("a call for the ISP"); yours is slot 7, as on `modem-call`'s card |
+| `e1` (ISP → upstream, ISP → DIX) | `ppp` | `tdm-frames`, mode leased: all 31 slots bundled into one 2 Mbit/s pipe for PPP frames; a 64k line is one slot |
+| `t1` (US → the server room) | `ppp` | `tdm-frames`, mode T1: 24 slots and one framing bit, 193 bits 8,000 times a second |
+| `submarine-sdh` (the Atlantic) | `ppp` | `fibre-light`, submarine mode (exists), 1995 strings: SDH, 2.5 Gbit/s per fibre pair, the upstream's circuit inside |
+| `atm` (the US backbone) | `atm` | `fibre-light`, long-haul mode (exists, SONET words); the layer `atm` gets **`atm-cells`** (new): the packet cut into 48-byte pieces, each with a 5-byte label, so about a tenth is labels ("the cell tax"), and the label is swapped at every switch, MPLS's ancestor |
+| `ethernet` (in the ISP's rack, the server room's hub) | `ethernet` | `copper-pulses` (exists) with a `rate` of 10 Mbit/s and a nerd line for 10BASE-T (two pairs, Manchester code) |
+
+- `tdm-frames` takes its slot card from `modem-call` (moved to a shared art file, so both draw the same 32 slots).
+  Its modes are chosen by technology id inside the scene, as `fibre-light`'s are (content, not `src/`).
+- Dives that explain today's technology learn the route's era only through strings: a scene reads an optional
+  `<key>.<era>` string (e.g. `copper-pulses`' `nerd.1995`) when the route's era has one. One small engine change (the
+  dive's subject carries the route's era), in PR 3.
+- `dsl-tones`' ADSL mode is not needed (no ADSL era).
 | Activity | `watch-video-1995`: "Open a web page with a picture", flow `ip › tcp › http` (no TLS), a 40 kB page + picture | SSL 2.0 shipped in Netscape in 1995 for shops, but pages and pictures were plain HTTP. Video was barely possible: stamp-sized clips (160 × 120, a few frames a second) that you mostly downloaded first; the nerd text says so in one sentence. |
 | How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | |
 
@@ -200,6 +222,7 @@ carry over between eras (bold) or the era's own.
 | Device | **`laptop`** (exists) on Wi‑Fi | Replaces the phone in `home-dsl`; its text is overridden there (`place.home-dsl.stop.laptop.*`: on Wi‑Fi, not a cable). |
 | Access | `home-dsl` as on main: Wi‑Fi (802.11n, 2009) → `dsl-router` → `vdsl` to a DSLAM in the street cabinet | Decided: keep VDSL2, and the nerd text remarks that most Danish DSL in 2010 was still ADSL2+ from the exchange; VDSL2 from cabinets was new (TDC from about 2008; ~21 % of broadband by 2012). No separate ADSL era. |
 | ISP and internet | today's `isp-to-cdn` (no variant): core, border router, an exchange, a CDN | CDNs and exchanges were everywhere by 2010. The 2010 activity's nerd text says the cache was usually in a bigger city further away. |
+| Links | today's: IP/MPLS over 10G Ethernet (or SDH/OTN) on DWDM, `backbone`'s stack as on main | POS was fading by 2010. ATM still carried most ADSL (PVCs to the BRAS), but VDSL2 uses PTM (Ethernet), so this trip has none; one nerd sentence in the 2010 era text. |
 | Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
 | Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
 | How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". |
@@ -218,6 +241,10 @@ watch it"). The base activity `watch-video` is today's.
 - Web video in 1995: Tech Monitor, "VDOnet launches VDOLive … using a 28kbps modem" (1995); Wikipedia, *RealNetworks*.
 - CDNs: Wikipedia, *Akamai Technologies* (founded 1998, service 1999).
 - Transatlantic: Wikipedia, *CANTAT-3*; atlantic-cable.com, *Danish PTT*; Wikipedia, *MAREA* (today's capacity).
+- Links in 1995: Wikipedia, *Primary Rate Interface*, *E-carrier*, *T-carrier*, *Frame Relay*, *Asynchronous
+  Transfer Mode* and *Packet over SONET/SDH*; Cisco newsroom, "Sprint dramatically boosts speed and bandwidth on its
+  Internet network" (1997, OC-12 POS); Wikipedia, *Ascend Communications* (PRI-fed modem racks); DIX: dix.dk and
+  i2.dk, *DIX* (founded May 1994 by UNI•C at DTU, Lyngby).
 - Danish DSL: Wikipedia, *Internet in Denmark*; Ericsson/TDC VDSL2 announcement (2007–08).
 - Data centres: Al-Fares et al., "A scalable, commodity data center network architecture" (SIGCOMM 2008); Facebook
   Engineering, "Introducing data center fabric" (2014); Wikipedia, *Clos network*.
@@ -347,8 +374,8 @@ eager in all**.
 | 2. Era flavour | ~0.15 kB (lazy glob, mount point, prop spots in the layouts) | each era's `Props.svelte` and `Packet.svelte` (~1–2 kB each) |
 | 3. Era variants (engine) + honest flows | ~0.5 kB (schema, resolver, strings fallback, cross-fade; two activity variants' data and English strings) | |
 | 4. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units) | |
-| 5. 1995: the internet | ~0.8 kB (segment + layouts ~0.3, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `copper-pulses` E1 mode (its chunk) |
-| 6. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `tower-inside` dive |
+| 5. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
+| 6. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `server-inside`'s 1995 mode (its chunk) |
 | 7. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
 | 8. The picker and eras | ~0.1 kB | |
 | 9. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
@@ -398,14 +425,18 @@ Each is small, leaves main working and says "Part of #59".
    in the home places' layouts, the 1995 overview's `describe` updated (en + da, kid + nerd). Takes in the first
    plan's PR 5 ("props"). Screenshots day and night.
 3. **Era variants as content.** `variantOf`/`era` on segments and activities, the route's era, group `node`,
-   variant string fallback, the cross-fade for a changed node, validation and tests. First callers: the 1995 and 2010
+   variant string fallback, the cross-fade for a changed node, the route's era on a dive's subject (for `<key>.<era>`
+   strings), validation and tests. First callers: the 1995 and 2010
    activity variants with honest flows (no TLS) and wording ("Open a web page with a picture", "Watch a small video").
 4. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
    and nerd), like with like.
-5. **1995: the internet.** `isp-to-cdn-1995`: the modem bank, the small ISP's router, a leased line to a carrier,
-   the transatlantic cable; `leased-line` and the E1 mode of `copper-pulses`; owners' words; describes.
-6. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and its
-   `tower-inside` dive; no CDN, no origin.
+5. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
+   bank, the small ISP's router, an `e1` to the upstream (DIX as the aside), CANTAT-3 (`submarine-sdh`), the US
+   backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
+   `atm` layer with `atm-cells`; 1995 strings for `fibre-light` and `copper-pulses`; owners' words; describes. If it
+   grows past one review, split off `atm` and `atm-cells` (the backbone drawn as an `e1`-like circuit until then).
+6. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
+   mode of `server-inside`; no CDN, no origin.
 7. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
    away in words, the 2010 nerd texts.
 8. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
