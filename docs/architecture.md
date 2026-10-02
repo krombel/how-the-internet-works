@@ -649,10 +649,12 @@ Vitest (`npm test`) covers:
   night, with translucent cards composited over the page background
 
 CI runs `npm ci && npm test && npm run build`, and beside it the accessibility check (`npm run evaluate --
---only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`), on every PR and
-push to main. The jobs run on two self-hosted runners on a lab PC (label `lab`), inside the Playwright image, so
-they cost no Actions minutes; perf (`--only=perf`) stays on a developer machine, since a software renderer can't
-measure frame times.
+--only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`), on every PR (a
+push to main runs only the build: what it merged passed on the latest main; run the workflow by hand for more). The
+jobs run on two self-hosted runners on a lab PC (label `lab`), inside the Playwright image, so they cost no Actions
+minutes; the a11y jobs get the PC's Intel GPU (`--device /dev/dri`, drawn through Mesa; evaluate prints the
+renderer). Perf (`--only=perf`) stays on a developer machine: the lab's old CPU and shared GPU can't measure frame
+times the way a reader's device would.
 
 ## Performance
 

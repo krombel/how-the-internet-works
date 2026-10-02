@@ -39,8 +39,10 @@ const STYLES = flag('style')
       .sort((a, b) => JSON.parse(readFileSync(`content/themes/${a}/meta.json`)).order - JSON.parse(readFileSync(`content/themes/${b}/meta.json`)).order);
 // zoom: a 1280 × 900 window at 200 % page zoom (or large text), which is a 640 × 450 CSS viewport at 2 px per px
 const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, dpr: 2, touch: true }, short: { w: 844, h: 390, dpr: 2, touch: true }, zoom: { w: 640, h: 450, dpr: 2 } };
-// GPU-backed headless where available (macOS: Metal via ANGLE); CPU swiftshader otherwise.
-const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'];
+// GPU-backed headless: macOS through Metal, Linux through the GPU's EGL driver (Mesa; the lab runners pass /dev/dri
+// into the container), both via ANGLE. SWIFTSHADER=1 forces the CPU renderer.
+const GPU_ARGS = process.platform === 'linux' ? ['--use-gl=angle', '--use-angle=gl-egl'] : ['--use-angle=metal'];
+const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : [...GPU_ARGS, '--enable-gpu', '--ignore-gpu-blocklist'];
 
 // One evaluate at a time on this machine (another lane's headless Chrome skews frame timings): an atomic mkdir lock in
 // the temp dir, with the holder's pid and worktree. A dead holder's lock is cleared. EVALUATE_NO_LOCK=1 skips it (CI).
@@ -71,6 +73,16 @@ if (!process.env.EVALUATE_NO_LOCK) await lock();
 
 mkdirSync('docs/img', { recursive: true });
 const browser = await chromium.launch({ args: ARGS });
+{
+  // which renderer Chrome ended up with (a missing or blocked GPU falls back to software quietly)
+  const page = await browser.newPage();
+  const gl = await page.evaluate(() => {
+    const c = document.createElement('canvas').getContext('webgl');
+    return c ? c.getParameter(c.getExtension('WEBGL_debug_renderer_info')?.UNMASKED_RENDERER_WEBGL ?? c.RENDERER) : 'no WebGL';
+  });
+  console.log(`  renderer: ${gl}`);
+  await page.close();
+}
 const metricsPath = 'docs/app-metrics.json';
 const old = existsSync(metricsPath) ? JSON.parse(readFileSync(metricsPath, 'utf8')).metrics : {};
 const metrics = { ...old };
