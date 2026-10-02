@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TRAVEL, isShort, slideCams, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
+import { TRAVEL, followStep, isShort, slideCams, toWorldPt, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
 
 const stage = (w: number, h: number) => ({ clientWidth: w, clientHeight: h }) as HTMLElement;
 
@@ -104,5 +104,27 @@ describe('slide between rungs (#62)', () => {
       expect(s).toBeGreaterThanOrEqual(Math.min(s0, s1) - 1e-9);
       expect(s).toBeLessThanOrEqual(Math.max(s0, s1) + 1e-9);
     }
+  });
+});
+
+describe('following a caught packet (#40)', () => {
+  const w = { x: 120, y: 80 }, c = { x: 720, y: 450 }, k = 3;
+  const run = (dts: number[]) => dts.reduce((cam: Cam, dt) => followStep(cam, w, k, c, dt), { k: 1, x: 0, y: 0 });
+
+  it('eases the point towards the centre and the zoom towards k', () => {
+    const a = { k: 1, x: 0, y: 0 }, b = followStep(a, w, k, c, 1 / 60);
+    // what's under the centre, in the world (zooming in magnifies the offset on screen at first)
+    const d = (cam: Cam) => Math.hypot(toWorldPt(cam, c.x, c.y).x - w.x, toWorldPt(cam, c.x, c.y).y - w.y);
+    expect(d(b)).toBeLessThan(d(a));
+    expect(d(b)).toBeGreaterThan(0);
+    expect(b.k).toBeGreaterThan(1);
+    expect(b.k).toBeLessThan(k);
+  });
+
+  it('comes to rest exactly on the target, however the frames fell', () => {
+    const end = { k, x: c.x - w.x * k, y: c.y - w.y * k };
+    expect(run(Array(600).fill(1 / 60))).toEqual(end);
+    expect(run(Array(300).fill(1 / 30))).toEqual(end);
+    expect(run(Array.from({ length: 600 }, (_, i) => [0.004, 0.017, 0.05][i % 3]))).toEqual(end);
   });
 });
