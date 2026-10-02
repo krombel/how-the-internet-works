@@ -56,5 +56,22 @@
       "name": "Urgent pointer",
       "about": "Practically unused."
     }
+  },
+  "1995": {
+    "field": {
+      "dport": {
+        "about": "Which service on the receiver: 80 = HTTP, the web."
+      }
+    },
+    "note": {
+      "kid": "The page is cut into numbered pieces, so nothing gets lost or mixed up."
+    }
+  },
+  "2010": {
+    "field": {
+      "dport": {
+        "about": "Which service on the receiver: 80 = HTTP, the web."
+      }
+    }
   }
 }

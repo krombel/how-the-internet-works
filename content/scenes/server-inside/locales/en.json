@@ -62,5 +62,16 @@
       "kid": "Shelves of videos",
       "nerd": "Cache objects on disk"
     }
+  },
+  "1995": {
+    "title": "Inside the web server",
+    "kid": "In 1995 the page and its picture lived on one computer, the web server. Light from the data-centre link becomes bits on the network card, and the program finds the page on its disk and sends it back. The drawing shows how a video server does it today, with copies on shelves.",
+    "nerd": "In 1995 this was one web server: a single program (say, NCSA HTTPd) reading files from its disk, with no CDN in front (Akamai began in 1998–99) and no virtual machines. The cutaway shows how a cache server does it today.",
+    "app": "Web program",
+    "ssd": {
+      "line": {
+        "kid": "Shelves of pages"
+      }
+    }
   }
 }

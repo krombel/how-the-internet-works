@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { belowOf, carriedBy, rungStep, type Below } from './ladder';
-import { content } from './registry';
+import { activityIds, content } from './registry';
 import { resolveRoute, type Route } from './resolve';
 import { childrenOf, diveRuns, layersAt, linkDivePath, parentPath, sceneRef } from './tree';
 
@@ -75,7 +75,7 @@ describe('layer ladder (#14, #32)', () => {
   // generic: whatever content exists, every scene of every place × activity, both orientations
   it('holds everywhere: rungs resolve, the one you\'re on is marked, and every stack ends in a signal', () => {
     let stacks = 0;
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {
@@ -107,7 +107,7 @@ describe('layer ladder (#14, #32)', () => {
   // generic: on every link of every route, the ladder holds that link's envelopes (and no other link's) over its signal
   it('matches the link you\'re on, everywhere: its layers, its signal, and a stable climb', () => {
     let links = 0;
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const near = (hop: string) => { const i = r.hops[hop].index; return [r.links[i - 1], r.links[i]].filter(Boolean); };
@@ -186,7 +186,7 @@ describe('rung to rung (#62)', () => {
   // generic: every rung of every ladder, from every other rung of it
   it('holds everywhere: between any two rungs, the way down the ladder', () => {
     let pairs = 0;
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {

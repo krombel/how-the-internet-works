@@ -2,8 +2,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { describeKeys } from './describe';
-import { basePlace, content, placeFamily, type Content } from './registry';
-import { loadAllPacks, lookupLevel, packs, type Json } from './strings';
+import { activityIds, basePlace, content, nowEra, placeFamily, type Content } from './registry';
+import { loadAllPacks, lookupLevel, packs, withEra, type Json } from './strings';
 import { resolveRoute } from './resolve';
 import { childrenOf, diveSubject, sceneRef, sideways, type SceneRef } from './tree';
 import { coverage, formatProblems, validate } from './validate';
@@ -36,7 +36,7 @@ describe('content', () => {
 
   it('goes all the way down: every link has a dive, and so does every envelope it carries', () => {
     const missing = new Set<string>();
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places))
+    for (const activity of activityIds()) for (const place of Object.keys(content.places))
       for (const l of resolveRoute({ activity, places: [place] }).links) {
         if (!l.dive) missing.add(`link ${l.tech.id}`);
         for (const layer of l.stack) if (!content.layers[layer].dive) missing.add(`layer ${layer}`);
@@ -45,7 +45,7 @@ describe('content', () => {
   });
 
   it('gives every child of a scene its own step', () => {
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (path: string[]): void => {
         const steps = childrenOf(r, sceneRef(r, path)!).map((c) => c.step);
@@ -60,10 +60,10 @@ describe('content', () => {
     // as the app looks it up (most specific first, each key falling back to English), the description found must be
     // in the language itself: a Danish reader never hears an English one
     const bad = new Set<string>();
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) for (const o of ['landscape', 'portrait'] as const) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) for (const o of ['landscape', 'portrait'] as const) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (ref: SceneRef): void => {
-        for (const keys of describeKeys(r, ref)) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
+        for (const keys of describeKeys(r, ref).map((k) => withEra(k, r.era === nowEra() ? undefined : r.era))) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
           const k = keys.find((k) => lookupLevel(lang, k, level) !== undefined);
           if (!k || !packs[lang].strings[`${k}.${level}`]) bad.add(`${lang} ${level} ${place}/${activity} /${ref.path.join('/')}: tried ${keys.join(', ')}`);
         }
@@ -85,7 +85,7 @@ describe('content', () => {
     const bad: string[] = [];
     const title = (lang: string, dive: string, what: string) =>
       packs[lang].strings[`scene.${dive}.${what}.title`] ?? packs[lang].strings[`scene.${dive}.title`];
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (path: string[]): void => {
         const ref = sceneRef(r, path)!, kids = childrenOf(r, ref);
@@ -156,6 +156,45 @@ describe('validation messages', () => {
     expect(groups([{ id: 'datacentre', in: 'internet' }, 'internet'])).toContain('watch-video/activity.ts › groups[0].in: "internet" is not a group listed before "datacentre"');
     expect(groups(['internet', { id: 'cdn', in: 'internet' }])).toContain('groups[1].id: ');
     expect(groups(['internet', 'datacentre', { id: 'datacentre', in: 'internet' }])).toContain('groups[2].id: "datacentre" is listed twice');
+  });
+
+  it('checks a group drawn by another node (#59): a known network node', () => {
+    const groups = (g: Content['activities'][string]['groups']) => broken((c) => { c.activities['watch-video-1995'].groups = g; });
+    expect(groups(['internet', { id: 'datacentre', in: 'internet', node: 'datacenter' }])).toContain('watch-video-1995/activity.ts › groups[1].node: "datacenter" is not a node. Did you mean "datacentre"?');
+    expect(groups(['internet', { id: 'datacentre', in: 'internet', node: 'cdn' }])).toContain('groups[1].node: "cdn" is a ');
+  });
+
+  it('checks activity and segment variants (#59): a known base, one level deep, one an era, and the same slots', () => {
+    const v = 'content/activities/watch-video-2010/activity.ts';
+    expect(broken((c) => { c.activities['watch-video-2010'].variantOf = 'watch-vidoe'; })).toContain(`${v} › variantOf: "watch-vidoe" is not an activity. Did you mean "watch-video"?`);
+    expect(broken((c) => { c.activities['watch-video-2010'].variantOf = 'watch-video-1995'; })).toContain(`${v} › variantOf: "watch-video-1995" is itself a variant of "watch-video"; use "watch-video"`);
+    expect(broken((c) => { delete c.activities['watch-video-2010'].era; })).toContain(`${v} › era: a variant is for an era`);
+    expect(broken((c) => { c.activities['watch-video-2010'].era = '1995'; })).toContain(`${v} › era: "watch-video-1995" is already the variant of "watch-video" for the era "1995"`);
+    expect(broken((c) => { c.activities['watch-video'].era = '1995'; })).toContain('watch-video/activity.ts › era: only a variant has an era');
+    expect(broken((c) => { c.activities['watch-video-2010'].route = [{ place: 'me', default: 'home', only: ['home'] }, ...c.activities['watch-video-2010'].route.slice(1)]; }))
+      .toContain(`${v} › route: a variant has the same place slots as its base "watch-video"`);
+    const msg = broken((c) => {
+      c.segments['datacentre-1995'] = { ...structuredClone(c.segments.datacentre), id: 'datacentre-1995', file: 'content/segments/datacentre-1995/segment.ts', variantOf: 'datacentre', era: '1995' };
+      c.activities['watch-video-2010'].route = [c.activities['watch-video-2010'].route[0], { segment: 'isp-to-cdn' }, { segment: 'datacentre-1995' }];
+    });
+    expect(msg).toContain(`${v} › route[2].segment: "datacentre-1995" is a variant of "datacentre"; name "datacentre" (the route's era picks the variant)`);
+    // its words go in its base's block for its era, which loads lazily with the past's other words
+    const own = formatProblems(validate({ content, packs, files, locales: { ...locales, '/content/activities/watch-video-2010/locales/en.json': { title: 'A small video' } } }));
+    expect(own).toContain('content/activities/watch-video-2010/locales/en.json › strings: a variant has no strings of its own: write them in "2010": { … } in content/activities/watch-video/locales/');
+  });
+
+  it('needs a place in every era, so the time machine can go there', () => {
+    expect(broken((c) => { c.eras['1985'] = { ...c.eras['1995'], id: '1985', year: 1985, file: 'content/eras/1985/era.ts' }; }))
+      .toContain('content/eras/1985/era.ts › era: no place is in the era "1985"');
+  });
+
+  it('translates an era’s block wherever its English is, or a reader would get English in the middle of their language (#59)', () => {
+    const missing: string[] = [];
+    for (const [lang, p] of Object.entries(packs)) {
+      if (lang === 'en') continue;
+      for (const k of Object.keys(packs.en.strings)) if (/^[a-z]+\.[^.]+\.\d{4}\./.test(k) && !k.startsWith('era.') && !(k in p.strings)) missing.push(`${lang}: ${k}`);
+    }
+    expect(missing).toEqual([]);
   });
 
   it('checks place variants: a known base, one level deep, and an access name', () => {

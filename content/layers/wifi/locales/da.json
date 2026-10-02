@@ -55,5 +55,15 @@
       "name": "Frame check sequence",
       "about": "En CRC over rammen: en beskadiget sendes igen."
     }
+  },
+  "2010": {
+    "note": {
+      "nerd": "Adgangspunktet kvitterer for hver ramme og sender tabte rammer igen. Indholdet er krypteret (WPA2)."
+    },
+    "field": {
+      "ccmp": {
+        "about": "Pakkenummer til WPA2-krypteringen af alt indeni."
+      }
+    }
   }
 }

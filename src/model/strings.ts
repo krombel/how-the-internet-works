@@ -41,22 +41,28 @@ function buildPacks(meta: Record<string, LocaleMeta>, ui: Record<string, Json>, 
   return packs;
 }
 
-// English (the fallback) ships in the main bundle, but for its dive strings (layers, dive scenes and the time machine's
-// eras: `loadDiveStrings`); other languages load when first chosen, one chunk each (the `virtual:string-packs` plugin
-// in vite.config.ts), so adding a language costs nothing for everyone else.
+// English (the fallback) ships in the main bundle, but for its dive strings (layers, dive scenes and the time
+// machine's eras: `loadDiveStrings`) and the other folders' blocks for the eras of the past, which `?now` leaves out
+// (`loadPastStrings`); other languages load when first chosen, one chunk each (the `virtual:string-packs` plugin in vite.config.ts), so adding a language
+// costs nothing for everyone else.
 export const packs = buildPacks(
   import.meta.glob<LocaleMeta>('/content/locales/*/meta.json', { eager: true, import: 'default' }),
   import.meta.glob<Json>('/content/locales/en/ui.json', { eager: true, import: 'default' }),
-  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json', '!/content/scenes/*/locales/en.json', '!/content/eras/*/locales/en.json'], { eager: true, import: 'default' }),
+  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json', '!/content/scenes/*/locales/en.json', '!/content/eras/*/locales/en.json'], { eager: true, import: 'default', query: '?now' }),
 );
-let divesEn: Promise<void> | null = null;
-/** Load the English dive strings (once): the layers', the dive scenes' and the eras', before showing a caught packet, a
- *  dive or the time machine. */
-export function loadDiveStrings(): Promise<void> {
-  return (divesEn ??= import('virtual:dive-strings').then(({ folders }) => {
+/** A lazy part of the English strings, added to the pack once it has loaded (once). */
+function lazyEnglish(load: () => Promise<{ folders: Record<string, Json> }>): () => Promise<void> {
+  let loaded: Promise<void> | null = null;
+  return () => (loaded ??= load().then(({ folders }) => {
     Object.assign(packs[FALLBACK].strings, buildPacks({ [`/content/locales/${FALLBACK}/meta.json`]: packs[FALLBACK].meta }, {}, folders)[FALLBACK].strings);
   }));
 }
+/** Load the English dive strings: the layers', the dive scenes' and the eras', before showing a caught packet, a dive
+ *  or the time machine. */
+export const loadDiveStrings = lazyEnglish(() => import('virtual:dive-strings'));
+/** Load the English words for the eras of the past (every node's, place's, activity's… `"1995": { … }`), before
+ *  showing a route of the past (#59). */
+export const loadPastStrings = lazyEnglish(() => import('virtual:past-strings'));
 const loading = new Map<string, Promise<void>>([[FALLBACK, Promise.resolve()]]);
 
 /** Load a language's strings (once). Unknown languages resolve at once (they fall back to English). */
@@ -73,7 +79,7 @@ export function loadPack(lang: string): Promise<void> {
   }
   return p;
 }
-export const loadAllPacks = () => Promise.all([loadDiveStrings(), ...Object.keys(packs).map(loadPack)]).then(() => packs);
+export const loadAllPacks = () => Promise.all([loadDiveStrings(), loadPastStrings(), ...Object.keys(packs).map(loadPack)]).then(() => packs);
 
 export const languages = Object.keys(packs)
   .sort((a, b) => (a === FALLBACK ? -1 : b === FALLBACK ? 1 : a.localeCompare(b)))
@@ -88,6 +94,20 @@ export function lookup(lang: string, key: string, from: Record<string, Pack> = p
 /** Level-aware: `key.<level>` in the language, then in English, then the level-less `key` (language, English). */
 export function lookupLevel(lang: string, key: string, level: Level, from: Record<string, Pack> = packs): string | undefined {
   return lookup(lang, `${key}.${level}`, from) ?? lookup(lang, key, from);
+}
+
+/** The content kinds whose items may carry a block of strings for an era (#59; an era's own strings are its block). */
+const ERA_BLOCKS = new Set(Object.values(NAMESPACE).filter((n) => n !== 'era' && n !== 'theme'));
+/** The keys to try in an era of the past (#59), most specific first: each content key in its item's block for that era
+ *  (`"1995": { … }` in the item's locale file: `scene.tcp-pieces.phone` → `scene.tcp-pieces.1995.phone`), then the
+ *  key itself. Without an era, the keys as they are. */
+export function withEra(keys: string[], era: string | undefined): string[] {
+  if (!era) return keys;
+  return keys.flatMap((k) => {
+    const a = k.indexOf('.'), b = k.indexOf('.', a + 1);
+    if (a < 0 || !ERA_BLOCKS.has(k.slice(0, a))) return [k];
+    return [b < 0 ? `${k}.${era}` : `${k.slice(0, b)}.${era}${k.slice(b)}`, k];
+  });
 }
 
 /** The first key (most specific first) that has a string. */

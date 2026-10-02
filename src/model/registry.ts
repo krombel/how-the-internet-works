@@ -49,7 +49,12 @@ export const basePlace = (id: string, c: Content = content) => c.places[id]?.var
 /** A place and its variants (its ways of getting online), in order, out of `among` (default: all places). */
 export const placeFamily = (id: string, among?: string[], c: Content = content) =>
   (among ?? placeIds(c)).filter((p) => basePlace(p, c) === basePlace(id, c));
-export const activityIds = (c: Content = content) => byOrder(Object.values(c.activities)).map((a) => a.id);
+/** The activities to choose from: the bases (a variant of another era stands in for its base there, #59). */
+export const activityIds = (c: Content = content) =>
+  byOrder(Object.values(c.activities).filter((a) => a.variantOf === undefined)).map((a) => a.id);
+/** A segment's or an activity's version for an era (#59): its variant of that era, or itself. */
+export const inEra = <T extends { id: string; variantOf?: string; era?: string }>(all: Record<string, T>, id: string, era: string) =>
+  Object.values(all).find((v) => v.variantOf === id && v.era === era) ?? all[id];
 /** The newest era (today). */
 export const nowEra = (c: Content = content) => Object.values(c.eras).reduce((a, b) => (b.year > a.year ? b : a)).id;
 /** A place's era (#59). A place without one (the street, the desk) is today's. */

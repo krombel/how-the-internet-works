@@ -12,7 +12,7 @@ import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
-import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
+import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trActivity, trFirst, trl, view, yours } from '../state.svelte';
 
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
@@ -77,7 +77,7 @@ const hint = (key: string) => tr(view.keys ? `${key}.keys` : key);
 /** The title of a scene (for the breadcrumb and the caption). */
 export function sceneTitle(r: Route, path: string[], o: Orient): string {
   const ref = sceneRef(r, path, o);
-  if (!ref || path.length === 0) return tr(`activity.${r.activity.id}.title`);
+  if (!ref || path.length === 0) return trActivity(r.activity, 'title');
   if (ref.kind === 'path') {
     const g = r.hops[ref.group!];
     return trFirst([...routeKeys(`inside.${g.id}.title`), `node.${g.node.id}.inside.title`, `node.${g.node.id}.name`]);
@@ -179,7 +179,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
   return {
     title: sceneTitle(r, [], o),
     tag: scaleTag(r, 'trip', tripKm(r)),
-    body: [tr(`activity.${r.activity.id}.${lv}`), ...sceneKeys(r, ref).map((keys) => trFirst(keys, lv))].filter(Boolean).join(' '),
+    body: [trActivity(r.activity, lv), ...sceneKeys(r, ref).map((keys) => trFirst(keys, lv))].filter(Boolean).join(' '),
     describe: describeOf(r, ref, lv),
     hint: hint('hint.overview'),
     doors,

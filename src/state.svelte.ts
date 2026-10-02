@@ -2,14 +2,15 @@
 // synced to the URL query), the active theme, day or night, and the view (viewport, orientation, clock, mode) shared
 // with scenes.
 import { tick } from 'svelte';
-import type { Level, Mode, Orient } from './define';
+import type { ActivityDef, Level, Mode, Orient } from './define';
 import type { Viewport } from './engine/camera';
 import { sfx } from './engine/sound';
 import { speaker } from './engine/speech';
 import { clearMeasureCache, textBox } from './engine/svg';
 import type { Loc } from './model/location';
-import { resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
-import { firstOf, languages, loadDiveStrings as loadDives, lookup, lookupLevel, packs } from './model/strings';
+import { activityKey, resolveRoute, stringSources, type Hop, type Route } from './model/resolve';
+import { nowEra } from './model/registry';
+import { firstOf, languages, loadDiveStrings as loadDives, loadPastStrings as loadPast, lookup, packs, withEra } from './model/strings';
 import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
@@ -33,14 +34,19 @@ if (q.get('level') === 'nerd' || q.get('level') === 'kid') setLevel(q.get('level
 
 /** Bumped when more strings arrive (the English dive strings), so text that asked for them too early updates. */
 const more = $state({ n: 0 });
-let dives: Promise<void> | null = null;
+let dives: Promise<void> | null = null, then: Promise<void> | null = null;
 export const loadDiveStrings = () => (dives ??= loadDives().then(() => { more.n++; }));
+/** The words for the eras of the past (#59): text asked for before they arrive updates when they do. */
+export const loadPastStrings = () => (then ??= loadPast().then(() => { more.n++; }));
+const NOW = nowEra();
+/** The route's era when it is in the past: a content item's strings for it come first (`withEra`, #59). */
+const past = () => (nav.route.era === NOW ? undefined : nav.route.era);
 /** A UI or content string in the current language (English fallback; the key itself if missing everywhere). */
-export const tr = (key: string) => (more.n, lookup(loc.lang, key) ?? key);
+export const tr = (key: string) => (more.n, firstOf(loc.lang, withEra([key], past())) ?? key);
 /** Level-aware: `key.kid` / `key.nerd`, falling back to `key`. */
-export const trl = (key: string, level: Level = loc.level) => (more.n, lookupLevel(loc.lang, key, level) ?? key);
+export const trl = (key: string, level: Level = loc.level) => (more.n, firstOf(loc.lang, withEra([key], past()), level) ?? key);
 /** The first of several keys (most specific first) that has a string. */
-export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.lang, keys, level) ?? '');
+export const trFirst = (keys: string[], level?: Level) => (more.n, firstOf(loc.lang, withEra(keys, past()), level) ?? '');
 /** Fill {placeholders}. */
 export const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 /** A count in words, by the language's plural form: `key.one`, `key.other`, … with {n} filled ("4 ways down"). */
@@ -61,6 +67,8 @@ export const nameOf = (h: Hop | string) => tr(`node.${typeof h === 'string' ? na
 export const nameW = (n: { node: { id: string } }) => textBox(tr(`node.${n.node.id}.name`), 28, 'middle', 0.6, '--label-font').w;
 /** How the text refers to the reader's own device ("your phone"): the node's `yours` string, else its name. */
 export const yours = (h: Hop) => lookup(loc.lang, `node.${h.node.id}.yours`) ?? nameOf(h);
+/** An activity's string (`title`, `packet.<kind>`, …): a variant of another era speaks through its base (#59). */
+export const trActivity = (a: ActivityDef & { id: string }, key: string, level?: Level) => trFirst([`${activityKey(a)}.${key}`], level);
 /** Strings for an item in the current route: the places and segments may override the item's own text. */
 export const routeKeys = (suffix: string) => stringSources(nav.route).map((s) => `${s}.${suffix}`);
 

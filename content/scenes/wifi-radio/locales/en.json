@@ -8,5 +8,13 @@
     "nerd": "The scene shows the phone and access point joined by an animated carrier wave. Bits scroll along the track. Stems connect each bit to the wave’s amplitude, as a simplified ASK modulation view. Expanding rings at the access point show the radio signal spreading."
   },
   "carrier": "Radio wave",
-  "bits": "Bits"
+  "bits": "Bits",
+  "2010": {
+    "nerd": "Bits modulate a 2.4 or 5 GHz carrier. Shown here as simple amplitude-shift keying; Wi‑Fi 4 (802.11n) uses OFDM with up to 64-QAM, 6 bits in every symbol on 52 data sub-carriers (108 on a 40 MHz channel).",
+    "extra": "Wi‑Fi 4 (802.11n, 2009): with two to four antennas each side, several streams travel side by side (MIMO), and a 40 MHz channel doubles the width: up to 150 Mbit/s per stream, 600 Mbit/s in theory. Wi‑Fi in the 6 GHz band came only in 2020.",
+    "describe": {
+      "kid": "A laptop and a Wi‑Fi access point face each other. A wiggly radio wave runs between them. Coloured 1 and 0 bits ride above it, and lines point each bit to a tall or small wiggle. Rings spread from the Wi‑Fi box as the signal moves through the air.",
+      "nerd": "The scene shows the laptop and access point joined by an animated carrier wave. Bits scroll along the track. Stems connect each bit to the wave’s amplitude, as a simplified ASK modulation view. Expanding rings at the access point show the radio signal spreading."
+    }
+  }
 }

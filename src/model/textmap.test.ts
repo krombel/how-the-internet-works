@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { spotsOf } from './focus';
-import { content } from './registry';
+import { activityIds, content } from './registry';
 import { resolveRoute } from './resolve';
 import { mapOf, type MapScene } from './textmap';
 import { childrenOf, sceneRef } from './tree';
@@ -8,7 +8,7 @@ import { childrenOf, sceneRef } from './tree';
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const all = (s: MapScene): MapScene[] => [s, ...s.stops.flatMap((st) => st.scenes.flatMap(all))];
 const routes = () =>
-  Object.keys(content.activities).flatMap((activity) => Object.keys(content.places).map((place) => resolveRoute({ activity, places: [place] })));
+  activityIds().flatMap((activity) => Object.keys(content.places).map((place) => resolveRoute({ activity, places: [place] })));
 
 describe('text map', () => {
   it('hangs each scene under the stop that opens it', () => {

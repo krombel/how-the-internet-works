@@ -142,6 +142,14 @@ export const aside = hop.extend({
   from: id,
   link: id,
 });
+/** A segment or an activity of another era (#59): the base it stands in for when the route is in that era (the
+ *  route's era is its first place's). The base has no era: it serves every era without a variant of its own. */
+const eraVariant = {
+  /** The segment or activity this one is a version of; routes and URLs name the base. */
+  variantOf: id.optional(),
+  /** The era it is for (a variant's; a base has none). */
+  era: id.optional(),
+};
 export const segment = z.strictObject({
   /** Hops and links, alternating, starting with a hop. A segment that isn't last in a route ends with a link. */
   hops: z.array(z.union([hop, link])).min(1),
@@ -150,6 +158,7 @@ export const segment = z.strictObject({
   entry: z.record(id, id).optional(),
   layout: layout.optional(),
   learnMore: learnMoreList,
+  ...eraVariant,
 });
 
 export const packet = z.strictObject({
@@ -200,12 +209,15 @@ export const placeSlot = z.strictObject({
 export const activity = z.strictObject({
   route: z.array(z.union([placeSlot, z.strictObject({ segment: id })])).min(1),
   /** Network nodes that expand into their own path scene; `{ id, in }` for one that lives inside another (a data
-   *  centre inside the internet): its hops say `in: <id>`, and it is drawn as one node in the outer group's scene. */
-  groups: z.array(z.union([id, z.strictObject({ id, in: id })])).optional(),
+   *  centre inside the internet): its hops say `in: <id>`, and it is drawn as one node in the outer group's scene.
+   *  `node` draws the group as another network node than its id (a server room where today has a data centre, #59):
+   *  the hops and the path still say the id, so the morph between eras cross-fades the one into the other. */
+  groups: z.array(z.union([id, z.strictObject({ id, in: id.optional(), node: id.optional() })])).optional(),
   flows: z.array(flow).min(1),
   layout: layout.optional(),
   order: z.number().optional(),
   learnMore: learnMoreList,
+  ...eraVariant,
 });
 
 export const localeMeta = z.strictObject({ name: z.string().min(1), dir: z.enum(['ltr', 'rtl']), note: z.string().optional() });

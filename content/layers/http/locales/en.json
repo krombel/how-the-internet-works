@@ -16,7 +16,11 @@
     "send": {
       "kid": "“Here’s the next bit of the cat video!”",
       "nerd": "A response: the next video segment."
-    }
+    },
+    "get": "GET /video/720p/42.m4s HTTP/1.1",
+    "ok": "HTTP/1.1 200 OK",
+    "host": "Host: video.example",
+    "type": "Content-Type: video/mp4"
   },
   "field": {
     "start": {
@@ -29,6 +33,43 @@
     "header": {
       "name": "Header",
       "about": "One of several header lines; the rest of the headers and the body follow."
+    }
+  },
+  "1995": {
+    "note": {
+      "kid": "The message itself, in plain writing: nobody locked it in 1995.",
+      "nerd": "The application message in plain HTTP/1.0: a request for the page or its picture, or a piece of the answer."
+    },
+    "value": {
+      "get": "GET /index.html HTTP/1.0",
+      "ok": "HTTP/1.0 200 OK",
+      "host": "User-Agent: Mozilla/1.1N",
+      "type": "Content-Type: text/html",
+      "ask": {
+        "kid": "“Please send me the page with the picture!”",
+        "nerd": "A request for the page."
+      },
+      "send": {
+        "kid": "“Here’s the page!”",
+        "nerd": "A response: a piece of the page."
+      }
+    }
+  },
+  "2010": {
+    "note": {
+      "kid": "The message itself, in plain writing: video wasn't locked in 2010.",
+      "nerd": "The application message in plain HTTP: a request for the video, or a piece of the response."
+    },
+    "value": {
+      "get": "GET /videos/42.mp4 HTTP/1.1",
+      "ask": {
+        "kid": "“Please send me the cat video!”",
+        "nerd": "A request for the video file."
+      },
+      "send": {
+        "kid": "“Here’s the next bit of the cat video!”",
+        "nerd": "A response: the next piece of the video file."
+      }
     }
   }
 }

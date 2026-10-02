@@ -5,7 +5,7 @@ import type { z } from 'zod';
 import * as S from './schema';
 import { FACT, FACTS } from './packet';
 import { groupSpec, isLink } from './resolve';
-import type { Content } from './registry';
+import { inEra, nowEra, type Content } from './registry';
 import { FALLBACK, type Json, type Pack } from './strings';
 
 export interface Problem { file: string; where: string; message: string }
@@ -149,6 +149,30 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
     for (const [g, n] of Object.entries(def.entry ?? {})) { ref(file, `entry.${g}`, 'nodes', g, 'a node'); ref(file, `entry.${g}`, 'nodes', n, 'a node'); }
   };
 
+  // a segment's or an activity's variant (#59) stands in for its base in one era: the base is no variant and has no
+  // era (it serves every era without a variant of its own), and a base has one variant an era at most
+  const variants = <T extends { id: string; file: string; variantOf?: string; era?: string }>(all: Record<string, T>, kind: 'segments' | 'activities', label: string) => {
+    for (const v of Object.values(all)) {
+      if (v.variantOf === undefined) {
+        if (v.era !== undefined) add(v.file, 'era', `only a variant has an era: "${v.id}" is a base, which serves every era without a variant of its own (set "variantOf" to make it a variant)`);
+        continue;
+      }
+      ref(v.file, 'variantOf', kind, v.variantOf, label);
+      const of = all[v.variantOf];
+      if (of?.variantOf !== undefined) add(v.file, 'variantOf', `"${v.variantOf}" is itself a variant of "${of.variantOf}"; use "${of.variantOf}"`);
+      if (v.era === undefined) add(v.file, 'era', `a variant is for an era; add one (${Object.keys(c.eras).join(', ')})`);
+      ref(v.file, 'era', 'eras', v.era, 'an era');
+      const twin = Object.values(all).find((w) => w.id < v.id && w.variantOf === v.variantOf && w.era === v.era);
+      if (twin && v.era !== undefined) add(v.file, 'era', `"${twin.id}" is already the variant of "${v.variantOf}" for the era "${v.era}"`);
+      // its words are its base's block for its era, which loads with the past's other words (vite.config.ts `eraBlocks`)
+      const dir = v.file.replace(/[^/]+$/, '');
+      const own = Object.keys(locales).find((p) => p.startsWith(`/${dir}locales/`));
+      if (own) add(own.slice(1), 'strings', `a variant has no strings of its own: write them in "${v.era ?? '<era>'}": { … } in ${all[v.variantOf]?.file.replace(/[^/]+$/, '') ?? 'its base\'s folder '}locales/`);
+    }
+  };
+  variants(c.segments, 'segments', 'a segment');
+  variants(c.activities, 'activities', 'an activity');
+
   for (const s of Object.values(c.segments)) {
     segmentLike(s.file, s, S.segment, strip(s));
     learnMore(s.file, s.learnMore);
@@ -170,8 +194,10 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
     }
     ref(p.file, 'era', 'eras', p.era, 'an era');
   }
+  const now = Object.keys(c.eras).length ? nowEra(c) : undefined;
   for (const e of Object.values(c.eras)) {
     schema(e.file, S.era, strip(e));
+    if (!Object.values(c.places).some((p) => (p.era ?? now) === e.id)) add(e.file, 'era', `no place is in the era "${e.id}", so the time machine can't go there`);
     need(e.file, `era.${e.id}.name`);
     needLevelled(e.file, `era.${e.id}`);
     need(e.file, `era.${e.id}.describe.kid`);
@@ -188,13 +214,24 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
 
   for (const a of Object.values(c.activities)) {
     schema(a.file, S.activity, strip(a));
-    need(a.file, `activity.${a.id}.title`);
-    needLevelled(a.file, `activity.${a.id}`);
+    // a variant's strings are its base's (the era's block first), so it only says what differs
+    if (a.variantOf === undefined) {
+      need(a.file, `activity.${a.id}.title`);
+      needLevelled(a.file, `activity.${a.id}`);
+    }
     learnMore(a.file, a.learnMore);
     const steps = a.route ?? [];
+    const slots = (x: typeof a) => JSON.stringify((x.route ?? []).flatMap((st) => ('place' in st ? [[st.place, st.only]] : [])));
+    const base = a.variantOf === undefined ? undefined : c.activities[a.variantOf];
+    if (base && slots(a) !== slots(base)) add(a.file, 'route', `a variant has the same place slots as its base "${base.id}" (the reader chooses the places, the era picks the variant)`);
+    // the eras this activity is resolved in: a variant's own, or every era its variants leave to the base
+    const eras = a.era !== undefined ? [a.era] : Object.keys(c.eras).filter((e) => !Object.values(c.activities).some((v) => v.variantOf === a.id && v.era === e));
     steps.forEach((st, i) => {
-      if ('segment' in st) ref(a.file, `route[${i}].segment`, 'segments', st.segment, 'a segment');
-      else {
+      if ('segment' in st) {
+        ref(a.file, `route[${i}].segment`, 'segments', st.segment, 'a segment');
+        const of = c.segments[st.segment]?.variantOf;
+        if (of !== undefined) add(a.file, `route[${i}].segment`, `"${st.segment}" is a variant of "${of}"; name "${of}" (the route's era picks the variant)`);
+      } else {
         st.only?.forEach((p, k) => ref(a.file, `route[${i}].only[${k}]`, 'places', p, 'a place'));
         ref(a.file, `route[${i}].default`, 'places', st.default, 'a place');
       }
@@ -207,13 +244,21 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       if (c.nodes[g.id] && c.nodes[g.id].kind !== 'network') add(a.file, at, `"${g.id}" is a ${c.nodes[g.id].kind}; only network nodes expand`);
       // a group nests in one listed before it, so nesting can't go round in a circle
       if (g.in && !specs.slice(0, i).some((p) => p.id === g.in)) add(a.file, `groups[${i}].in`, `"${g.in}" is not a group listed before "${g.id}"`);
-      need(a.file, `node.${g.id}.inside.title`);
+      // the node that draws it (#59): its own, or another network node doing the same job in this era
+      if (g.node !== undefined) {
+        ref(a.file, `groups[${i}].node`, 'nodes', g.node, 'a node');
+        const drawn = c.nodes[g.node];
+        if (drawn && drawn.kind !== 'network') add(a.file, `groups[${i}].node`, `"${g.node}" is a ${drawn.kind}; only network nodes expand`);
+      }
+      need(a.file, `node.${g.node ?? g.id}.inside.title`);
     });
     a.flows?.forEach((f, i) => f.stack?.forEach((l, k) => ref(a.file, `flows[${i}].stack[${k}]`, 'layers', l, 'a layer')));
 
     // every combination of places must make a well-formed chain: each part starts with a hop, and every part but the
     // last ends with the link that joins it to the next; the chain ends at the server
-    const options = steps.map((st) => ('segment' in st ? [c.segments[st.segment]] : Object.values(c.places).filter((p) => !st.only || st.only.includes(p.id))));
+    const options = steps.map((st) => ('segment' in st
+      ? [...new Set(eras.map((e) => inEra(c.segments, st.segment, e)))]
+      : Object.values(c.places).filter((p) => !st.only || st.only.includes(p.id))));
     steps.forEach((_, i) => {
       for (const d of options[i]) {
         if (!d || !Array.isArray(d.hops) || !d.hops.length) continue;

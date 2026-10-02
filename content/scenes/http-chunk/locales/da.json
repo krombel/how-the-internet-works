@@ -121,5 +121,88 @@
     "miss": "X-Cache: MISS → origin",
     "length": "TLS viser kun længden",
     "guess": "størrelse ÷ 2 s ≈ bitrate"
+  },
+  "1995": {
+    "title": "Bed om en side",
+    "kid": "I 1995 skriver {yours} en seddel: siden, tak. Serveren finder den, stempler 200 OK og sender den tilbage, og en seddel mere beder om billedet på siden. Ingen delte videoer op i stykker endnu: tegningen viser, hvordan en videoafspiller spørger i dag, med de samme sedler og stempler.",
+    "nerd": "Almindelig HTTP/1.0 uden TLS (SSL 2.0 kom i Netscape i 1995, til butikker): GET /index.html får 200 OK med Content-Type: text/html, og så henter en ny TCP-forbindelse GET /picture.gif (image/gif). Alle led på vejen kunne læse det hele. Der skulle ikke bruges en Host-header endnu, og ingen cacher svarede undervejs. Tegningen viser dagens video i stykker over de samme forespørgsels- og statuslinjer.",
+    "at": {
+      "cdn": {
+        "title": "Serveren svarer",
+        "kid": "Serveren læser hver seddel og sender det tilbage, den beder om: først siden og så dens billede. Hvert svar starter med et stempel: 200 OK betyder værsgo.",
+        "nerd": "I 1995 svarer serveren HTTP/1.0 200 OK med Content-Type: text/html og så image/gif for billedet, og den lukker forbindelsen efter hvert svar. Der var ingen CDN-cacher endnu (Akamai begyndte i 1998–99): hylden og hovedkopien på tegningen er dagens."
+      }
+    },
+    "card": {
+      "answer": {
+        "kid": "Hos serveren"
+      },
+      "seen": {
+        "kid": "Det, der går forbi",
+        "nerd": "Læsbart, ulæst"
+      },
+      "locked": {
+        "kid": "Brevet indeni",
+        "nerd": "Almindelig HTTP"
+      }
+    },
+    "sealed": {
+      "title": "{hop} kunne læse det hele",
+      "kid": "{hop} bærer sedlerne og svarene. I 1995 var intet låst, så den kunne læse hvilken side der bedes om, og hvad der kommer tilbage. Men en router læser kun adressen på pakken og sender resten videre.",
+      "describe": {
+        "kid": "{hop} står midt på vejen. Lukkede kasser med linjer af skrift går forbi: en lille hen mod serveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, i almindelig skrift og uden hængelås.",
+        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
+      },
+      "nerd": "Ved {hop} er HTTP klartekst inde i TCP: forespørgselslinjen, headerne og indholdet kan alle læses på ledningen, og alle med adgang til forbindelsen kunne gemme eller ændre dem. En router sender videre efter IP-headeren og kigger ikke længere."
+    },
+    "status": {
+      "locked": {
+        "kid": "Alle på vejen kunne læse det",
+        "nerd": "Sti, Host, status: klartekst"
+      },
+      "guess": {
+        "kid": "Den kunne læse dem, men gør det ikke",
+        "nerd": "Intet at gætte: det kan læses"
+      }
+    },
+    "tag": {
+      "length": "Ingen TLS: alt i klartekst"
+    }
+  },
+  "2010": {
+    "kid": "{yours} skriver en seddel: videoen, tak. Videoserveren finder den på sin hylde, stempler 200 OK og sender den tilbage. I 2010 hentede de fleste afspillere hele videoen som én fil; tricket på tegningen var nyt: når forbindelsen bliver langsommere, beder den næste seddel om lavere kvalitet, så filmen bliver ved med at spille.",
+    "nerd": "I 2010 er det almindelig HTTP uden TLS (YouTube skiftede til HTTPS som standard midt i 2010'erne): GET med Host og et 200 OK fra en CDN-cache, som regel i en større by længere væk. Det meste video på nettet var én fil, der blev hentet helt (progressiv download med Range: bytes=… → 206 for at springe frem); adaptiv bitrate som på tegningen, hvor hvert stykkes kvalitet vælges, var lige på vej (Apples HLS i 2009; DASH blev standard i 2012).",
+    "card": {
+      "seen": {
+        "kid": "Det, der går forbi",
+        "nerd": "Læsbart, ulæst"
+      },
+      "locked": {
+        "kid": "Brevet indeni",
+        "nerd": "Almindelig HTTP"
+      }
+    },
+    "sealed": {
+      "title": "{hop} kunne læse det hele",
+      "kid": "{hop} bærer sedlerne og svarene. I 2010 var intet låst, så den kunne læse hvilken video der bedes om. Men en router læser kun adressen på pakken og sender resten videre.",
+      "describe": {
+        "kid": "{hop} står midt på vejen. Lukkede kasser med linjer af skrift går forbi: en lille hen mod serveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, i almindelig skrift og uden hængelås.",
+        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
+      },
+      "nerd": "Ved {hop} er HTTP klartekst: video var ikke krypteret i 2010, så URL, Host og headere kunne læses på ledningen (nogle internetudbyderes cacher og filtre gjorde det). En router sender videre efter IP-headeren og kigger ikke længere."
+    },
+    "status": {
+      "locked": {
+        "kid": "Alle på vejen kunne læse det",
+        "nerd": "Sti, Host, status: klartekst"
+      },
+      "guess": {
+        "kid": "Den kunne læse dem, men gør det ikke",
+        "nerd": "Intet at gætte: det kan læses"
+      }
+    },
+    "tag": {
+      "length": "Ingen TLS: alt i klartekst"
+    }
   }
 }

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { doorsOf } from './doors';
 import { spotsOf } from './focus';
 import { pathScene } from './layout';
-import { content } from './registry';
+import { activityIds, content } from './registry';
 import { resolveRoute } from './resolve';
 import { childrenOf, diveRuns, fitRectLocal, sceneRef, sideways } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const list = (spots: ReturnType<typeof spotsOf>) => spots.map((s) => `${s.kind}:${s.stop ?? '-'}:${s.primary ? `${s.primary.kind}>${s.primary.id}` : ''}`);
 const routes = () =>
-  Object.keys(content.activities).flatMap((activity) => Object.keys(content.places).map((place) => resolveRoute({ activity, places: [place] })));
+  activityIds().flatMap((activity) => Object.keys(content.places).map((place) => resolveRoute({ activity, places: [place] })));
 
 describe('focus', () => {
   it('lists the whole scene, then every stop in stepping order, with what Enter opens', () => {

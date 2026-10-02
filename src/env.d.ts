@@ -15,5 +15,10 @@ declare module 'virtual:dive-strings' {
   export const folders: Record<string, Json>;
 }
 
+declare module 'virtual:past-strings' {
+  type Json = { [k: string]: string | Json };
+  export const folders: Record<string, Json>;
+}
+
 /** The app's credit and source (vite.config.ts, from package.json). */
 declare const __ABOUT__: { name: string; author: string; year: number; license: string; source: string };
