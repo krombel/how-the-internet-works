@@ -231,6 +231,11 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
   the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it
   say what the signal is ("Electricity in copper").
+- An optional `extra` (issue #31) is a nerd-only note under the caption's text, for what's next or beside the picture
+  (PoE and 10GBASE-T on copper, Wi‑Fi 7 MLO, XGS-PON next to GPON) without a new scene. It is looked up like the
+  text, most specific first: `<tech>.extra` then `extra` in a link or device dive; in a layer dive `at.<node>.extra`,
+  `role.<role>.extra`, … then `extra`. Give it in every language (it is a plain string, nerd only); keep it to two or
+  three sentences, since a phone's folded card cuts it to one line.
 
 Point a technology's `dive` at it, or a single link's `dive`.
 
@@ -385,6 +390,11 @@ Strings:
 - `title` and `kid`/`nerd`: keep them device-neutral ("You ask for a video"), since any place can start it
 - `peek.<kind>` ("Caught: a piece of video")
 - `stop.*`
+
+Rush hour (issue #44, see the architecture): give a packet `rush: <factor>` to send it that many times as often in
+the evening (watch-video's video has `rush: 2`; the reader's own requests keep their pace). To have the caption say
+so, add `rush: { learnMore: [...] }` to the activity and a `rush` string with `kid` and `nerd` in every language
+(validation asks for it); its links come first in rush hour.
 
 ## Make art mode-aware (day and night, issue #43)
 

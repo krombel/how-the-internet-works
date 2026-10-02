@@ -19,11 +19,12 @@ to a CDN server:
 - **Look inside** the links: Wi‑Fi waves, light in a glass thread (shared by your street on the access fibre, colours sharing one thread on metro fibre, boosters every 80 km on the backbone), and 5G beams with their time × frequency seats. This goes up to three levels deep. Stepping sideways between dives zooms out, travels along the path and zooms back in.
 - **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field for nerds and a protocol tree for details.
 - **Switch place**: the scene morphs and the packets re-route.
+- **Rush hour**: in the evening (19–23 h on your clock) everyone streams at once, so the roads fill up with video.
 
 It comes in kid and nerd levels, in English and Danish, by day and by night. Learn-more links point onwards.
 
 The location is in the URL, e.g. `#/da/street/watch-video/internet/@mobile-core`; `?level=nerd` starts in nerd
-mode, and `?mode=night` at night.
+mode, `?mode=night` at night, and `?rush=on` (or `off`) shows rush hour at any time (or never).
 
 ## How it's built
 
@@ -47,6 +48,11 @@ ease**: [docs/look-and-feel.md](docs/look-and-feel.md). The full exploration is 
 We compared four rendering stacks and chose **Svelte 5 + SVG**:
 [docs/visualisation-spikes.md](docs/visualisation-spikes.md). The discarded spikes are at git tag
 `spikes/visualisation-v1`.
+
+## Privacy
+
+No tracking, no cookies, no analytics, and no requests to other sites: fonts and assets are self-hosted. A few
+settings are remembered in your browser. The details, and what the host may log, are in [docs/privacy.md](docs/privacy.md).
 
 ## License
 

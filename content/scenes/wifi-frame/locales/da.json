@@ -2,6 +2,7 @@
   "title": "Radio-kuverten",
   "kid": "Alle i rummet kan høre en Wi-Fi-kuvert, så den siger tydeligt, hvem den er til. Modtageren svarer “Modtaget!”, og først så får den næste kuvert tur. Nedenunder rejser kuverten som radiobølger.",
   "nerd": "En 802.11-dataramme navngiver modtager, sender og den fjerne adresse på kabelsiden, beskytter indholdet med WPA3/CCMP og bruger CSMA/CA med ACK, sekvensnumre og gensendinger på fælles airtime.",
+  "extra": "Wi-Fi 7 multi-link operation: telefonen og adgangspunktet er hver en multi-link-enhed (MLD) med flere radioer. I luften har hver radio sin egen link-adresse; over dem sørger én MLD-adresse, én sekvenstæller og én block-ack-aftale for, at en ramme kan sendes på den forbindelse (2,4, 5 eller 6 GHz), der er ledig, og stadig når frem i rækkefølge.",
   "role": {
     "bridge": {
       "title": "Radioramme, kabelramme",

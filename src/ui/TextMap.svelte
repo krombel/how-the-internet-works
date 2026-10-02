@@ -48,6 +48,7 @@
     {#if c.tag}<p class="map-tag">{c.tag}</p>{/if}
     {#if c.describe}<p>{c.describe}</p>{/if}
     <p>{c.body}</p>
+    {#each c.notes as n (n.kind)}<p><b>{tr(`note.${n.kind}`)}:</b> {n.text}</p>{/each}
     <button class="btn" aria-label="{tr(verb(s))}: {c.title}" onclick={() => ongo(s.path, null)}>
       {#if s.via}<Icon name={s.via === 'expand' ? 'open' : 'look'} />{/if}{tr(verb(s))}
     </button>

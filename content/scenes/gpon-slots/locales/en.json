@@ -2,6 +2,7 @@
   "title": "GPON: shared fibre envelopes",
   "kid": "A fibre can be shared by many homes. Going home, every house hears the envelopes, but your router keeps only the one with your house number. Going out, homes take turns.",
   "nerd": "This is a classic GPON GEM frame on a PON. Downstream is broadcast over the splitter with per-GEM-port AES; upstream uses 125 µs TDMA slots assigned by the OLT BWmap after ranging.",
+  "extra": "XGS-PON can share this fibre and splitter: it uses other colours (1577 nm down, 1270 nm up, next to GPON's 1490 and 1310 nm), so each ONT filters out the light it doesn't speak. It runs 10 Gbit/s both ways with the same idea: XGEM frames broadcast down, and timed bursts up from a BWmap.",
   "role": {
     "nat": {
       "title": "Your router keeps its house number",
