@@ -383,6 +383,16 @@ the path is kept as far as it still exists. When the morph lands, focus goes to 
 announcer says the era first ("It's 1995.", "Back to today.", and why you are somewhere else), then the arrival. The
 panel's words are `ui/time.ts`, in its chunk too. There is no era in the URL: the place says it.
 
+**Era flavour (#59).** Each era may bring small props (`content/eras/<id>/art/Props.svelte`: 1995's wall calendar,
+mouse, external modem, CRT glow and hourglass; 2010's sofa with a slider phone, second router antenna, star sticker
+and buffering wheel; today's smart speaker and skeleton loader) and a parcel touch (`art/Packet.svelte`). They load
+as one small chunk per era (`loadEra` in `render/lazy.svelte.ts`) the first time a route of that era is drawn, or
+when the panel chooses that era; until then nothing is drawn. The root `PathScene` draws a place's props over its
+backdrop and again over the devices (`layer`), with that place's prop spots (`propSpots`, `props` in its overview
+layout, which validation allows nowhere else), the scene's devices, the traffic on the first link and the place's
+age; aria-hidden, and in the morph they fade and slide with the place's backdrop. The theme's `Packet` gets the era's
+mark (`mark`) to draw inside its own shape, so up and down still differ by shape. The overlap test checks every spot.
+
 ## The context that content gets
 
 **Dive scenes** (`Scene.svelte`) get `{ subject }`, a `LinkSubject`, a `NodeSubject` or a `LayerSubject` (`subject.kind`):
@@ -398,8 +408,8 @@ panel's words are `ui/time.ts`, in its chunk too. There is no era in the URL: th
   `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
   (`scene.<id>.<layer>.at.<node>` … `scene.<id>.<layer>`), for a scene serving several layers.
 
-Dive scenes load on demand (`render/dives.svelte.ts`): a scene's chunk is fetched when the flight towards it starts,
-and the peek preloads the layer dives it offers.
+Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour): a scene's chunk is fetched when the
+flight towards it starts, and the peek preloads the layer dives it offers.
 
 From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, `arrived()` (true while the reader is at this scene) and `soundOut()` (the Web Audio output while sound is on, else `null`: a scene's own short sound, the dial-up handshake), and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text; a data colour is mixed into the ink with `labelInk`, and `on` names the body it is printed on) and `TagAt`.
 
@@ -430,12 +440,15 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 
 **Place backdrops** get `{ orient, w, h, time }` and draw in root-scene coordinates. They may wrap parts in `<Depth d>` for parallax.
 
+**Era props** get `EraPropsProps` (`{ layer, spots, devices, traffic, age, time, still }`) and draw in root-scene
+coordinates too; **era parcel marks** get `{ dir, size }` (see *Add an era* in [authoring.md](authoring.md)).
+
 ## Plug-in points (engine side)
 
 | Point | Where | What plugs in |
 |---|---|---|
 | Content data | `model/registry.ts` | `content/<kind>/<id>/<kind>.ts` (node.ts, technology.ts, era.ts, …) |
-| Svelte content | `model/components.ts` | node art, layer envelopes, dive scenes, place backdrops |
+| Svelte content | `model/components.ts`, `render/lazy.svelte.ts` | node art, layer envelopes, place backdrops; dive scenes and era flavour, on demand |
 | Strings | `model/strings.ts` + the `string-packs` plugin in `vite.config.ts` | `content/**/locales/<lang>.json`, auto-namespaced by folder (`node.phone.name`, `place.home.stop.router.kid`) |
 | Themes | `state.svelte.ts` (`loadTheme`) | `content/themes/<id>/`, with unset slots falling back to `render/art-base/` |
 | Validation | `model/validate.ts` | runs every schema and cross-reference; dev + tests only |
@@ -669,7 +682,7 @@ catching a packet on the overview costs about 35 % more; even on dive panels onl
 heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
 between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 95.8 kB gz (about 1.1 kB of it the time machine's top-bar button, its era stops and the start devices of #59's way in, with their English strings, about 0.4 kB; about 0.8 kB the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 3.2 kB with its CSS and `eraTrip`; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
+Initial JS is about 96.9 kB gz (about 1.1 kB of it the era flavour of #59: its loader, the mount in the root scene and the parcel's mark, about 0.65 kB, with the places' prop spots and the English words that describe the props, about 0.35 kB; the props and mark are lazy chunks of about 1–2.2 kB per era; about 1.1 kB of it the time machine's top-bar button, its era stops and the start devices of #59's way in, with their English strings, about 0.4 kB; about 0.8 kB the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 3.2 kB with its CSS and `eraTrip`; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
 chunk of about 2.2 kB with their CSS, loaded only on a first visit; 91.7 kB before them, with the accessibility work of
 #53; about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the

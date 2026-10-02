@@ -12,7 +12,7 @@
   import { runOf } from '../model/tree';
   import { loc, themeState, view } from '../state.svelte';
   import { getWorld, setScene, setWorld, type Mounted, type Subject } from './ctx';
-  import { diveView } from './dives.svelte';
+  import { diveView } from './lazy.svelte';
   import PathScene from './PathScene.svelte';
 
   let { route, path, alpha, slide, packets, scene, places, focus, hot, lit, kbd }: {

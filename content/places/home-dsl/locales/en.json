@@ -4,8 +4,8 @@
   "kid": "Parcels zoom through the air, down a cable to the router, then along the old copper phone line as tiny tones to a box on your street – and the video comes back the same way!",
   "nerd": "The same home network, but the router's uplink is VDSL2: DMT tones on the copper phone pair to a DSLAM in the street cabinet a few hundred metres away, then fibre to the ISP.",
   "describe": {
-    "kid": "A cut-away house sits on green hills, with an old telephone on a little table. Your laptop sends parcels by Wi‑Fi to the access point, by cable to the router, then along the phone line to the internet cloud. Requests go out and video comes back.",
-    "nerd": "The home view shows the LAN path from laptop to access point and router, whose uplink is the copper phone line (VDSL2). The landline telephone shares the same pair. Packets go up over Wi‑Fi, Ethernet and VDSL; video returns the same way."
+    "kid": "A cut-away house sits on green hills, with an old telephone on a little table and a slider phone left on the sofa. Your laptop, with a star sticker, sends parcels by Wi‑Fi to the access point, by cable to the router, then along the phone line to the internet cloud. Requests go out and video comes back.",
+    "nerd": "The home view shows the LAN path from laptop to access point and router, whose uplink is the copper phone line (VDSL2). The landline telephone shares the same pair. A 2010 touch: a slider phone on the sofa, a second antenna on the router. Packets go up over Wi‑Fi, Ethernet and VDSL; video returns the same way."
   },
   "tag": {
     "laptop": "Wi-Fi 4 · 192.168.1.23",

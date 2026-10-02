@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import { view, type PacketProps } from '$core/api';
-  let { dir, pose, colour, time, followed }: PacketProps = $props();
+  let { dir, pose, colour, time, followed, mark: Mark }: PacketProps = $props();
   const facing = $derived(Math.cos(pose.angle) < 0 ? -1 : 1);
   const blink = $derived(Math.sin(time * 4.2 + pose.seg) > 0.94);
   // what it carries tells the way it goes by shape, not only by colour: a square parcel up (the request), a round reel
@@ -37,10 +37,12 @@
         {#each [0, 90, 180, 270] as a}<circle class="hole" cx="8" r="3.6" transform="rotate({a})" />{/each}
         <circle class="hole" r="2.4" />
       </g>
+      {#if Mark}<g transform="translate(40 -2)"><Mark {dir} size={30} /></g>{/if}
     {:else}
       <g transform="translate(26 -2) rotate(-8)">
         <rect class="parcel" x="-2" y="-14" width="28" height="25" rx="4" />
         <path class="parcel-line" d="M12 -14 V11 M-2 -2 H26" />
+        {#if Mark}<g transform="translate(12 -1.5)"><Mark {dir} size={24} /></g>{/if}
       </g>
     {/if}
   </g>

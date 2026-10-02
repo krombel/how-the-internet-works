@@ -2,13 +2,14 @@
 // path scene (the root and each group, all the way down), both orientations and every language and level, at the
 // authored size (a big screen) and at the biggest the labels and badges are drawn at rest on a small screen: door
 // badges, device names, link names, owner signs and nerd tags (#72), where `placeTexts` puts them, keep apart from each
-// other and from the devices' art, and every link keeps a stretch of itself clear for its packets.
+// other and from the devices' art, and every link keeps a stretch of itself clear for its packets. The era's props
+// (#59) keep to their spots, and the spots keep off all of those.
 import { describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { bezier, WORLD_SIZE, type Orient, type Pt, type Rect } from '../engine/geometry';
 import { badgeBox, badgeSize, doorsOf, GROW } from './doors';
 import { boxAt, labelReach, placeTexts, signReach, tagReach, type Per, type Sizes } from './labels';
-import { pathScene, type PathScene, type SNode } from './layout';
+import { pathScene, propSpots, type PathScene, type SNode } from './layout';
 import { regionsOf } from './regions';
 import { content } from './registry';
 import { resolveRoute, stringSources, type Route } from './resolve';
@@ -28,7 +29,7 @@ function sizesAt(g: number): Sizes & { badge: number } {
   return { name: Math.max(28, m), link: Math.max(24, m), tag: Math.max(20, m * 0.85), sign: Math.max(24, m), badge: badgeSize(m * 0.8 || 22, 1) };
 }
 
-type Shape = { what: string; kind: 'badge' | 'art' | 'label'; owner: string } & ({ c: Pt; r: number } | { box: Rect });
+type Shape = { what: string; kind: 'badge' | 'art' | 'label' | 'prop'; owner: string } & ({ c: Pt; r: number } | { box: Rect });
 
 const dist = (p: Pt, b: Rect) => Math.hypot(Math.max(0, b.x - p.x, p.x - b.x - b.w), Math.max(0, b.y - p.y, p.y - b.y - b.h));
 function overlap(a: Shape, b: Shape): boolean {
@@ -66,6 +67,8 @@ function shapes(r: Route, ps: PathScene, root: boolean, o: Orient, lang: string,
     if (q.tag) text(`${id} tag`, id, q.tag, tagReach(per(q.tag.text, 'tag') * s.tag, s.tag, q.tag.anchor));
   });
   for (const d of doors) out.push({ what: `${d.kind} badge ${d.id}`, kind: 'badge', owner: d.links.length ? d.links[0] : d.id, c: d.at, r: s.badge * 1.3 });
+  if (root) for (const slot of r.slots) for (const [spot, [x, y, w, h]] of Object.entries(propSpots(r.content.places[slot.place], o)))
+    out.push({ what: `${spot} prop`, kind: 'prop', owner: spot, box: { x: x - w / 2, y: y - h / 2, w, h } });
   return { ss: out, cut };
 }
 
@@ -136,7 +139,7 @@ describe('path scenes (issues #64, #72)', () => {
             // on a big screen every tag shows whole (on a small one it may shrink to its first fact, or wait for a zoom)
             if (g === 1) for (const k of cut) whole.add(`${lang} ${at}: ${k}`);
             ss.forEach((a, i) => ss.slice(i + 1).forEach((b) => {
-              if (a.kind === 'art' && b.kind === 'art') return;
+              if (a.kind === b.kind && (a.kind === 'art' || a.kind === 'prop')) return;
               if (!allowed(a, b) && overlap(a, b)) overlaps.add(`${at}: ${a.what} × ${b.what}`);
             }));
             if (g > 1) for (const l of ps.links) if (clearLength(l, ss) < MIN_CLEAR) short.add(`${place} × ${activity} ${o} /${path.join('/')} ${l.id}`);

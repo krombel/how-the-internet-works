@@ -4,8 +4,8 @@
   "kid": "Pakkerne suser gennem luften, ned ad et kabel til routeren og så langs den gamle kobbertelefonlinje som små toner ud til et skab på din gade – og videoen kommer tilbage samme vej!",
   "nerd": "Det samme hjemmenetværk, men routerens uplink er VDSL2: DMT-toner på kobbertelefonparret til en DSLAM i gadeskabet et par hundrede meter væk og derefter fiber til udbyderen.",
   "describe": {
-    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en gammel telefon på et lille bord. Din bærbare sender pakker med Wi‑Fi til adgangspunktet, med kabel til routeren og så ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kommer tilbage.",
-    "nerd": "Hjemmevisningen viser LAN-ruten fra bærbar til adgangspunkt og router, hvis uplink er kobbertelefonlinjen (VDSL2). Fastnettelefonen deler det samme par. Pakker går op over Wi‑Fi, Ethernet og VDSL; video kommer samme vej tilbage."
+    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en gammel telefon på et lille bord og en skydetelefon glemt i sofaen. Din bærbare med et stjerneklistermærke sender pakker med Wi‑Fi til adgangspunktet, med kabel til routeren og så ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kommer tilbage.",
+    "nerd": "Hjemmevisningen viser LAN-ruten fra bærbar til adgangspunkt og router, hvis uplink er kobbertelefonlinjen (VDSL2). Fastnettelefonen deler det samme par. Et strejf af 2010: en skydetelefon i sofaen og en ekstra antenne på routeren. Pakker går op over Wi‑Fi, Ethernet og VDSL; video kommer samme vej tilbage."
   },
   "tag": {
     "laptop": "Wi-Fi 4 · 192.168.1.23",

@@ -2,7 +2,7 @@
 // the layouts in the activity, segments and places (most specific wins); nodes nobody placed are auto-placed along the
 // path, and links are auto-routed between their nodes.
 import { WORLD_SIZE, curveBetween, lerp, type Curve, type Orient, type Pt } from '../engine/geometry';
-import type { NodeDef, Placement, SceneLayout } from '../define';
+import type { NodeDef, PlaceDef, Placement, SceneLayout } from '../define';
 import type { WithId } from './registry';
 import { within, type Hop, type Link, type Route, type Source } from './resolve';
 
@@ -54,9 +54,12 @@ export const labelY = (n: SNode) => (n.label === 'above' ? n.y - n.size / 2 - 4 
 /** The device you start from (it carries the "where are you / what are you doing" badge). */
 export const startNode = (ps: PathScene) => ps.nodes.find((n) => n.kind === 'hop' && n.hop.slot !== null && n.hop.index === 0);
 
+/** Where a place's era props may go in its overview (#59, the era flavour): [x, y, w, h] by spot name. */
+export const propSpots = (place: PlaceDef, o: Orient) => place.layout?.[ROOT]?.[o]?.props ?? {};
+
 /** Merge the layouts for one path scene: activity, then segments, then places (most specific last). */
-function mergedLayout(r: Route, key: string, o: Orient): Required<SceneLayout> {
-  const out: Required<SceneLayout> = { nodes: {}, links: {}, owners: {} };
+function mergedLayout(r: Route, key: string, o: Orient): Required<Omit<SceneLayout, 'props'>> {
+  const out: Required<Omit<SceneLayout, 'props'>> = { nodes: {}, links: {}, owners: {} };
   const add = (l?: SceneLayout) => { Object.assign(out.nodes, l?.nodes); Object.assign(out.links, l?.links); Object.assign(out.owners, l?.owners); };
   add(r.activity.layout?.[key]?.[o]);
   for (const s of r.sources.filter((x) => x.id.startsWith('segment.'))) add(s.def.layout?.[key]?.[o]);

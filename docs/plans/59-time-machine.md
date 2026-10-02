@@ -272,14 +272,17 @@ racks); no props there.
 
 How it fits:
 - **Lazy, per era.** `content/eras/<id>/art/Props.svelte` and, optionally, `content/eras/<id>/art/Packet.svelte`,
-  found by a non-eager glob in `model/components.ts` and loaded when a route of that era is first shown (and
-  prefetched when that era is chosen in the panel). Until loaded, nothing is drawn: decoration needs no placeholder.
-  Eager cost: the glob and the mount point, about 0.15 kB.
-- **Where they go.** A place's overview layout gets named prop spots per orientation (`props: { wall: [x, y, size],
-  desk: […], shelf: […], screen: […] }`); `Props.svelte` gets `{ orient, w, h, time, still, spots, busy }` and draws
-  into the spots it knows, skipping those a place lacks. `busy` (packets on the access link) drives the modem's lights,
-  the hourglass, the buffering wheel and the skeleton loader. Props sit over the backdrop and under the devices, and
-  fade and slide with the place backdrop in the morph.
+  found by a non-eager glob in `render/lazy.svelte.ts` (with the dives' loader) and loaded when a route of that era
+  is first shown (and prefetched when that era is chosen in the panel). Until loaded, nothing is drawn: decoration
+  needs no placeholder. Eager cost: about 1.1 kB in the end (see *Open questions / decisions made*).
+- **Where they go.** A place's overview layout gets named prop spots per orientation, boxes it keeps in
+  (`props: { wall: [x, y, w, h], desk: […], modem: […], shelf: […], sofa: […] }`); `Props.svelte` gets
+  `{ layer, spots, devices, traffic, age, time, still }` and draws into the spots it knows, skipping those a place
+  lacks, and on its devices (`devices`, by stop id) for what sits on one: the CRT glow, the antenna, the sticker, and
+  the loaders on the screens. `traffic` (which ways packets go on the first link) drives the modem's lights; `age`
+  (how long the place has been shown) the hourglass, the buffering wheel and the skeleton loader, for the first
+  15, 5 and 2 s. It is drawn twice: `back` over the backdrop and under the links and devices, `front` over the
+  devices (the screens' loaders). Both fade and slide with the place backdrop in the morph.
 - **The parcel touch**: the theme's `Packet` slot draws the era's `Packet.svelte` (if any) as a small mark inside
   its own shape, so up and down still differ by shape (#53), not by the era's touch.
 - **The top-bar button keeps its clock in every era**, so it stays recognisable; the era is its word.
@@ -388,7 +391,7 @@ eager in all**.
   (places, segments and activities with an older era) are eager like all place strings. If the first wave passes
   +3 kB, the `string-packs` plugin keeps them in a lazy pack that is awaited before an older era's route is shown
   (as `loadDiveStrings`), worth ~1 kB.
-- **New dives are lazy by design** (`render/dives.svelte.ts`). Device art stays lean: vocabulary classes, no
+- **New dives are lazy by design** (`render/lazy.svelte.ts`). Device art stays lean: vocabulary classes, no
   gradients, no `{...attrs}` spreads.
 
 ## Performance
@@ -512,10 +515,40 @@ Made while building PR 1 (the way in and a device per era):
 - **The start devices**: a new `pc` node (a beige box with a CRT, its own `learnMore`) in `home-dialup`; `home-dsl`
   gets the laptop on Wi‑Fi with its own overview layout (copied from the home's, the internet's reused). The Wi‑Fi
   frame's bystander device is now whichever of phone and laptop isn't yours, so 2010 shows a phone next door.
-- **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (PR 4, rates); the dives (TCP, Wi‑Fi frame) still say
+- **Left for later PRs**: `home-dialup`'s "56k/V.90" wording (PR 4, rates; done in PR 2); the dives (TCP, Wi‑Fi frame) still say
   "your phone" in 1995 and 2010 (PR 3, `<key>.<era>` strings).
 - **Eager JS**: +1.1 kB gz against main (the plan said ~0.6): the button and wiring ~0.26, the stops ~0.19 (in the
   caption's chunk), the `pc` art ~0.18, and English strings ~0.4 that the estimate left out (the `pc` node's, the
   laptop's stop, `where`, the time keys). Of the wave's 3 kB, 1.9 kB remain; the lazy era pack stays the lever.
 - **`home-dsl`'s overview** is the home's (after #72's relayout) with the laptop for the phone; it adds no known
   overlaps.
+
+Made while building PR 2 (era flavour):
+- **Prop spots are boxes**, `[x, y, w, h]` round a centre, in a place overview's `props` (validation rejects them
+  anywhere else), and the overlap test checks each against every name, tag, door and device in every orientation,
+  language and level, so `KNOWN_OVERLAPS` stays empty. Spots: 1995 `wall`, `desk`, `modem`; 2010 `sofa`; today
+  `shelf`. Things on a device (the CRT glow, the second antenna, the star sticker, the three loaders) draw relative
+  to the device instead and need no spot.
+- **The loaders sit on the device screens**, drawn in a front layer over the devices beside the theme's face: the
+  hourglass on the PC's screen, the buffering wheel on the laptop's, grey bars above the phone's face. They show for
+  a while after the place appears (15, 5 and 2 s: a page in 1995, a video start in 2010 and today), not while
+  packets are busy: on the overview packets flow all the time, so "busy" would never end.
+- **The modem's lights** follow the packets on the first link: one lit for each way traffic is going, power always.
+- **The star sticker is on the palm rest**: the drawing shows the laptop from the front, so its lid's back isn't seen.
+- **Today's speaker is on a small wall shelf** (no shelf in the backdrop); the 2010 sofa is a small one on the floor
+  next to the laptop, with the slider phone on it.
+- **The modem is external** (on a shelf, with lights), so the place's words say so; and the speed is now 1995's:
+  28.8 kbit/s, V.34, in `home-dialup` (en + da, kid + nerd) and the `dialup` technology (33.6k came in 1996 and
+  56k/V.90 in 1998). The modem-call dive still says V.90 and 56k (its strings, the photo's timing in `modem.ts` and
+  `modem-scene.test.ts`): left for PR 4 (how long it takes), where the rates are.
+- **"your phone" in the dives** (TCP, Wi‑Fi frame) can't be reworded per place: dive keys are per scene and per
+  device (`scene.<id>.<node>`), not per place or era. Left for PR 3 (`<key>.<era>` strings), as PR 1 said.
+- **The dial-up handshake isn't played when switching to 1995** (it would get old switching back and forth); it
+  stays in the modem-call dive. Tapping the modem to play it was skipped: it would make a decoration a real button
+  (focus, a name in en + da, keys, and a door-sized target clear of the labels), more than this PR's small touches.
+- **One loader for dives and eras**: `render/dives.svelte.ts` became `render/lazy.svelte.ts`, a small generic
+  `lazy()` used by both (and by the busy spinner), which costs less eagerly than a second module.
+- **Eager JS**: +1.1 kB gz against main (96.9 against 95.8; the plan said ~0.15): the loader and era glob ~0.3, the
+  mount in the root scene and the parcel's mark ~0.35, the places' prop spots ~0.15, and the English words for the
+  props in the places' `describe` ~0.16. Mounting the props lazily too was tried and cost more (it split the layout
+  chunk). Of the wave's 3 kB, about 0.8 kB remain; the lazy era pack (~1 kB) stays the lever, and PR 3 should take it.

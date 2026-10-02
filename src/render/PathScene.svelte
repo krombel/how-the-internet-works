@@ -1,21 +1,25 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // A path scene: backdrop, owner regions, links, nodes, labels, nerd tags, doors and packets. The root scene also draws the chosen places' backdrops (the house, the street) and the swap door on the
+  // A path scene: backdrop, owner regions, links, nodes, labels, nerd tags, doors and packets. The root scene also draws the chosen places' backdrops (the house, the street), their era's props (#59) and the swap door on the
   // start device; a group's scene draws the road the packets take through it. Doors (model/doors.ts) are drawn in two
   // parts: a glow around what they open, under the nodes, and a badge over them. Owner regions (model/regions.ts) too:
   // their areas under the road, their signs over the devices.
   import { curvePath, WORLD_SIZE } from '../engine/geometry';
   import { perPx, pts } from '../engine/svg';
-  import type { LivePacket } from '../engine/packets';
+  import { trafficOn, type LivePacket } from '../engine/packets';
   import { groupBackdrops, nodeArt, placeBackdrops } from '../model/components';
   import { badgeBox, badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
   import { placeTexts, type Per } from '../model/labels';
-  import type { PathScene, SNode } from '../model/layout';
+  import { propSpots, type PathScene, type SNode } from '../model/layout';
   import { regionsOf } from '../model/regions';
   import { chainOf, diveRuns } from '../model/tree';
+  import { routeEra } from '../model/era';
+  import { eraOf } from '../model/registry';
   import type { Route } from '../model/resolve';
   import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
+  import { untrack } from 'svelte';
   import { getScene, getWorld, legibleSize, tagSize } from './ctx';
+  import { eraArt } from './lazy.svelte';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
 
@@ -34,6 +38,16 @@
   const A = $derived(themeState.current.art);
   const nerd = $derived(loc.level === 'nerd');
   const backdrops = $derived(places ?? route.slots.map((s) => ({ id: s.place, alpha: 1, dx: 0 })));
+  const mark = $derived(eraArt(routeEra(route))?.Packet ?? null);
+  // the era's props (root only): the devices to draw on, the traffic on the first link for the modem's lights, and the
+  // time since each place appeared, for the loaders shown while its video starts
+  const shown = new Map<string, number>();
+  const appeared = (place: string) => shown.get(place) ?? shown.set(place, untrack(() => view.time)).get(place)!;
+  $effect(() => {
+    const ids = new Set(backdrops.map((b) => b.id));
+    for (const id of shown.keys()) if (!ids.has(id)) shown.delete(id);
+  });
+  const devices = $derived(root ? Object.fromEntries(ps.nodes.map((n) => [n.id, n])) : {});
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
@@ -75,6 +89,18 @@
   };
 </script>
 
+{#snippet flavour(layer: 'back' | 'front')}
+  {#each backdrops as b (b.id)}
+    {@const Props = eraArt(eraOf(b.id, route.content))?.Props}
+    {#if Props}
+      <g aria-hidden="true" opacity={b.alpha < 1 ? b.alpha : undefined} transform={b.dx ? `translate(${b.dx} 0)` : undefined}>
+        <Props {layer} spots={propSpots(route.content.places[b.id], view.orient)} {devices} traffic={trafficOn(packets, ps.route[0])}
+          age={view.time - appeared(b.id)} time={view.still ? 0 : view.time} still={view.still} />
+      </g>
+    {/if}
+  {/each}
+{/snippet}
+
 {#snippet door(d: Door, i: number, part: 'glow' | 'badge')}
   <A.Hint kind={d.kind} {part} x={d.at.x} y={boxes[i].y} label={doorLabel(d)} labelW={labelW(d)} labelled={boxes[i].labelled}
     size={doorPx} hot={lit || hot === d.id} target={doorTarget(d)} time={doorTime} />
@@ -88,6 +114,7 @@
       {@const B = placeBackdrops[b.id]}
       {#if B}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={view.time} /></g>{/if}
     {/each}
+    {@render flavour('back')}
   {/if}
   {#each regions as g (g.owner)}
     <A.Region part="area" d={g.d} tone={g.tone} aside={g.aside} x={g.sign.x} y={g.sign.y} label="" size={signPx} />
@@ -107,6 +134,7 @@
       <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
     </g>
   {/each}
+  {#if root}{@render flavour('front')}{/if}
   <!-- beneath the node names and tags: when it gets crowded (nerd tags), the boxes stay readable -->
   {#each named as g, i (g.owner)}
     <A.Region part="sign" d={g.d} tone={g.tone} aside={g.aside} x={texts.signs[i].x} y={texts.signs[i].y} label={trl(`owner.${g.owner}.name`)} size={signPx} />
@@ -128,7 +156,7 @@
     {/each}
   {/if}
   {#each packets as p (p.id)}
-    <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} />
+    <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} {mark} />
   {/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'badge')}{/each}
 </g>

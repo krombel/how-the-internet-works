@@ -33,6 +33,8 @@ export default definePlace({
           'ap-router': { bend: 0.18, label: [-30, 95, 'end'] },
           'router-internet': { curve: [[1090, 590], [1250, 595], [1290, 430]], label: [10, 70, 'start'] },
         },
+        // the era's prop: a sofa beside the laptop
+        props: { sofa: [370, 702, 96, 52] },
       },
       portrait: {
         nodes: { laptop: [220, 1400, 210], ap: [650, 1150, 170], router: [464, 885, 180, 'above'] },
@@ -41,6 +43,7 @@ export default definePlace({
           'ap-router': { bend: 0.2, label: [-50, 40, 'end'] },
           'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
+        props: { sofa: [690, 1478, 110, 56] },
       },
     },
     internet: home.layout!.internet,

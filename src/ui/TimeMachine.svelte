@@ -6,7 +6,8 @@
   // which is told what to say first on landing (`landing`). Where the place has no way online in an era, the stop
   // is that era's own trip, and a line says so (also in the radio's description, so it is heard before going). A
   // dialog like the place picker: a card on wide screens, a bottom sheet on a portrait phone, one compact row (no
-  // pictures, no era text) in short landscape. It loads, with the era strings, when its button is pointed at.
+  // pictures, no era text) in short landscape. It loads, with the era strings, when its button is pointed at; choosing
+  // an era fetches its props (the era flavour) ahead of the trip.
   import { onMount, untrack } from 'svelte';
   import { isShort } from '../engine/camera';
   import { nodeArt } from '../model/components';
@@ -14,6 +15,7 @@
   import { eraTrip } from '../model/era-trip';
   import type { Loc } from '../model/location';
   import { content } from '../model/registry';
+  import { loadEra } from '../render/lazy.svelte';
   import { fill, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import Icon from './Icon.svelte';
   import { elsewhere as elsewhereFrom, landing } from './time';
@@ -58,7 +60,7 @@
           {@const device = deviceOf(s.place)}
           {@const art = nodeArt[device]}
           <label class="stop" class:on={s.era === chosen}>
-            <input type="radio" name="era" data-here={s.era === here || undefined} onchange={() => (chosen = s.era)} aria-describedby="time-d-{s.era}"
+            <input type="radio" name="era" data-here={s.era === here || undefined} onchange={() => { chosen = s.era; void loadEra(s.era); }} aria-describedby="time-d-{s.era}"
               onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), go(s))} />
             {#if !short}
               <svg viewBox="0 0 200 200" aria-hidden="true">

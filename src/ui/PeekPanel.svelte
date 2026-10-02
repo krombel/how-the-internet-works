@@ -10,7 +10,7 @@
   import { hopStepFor, hopView, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
-  import { loadDive } from '../render/dives.svelte';
+  import { loadDive } from '../render/lazy.svelte';
   import { sceneTitle } from './caption';
   import { fill, loc, nameOf, readAloud, tr, trFirst, trl, yours } from '../state.svelte';
   import { announce } from './announce.svelte';

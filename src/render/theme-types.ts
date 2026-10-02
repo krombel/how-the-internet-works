@@ -46,7 +46,31 @@ export interface PacketProps {
   dir: 'up' | 'down';
   /** The user is following this packet (draw a reticle / highlight). */
   followed: boolean;
+  /** The route's era's parcel touch (#59), if it has one: draw it centred on what the courier carries. */
+  mark: Component<EraParcelProps> | null;
 }
+/** An era's props (content/eras/<id>/art/Props.svelte; #59, the era flavour): a few small decorations that make a
+ *  place's overview feel like its time. Drawn twice: 'back' over the place's backdrop and under the links and
+ *  devices, 'front' over the devices (a sticker on one). Decoration only: the engine keeps them out of the
+ *  accessibility tree, and the place's `describe` mentions the ones a reader would notice. */
+export interface EraPropsProps {
+  layer: 'back' | 'front';
+  /** The place's prop spots in this orientation (its layout's `props`): [x, y, w, h], the centre and size of a box to
+   *  keep in, by name. Draw only into the spots you know and skip those a place lacks. */
+  spots: Record<string, [number, number, number, number]>;
+  /** The scene's devices by stop id (centre and size), to draw on or behind one (a loader on its screen): keep inside
+   *  its box, and clear of the face the theme may draw. */
+  devices: Record<string, { x: number; y: number; size: number }>;
+  /** Packets are on the place's first link (out of the start device), each way. */
+  traffic: { up: boolean; down: boolean };
+  /** Seconds since the place appeared ("while the video starts"); stands still while paused. */
+  age: number;
+  /** Scene clock, frozen (0) with prefers-reduced-motion: then draw what blinks or turns still (lit, shown). */
+  time: number; still: boolean;
+}
+/** An era's parcel touch (content/eras/<id>/art/Packet.svelte): a small mark inside a circle `size` across, centred
+ *  on the origin, that the theme's Packet draws on its parcel and reel. The two keep their own shapes (#53). */
+export interface EraParcelProps { dir: 'up' | 'down'; size: number }
 /** Tap affordances ("doors"), each with its own mark: 'dive' = look inside, 'expand' = open up (more stops inside),
  *  'swap' = change where you are / what you do. Drawn in two parts: 'glow' under the devices (a breathing outline
  *  around the thing it opens) and 'badge' over them. */

@@ -398,6 +398,19 @@ place of that era, and says so.
   are at if it's of that era, else to the first by `order`.
 - The internet inside is today's for every era for now; say so in the place's `inside.internet.nerd` where it
   matters (the 1995 home has no CDN to reach).
+- **Era flavour** (optional): a few small, cute details that make a trip feel like its time, on top of the theme (not
+  a restyle). `art/Props.svelte` gets `EraPropsProps` and is drawn twice on the overview of each place of that era:
+  `layer: 'back'` over the place's backdrop and under the links and devices, `'front'` over the devices. It draws
+  into the place's **prop spots**, `props: { wall: [x, y, w, h], … }` in the overview layout of `place.ts` per
+  orientation (a box it keeps in; skip the spots a place lacks), and on its devices (`devices`, by stop id: draw
+  inside the device's box, clear of its face, like the buffering wheel on the laptop's screen). `traffic` says which
+  ways packets are going on the first link (the modem's lights), `age` how long the place has been shown (the
+  loaders), and `time`/`still` animate (still with reduced motion: lit, shown). `art/Packet.svelte`, if any, gets
+  `{ dir, size }` and draws a small mark that the theme puts on the parcel and the reel (1995's stamp, 2010's shine).
+  Both load as small chunks the first time that era is shown, so they cost the first load nothing. Rules: tokens
+  only, no SVG filters, no brands; text (the calendar's year) through `Text`; the engine keeps props out of the
+  accessibility tree, so mention the ones a reader would notice in the place's `describe`; and the overlap test
+  checks the spots against every name, tag and door, in every language and level, so pick them where it's clear.
 
 ## Add an activity
 

@@ -87,3 +87,9 @@ export function livePackets(specs: PacketSpec[], links: SLink[], time: number, p
   }
   return out;
 }
+
+/** Which ways packets are going on a link right now. */
+export const trafficOn = (packets: LivePacket[], link: string | undefined) => ({
+  up: packets.some((p) => p.dir === 'up' && p.pose.link.id === link),
+  down: packets.some((p) => p.dir === 'down' && p.pose.link.id === link),
+});
