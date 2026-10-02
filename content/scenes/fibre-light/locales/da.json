@@ -20,6 +20,7 @@
     "title": "Lys delt af hele vejen",
     "kid": "Denne glastråd deles af alle husene på din vej. Ved splitteren går lyset på vej hjem til hvert eneste hus, og hvert hus beholder kun sine egne pakker. På vej op skiftes husene til, så deres lysglimt aldrig støder ind i hinanden.",
     "nerd": "Et passivt optisk net: en splitter uden strøm deler én fiber mellem 32–64 hjem. Nedstrøms på 1577 nm sendes til alle hjem, og hver ONT beholder kun sine egne (krypterede) rammer. Opstrøms på 1270 nm deles i tid: OLT'en tildeler hvert hjem sine tidsluker (XGS-PON).",
+    "extra": "To generationer på én tråd: den ældre GPON (2,5 Gbit/s ned, 1,25 op) bruger 1490 nm ned og 1310 nm op, så den kan dele denne splitter med XGS-PON's 1577 og 1270 nm. Et sameksistensfilter (WDM) i centralen samler de to, og hver ONT i hjemmene beholder kun de farver, den taler, så en gade kan skifte til 10G ét hus ad gangen.",
     "describe": {
       "kid": "En række huse deler én glastråd gennem en splitter. Blåt lys på vej hjem løber ned ad den fælles fiber og ud til alle huse. Rødt lys på vej op forlader husene én ad gangen. Små glimt hopper i glaskernen.",
       "nerd": "Access-visningen viser et PON-træ. Dropfibre fra hjem mødes i en passiv splitter, og én delt fiber går mod OLT’en. Nedstrøms pulser (blå) sendes til alle ONT’er. Opstrøms pulser (røde) bruger tidsrum, så kun ét hjem sender på den delte strækning ad gangen. Mærket viser 1:32 og 1270/1577 nm."

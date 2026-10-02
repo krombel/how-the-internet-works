@@ -20,6 +20,7 @@
     "title": "Light shared by your street",
     "kid": "This glass thread is shared by all the houses on your street. At the splitter the light coming home goes to every house, and each house keeps only its own parcels. Going up, the houses take turns, so their flashes never bump into each other.",
     "nerd": "A passive optical network: an unpowered splitter shares one fibre among 32–64 homes. Downstream at 1577 nm is broadcast to every home, and each ONT keeps only its own (encrypted) frames. Upstream at 1270 nm is time-shared: the OLT grants each home its slots (XGS-PON).",
+    "extra": "Two generations on one thread: the older GPON (2.5 Gbit/s down, 1.25 up) uses 1490 nm down and 1310 nm up, so it can share this splitter with XGS-PON's 1577 and 1270 nm. A coexistence filter (WDM) at the exchange combines the two, and each home's ONT keeps only the colours it speaks, so a street can move to 10G one house at a time.",
     "describe": {
       "kid": "A row of houses shares one glass thread through a splitter. Blue light going home travels down the shared fibre and out to every house. Red light going up leaves one house at a time. Sparkles bounce inside the glass core.",
       "nerd": "The access view shows a PON tree. Drop fibres from homes meet a passive splitter, then one shared fibre runs toward the OLT. Downstream pulses (blue) broadcast to every ONT. Upstream pulses (red) use time slots so only one home sends on the shared span at a time. The label shows 1:32 and 1270/1577 nm."

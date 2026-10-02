@@ -2,6 +2,10 @@
   "title": "Vi ser en video",
   "kid": "Du beder om en video.",
   "nerd": "Appen henter videoen i små segmenter over HTTPS (HTTP inde i TLS inde i TCP), og serveren streamer dem tilbage.",
+  "rush": {
+    "kid": "Det er aften og myldretid på internettet! Masser af mennesker ser video på samme tid, så vejene er fulde af pakker.",
+    "nerd": "Aftenens spidsbelastning, cirka kl. 19–23: døgnets travleste timer, og omkring to tredjedele af trafikken ned til hjemmene er video. Internetudbydere, internetknudepunkter og transitforbindelser dimensioneres efter spidsen, ikke gennemsnittet, og CDN-caches tæt på dig leverer de populære videoer, så de ikke alle skal over backbonen."
+  },
   "packet": {
     "request": "Forespørgsel",
     "video": "Video"

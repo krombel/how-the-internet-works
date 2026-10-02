@@ -2,6 +2,7 @@
   "title": "GPON: kuverter på delt fiber",
   "kid": "En fiber kan deles af mange hjem. Hjemad hører alle huse kuverterne, men din router beholder kun den med dit husnummer. Udad skiftes husene.",
   "nerd": "Dette er en klassisk GPON GEM-ramme på et PON. Nedstrøms sendes den ud over splitteren med AES pr. GEM-port; opstrøms bruges 125 µs TDMA-slots, som OLT'ens BWmap tildeler efter ranging.",
+  "extra": "XGS-PON kan dele denne fiber og splitter: den bruger andre farver (1577 nm ned, 1270 nm op, ved siden af GPON's 1490 og 1310 nm), så hver ONT filtrerer det lys fra, den ikke taler. Den kører 10 Gbit/s begge veje efter samme idé: XGEM-rammer sendes ud til alle nedstrøms, og tidsbestemte udbrud går opstrøms efter et BWmap.",
   "role": {
     "nat": {
       "title": "Din router beholder sit husnummer",

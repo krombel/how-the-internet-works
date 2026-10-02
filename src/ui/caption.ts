@@ -16,9 +16,12 @@ import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } fr
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
+/** A note under the caption's text: that it is rush hour (#44: the activity's `rush` text, on the overview and in its
+ *  groups), or a nerd's extra (#31: a scene's `extra`, at nerd level only). */
+export interface CaptionNote { kind: 'rush' | 'extra'; text: string }
 /** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). `describe`:
  *  what the picture shows, to be heard (#53: the announcer and read aloud say it; empty at a stop along the way). */
-export interface CaptionText { title: string; tag?: string; body: string; describe: string; hint: string; doors: CaptionDoor[]; links: LearnMore[] }
+export interface CaptionText { title: string; tag?: string; body: string; describe: string; hint: string; doors: CaptionDoor[]; links: LearnMore[]; notes: CaptionNote[] }
 
 /** How the caption folds so the scene keeps the screen (Caption.svelte): a one-line pill on a short landscape screen,
  *  a card cut to its title, two lines and its doors on a narrow one (a portrait phone), else not at all. */
@@ -53,6 +56,16 @@ function describeOf(r: Route, ref: SceneRef, level: Level) {
   const said = describeKeys(r, ref).map((keys) => trFirst(keys, level)).filter(Boolean).join(' ');
   return ref.kind === 'layer' ? fill(said, layerVars(r, ref)) : said;
 }
+
+/** A dive's nerd extra (#31), under the same keys as its text (most specific first), with `.extra`. */
+function extraOf(keys: string[], lv: Level, vars: Record<string, string> = {}): CaptionNote[] {
+  const text = lv === 'nerd' ? trFirst(keys.map((k) => `${k}.extra`), lv) : '';
+  return text ? [{ kind: 'extra', text: fill(text, vars) }] : [];
+}
+/** In rush hour (#44), the activity's rush text, and its links first. */
+const rushNotes = (r: Route, lv: Level): CaptionNote[] =>
+  (view.rush && r.activity.rush ? [{ kind: 'rush', text: trl(`activity.${r.activity.id}.rush`, lv) }] : []);
+const rushLinks = (r: Route) => (view.rush ? r.activity.rush?.learnMore ?? [] : []);
 
 /** A hint, naming the keys when the last input was a key (#53), else the gestures. */
 const hint = (key: string) => tr(view.keys ? `${key}.keys` : key);
@@ -93,7 +106,7 @@ function scaleTag(r: Route, key: string, km: number, owners: string[] = []): str
 export function captionFor(r: Route, path: string[], stop: string | null, o: Orient): CaptionText {
   const ref = sceneRef(r, path, o);
   const lv = loc.level;
-  if (!ref) return { title: '', body: '', describe: '', hint: '', doors: [], links: [] };
+  if (!ref) return { title: '', body: '', describe: '', hint: '', doors: [], links: [], notes: [] };
   const c = r.content;
   if (ref.kind === 'layer') {
     const down = downFrom(r, ref);
@@ -104,6 +117,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       hint: hint('hint.layer'),
       doors: down ? [{ kind: 'down', id: down.join('/'), name: sceneTitle(r, down, o), path: down }] : [],
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
+      notes: extraOf(layerKeys(r, ref), lv, layerVars(r, ref)),
     };
   }
   if (ref.kind === 'dive') {
@@ -115,6 +129,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       hint: hint('hint.zoomOut'),
       doors: carriedBy(r, ref, o).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
       links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
+      notes: extraOf(sceneKeys(r, ref)[0], lv),
     };
   }
   const ps = pathScene(r, ref.group, o);
@@ -129,6 +144,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     hint: hint(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore([...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
+    notes: [],
   };
   if (l) return {
     title: tr(`tech.${l.link.tech.id}.name`),
@@ -138,6 +154,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     hint: hint(l.dive ? 'hint.dive' : 'hint.step'),
     doors,
     links: learnMore(l.link.tech.learnMore ?? []),
+    notes: [],
   };
   if (ref.group) {
     const g = r.hops[ref.group];
@@ -149,7 +166,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       describe: describeOf(r, ref, lv),
       hint: hint('hint.group'),
       doors,
-      links: learnMore(g.node.learnMore ?? []),
+      links: learnMore([...rushLinks(r), ...(g.node.learnMore ?? [])]),
+      notes: rushNotes(r, lv),
     };
   }
   const places = r.slots.map((s) => c.places[s.place]);
@@ -160,7 +178,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     describe: describeOf(r, ref, lv),
     hint: hint('hint.overview'),
     doors,
-    links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
+    links: learnMore([...rushLinks(r), ...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
+    notes: rushNotes(r, lv),
   };
 }
 

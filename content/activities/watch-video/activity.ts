@@ -14,7 +14,8 @@ export default defineActivity({
       ports: { client: 51034, server: 443 },
       packets: [
         { kind: 'request', dir: 'up', pace: 1.2, colour: '#ffcf5d' },
-        { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, offset: 0.4, colour: '#bf6f8f' },
+        // in the evening rush hour (#44) everyone streams at once: twice the pieces of video on the way
+        { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, offset: 0.4, rush: 2, colour: '#bf6f8f' },
       ],
     },
   ],
@@ -28,4 +29,10 @@ export default defineActivity({
     { url: 'https://en.wikipedia.org/wiki/Streaming_media', title: 'Streaming media', level: 'both', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP', title: 'MPEG-DASH', level: 'nerd', lang: 'en' },
   ],
+  rush: {
+    learnMore: [
+      { url: 'https://en.wikipedia.org/wiki/Busy_hour', title: 'Busy hour', level: 'nerd', lang: 'en' },
+      { url: 'https://en.wikipedia.org/wiki/Internet_traffic', title: 'Internet traffic', level: 'both', lang: 'en' },
+    ],
+  },
 });

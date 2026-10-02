@@ -128,7 +128,8 @@ machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
   and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
-  view and the first-run coach marks (the first card and the last), on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
+  view and the first-run coach marks (the first card and the last), rush hour's caption note and the list view with
+  it, a nerd's extra in a dive, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
 - **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
   and not under another control (an open pop-up aside).

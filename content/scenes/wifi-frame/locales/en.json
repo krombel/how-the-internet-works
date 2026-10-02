@@ -2,6 +2,7 @@
   "title": "The radio envelope",
   "kid": "Everyone in the room can hear a Wi-Fi envelope, so it says exactly who it is for. The receiver answers, “Got it!”, and only then does the next envelope get a turn. Underneath, the envelope travels as radio waves.",
   "nerd": "An 802.11 data frame names the receiver, transmitter and far wired-side address, protects the payload with WPA3/CCMP, and relies on CSMA/CA plus ACKs, sequence numbers and retries on shared airtime.",
+  "extra": "Wi-Fi 7 multi-link operation: the phone and the access point are each a multi-link device (MLD) with several radios. On the air every radio keeps its own link address; above them one MLD address, one sequence counter and one block-ack agreement let a frame go on whichever link (2.4, 5 or 6 GHz) is free and still arrive in order.",
   "role": {
     "bridge": {
       "title": "Radio frame, cable frame",

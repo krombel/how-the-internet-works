@@ -1,7 +1,7 @@
 <script lang="ts">
-  // Bottom caption: title + kid/nerd text, the doors you can open from here (as chips, by verb: the keyboard and
-  // screen-reader way in), "Read again" while read aloud is on (#53), a gesture hint, where you are (tap to change) and
-  // "Want to know more?" (#4).
+  // Bottom caption: title + kid/nerd text, its notes (rush hour, #44; a nerd's extra, #31), the doors you can open from
+  // here (as chips, by verb: the keyboard and screen-reader way in), "Read again" while read aloud is on (#53), a
+  // gesture hint, where you are (tap to change) and "Want to know more?" (#4).
   // It may fold (`fold`, from `captionFold`) so the scene keeps the screen; its title is then a button that opens the
   // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes:
   // - `pill` (a short landscape screen): a one-line pill with the title;
@@ -68,6 +68,9 @@
     {/if}
     {#if text.tag}<div class="tag" dir="auto">{text.tag}</div>{/if}
     <p dir="auto">{text.body}</p>
+    {#each text.notes as n (n.kind)}
+      <p class="note" dir="auto"><span class="note-name"><Icon name={n.kind} />{tr(`note.${n.kind}`)}:</span> {n.text}</p>
+    {/each}
     <div class="foot">
       {#if verbs.length || catches.length}
         <div class="doors" class:lit={explore}>

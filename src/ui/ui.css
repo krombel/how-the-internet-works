@@ -161,6 +161,9 @@ button { cursor: pointer; }
   letter-spacing: var(--heading-spacing); font-size: 20px; color: var(--heading); }
 .caption .tag { margin: 0 0 3px; font-size: 12.5px; font-weight: 800; color: var(--door-ink); }
 .caption p { margin: 0; font-size: 15.5px; line-height: 1.42; }
+.caption .note { margin-top: 4px; font-size: 14px; }
+.caption .note-name { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; color: var(--door-ink); vertical-align: bottom; }
+.caption .note-name svg { width: 15px; height: 15px; }
 .caption .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; }
 .caption .hint { color: var(--muted); font-weight: 700; flex: 1 1 14em; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 24px; border-radius: 99px; background: var(--btn); font-weight: 800; }
@@ -198,6 +201,7 @@ button { cursor: pointer; }
 .caption.folded .cap-toggle span { white-space: normal; }
 .caption.folded:not(.open) p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .caption.folded:not(.open) :is(.tag, .place, .hint, .more) { display: none; }
+.caption.folded:not(.open) p.note { -webkit-line-clamp: 1; line-clamp: 1; }
 .caption.folded.open .cap-in { position: absolute; inset-inline: calc(-1 * var(--card-edge-w)); bottom: calc(-1 * var(--card-edge-w));
   max-height: calc(100dvh - var(--top-h, 110px) - max(10px, env(safe-area-inset-bottom))); overflow: auto; overscroll-behavior: contain;
   scrollbar-width: thin; padding: 10px 14px; }
@@ -420,7 +424,7 @@ button { cursor: pointer; }
 @media (forced-colors: active) {
   .btn, .caption .chip { border: 1px solid ButtonText; }
   .caption .door { border: 2px solid LinkText; color: LinkText; }
-  .caption .verb-name, .caption .tag, .ladder .rung svg { color: CanvasText; }
+  .caption .verb-name, .caption .tag, .caption .note-name, .ladder .rung svg { color: CanvasText; }
   .ladder .rung.signal { outline: 2px solid CanvasText; outline-offset: -2px; }
   :is(.seg .btn.on, .menu-opts .btn.on, .ladder .rung.on, .peek header .chip.on, [aria-pressed='true'], .more-btn[aria-expanded='true'],
     .caption .door:hover, .caption .doors.lit .door) { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
