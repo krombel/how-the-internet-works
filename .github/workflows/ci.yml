@@ -15,8 +15,9 @@ concurrency:
 
 # Both jobs run on the self-hosted runners on the lab PC (label `lab`, two of them so day and night run side by side),
 # inside the Playwright image (the a11y jobs with the PC's GPU, /dev/dri), whose version must match package-lock's
-# `playwright` (the install step below is then a no-op; after a Playwright bump it fetches the matching browser until the image tag is bumped too). Self-hosted
-# runners cost no Actions minutes. Before the repo goes public, restrict them (fork PRs must never reach them).
+# `playwright` (the install step below is then a no-op; after a Playwright bump it fetches the matching browser until
+# the image tag is bumped too). Self-hosted runners cost no Actions minutes. Before the repo goes public, restrict them
+# (fork PRs must never reach them).
 jobs:
   build:
     runs-on: [self-hosted, lab]
