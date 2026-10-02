@@ -12,7 +12,7 @@ export const FALLBACK = 'en';
 /** Content folder kind → string key namespace. */
 const NAMESPACE: Record<string, string> = {
   nodes: 'node', owners: 'owner', technologies: 'tech', layers: 'layer', scenes: 'scene', segments: 'segment',
-  places: 'place', activities: 'activity', themes: 'theme',
+  places: 'place', activities: 'activity', themes: 'theme', eras: 'era',
 };
 
 function flatten(obj: Json, prefix: string, out: Strings = {}): Strings {
@@ -41,16 +41,17 @@ function buildPacks(meta: Record<string, LocaleMeta>, ui: Record<string, Json>, 
   return packs;
 }
 
-// English (the fallback) ships in the main bundle, but for its dive strings (layers and dive scenes: `loadDiveStrings`); other languages
-// load when first chosen, one chunk each (the `virtual:string-packs` plugin in vite.config.ts), so adding a language
-// costs nothing for everyone else.
+// English (the fallback) ships in the main bundle, but for its dive strings (layers, dive scenes and the time machine's
+// eras: `loadDiveStrings`); other languages load when first chosen, one chunk each (the `virtual:string-packs` plugin
+// in vite.config.ts), so adding a language costs nothing for everyone else.
 export const packs = buildPacks(
   import.meta.glob<LocaleMeta>('/content/locales/*/meta.json', { eager: true, import: 'default' }),
   import.meta.glob<Json>('/content/locales/en/ui.json', { eager: true, import: 'default' }),
-  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json', '!/content/scenes/*/locales/en.json'], { eager: true, import: 'default' }),
+  import.meta.glob<Json>(['/content/*/*/locales/en.json', '!/content/layers/*/locales/en.json', '!/content/scenes/*/locales/en.json', '!/content/eras/*/locales/en.json'], { eager: true, import: 'default' }),
 );
 let divesEn: Promise<void> | null = null;
-/** Load the English dive strings (once): the layers' and the dive scenes', before showing a caught packet or a dive. */
+/** Load the English dive strings (once): the layers', the dive scenes' and the eras', before showing a caught packet, a
+ *  dive or the time machine. */
 export function loadDiveStrings(): Promise<void> {
   return (divesEn ??= import('virtual:dive-strings').then(({ folders }) => {
     Object.assign(packs[FALLBACK].strings, buildPacks({ [`/content/locales/${FALLBACK}/meta.json`]: packs[FALLBACK].meta }, {}, folders)[FALLBACK].strings);

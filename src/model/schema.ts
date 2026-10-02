@@ -176,9 +176,17 @@ export const place = segment.extend({
   /** Sort order in the "Where are you?" picker (a variant's: among its place's ways of getting online). */
   order: z.number().optional(),
   /** Another way of getting online from the same place (`home` on the phone line): not a place of its own in the
-   *  picker but one of its place's connections, named by its `access` string. An era switch (issue #59) picks among
-   *  a place and its variants. */
+   *  picker but one of its place's connections, named by its `access` string. */
   variantOf: id.optional(),
+  /** When this way of getting online belongs (issue #59): the time machine switches among a place and its variants
+   *  by era. Either every member of a family has one or none does. */
+  era: id.optional(),
+});
+/** An era (1995, 2010, today): a time the time machine can visit. Its strings are its name, kid and nerd (what
+ *  getting online was like then) and a describe (what the time machine's picture of it shows). */
+export const era = z.strictObject({
+  /** For sorting, oldest first, and for the caption's chip ("🕰️ 1995"). */
+  year: z.number().int(),
 });
 /** A route step: a place slot (filled with the chosen place) or a fixed segment. */
 export const placeSlot = z.strictObject({

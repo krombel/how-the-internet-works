@@ -1,7 +1,8 @@
 <script lang="ts">
   // Bottom caption: title + kid/nerd text, its notes (rush hour, #44; a nerd's extra, #31), the doors you can open from
   // here (as chips, by verb: the keyboard and screen-reader way in), "Read again" while read aloud is on (#53), a
-  // gesture hint, where you are (tap to change) and "Want to know more?" (#4).
+  // gesture hint, where you are (tap to change), the time machine (#59: on the overview of a place with eras; the
+  // year when it isn't today's) and "Want to know more?" (#4).
   // It may fold (`fold`, from `captionFold`) so the scene keeps the screen; its title is then a button that opens the
   // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes:
   // - `pill` (a short landscape screen): a one-line pill with the title;
@@ -13,8 +14,11 @@
   import { loc, tr } from '../state.svelte';
   import type { CaptionDoor, CaptionFold, CaptionText } from './caption';
   import Icon from './Icon.svelte';
-  let { text, place, onplace, ondoor, onhot, explore, catches, oncatch, onread, hidden, fold, el = $bindable() }: {
+  let { text, place, onplace, time, ontime, onpretime, ondoor, onhot, explore, catches, oncatch, onread, hidden, fold, el = $bindable() }: {
     text: CaptionText; place: string; onplace: () => void;
+    /** The time machine's chip: none here (null), or the year of an older era (null in the newest), and opening it
+     *  (`onpretime` as it is pointed at or focused, to load it). */
+    time: { year: number | null } | null; ontime: () => void; onpretime: () => void;
     /** Read the caption aloud again; no button without it (read aloud off, or no voice). */
     onread?: () => void;
     /** Packet kinds to catch here (issue #17), and catching one. */
@@ -93,6 +97,11 @@
       {/if}
       {#if onread}<button class="btn chip read" onclick={onread}><Icon name="speak" />{tr('caption.read')}</button>{/if}
       <button class="btn chip place" onclick={onplace}>{place} · <u>{tr('ui.change')}</u></button>
+      {#if time}
+        <button class="btn chip time" aria-haspopup="dialog" onclick={ontime} onpointerenter={onpretime} onfocus={onpretime}>
+          <Icon name="time" /><span class:sr={time.year}>{tr('time.title')}{time.year ? ':' : ''}</span>{time.year}
+        </button>
+      {/if}
       {#if text.hint}<span class="hint">{text.hint}</span>{/if}
       {#if text.links.length}
         <span class="more"><span>{tr('more.title')}</span>
