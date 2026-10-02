@@ -1,0 +1,125 @@
+{
+  "title": "Bed om et stykke video",
+  "kid": "En video kommer i små stykker på et par sekunder hver. Først skriver {yours} en seddel: stykke 42, mellem, tak. Videoserveren finder det på sin hylde, stempler 200 OK og sender det tilbage. Når forbindelsen bliver langsommere, beder den næste seddel om lav kvalitet, så filmen bliver ved med at spille i stedet for at stoppe og vente.",
+  "nerd": "HTTP kører inde i TLS, så kun de to ender kan læse det. Afspilleren sender GET /video/720p/42.m4s med Host: video.example, og CDN-cachen svarer 200 OK (et HIT; 404 ville betyde, at stykket ikke findes, 304 at en gemt kopi stadig er frisk, og 206 Partial Content svarer på en Range: bytes=…-forespørgsel). Adaptiv bitrate (DASH): afspilleren måler gennemløbet og sin buffer og vælger næste segments kvalitet fra manifestet, her 360p.",
+  "describe": {
+    "kid": "En vej forbinder {yours} og videoserveren. På det venstre kort beder en seddel om stykke 42 i mellem, og den går hen til serveren. Serveren finder 42 på sin hylde, stempler 200 OK og sender en stor filmkasse tilbage. Så falder signalstregerne, næste seddel beder om 43 i lav, og en mindre filmkasse kommer tilbage.",
+    "nerd": "Det venstre kort viser forespørgslen: GET /video/720p/42.m4s og Host ved siden af signalstreger. Det højre kort er CDN'ens cachehylde: 42 er et hit, stemplet 200 OK, og et stort segment går tilbage. Stregerne falder, næste forespørgsel er på 360p, segment 43 er et miss, hentes fra origin-skyen og gemmes, og et mindre segment kommer tilbage."
+  },
+  "at": {
+    "cdn": {
+      "title": "Videoserveren svarer",
+      "kid": "Videoserveren læser hver seddel. Hvis stykket ligger på hylden, sender den det med det samme; ellers henter den det fra hovedkopien langt væk og gemmer en kopi til den næste, der ser med. Hvert svar starter med et stempel: 200 OK betyder værsgo.",
+      "nerd": "Ved CDN-kanten er HTTP åben: den læser forespørgselslinjen og headerne, slår URL'en op i sin cache og svarer med en statuslinje, headere (Content-Type: video/mp4, Content-Length, Cache-Control, Age) og indholdet. Et miss hentes fra origin og gemmes i sin max-age, så næste forespørgsel på det er et hit.",
+      "describe": {
+        "kid": "Videoserveren er markeret for enden af vejen. Sedler kommer fra {yours}. På serverens kort ligger stykke 42 allerede på hylden, så et 200 OK-stempel kommer ned, og en stor filmkasse går tilbage. Stykke 43 i lav er der ikke: en kasse kommer fra hovedkopien i en sky op på hylden, og så går en mindre filmkasse tilbage.",
+        "nerd": "CDN-cacheserveren er det markerede endepunkt. Forespørgsler kommer ind, og på cachekortet er segment 42 et hit: 200 OK, og et stort svar går tilbage. Efter at klientens streger falder, beder den om 360p-segment 43, et miss: origin-skyen sender en kopi til hylden, den gemmes, og et mindre 200 OK-svar kommer tilbage."
+      }
+    }
+  },
+  "sealed": {
+    "title": "{hop} ser kun størrelser",
+    "kid": "{hop} bærer sedlerne og filmkasserne, men de er låst inde i det hemmelige håndtryks kasse. Den kan ikke læse, hvilket stykke der bedes om, eller hvad svaret siger. Den kan kun se, hvilken vej hver kasse går, og hvor stor den er.",
+    "nerd": "Ved {hop} er HTTP forseglet inde i TLS: stien, Host, status og indhold er krypteret. Det, der slipper ud, er retning, timing og recordlængde: en forespørgsel på ~400 B, et svar på ~750 kB og så et på ~200 kB, hvilket antyder, at afspilleren er gået ned i bitrate.",
+    "describe": {
+      "kid": "{hop} står midt på vejen. Låste kasser går forbi: en lille hen mod videoserveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, kruset og med hængelås.",
+      "nerd": "Et mellemled står på vejen, mens krypterede records passerer begge veje. Det venstre kort stiller det op, den kan se: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som ulæselig krypteret tekst under en hængelås."
+    }
+  },
+  "card": {
+    "ask": {
+      "kid": "Bestillingssedlen",
+      "nerd": "Forespørgslen"
+    },
+    "answer": {
+      "kid": "Hos videoserveren",
+      "nerd": "Cache og status"
+    },
+    "seen": {
+      "kid": "Alt den kan se",
+      "nerd": "Kun størrelser"
+    },
+    "locked": {
+      "kid": "Brevet indeni",
+      "nerd": "HTTP inde i TLS"
+    }
+  },
+  "slip": {
+    "chunk": "Videostykke {n}",
+    "med": "Mellem, tak!",
+    "low": "Lav, tak!"
+  },
+  "meter": {
+    "fast": {
+      "kid": "Hurtig",
+      "nerd": "3 Mbit/s"
+    },
+    "slow": {
+      "kid": "Langsom",
+      "nerd": "0,8 Mbit/s"
+    }
+  },
+  "status": {
+    "slower": {
+      "kid": "Langsommere! Bed om lav",
+      "nerd": "Gennemløbet faldt: 360p"
+    },
+    "play": {
+      "kid": "Den spiller stadig!",
+      "nerd": "Ingen pause: bufferen holdt"
+    },
+    "guess": {
+      "kid": "Mindre kasser: lavere kvalitet?",
+      "nerd": "Størrelser røber bitraten"
+    },
+    "locked": {
+      "kid": "Kun de to ender kan læse det",
+      "nerd": "Sti, Host, status: krypteret"
+    }
+  },
+  "shelf": {
+    "hit": {
+      "kid": "På hylden!",
+      "nerd": "HIT · Age: 31"
+    },
+    "miss": {
+      "kid": "Ikke på hylden…",
+      "nerd": "MISS"
+    },
+    "fetch": {
+      "kid": "Fra hovedkopien",
+      "nerd": "GET fra origin"
+    },
+    "kept": {
+      "kid": "Gemte en kopi!",
+      "nerd": "Gemt · max-age"
+    }
+  },
+  "origin": {
+    "kid": "Hovedkopi",
+    "nerd": "Origin"
+  },
+  "size": {
+    "ask": {
+      "kid": "lille",
+      "nerd": "400 B"
+    },
+    "med": {
+      "kid": "stor",
+      "nerd": "750 kB"
+    },
+    "low": {
+      "kid": "mindre",
+      "nerd": "200 kB"
+    }
+  },
+  "tag": {
+    "mpd": "MPD: 1080p · 720p · 360p",
+    "rate": "gennemløb ≈ 3 → 0,8 Mbit/s",
+    "range": "Range: bytes=… → 206",
+    "hit": "X-Cache: HIT · Age: 31",
+    "miss": "X-Cache: MISS → origin",
+    "length": "TLS viser kun længden",
+    "guess": "størrelse ÷ 2 s ≈ bitrate"
+  }
+}

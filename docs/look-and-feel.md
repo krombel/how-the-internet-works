@@ -299,7 +299,7 @@ Tap a packet to follow it. The hit target is at least 48 CSS px, so small finger
   - **Intermediate hops** show TCP/TLS/HTTP **sealed** (🔒 "only your phone and the server open this"); they
     only read IP. The phone and the server are endpoints, where everything opens.
   - **Kid labels** use the envelope metaphor (address label, numbered piece, lock, the letter). Nerd mode shows
-    real fields (addresses, ports, sequence numbers, TLS 1.3, `GET /video/seg-042.m4s`).
+    real fields (addresses, ports, sequence numbers, TLS 1.3, `GET /video/720p/42.m4s`).
 
 Each layer is its own component in `prototype/layers/<id>/` (`http`, `tls`, `tcp`, `ip`, `wifi`, `ethernet`,
 `gpon`, `mpls`), with its own locale strings. Each one takes a context prop

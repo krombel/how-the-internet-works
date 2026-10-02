@@ -251,6 +251,7 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/cabinet-backhaul',
   'home/watch-video/internet/bng-core', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
   'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
+  'home/watch-video/phone~http', 'home/watch-video/router~http', 'home/watch-video/internet/datacentre/cdn~http',
   'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
   'home/watch-video/internet/cabinet~ethernet', 'home/watch-video/internet/backhaul~vlan', 'home/watch-video/internet/core~mpls',
   'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
@@ -700,6 +701,8 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/phone~tcp', name: `tcp-${view}` });
       shots.push({ view, where: 'home/watch-video/router~tcp', name: `tcp-sealed-${view}` });
       shots.push({ view, where: 'home/watch-video/phone~tls', name: `tls-${view}` });
+      shots.push({ view, where: 'home/watch-video/phone~http', name: `http-${view}` });
+      shots.push({ view, where: 'home/watch-video/router~http', name: `http-sealed-${view}` });
       shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
       // all the way down (issues #13, #18): the link envelopes and the signals under them
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
@@ -728,6 +731,7 @@ for (const style of STYLES) {
     shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', name: 'home-nerd-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-street-nerd-da-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/datacentre/cdn~http', lang: 'da', q: '&level=nerd', name: 'http-cdn-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/cabinet~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
