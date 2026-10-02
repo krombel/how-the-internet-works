@@ -23,6 +23,10 @@ to a CDN server:
 
 It comes in kid and nerd levels, in English and Danish, by day and by night. Learn-more links point onwards.
 
+| At home | Inside the internet, at night |
+|---|---|
+| ![The overview at home: phone, Wi‑Fi access point, home router and the fibre to the internet](docs/img/app-storybook-home-desktop.jpg) | ![Inside the internet at night: the hops from the street cabinet to the video company](docs/img/app-storybook-night-internet-desktop.jpg) |
+
 The location is in the URL, e.g. `#/da/street/watch-video/internet/@mobile-core`; `?level=nerd` starts in nerd
 mode, `?mode=night` at night, and `?rush=on` (or `off`) shows rush hour at any time (or never).
 

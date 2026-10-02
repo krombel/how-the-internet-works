@@ -161,6 +161,7 @@ Night is a **mode** of Storybook, not a fifth style: the same picture book, read
 | The internet | ![](img/app-storybook-internet-desktop.jpg) | ![](img/app-storybook-night-internet-desktop.jpg) |
 | Wi‑Fi dive | ![](img/app-storybook-wifi-desktop.jpg) | ![](img/app-storybook-night-wifi-desktop.jpg) |
 | Fibre, long haul | ![](img/app-storybook-backbone-desktop.jpg) | ![](img/app-storybook-night-backbone-desktop.jpg) |
+| Undersea cable | ![](img/app-storybook-submarine-desktop.jpg) | ![](img/app-storybook-night-submarine-desktop.jpg) |
 | TLS dive | ![](img/app-storybook-tls-desktop.jpg) | ![](img/app-storybook-night-tls-desktop.jpg) |
 | Peek, phone | ![](img/app-storybook-peek-street-phone.jpg) | ![](img/app-storybook-night-peek-street-phone.jpg) |
 
