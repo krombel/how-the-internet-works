@@ -1,0 +1,29 @@
+{
+  "name": "Hjemme, i gamle dage",
+  "access": "Opkald med modem (i gamle dage)",
+  "kid": "For længe siden ringede computeren op til internettet! Dens modem bippede, fløjtede og skreg ned ad telefonlinjen, og mens du var online, kunne ingen bruge telefonen. Videoen sivede meget, meget langsomt tilbage.",
+  "nerd": "Opkald i 1990’erne: pc’ens V.90-modem ringer til udbyderen. Centralen kobler opkaldet gennem telefonnettet til udbyderens modembank, og PPP giver pc’en sin egen offentlige adresse. Ingen Wi‑Fi, ingen router, ingen NAT og omkring 50 kbit/s på en god linje.",
+  "describe": {
+    "kid": "Det gennemskårne hus har et skrivebord med en computer og en gammel telefon på et lille bord. Computerens modem ringer til internetselskabet ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kravler tilbage, meget langsomt.",
+    "nerd": "Oversigten over et hjem i 1990’erne: én computer, hvis modem ringer til udbyderen over telefonlinjen, som telefonen deler. Intet LAN og ingen NAT: PPP går fra computeren til udbyderens gateway. Forespørgsler går op, og video kommer tilbage med modemfart."
+  },
+  "tag": {
+    "laptop": "56k-modem · 203.0.113.7",
+    "bng": "Modembank · PPP"
+  },
+  "stop": {
+    "laptop": {
+      "kid": "Computeren har et modem indeni. Det ringer til internetselskabets telefonnummer og synger så din pakke ned ad telefonlinjen som fløjt og sus.",
+      "nerd": "Ingen router: modemets PPP-forbindelse gør computeren selv til en vært på internettet med den offentlige adresse 203.0.113.7, som den fik fra IPCP til dette opkald."
+    },
+    "bng": {
+      "kid": "Her svarer dit internetselskabs modemer opkaldet. De tjekker din adgangskode, giver computeren en adresse og sender pakkerne videre ud på internettet.",
+      "nerd": "Udbyderens adgangsserver: en bank af digitale modemer på telefonnettets trunkforbindelser. Den svarer, tjekker dit login (CHAP), tildeler en adresse (IPCP) og router PPP-sessionens pakker."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "Telefonnettet (et kredsløb gennem centralen, slet ikke en del af internettet) til udbyderens modembank, derefter udbyderens kerne og så enten peering i et IXP eller betalt transit – og til sidst en CDN-cache. Hvert farvet felt er én operatørs net."
+    }
+  }
+}

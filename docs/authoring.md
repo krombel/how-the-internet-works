@@ -212,6 +212,11 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   - `Text` (text that stays readable at any zoom)
   - `TagAt`
   - its own `art/*.svelte` and maths files
+  - for a moment that plays once when the reader gets there (the dial-up handshake): `arrived()`, a function that
+    turns true while the reader is at this scene (call it at init and derive it, `$derived(at())`, so it changes
+    only when it flips), and `soundOut()`, the sound output (`{ ctx, dest }`) when sound is on in the ⋯ menu, else
+    `null`. Read both in a `$effect`; it reruns when either changes, and its cleanup stops the sound when the reader
+    leaves. Keep it short (a few seconds) and only ever behind the sound toggle.
 - Strings: `title` (required) and `kid`/`nerd`. Per-technology variants such as `gpon.title` or `gpon.kid` win when the subject is that technology.
   When one scene explains several technologies that can sit next to each other on a route, give each its own
   `<tech>.title` and draw the difference: a reader steps from one stretch to the next and should see what changed (a
@@ -342,9 +347,13 @@ use `only: [...]` on its place slot.
 The same place reached another way (the house on the phone line rather than fibre, a block of flats with fibre to
 the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
 - Its hops swap the access link and the devices around it (`home-dsl`: a `dsl-router` with a modem, `vdsl` to a
-  `dslam` in the street cabinet; `home-fttb`: an Ethernet riser to a `building-switch`, then `fttb` fibre).
+  `dslam` in the street cabinet; `home-fttb`: an Ethernet riser to a `building-switch`, then `fttb` fibre;
+  `home-dialup`: no router at all, the `laptop` dials over `dialup` to the telephone `exchange` and on to the ISP's
+  modems at the `bng`, and PPP hands the laptop a public address).
 - `layout: home.layout` (or `...home.layout` plus its own groups) keeps the base's spots, so its backdrop can redraw
-  the same room (`home-dsl` puts a telephone in the house; `home-fttb` turns it into a flat in a block).
+  the same room (`home-dsl` puts a telephone in the house; `home-fttb` turns it into a flat in a block). A variant
+  with other devices gives its own `layout` (`home-dialup`: the desk's computer, the line past the telephone).
+  Reuse the base's backdrop pieces and existing device art where they fit: backdrops and device art load up front.
 - Strings: the base and every variant need `access`, the short name of their way online ("Fibre to the house", "Phone
   line (DSL)"). The picker lists the base once, and under it a row of `access` chips, one per family member, in
   `order`.

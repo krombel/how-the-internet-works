@@ -1,0 +1,6 @@
+{
+  "name": "Telefoncentral",
+  "kid": "Telefonselskabets central forbinder dit opkald til internetselskabet, som et kæmpe omstillingsbord. Den holder linjen åben, så længe du er online.",
+  "nerd": "Den lokale central kobler opkaldet: kobberlinjen ender her, og opkaldet fortsætter som en digital 64 kbit/s-tidskanal gennem telefonnettet til udbyderens modemer.",
+  "tag": "Kredsløb · 64 kbit/s"
+}

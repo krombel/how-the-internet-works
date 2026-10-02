@@ -325,6 +325,9 @@ All sounds are **synthesised with the Web Audio API**, so there are no audio fil
 - a soft **swish** on a sideways step
 - a **pop** when you tap a packet
 - a **blip** when the followed packet arrives; other arrivals get a very quiet, throttled tick
+- the **modem handshake** in the dial-up dive: touch tones, a ring, the answer tone and the training screech, about
+  five seconds, once when you arrive (or turn sound on there). Muted, the speech bubble and the waves on the line
+  tell the same story.
 
 Each style has a timbre: storybook a marimba-ish triangle, neon a sawtooth, sketchbook noise-heavy pencil
 scratches, papercut a paper rustle. The `AudioContext` is only created on the first unmute tap, and the sound is

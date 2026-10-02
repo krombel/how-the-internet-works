@@ -1,0 +1,42 @@
+{
+  "name": {
+    "kid": "Opkalds-kuvert",
+    "nerd": "PPP-ramme"
+  },
+  "note": {
+    "kid": "Modemmet lægger pakken i en enkel kuvert til telefonopkaldet. Kun de to modemer åbner den.",
+    "nerd": "PPP i HDLC-lignende indramning: ingen adresser, for et opkald har kun to ender. LCP, CHAP og IPCP sætter det op, når opkaldet starter."
+  },
+  "line": "PPP, protokol {proto}",
+  "value": {
+    "ip": {
+      "kid": "En internetpakke",
+      "nerd": "IPv4 indeni"
+    }
+  },
+  "field": {
+    "flag": {
+      "name": "Flag",
+      "about": "Markerer, hvor en ramme starter og slutter i strømmen af bits."
+    },
+    "address": {
+      "name": "Adresse",
+      "about": "Altid 0xFF (alle): et telefonopkald har kun to ender."
+    },
+    "control": {
+      "name": "Kontrol",
+      "about": "Altid 0x03: en almindelig ramme uden nummerering."
+    },
+    "proto": {
+      "name": {
+        "kid": "Hvad der er indeni",
+        "nerd": "Protokol"
+      },
+      "about": "Hvad rammen bærer: 0x0021 er en IPv4-pakke; LCP, CHAP og IPCP har deres egne numre."
+    },
+    "fcs": {
+      "name": "FCS",
+      "about": "Et tjek over rammen, så en knasen på linjen bliver opdaget."
+    }
+  }
+}
