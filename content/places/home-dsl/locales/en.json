@@ -1,0 +1,25 @@
+{
+  "name": "At home, on the phone line",
+  "access": "Phone line (DSL)",
+  "kid": "Parcels zoom through the air, down a cable to the router, then along the old copper phone line as tiny tones to a box on your street – and the video comes back the same way!",
+  "nerd": "The same home network, but the router's uplink is VDSL2: DMT tones on the copper phone pair to a DSLAM in the street cabinet a few hundred metres away, then fibre to the ISP.",
+  "describe": {
+    "kid": "A cut-away house sits on green hills, with an old telephone on a little table. Your phone sends parcels by Wi‑Fi to the access point, by cable to the router, then along the phone line to the internet cloud. Requests go out and video comes back.",
+    "nerd": "The home view shows the LAN path from phone to access point and router, whose uplink is the copper phone line (VDSL2). The landline telephone shares the same pair. Packets go up over Wi‑Fi, Ethernet and VDSL; video returns the same way."
+  },
+  "tag": {
+    "phone": "Wi-Fi 6 · 192.168.1.23",
+    "router": "VDSL2 modem · NAT → 203.0.113.7"
+  },
+  "stop": {
+    "router": {
+      "kid": "The router is the front door of your home. It writes your home’s address on the parcel, and its modem sings it down the phone line.",
+      "nerd": "NAT rewrites 192.168.1.23 to the public 203.0.113.7; the built-in VDSL2 modem then sends the frames as DMT tones on the phone pair."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "Access network (VDSL2 from a DSLAM in the street cabinet), an aggregation layer (L2 backhaul to the BNG), the ISP’s MPLS core, then either settlement-free peering at an IXP or paid transit, ending at a CDN cache close to you. Each shaded area is one operator’s network."
+    }
+  }
+}

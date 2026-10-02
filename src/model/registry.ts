@@ -42,4 +42,9 @@ export const content: Content = {
 const byOrder = <T extends { id: string; order?: number }>(list: T[]) =>
   list.sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.id.localeCompare(b.id));
 export const placeIds = (c: Content = content) => byOrder(Object.values(c.places)).map((p) => p.id);
+/** The place a place is a way of getting online from: itself, or the one it is a variant of. */
+export const basePlace = (id: string, c: Content = content) => c.places[id]?.variantOf ?? id;
+/** A place and its variants (its ways of getting online), in order, out of `among` (default: all places). */
+export const placeFamily = (id: string, among?: string[], c: Content = content) =>
+  (among ?? placeIds(c)).filter((p) => basePlace(p, c) === basePlace(id, c));
 export const activityIds = (c: Content = content) => byOrder(Object.values(c.activities)).map((a) => a.id);

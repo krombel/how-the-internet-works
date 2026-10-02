@@ -1,0 +1,25 @@
+{
+  "name": "Hjemme, via telefonlinjen",
+  "access": "Telefonlinje (DSL)",
+  "kid": "Pakkerne suser gennem luften, ned ad et kabel til routeren og så langs den gamle kobbertelefonlinje som små toner ud til et skab på din gade – og videoen kommer tilbage samme vej!",
+  "nerd": "Det samme hjemmenetværk, men routerens uplink er VDSL2: DMT-toner på kobbertelefonparret til en DSLAM i gadeskabet et par hundrede meter væk og derefter fiber til udbyderen.",
+  "describe": {
+    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en gammel telefon på et lille bord. Din telefon sender pakker med Wi‑Fi til adgangspunktet, med kabel til routeren og så ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kommer tilbage.",
+    "nerd": "Hjemmevisningen viser LAN-ruten fra telefon til adgangspunkt og router, hvis uplink er kobbertelefonlinjen (VDSL2). Fastnettelefonen deler det samme par. Pakker går op over Wi‑Fi, Ethernet og VDSL; video kommer samme vej tilbage."
+  },
+  "tag": {
+    "phone": "Wi-Fi 6 · 192.168.1.23",
+    "router": "VDSL2-modem · NAT → 203.0.113.7"
+  },
+  "stop": {
+    "router": {
+      "kid": "Routeren er hjemmets hoveddør. Den skriver dit hjems adresse på pakken, og dens modem synger den ud ad telefonlinjen.",
+      "nerd": "NAT omskriver 192.168.1.23 til den offentlige 203.0.113.7; det indbyggede VDSL2-modem sender så rammerne som DMT-toner på telefonparret."
+    }
+  },
+  "inside": {
+    "internet": {
+      "nerd": "Adgangsnet (VDSL2 fra en DSLAM i gadeskabet), et aggregeringslag (L2-backhaul til BNG’en), udbyderens MPLS-kerne og derefter enten gratis peering i et IXP eller betalt transit – og til sidst en CDN-cache tæt på dig. Hvert farvet felt er én operatørs net."
+    }
+  }
+}

@@ -12,7 +12,8 @@
     "gpon": "1:32 · ↑1270 ↓1577 nm",
     "backbone": "96 λ · EDFA / 80 km",
     "lan-wdm": "4 λ · 1295–1310 nm",
-    "cwdm4": "4 λ · 1271–1331 nm"
+    "cwdm4": "4 λ · 1271–1331 nm",
+    "fttb": "BiDi · ↑1310 ↓1490 nm · one strand"
   },
   "gpon": {
     "title": "Light shared by your street",
@@ -65,5 +66,18 @@
       "kid": "A short glass thread between two boxes in the data centre is shown close up. Four coloured lights join at one end, bounce along the core, and split apart at the other. The flashes cross in a blink.",
       "nerd": "The fabric link view uses the metro drawing for a short single-mode run. Four CWDM lanes enter the mux, travel through the core and leave through the demux. The label shows four wavelengths from 1271 to 1331 nm, with moving pulses on each lane."
     }
+  },
+  "fttb": {
+    "title": "A glass thread to your building",
+    "kid": "With fibre to the building, the glass thread stops in the basement of your block of flats, and ordinary cables run up the stairs to every flat. The thread is the building’s own, and it carries light both ways at once: one colour going up and another colour coming down, so they never bump.",
+    "nerd": "FTTB: a point-to-point single-mode fibre from the ISP’s aggregation switch to a switch in the basement, often a BiDi optic at each end (1310 nm up, 1490 nm down on one strand, 1–10 Gbit/s). Inside, Cat 5e/6 copper or G.fast over the old phone wiring reaches each flat.",
+    "describe": {
+      "kid": "One glass thread runs from the basement of a block of flats to the internet company. Red flashes going up and blue flashes coming down bounce along the core in opposite directions, each from its own lamp to its own catcher.",
+      "nerd": "The building view shows one single-mode fibre carrying two wavelengths in opposite directions: upstream from the basement switch at 1310 nm and downstream from the aggregation switch at 1490 nm, each entering through a WDM filter. The label notes a BiDi optic on one strand."
+    },
+    "up": "Going up",
+    "upColour": "in one colour",
+    "down": "Coming down",
+    "downColour": "in another colour"
   }
 }

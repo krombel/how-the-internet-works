@@ -63,5 +63,45 @@
       "kid": "Resting",
       "nerd": "Idle this trip"
     }
+  },
+  "modem": {
+    "title": {
+      "kid": "Tone box",
+      "nerd": "DSL modem"
+    },
+    "line": {
+      "kid": "Bits → tones",
+      "nerd": "VDSL2 · DMT tones"
+    },
+    "idle": {
+      "kid": "Resting",
+      "nerd": "Idle this trip"
+    }
+  },
+  "dsl-router": {
+    "kid": "This home router is four little rooms in one box. Your parcel comes in through a socket, and the brain swaps your device’s name on it for your home’s. Then the tone box turns the bits into tones for the old phone line.",
+    "nerd": "A DSL gateway: an Ethernet switch, a Wi‑Fi radio, a router doing NAT, and a VDSL2 modem that sends the frames as DMT tones on the phone pair, above the low band the telephone uses.",
+    "describe": {
+      "kid": "An opened router box is split into four small rooms: cable sockets, Wi‑Fi radio, brain and tone box. One cable socket glows where the parcel comes in. The parcel walks through the brain, its sender sticker changes, and it leaves as wiggly tones on the phone line.",
+      "nerd": "The cutaway gateway shows switch, Wi‑Fi radio, router with NAT and modem rooms. Only the rooms used on this trip are lit. The packet enters on the active copper port, passes the NAT rewrite as bits, and leaves the modem as VDSL2 tones on the phone pair."
+    }
+  },
+  "flat-router": {
+    "kid": "This home router is four little rooms in one box. Your parcel comes in through a socket, and the brain swaps your device’s name on it for your home’s. Then it leaves through its own out socket, down a cable to the basement.",
+    "nerd": "With fibre to the building, the gateway’s uplink is a plain Ethernet WAN port: in on a LAN port, NAT in the router, out on the WAN port to the building’s switch in the basement. No ONT or modem: the fibre ends downstairs.",
+    "describe": {
+      "kid": "An opened router box is split into four small rooms: cable sockets, Wi‑Fi radio, brain and out socket. One cable socket glows where the parcel comes in. The parcel walks through the brain, its sender sticker changes, and it leaves through the glowing out socket.",
+      "nerd": "The cutaway gateway shows switch, Wi‑Fi radio, router with NAT and WAN port rooms. The packet enters on a LAN port, passes the NAT rewrite as bits, and leaves the WAN port as Ethernet towards the switch in the basement. The radio room is idle."
+    }
+  },
+  "wan": {
+    "title": {
+      "kid": "Out socket",
+      "nerd": "WAN port"
+    },
+    "line": {
+      "kid": "Cable out",
+      "nerd": "1000BASE-T · outside"
+    }
   }
 }

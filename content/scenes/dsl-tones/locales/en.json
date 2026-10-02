@@ -1,0 +1,66 @@
+{
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
+  "title": "Tones on the phone line",
+  "kid": "DSL turns bits into lots of tiny musical tones and sends them down the old copper phone line. Talking on the phone uses the low notes and the internet uses the high ones, so both fit on one wire. The closer you live to the street cabinet, the more tones get through, and the faster it goes.",
+  "nerd": "VDSL2 uses DMT: up to 4096 subcarriers 4.3125 kHz apart, each carrying 0–15 bits by QAM. The 998 band plan splits them into up and down bands above the telephone’s voice band. Rates fall fast with loop length, and vectoring cancels crosstalk between pairs in the same cable. PTM carries the Ethernet frames, where ADSL used 53-byte ATM cells.",
+  "describe": {
+    "kid": "A thin twisted phone wire runs from the home router to the street cabinet. A slow, long wave is a phone call. Short tones hop up to the cabinet, and quicker tones rush down to the home. The cards show the low, middle and high lanes, and how the speed drops the farther away you live.",
+    "nerd": "A twisted copper pair links the DSL modem to the DSLAM in the street cabinet. The voice band rides along under data bursts going both ways. Cards show the 998 band plan with bits per tone, download speed against loop length with this line marked, and vectoring cancelling crosstalk between neighbouring pairs."
+  },
+  "lineLabel": {
+    "kid": "Talk, up and down share one phone line",
+    "nerd": "VDSL2 17a · DMT: 4096 tones, 4.3125 kHz apart"
+  },
+  "lineSub": {
+    "kid": "Low hum = talking · high tones = internet",
+    "nerd": "PTM carries Ethernet frames (ADSL used ATM cells)"
+  },
+  "bandsTitle": {
+    "kid": "Lanes by pitch",
+    "nerd": "998 band plan"
+  },
+  "band": {
+    "voice": "Talk",
+    "up": {
+      "kid": "Up",
+      "nerd": "↑"
+    },
+    "down": {
+      "kid": "Down",
+      "nerd": "↓"
+    }
+  },
+  "lowNotes": "Low notes",
+  "highNotes": "High notes",
+  "tick": {
+    "low": "138 kHz",
+    "mid": "3.75 MHz",
+    "top": "17.7 MHz"
+  },
+  "bandsLine": {
+    "kid": "Low for talking, high for internet.",
+    "nerd": "Each bar is a tone with 0–15 bits."
+  },
+  "distTitle": {
+    "kid": "Closer is faster",
+    "nerd": "Speed vs loop length"
+  },
+  "fast": {
+    "kid": "Fast",
+    "nerd": "Mbit/s"
+  },
+  "twoKm": "2 km",
+  "you": {
+    "kid": "You",
+    "nerd": "≈ {n} Mbit/s"
+  },
+  "distLine": {
+    "kid": "Far away, the high tones fade.",
+    "nerd": "This line: {m} m of copper"
+  },
+  "vecTitle": "Vectoring",
+  "vecLine": "Crosstalk cancelled"
+}
