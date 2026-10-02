@@ -4,6 +4,7 @@
   "nerd": "~75 000 autonomous systems exchanging routes with BGP. Tap to unfold the path through the ISP.",
   "tag": "AS64500 · BGP",
   "inside": {
+    "coach": "There’s a whole world inside the internet — open it up!",
     "title": "Inside the internet",
     "kid": "The internet isn’t one big cloud. It’s lots of networks, each run by a different company, holding hands. The coloured patches show whose boxes your parcel passes – and the faint circles far away are a few of the many other networks.",
     "nerd": "A network of networks: your ISP’s access network and MPLS core, then settlement-free peering at an internet exchange (or paid transit), ending at a CDN cache close to you. Each shaded area is one operator; tens of thousands of other autonomous systems are out there too.",

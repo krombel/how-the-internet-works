@@ -29,6 +29,8 @@
   import Caption from './ui/Caption.svelte';
   import { captionFold, captionFor, sceneTitle, type CaptionFold } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
+  import { COACHED, firstRun } from './ui/coach';
+  import type CoachMarksT from './ui/CoachMarks.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
   import SceneKeys from './ui/SceneKeys.svelte';
@@ -205,6 +207,7 @@
     const switched = a !== nav.route;
     if (!switched && keyOf(next.path) === keyOf(prev.path) && next.stop === prev.stop) return;
     navigated = true;
+    endCoach();
     speaker.cancel();
     if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
     if (caught && (switched || !catchNav)) release(true);
@@ -259,6 +262,7 @@
     else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
+    if (Coach) return endCoach();
     if (picker) return closePicker();
     if (caught) return release();
     if (here.stop) return go({ stop: null }, true);
@@ -296,7 +300,11 @@
   let packets = $state.raw(new Map<string, LivePacket[]>());
   let prevIds = new Map<string, Map<string, LivePacket>>();
   let caught = $state.raw<Caught | null>(null);
-  const paused = $derived(settings.paused || !!caught);
+  /** The first-run coach marks while they show (their component, a lazy chunk; below), and the door they point at. */
+  let Coach = $state.raw<typeof CoachMarksT | null>(null), coachHot = $state<string | null>(null);
+  /** What the ⏸ button shows: the reader's pause, or a caught packet's. The coach marks hold the scene still too. */
+  const held = $derived(settings.paused || !!caught);
+  const paused = $derived(held || !!Coach);
   /** Where the caught packet is drawn, and its glide to the next spot (`then`: jump there once the glide ends). */
   let ghost: Spot | null = null;
   let glide: { a: number; b: number; t0: number; then: Spot | null } | null = null;
@@ -471,15 +479,22 @@
     return info.ref.kind === 'path' ? { info, ps: morphScenes.get(hereKey) ?? pathScene(route, info.ref.group, view.orient) } : null;
   };
   type Hit = { packet: LivePacket } | { door: Door } | { node: SNode } | { link: SLink };
+  /** The scene's doors and their badges as drawn now (lit, hot, sized for the zoom), or null in a dive. */
+  function badgesNow() {
+    const at = hereScene();
+    if (!at) return null;
+    const { info, ps } = at, sk = cam.k * info.frame.s;
+    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW), size = badgeSize(themeState.current.labelMinPx, sk);
+    const badges = layoutDoors(doors, size, lit, hot, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
+    return { info, ps, sk, size, doors, badges };
+  }
   /** What's under a screen point: a door's badge, a packet (a generous ≥ 30 px radius, for small fingers), what a door
    *  opens, or a stop. */
   function hitAt(sx: number, sy: number): Hit | null {
-    const at = hereScene();
-    if (!at) return null;
-    const { info, ps } = at;
-    const sk = cam.k * info.frame.s, w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
-    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW), size = badgeSize(themeState.current.labelMinPx, sk);
-    const badges = layoutDoors(doors, size, explore, chipHot ?? pointed, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
+    const now = badgesNow();
+    if (!now) return null;
+    const { info, ps, sk, size, doors, badges } = now;
+    const w = toLocal(info.frame, toWorldPt(cam, sx, sy)), minR = 30 / sk;
     const onBadge = (pad: number) => badges.findIndex((b) => Math.abs(b.x - w.x) < b.w / 2 + pad && Math.abs(b.y - w.y) < b.h / 2 + pad);
     // right on a badge beats a packet passing under it; near one, the packet wins
     let i = onBadge(0);
@@ -539,6 +554,9 @@
     return at ? doorsOf(at.ps, here.path.length === 0, diveRuns(route, at.ps.group, view.orient).byLink, view.orient, nameW) : [];
   });
   let explore = $state(false), exploreTimer = 0;
+  /** The doors are lit ("What can I explore?", or the coach marks) and the one that glows. */
+  const lit = $derived(explore || !!Coach);
+  const hot = $derived(coachHot ?? chipHot ?? pointed);
   function setExplore(on: boolean) {
     clearTimeout(exploreTimer);
     explore = on;
@@ -551,6 +569,31 @@
     if (doorsInView(hereDoors, info.frame, cam, view.vp).length < hereDoors.length) go({ stop: null }, true);
     sfx.pop();
     setExplore(true);
+  }
+  // First-run coach marks (#21, ui/coach.ts): a visit that starts at the top and has never had them gets them, once
+  // the reader has seen the scene move for a moment. They load as their own chunk, only then, and are remembered as
+  // soon as they show. While they show, the doors are lit as by "What can I explore?" and the scene holds still (the
+  // pause's clock); a tap anywhere, Esc or going anywhere ends them.
+  const COACH_AFTER_MS = 700;
+  async function startCoach() {
+    const [m] = await Promise.all([import('./ui/CoachMarks.svelte'), new Promise((r) => setTimeout(r, COACH_AFTER_MS))]);
+    if (!firstRun(localStorage.getItem(COACHED), here) || caught || picker || mapOpen) return;
+    localStorage.setItem(COACHED, '1');
+    Coach = m.default;
+  }
+  function endCoach() {
+    if (!Coach) return;
+    const had = !!document.activeElement?.closest('.coach');
+    Coach = null;
+    coachHot = null;
+    if (had) void tick().then(() => keepFocus());
+  }
+  /** A door's badge on screen. */
+  function badgeRect(d: Door) {
+    const now = badgesNow(), b = now?.badges[now.doors.findIndex((k) => k.id === d.id)];
+    if (!now || !b) return null;
+    const p = toScreen(cam, toRoot(now.info.frame, { x: b.x - b.w / 2, y: b.y - b.h / 2 }));
+    return { x: p.x, y: p.y, w: b.w * now.sk, h: b.h * now.sk };
   }
   // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there (not
   // with prefers-reduced-motion: the camera cuts there, so there is no flight).
@@ -716,6 +759,7 @@
     });
     const ro = new ResizeObserver(resize);
     ro.observe(stage);
+    if (firstRun(localStorage.getItem(COACHED), here)) void startCoach();
     const keys = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker || mapOpen) return;
       // a focused text that scrolls takes its arrow keys
@@ -798,14 +842,17 @@
 
 <div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen}>
   <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
+  {#if Coach}
+    <Coach doors={hereDoors} canExplore={hereDoors.length > 0} wide={view.vp.w >= 1100} rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
+  {/if}
   <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
-    {paused} onpause={togglePause} quiet={peekOpen} onmap={openMap} />
+    paused={held} onpause={togglePause} quiet={peekOpen} onmap={openMap} />
   <main>
     <h1 class="sr">{tr('app.title')}</h1>
     <div id="stage" bind:this={stage} class={portrait ? 'port' : 'land'}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <A.Defs />
-        <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false, kbd: false } : { key: hereKey, stop: here.stop, hot: chipHot ?? pointed, lit: explore, kbd }} />
+        <World {cam} {route} {mounted} {packets} scenes={morphScenes} places={morphPlaces} focus={passing ? { ...passing, hot: null, lit: false, kbd: false } : { key: hereKey, stop: here.stop, hot, lit, kbd }} />
         <A.Overlay w={view.vp.w} h={view.vp.h} time={view.time} />
       </svg>
     </div>
@@ -815,7 +862,7 @@
       <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
-    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} {explore} catches={catchable} oncatch={catchKind}
+    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} explore={lit} catches={catchable} oncatch={catchKind}
       ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
     {#if !peekOpen}
       <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}

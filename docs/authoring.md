@@ -129,7 +129,9 @@ the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/hom
 - `locales/en.json`:
   - `name` (required) and `kid`/`nerd` (the caption when it's the stop)
   - optionally `tag` (a small technical label in nerd mode) and `yours` ("your phone", used when this is the reader's device)
-  - for network nodes, `inside` (`title`, `kid`, `nerd`, `describe`) for the unfolded scene
+  - for network nodes, `inside` (`title`, `kid`, `nerd`, `describe`) for the unfolded scene, and optionally
+    `inside.coach`: what a first visit's coach mark on its *Open up* says ("There's a whole world inside the
+    internet — open it up!"; else a generic line, `coach.expand`)
 - `art/Backdrop.svelte` (network nodes, optional): drawn over the theme's backdrop in the unfolded scene (the data
   centre's hall). It gets `PlaceBackdropProps`; keep it faint and cheap.
 

@@ -42,6 +42,14 @@ The work comes in four slices:
   in the scene; Esc or × gives focus back to what opened it. Print prints the list, on the page's paper. Each scene's
   description (slice 3, `describe`: what its picture shows) comes before its caption text, so the list is the
   picture's text alternative.
+- **First-run coach marks** (#21, `ui/CoachMarks.svelte`, a lazy chunk): a first visit that starts at the top gets
+  three short cards, pointing at "Open up", a "Look inside" and "What can I explore?". They don't take over: the
+  card is a labelled `aside`, not a dialog, so it moves no focus and traps none; its Skip and Next come right after
+  the skip link in the Tab order (the skip link stays first and on top). Esc, a tap anywhere but its buttons (which
+  still does what it would have done) or going anywhere ends them. Meanwhile the scene holds still on the pause's clock (⏸
+  still shows only the reader's own pause), and the doors are lit as by "What can I explore?". The announcer says
+  each card ("Getting started. 1 of 3. …"), and read aloud reads it when it is on. With `prefers-reduced-motion` the
+  card neither fades in nor glides. Shown once (`localStorage`); a link straight into a scene or a stop gets none.
 - **Hints name keys after a key** (`view.keys`, set by the last input): "Press Enter to look inside. The arrow keys
   walk along." instead of "Tap the magnifier…" (`hint.*.keys`).
 - **A folded caption** (a phone, a short landscape screen) is a disclosure: its title is a real button
@@ -119,8 +127,8 @@ animation or transition is running (`document.getAnimations()`), so nothing is j
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
-  and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop and the list
-  view, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
+  and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
+  view and the first-run coach marks (the first card and the last), on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
 - **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
   and not under another control (an open pop-up aside).
@@ -135,7 +143,13 @@ machine (#70). It checks:
   where you are, Tab stays in it, Esc back to the skip link; from ⋯, a door in it lands in the scene), and read aloud:
   turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the title, the
   description and the caption, and "Read again" says them again. The browser's voices are replaced by a fake one with
-  an English and a Danish voice (a headless browser may have none), which notes what it was asked to say.
+  an English and a Danish voice (a headless browser may have none), which notes what it was asked to say. Then the
+  coach marks: a first visit gets them and the announcer says the first; Tab goes skip link, then the card; Next
+  steps on and keeps focus; Esc ends them, leaves focus somewhere visible and they don't come back after a reload; a
+  link into a scene gets none (and doesn't use them up); a tap on "Open up" ends them and opens it.
+
+Every other page the evaluate opens (shots, timings, checks, the vision sheets) has had the coach marks already
+(`coached` in `localStorage`), so none of them sees the cards.
 
 `--only=perf` also times walking the scene's keys (`keysWalk`).
 
@@ -168,6 +182,8 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
       of 7, change where you are" once (and the announcer adds its first sentence); Enter on the Wi‑Fi looks inside.
 - [ ] The skip link (first Tab) opens the list view at "You are here"; VO-⌘H walks the headings; "Go there" closes it
       and you are on that stop in the picture; Esc returns to the skip link.
+- [ ] A first visit (clear the site's data): after a moment "Getting started. 1 of 3. …" is said once; Tab reaches
+      the skip link, then Skip and Next; Next says "2 of 3. …"; Esc ends it, and it doesn't come back.
 - [ ] Switch to Dansk: the Danish voice is used for the page (and English for an English learn-more link).
 
 **VoiceOver on iOS** (Safari, triple-click side button):

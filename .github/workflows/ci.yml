@@ -31,7 +31,8 @@ jobs:
 
   a11y:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # day and night, one after the other on a software renderer: about 30 min since the coach marks' checks (#21)
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
