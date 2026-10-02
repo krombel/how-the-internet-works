@@ -6,16 +6,15 @@
   // which is told what to say first on landing (`landing`). Where the place has no way online in an era, the stop
   // is that era's own trip, and a line says so (also in the radio's description, so it is heard before going). A
   // dialog like the place picker: a card on wide screens, a bottom sheet on a portrait phone, one compact row (no
-  // pictures, no era text) in short landscape. It loads, with the era strings, when its button is pointed at; choosing
-  // an era fetches its props (the era flavour) ahead of the trip.
+  // pictures, no era text) in short landscape. It loads, with the era strings and its pictures, when its button is pointed at; choosing
+  // an era fetches its props (the era flavour) and the art of where it goes (#91) ahead of the trip.
   import { onMount, untrack } from 'svelte';
   import { isShort } from '../engine/camera';
-  import { nodeArt } from '../model/components';
-  import type { EraStop } from '../model/era';
+  import { startDevice, type EraStop } from '../model/era';
   import { eraTrip } from '../model/era-trip';
   import type { Loc } from '../model/location';
-  import { content } from '../model/registry';
-  import { loadEra } from '../render/lazy.svelte';
+  import { resolveRoute } from '../model/resolve';
+  import { deviceArt, loadEra, loadRouteArt } from '../render/lazy.svelte';
   import { fill, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import Icon from './Icon.svelte';
   import { elsewhere as elsewhereFrom, landing } from './time';
@@ -32,11 +31,6 @@
   const short = $derived(isShort(view.vp.w, view.vp.h));
   let chosen = $state(untrack(() => here));
   const stop = $derived(stops.find((s) => s.era === chosen)!);
-  /** A stop's picture: the device you start on then (its first hop). */
-  const deviceOf = (place: string) => {
-    const h = content.places[place].hops.find((h) => 'at' in h) as { at: string; node?: string };
-    return h.node ?? h.at;
-  };
   const go = (s: EraStop) => (s.era === here ? onclose() : onpick({ trip: eraTrip(at, s.place), said: landing(s, at.places[0]) }));
   let form: HTMLFormElement;
   // checked and focused from here, not by a `checked` attribute (whose runtime would load up front, with the app)
@@ -57,14 +51,14 @@
       <legend class:sr={short}>{tr('time.when')}</legend>
       <div class="stops">
         {#each stops as s (s.era)}
-          {@const device = deviceOf(s.place)}
-          {@const art = nodeArt[device]}
+          {@const device = startDevice(s.place)}
+          {@const art = deviceArt(device)}
           <label class="stop" class:on={s.era === chosen}>
-            <input type="radio" name="era" data-here={s.era === here || undefined} onchange={() => { chosen = s.era; void loadEra(s.era); }} aria-describedby="time-d-{s.era}"
+            <input type="radio" name="era" data-here={s.era === here || undefined} onchange={() => { chosen = s.era; void loadEra(s.era); void loadRouteArt(resolveRoute(eraTrip(at, s.place))); }} aria-describedby="time-d-{s.era}"
               onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), go(s))} />
             {#if !short}
               <svg viewBox="0 0 200 200" aria-hidden="true">
-                <A.Device id={device} Art={art?.default ?? null} face={art?.face ?? null} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
+                <A.Device id={device} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
               </svg>
             {/if}
             <span class="year">{tr(`era.${s.era}.name`)}</span>

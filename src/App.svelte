@@ -13,7 +13,7 @@
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
-  import { eraStops, eraYear } from './model/era';
+  import { eraStops, eraYear, startDevice } from './model/era';
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
   import type { Loc } from './model/location';
@@ -22,7 +22,7 @@
   import type { Route } from './model/resolve';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
-  import { artLoading } from './render/lazy.svelte';
+  import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
   import { loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, view } from './state.svelte';
@@ -35,6 +35,7 @@
   import type CoachMarksT from './ui/CoachMarks.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
+  import { pictures } from './ui/picker';
   import SceneKeys from './ui/SceneKeys.svelte';
   import StepButtons from './ui/StepButtons.svelte';
   import type TextMapT from './ui/TextMap.svelte';
@@ -176,6 +177,9 @@
   }
 
   // ------------------------------------------------------------------ switching place / activity (morph)
+  // A route's art (devices and backdrops, #91) loads when it is first shown: all of it, the groups' insides too, so a
+  // flight into the internet finds it there. The start route's was loaded before the first paint (main.ts).
+  $effect(() => { void loadRouteArt(route); });
   interface Morph { a: Route; t0: number; dur: number; placesA: string[] }
   let morph: Morph | null = null;
   let morphScenes = $state.raw(new Map<string, PathScene>());
@@ -449,10 +453,11 @@
     return best;
   };
   let picker = $state<{ slot: number } | null>(null), pickFrom: Element | null = null;
-  /** The picker is a modal dialog: the rest of the page is inert while it's open, and focus goes back after. */
+  /** The picker is a modal dialog: the rest of the page is inert while it's open, and focus goes back after. It opens
+   *  once its pictures are here (#91), at once after the first time. */
   function openPicker(slot: number) {
     pickFrom = document.activeElement;
-    picker = { slot };
+    void loadDevices(pictures()).then(() => (picker = { slot }));
   }
   function closePicker() {
     picker = null;
@@ -479,7 +484,7 @@
   const hereEra = $derived(eraOf(route.slots[0].place, route.content));
   /** The open time machine (its component), or null. What to say first on landing after a trip in time, or null. */
   let TimeMachine = $state.raw<typeof TimeMachineT | null>(null), timeFrom: Element | null = null, timeLanded: string | null = null;
-  const loadTime = () => Promise.all([import('./ui/TimeMachine.svelte'), loadDiveStrings()]).then(([m]) => m.default);
+  const loadTime = () => Promise.all([import('./ui/TimeMachine.svelte'), loadDiveStrings(), loadDevices(eras.map((s) => startDevice(s.place)))]).then(([m]) => m.default);
   function openTime(from: Element | null = document.activeElement) {
     timeFrom = from;
     void loadTime().then((m) => (TimeMachine = m));
