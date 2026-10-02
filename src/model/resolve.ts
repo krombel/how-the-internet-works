@@ -1,7 +1,7 @@
 // The resolver: (activity + chosen places) → a Route (the chain of hops and links a packet travels), and the
 // recursive scene tree on top of it (root path scene → group sub-paths → dives). Pure and content-id free.
 import type { ActivityDef, HopDef, LinkDef, NodeDef, PlaceDef, Role, SegmentDef, TechDef } from '../define';
-import { activityIds, content as defaultContent, placeIds, type Content, type WithId } from './registry';
+import { activityIds, content as defaultContent, inEra, nowEra, placeIds, type Content, type WithId } from './registry';
 
 export interface Choice { activity: string; places: string[] }
 
@@ -48,6 +48,9 @@ interface Slot { name: string; options: string[]; place: string }
 
 export interface Route {
   key: string;
+  /** The era (#59): its first place's that has one, else today. It picks the activity's and segments' variants. */
+  era: string;
+  /** The activity in the route's era: the base the URL names, or its variant of that era. */
   activity: WithId<ActivityDef>;
   slots: Slot[];
   /** Segment-like sources in route order (places and segments), for layout and strings. */
@@ -71,9 +74,10 @@ function slotsOf(activity: ActivityDef, c: Content = defaultContent) {
   return activity.route.flatMap((s) => ('place' in s ? [{ name: s.place, options: s.only ? all.filter((p) => s.only!.includes(p)) : all, default: s.default }] : []));
 }
 
-/** Fill in missing or unknown places with each slot's default. */
+/** Fill in missing or unknown places with each slot's default; a variant activity becomes its base (the era picks). */
 export function normaliseChoice(choice: Choice, c: Content = defaultContent): Choice {
-  const aid = c.activities[choice.activity] ? choice.activity : activityIds(c)[0];
+  const known = c.activities[choice.activity];
+  const aid = known ? known.variantOf ?? known.id : activityIds(c)[0];
   const activity = c.activities[aid];
   const places = slotsOf(activity, c).map((s, i) => {
     const p = choice.places[i];
@@ -90,13 +94,14 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   const hit = c === defaultContent ? cache.get(key) : undefined;
   if (hit) return hit;
 
-  const activity = c.activities[ch.activity];
+  const era = ch.places.map((p) => c.places[p].era).find(Boolean) ?? nowEra(c);
+  const activity = inEra(c.activities, ch.activity, era);
   const slots: Slot[] = slotsOf(activity, c).map((s, i) => ({ name: s.name, options: s.options, place: ch.places[i] }));
   const sources: { id: Source; def: SegmentDef | PlaceDef; slot: number | null }[] = [];
   let si = 0;
   for (const step of activity.route) {
     if ('place' in step) { const p = ch.places[si]; sources.push({ id: `place.${p}`, def: c.places[p], slot: si++ }); }
-    else sources.push({ id: `segment.${step.segment}`, def: c.segments[step.segment], slot: null });
+    else { const s = inEra(c.segments, step.segment, era); sources.push({ id: `segment.${s.id}`, def: s, slot: null }); }
   }
 
   const chain: Hop[] = [], links: Link[] = [], hops: Record<string, Hop> = {};
@@ -139,8 +144,8 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   }
 
   const groups: Hop[] = (activity.groups ?? []).map((spec) => {
-    const { id, in: parent } = groupSpec(spec), node = c.nodes[id];
-    return { id, node, group: parent, role: node.role ?? 'router', source: `activity.${ch.activity}`, slot: null, index: -1 };
+    const { id, in: parent, node: drawn } = groupSpec(spec), node = c.nodes[drawn ?? id];
+    return { id, node, group: parent ?? null, role: node.role ?? 'router', source: `activity.${activity.id}`, slot: null, index: -1 };
   });
   for (const g of groups) hops[g.id] = g;
 
@@ -156,15 +161,16 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   }
 
   const route: Route = {
-    key, activity, slots, sources: sources.map(({ id, def }) => ({ id, def })),
+    key, era, activity, slots, sources: sources.map(({ id, def }) => ({ id, def })),
     chain, links, asides, groups, hops, entry, content: c,
   };
   if (c === defaultContent) cache.set(key, route);
   return route;
 }
 
-/** An activity's group entry: a plain id (at the top level) or `{ id, in }` (inside another group). */
-export const groupSpec = (g: string | { id: string; in: string }) => (typeof g === 'string' ? { id: g, in: null } : g);
+/** An activity's group entry: a plain id (at the top level) or `{ id, in?, node? }` (inside another group, drawn as
+ *  another node). */
+export const groupSpec = (g: string | { id: string; in?: string; node?: string }) => (typeof g === 'string' ? { id: g } : g);
 
 /** Whether hop `h` lives inside group `g`, at any depth (a data centre's server is inside the internet too). */
 export function within(hops: Record<string, Hop>, h: Hop, g: string): boolean {
@@ -172,9 +178,12 @@ export function within(hops: Record<string, Hop>, h: Hop, g: string): boolean {
   return false;
 }
 
-/** String namespaces for captions, most specific first: the places, the segments, then the activity. */
+/** String namespaces for captions, most specific first: the places, the segments, then the activity. A variant of
+ *  another era (#59) speaks through its base's namespace, whose block for the era (`"1995": { … }`) holds what differs. */
 export function stringSources(r: Route): Source[] {
   const places = r.sources.filter((s) => s.id.startsWith('place.')).map((s) => s.id);
-  const segments = r.sources.filter((s) => s.id.startsWith('segment.')).map((s) => s.id);
-  return [...places, ...segments, `activity.${r.activity.id}`];
+  const segments = r.sources.filter((s) => s.id.startsWith('segment.')).map((s) => (s.def.variantOf ? `segment.${s.def.variantOf}` : s.id));
+  return [...places, ...segments, activityKey(r.activity)];
 }
+/** An activity's string namespace: its own, or its base's if it is a variant (#59). */
+export const activityKey = (a: ActivityDef & { id: string }) => `activity.${a.variantOf ?? a.id}`;

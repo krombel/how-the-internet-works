@@ -59,5 +59,16 @@
       "kid": "seddel",
       "nerd": "UPDATE"
     }
+  },
+  "1995": {
+    "describe": {
+      "nerd": "Inde i grænserouteren popper linekortet mod kernen MPLS-labelen. En BGP-routingtabel viser serverens prefix med IXP-peer- og transitstier. UPDATE-sedler kommer fra begge naboer. Rækken med local-pref 200 lyser, og pakken går ud til IXP'et.",
+      "kid": "Dit internetfirmas kerne er til venstre. To udgange er til højre: knudepunktet og en dæmpet transit, som man betaler for. En pakke kommer med en motorvejsmærkat. Mærkaten pilles af. Sedler fra begge naboer flyver ind i vejbogen. Knudepunktets række lyser op, og pakken kører ud til knudepunktet."
+    },
+    "rib": {
+      "target": {
+        "kid": "webserverens firma"
+      }
+    }
   }
 }

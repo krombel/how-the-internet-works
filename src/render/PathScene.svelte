@@ -13,7 +13,6 @@
   import { propSpots, type PathScene, type SNode } from '../model/layout';
   import { regionsOf } from '../model/regions';
   import { chainOf, diveRuns } from '../model/tree';
-  import { routeEra } from '../model/era';
   import { eraOf } from '../model/registry';
   import type { Route } from '../model/resolve';
   import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
@@ -38,7 +37,7 @@
   const A = $derived(themeState.current.art);
   const nerd = $derived(loc.level === 'nerd');
   const backdrops = $derived(places ?? route.slots.map((s) => ({ id: s.place, alpha: 1, dx: 0 })));
-  const mark = $derived(eraArt(routeEra(route))?.Packet ?? null);
+  const mark = $derived(eraArt(route.era)?.Packet ?? null);
   // the era's props (root only): the devices to draw on, the traffic on the first link for the modem's lights, and the
   // time since each place appeared, for the loaders shown while its video starts
   const shown = new Map<string, number>();
@@ -130,6 +129,12 @@
   {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
   {#each ps.nodes as n (n.id)}
     {@const art = nodeArt[n.node.id]}
+    {#if n.was}
+      {@const was = nodeArt[n.was.node.id]}
+      <g opacity={n.was.alpha}>
+        <A.Device id={n.was.node.id} Art={was?.default ?? null} face={was?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={false} kbd={false} />
+      </g>
+    {/if}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
       <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
     </g>
@@ -141,6 +146,7 @@
   {/each}
   {#each ps.nodes as n, i (n.id)}
     {@const at = texts.nodes[i]}
+    {#if n.was}<g opacity={n.was.alpha}><Text x={at.name.x} y={at.name.y} text={tr(`node.${n.was.node.id}.name`)} size={28} kind="node" /></g>{/if}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
       <Text x={at.name.x} y={at.name.y} text={nameOf(n.node.id)} size={28} kind="node" />
       {#if at.tag}<TagAt x={at.tag.x} y={at.tag.y} text={at.tag.text} anchor={at.tag.anchor} />{/if}

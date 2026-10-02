@@ -16,7 +16,11 @@
     "send": {
       "kid": "“Her er det næste stykke af kattevideoen!”",
       "nerd": "Et svar: det næste videosegment."
-    }
+    },
+    "get": "GET /video/720p/42.m4s HTTP/1.1",
+    "ok": "HTTP/1.1 200 OK",
+    "host": "Host: video.example",
+    "type": "Content-Type: video/mp4"
   },
   "field": {
     "start": {
@@ -29,6 +33,43 @@
     "header": {
       "name": "Header",
       "about": "Én af flere headerlinjer; resten af headerne og indholdet følger."
+    }
+  },
+  "1995": {
+    "note": {
+      "kid": "Selve beskeden, i almindelig skrift: ingen låste den i 1995.",
+      "nerd": "Applikationsbeskeden i almindelig HTTP/1.0: en forespørgsel på siden eller dens billede eller et stykke af svaret."
+    },
+    "value": {
+      "get": "GET /index.html HTTP/1.0",
+      "ok": "HTTP/1.0 200 OK",
+      "host": "User-Agent: Mozilla/1.1N",
+      "type": "Content-Type: text/html",
+      "ask": {
+        "kid": "“Send mig lige siden med billedet!”",
+        "nerd": "En forespørgsel på siden."
+      },
+      "send": {
+        "kid": "“Her er siden!”",
+        "nerd": "Et svar: et stykke af siden."
+      }
+    }
+  },
+  "2010": {
+    "note": {
+      "kid": "Selve beskeden, i almindelig skrift: video var ikke låst i 2010.",
+      "nerd": "Applikationsbeskeden i almindelig HTTP: en forespørgsel på videoen eller et stykke af svaret."
+    },
+    "value": {
+      "get": "GET /videos/42.mp4 HTTP/1.1",
+      "ask": {
+        "kid": "“Send mig lige kattevideoen!”",
+        "nerd": "En forespørgsel på videofilen."
+      },
+      "send": {
+        "kid": "“Her er det næste stykke af kattevideoen!”",
+        "nerd": "Et svar: det næste stykke af videofilen."
+      }
     }
   }
 }

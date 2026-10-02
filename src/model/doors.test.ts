@@ -3,7 +3,7 @@ import { fit } from '../engine/camera';
 import { bezier } from '../engine/geometry';
 import { badgeReach, badgeSize, clearance, doorsInView, doorsOf, layoutDoors, nodeBoxes, type Door } from './doors';
 import { morphScene, pathScene, type PathScene, type SNode } from './layout';
-import { content } from './registry';
+import { activityIds, content } from './registry';
 import { resolveRoute } from './resolve';
 import { loadAllPacks, packs } from './strings';
 import { childrenOf, diveRuns, fitRectLocal, frameOf, sceneRef, stopRectLocal, rectToRoot } from './tree';
@@ -43,7 +43,7 @@ describe('doors', () => {
     let stretches = 0;
     for (const lang of Object.keys(packs)) {
       const nameW = (n: SNode) => (packs[lang].strings[`node.${n.node.id}.name`] ?? packs.en.strings[`node.${n.node.id}.name`]).length * 28 * 0.52;
-      for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
         const r = resolveRoute({ activity, places: [place] });
         for (const o of ['landscape', 'portrait'] as const) {
           const walk = (path: string[]): void => {
@@ -80,7 +80,7 @@ describe('doors', () => {
     const touching: string[] = [];
     for (const lang of Object.keys(packs)) {
       const nameW = (n: SNode) => (packs[lang].strings[`node.${n.node.id}.name`] ?? packs.en.strings[`node.${n.node.id}.name`]).length * 28 * 0.52;
-      for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
         const r = resolveRoute({ activity, places: [place] });
         for (const o of ['landscape', 'portrait'] as const) {
           const walk = (path: string[]): void => {
@@ -133,7 +133,7 @@ describe('doors', () => {
 
   // generic: holds for whatever content exists
   it('opens exactly the scene tree\'s dive and group children, for every place × activity', () => {
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {
@@ -156,7 +156,7 @@ describe('doors', () => {
   ];
   it('keeps a scene\'s dives from overlapping', () => {
     const found = new Set<string>();
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {

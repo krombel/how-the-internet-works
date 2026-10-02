@@ -8,5 +8,13 @@
     "nerd": "Scenen viser telefonen og adgangspunktet forbundet af en animeret bærebølge. Bits glider langs sporet. Små streger forbinder hvert bit med bølgens amplitude, som en forenklet ASK-modulation. Ringe ved adgangspunktet viser radiosignalet, der breder sig."
   },
   "carrier": "Radiobølge",
-  "bits": "Bit"
+  "bits": "Bit",
+  "2010": {
+    "nerd": "Bittene modulerer en bærebølge på 2,4 eller 5 GHz. Her vist som simpel amplitudeskiftmodulation; Wi‑Fi 4 (802.11n) bruger OFDM med op til 64-QAM, 6 bit i hvert symbol på 52 underbærebølger med data (108 på en 40 MHz-kanal).",
+    "extra": "Wi‑Fi 4 (802.11n, 2009): med to til fire antenner i hver ende rejser flere strømme side om side (MIMO), og en 40 MHz-kanal fordobler bredden: op til 150 Mbit/s pr. strøm, 600 Mbit/s i teorien. Wi‑Fi i 6 GHz-båndet kom først i 2020.",
+    "describe": {
+      "kid": "En bærbar og et Wi‑Fi-adgangspunkt står over for hinanden. En bølget radiobølge går mellem dem. Farvede 1- og 0-bits rider ovenover, og streger peger fra hvert bit ned til en stor eller lille bølge. Ringe breder sig fra Wi‑Fi-boksen, mens signalet flytter sig gennem luften.",
+      "nerd": "Scenen viser den bærbare og adgangspunktet forbundet af en animeret bærebølge. Bits glider langs sporet. Små streger forbinder hvert bit med bølgens amplitude, som en forenklet ASK-modulation. Ringe ved adgangspunktet viser radiosignalet, der breder sig."
+    }
+  }
 }

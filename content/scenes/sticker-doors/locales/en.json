@@ -9,7 +9,7 @@
     "role": {
       "bridge": {
         "title": "Learning the doors",
-        "kid": "The frame comes in door 1 from your phone. The box writes “your phone → door 1”. It does not know the For sticker yet, so it copies the frame out of the other doors. The reply teaches door 2. Underneath, it travels as a signal down the cable or fibre.",
+        "kid": "The frame comes in door 1 from {yours}. The box writes “{yours} → door 1”. It does not know the For sticker yet, so it copies the frame out of the other doors. The reply teaches door 2. Underneath, it travels as a signal down the cable or fibre.",
         "nerd": "A bridge learns source MACs into a MAC table, ages entries after about 300 s, floods unknown unicast frames except the ingress port, then forwards known destinations to one port. Store-and-forward switches verify FCS/CRC-32 first.",
         "describe": {
           "kid": "A road connects two friendly devices and a box with four numbered doors. A walking envelope arrives at door 1. Two cards show tiny copies and a door book. Dotted paths light up toward the other doors. Later, the envelope walks straight to door 2.",
@@ -130,7 +130,6 @@
     }
   },
   "label": {
-    "phone": "your phone",
     "reply": "reply box",
     "unknown": "unknown",
     "whoHas": "Who has {ip}?",

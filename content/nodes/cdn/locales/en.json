@@ -1,5 +1,10 @@
 {
   "name": "Video server",
   "kid": "The video lives here, on a computer in one of the cupboards. The video company keeps copies of popular videos in lots of places, so none of them is ever too far away.",
-  "nerd": "A CDN cache server: the video app runs in a container and serves the segment from memory or SSD; only cache misses go further, back to the origin."
+  "nerd": "A CDN cache server: the video app runs in a container and serves the segment from memory or SSD; only cache misses go further, back to the origin.",
+  "1995": {
+    "name": "Web server",
+    "kid": "The page and its picture live here, on a computer far away. Every visitor gets them from this one computer.",
+    "nerd": "A web server: one program (say, NCSA HTTPd) reads the request and sends the files from its disk. There were no CDN caches yet: Akamai began in 1998–99."
+  }
 }

@@ -20,6 +20,9 @@ export interface SNode {
   source: Source;
   /** 0–1 while morphing between two routes. */
   alpha: number;
+  /** While morphing: the node this hop was drawn as before, when another node does its job now (a router → a DSL
+   *  router, #59), fading out where the new one fades in. */
+  was?: { node: WithId<NodeDef>; alpha: number };
 }
 
 export interface SLink extends Curve {
@@ -186,7 +189,8 @@ export function pathScene(r: Route, group: string | null, o: Orient): PathScene 
   return scene;
 }
 
-/** In-between of two path scenes while switching place: shared nodes glide, the rest fade; links follow their nodes. */
+/** In-between of two path scenes while switching place: shared nodes glide (and cross-fade, when another node does the
+ *  job now), the rest fade; links follow their nodes. */
 export function morphScene(a: PathScene, b: PathScene, t: number): PathScene {
   const e = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
   const fadeOut = 1 - Math.min(1, t * 2), fadeIn = Math.max(0, t * 2 - 1);
@@ -194,7 +198,8 @@ export function morphScene(a: PathScene, b: PathScene, t: number): PathScene {
   const nodes: SNode[] = [];
   for (const n of a.nodes) {
     const m = bN.get(n.id);
-    if (m) nodes.push({ ...m, x: lerp(n.x, m.x, e), y: lerp(n.y, m.y, e), size: lerp(n.size, m.size, e) });
+    const swap = m && m.node.id !== n.node.id ? { alpha: e, was: { node: n.node, alpha: 1 - e } } : null;
+    if (m) nodes.push({ ...m, x: lerp(n.x, m.x, e), y: lerp(n.y, m.y, e), size: lerp(n.size, m.size, e), ...swap });
     else nodes.push({ ...n, alpha: fadeOut, size: n.size * (1 - 0.3 * e) });
   }
   for (const m of b.nodes) if (!aN.has(m.id)) nodes.push({ ...m, alpha: fadeIn, size: m.size * (0.7 + 0.3 * e) });

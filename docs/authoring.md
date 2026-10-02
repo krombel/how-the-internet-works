@@ -309,7 +309,8 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   Each is looked up first under the layer (`<layer>.at.<node id>`, `<layer>.role.<role>`, `<layer>.sealed`,
   `<layer>`), so **one scene can serve several layers** by switching on `subject.layer` (`sticker-doors` is
   Ethernet, VLAN and MPLS: the same box of doors with a different book).
-  `{hop}` (this hop's name), `{yours}` ("your phone") and `{layer}` are filled in. Scene labels are your own keys,
+  `{hop}` (this hop's name), `{yours}` ("your phone", "your PC") and `{layer}` are filled in: write `{yours}`, not
+  "your phone", since the device depends on the place and the era. Scene labels are your own keys,
   read with `strings('scene.<id>')`; nerd callouts conventionally live under `tag.*`.
 - A link layer (one in a technology's `stack`: Wi‑Fi, Ethernet, GPON…) is the envelope for one stretch; its dive
   gets a **How it travels** chip down to that link's signal by itself. End kid texts with a line bridging down
@@ -401,6 +402,23 @@ place of that era, and says so.
   are at if it's of that era, else to the first by `order`.
 - The internet inside is today's for every era for now; say so in the place's `inside.internet.nerd` where it
   matters (the 1995 home has no CDN to reach).
+- **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the
+  same keys as the rest of the file, for what is different then (`"1995": { "name": "Web server", "kid": … }` in
+  `nodes/cdn`, `"1995": { "sealed": { … } }` in a dive). On a route of that era every lookup tries the block first,
+  key by key, then today's words, so a dive needs no code to say "your PC" or "plain HTTP". A more specific key of
+  today's still wins over a general one of the era (`sealed` over the era's `kid`), so put the era's words at the
+  same depth (`"1995": { "sealed": … }`). A `describe` in a block needs both `kid` and `nerd`. Blocks load lazily
+  (dives' with the dive strings, the rest as the small chunk of the words of the past), so they cost the first load
+  nothing; write them in English and Danish.
+- **An activity or a segment of an era** (#59): `variantOf: '<base>'` and `era: '<id>'` in its definition make it
+  stand in for the base on that era's routes (`watch-video-1995`: a web page over plain HTTP, no TLS). It has the
+  same place slots as its base and names base segments (the era picks their variants too). It has no locale files:
+  its words are the base's block for its era (`"1995": { "title": "Opening a web page with a picture", … }` in
+  `activities/watch-video/locales/`), and what it doesn't say comes from the base. URLs name the base. Validation
+  fails on a variant of a variant, a missing or unknown era, two variants for one era, other slots, a named variant
+  segment, an era on a base, and locale files of its own.
+- **When a hop's device changes between eras** (today's router, 2010's DSL router at the same stop), the morph
+  cross-fades the two as they glide. Keep the stop's id the same in both places so it does.
 - **Era flavour** (optional): a few small, cute details that make a trip feel like its time, on top of the theme (not
   a restyle). `art/Props.svelte` gets `EraPropsProps` and is drawn twice on the overview of each place of that era:
   `layer: 'back'` over the place's backdrop and under the links and devices, `'front'` over the devices. It draws
@@ -423,6 +441,7 @@ place of that era, and says so.
 defineActivity({
   route: [{ place: 'me', default: 'home' }, { segment: 'isp-to-cdn' }],
   groups: ['internet'], // or nested: ['internet', { id: 'datacentre', in: 'internet' }]
+  // a group may be drawn by another network node (an era's server room): { id: 'datacentre', in: 'internet', node: 'server-room' }
   flows: [{ id: 'video', stack: ['ip', 'tcp', 'tls', 'http'],
             packets: [{ kind: 'request', dir: 'up', pace: 1.2, colour: '#ffcf5d' }, { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, colour: '#bf6f8f' }] }],
   layout: { overview: { landscape: { nodes: { internet: [1380, 360, 250] } } } },

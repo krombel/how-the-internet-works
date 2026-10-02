@@ -4,7 +4,7 @@ import { morphScene, pathScene } from './layout';
 import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, downFrom, frameOf, layerPath, layerStep, linkDivePath, linkOut, nodeAnchor, sceneRef, sideways, travelOf, upFrom, validPrefix } from './tree';
 import { DETAIL_SCALE, WORLD_SIZE, bezier } from '../engine/geometry';
 import { formatHash, normaliseLoc, parseHash } from './location';
-import { content, type Content } from './registry';
+import { activityIds, content, type Content } from './registry';
 import { packetOn } from './packet';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
@@ -30,7 +30,7 @@ describe('resolveRoute', () => {
 
   // generic: holds for whatever places and activities exist, so a new content folder is exercised too
   it('makes a working route for every place × activity', () => {
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const what = `${place} × ${activity}`;
       expect(r.chain[0].role, what).toBe('endpoint');

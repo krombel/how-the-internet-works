@@ -69,5 +69,19 @@
     "untouched": "IP header untouched",
     "proto": "protocol 6 → TCP",
     "ttl64": "new packets: TTL 64"
+  },
+  "1995": {
+    "describe": {
+      "kid": "A paper road links your device, this router and the server. One card shows the parcel’s address label. Another card is a post with road signs. A walking parcel stops here, a magnifying glass reads the label, one sign glows, and the parcel walks on.",
+      "nerd": "The close-up shows the IP header with From, To and TTL. The router’s signs show a client prefix and a default or server route. When the packet pauses, the destination row lights up. Longest-prefix match chooses a sign, TTL counts down, and the packet leaves."
+    },
+    "role": {
+      "bridge": {
+        "describe": {
+          "kid": "A road links your device, this passing box and the server. The address card has sleepy eyes, and the other card shows the old and new envelopes. The parcel keeps its address label closed while one envelope lifts away and a fresh one drops on for the next stretch.",
+          "nerd": "The IP header card is shown but not read. The link card shows incoming and outgoing envelopes. Technical labels mention a new MAC address and an untouched IP header. During the pause, the old layer-2 frame lifts off, the new frame lands, and the packet continues with the same IP label and TTL."
+        }
+      }
+    }
   }
 }

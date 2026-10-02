@@ -60,7 +60,7 @@
     `DA ${down ? phoneName : routerName}`,
     `SA ${down ? routerName : phoneName}`,
   ]);
-  const dsText = $derived(nerd ? S(down ? 'tag.fromDs' : 'tag.toDs') : S(down ? 'label.radioToPhone' : 'label.radioToAp'));
+  const dsText = $derived(nerd ? S(down ? 'tag.fromDs' : 'tag.toDs') : down ? fill(S('label.radioToYou'), { yours: yours(phoneHop) }) : S('label.radioToAp'));
   const swapText = $derived(down ? S('label.cableBecomesRadio') : S('label.radioBecomesCable'));
   const ackText = $derived(nerd ? S('label.ackNerd') : S('label.gotIt'));
   const titleY = $derived(c0.y + (portrait || compact ? 82 : 74));

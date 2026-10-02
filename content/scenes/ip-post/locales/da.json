@@ -69,5 +69,19 @@
     "untouched": "IP-hoved urørt",
     "proto": "protokol 6 → TCP",
     "ttl64": "nye pakker: TTL 64"
+  },
+  "1995": {
+    "describe": {
+      "kid": "En papirvej forbinder din enhed, denne router og serveren. Ét kort viser pakkens adressemærke. Et andet kort er en pæl med vejskilte. En gående pakke stopper her, et forstørrelsesglas læser mærket, et skilt lyser, og pakken går videre.",
+      "nerd": "Nærbilledet viser IP-headeren med Fra, Til og TTL. Routerens skilte viser et klientpræfiks og en standard- eller serverrute. Når pakken holder pause, lyser destinationsrækken. Længste præfiks-match vælger et skilt, TTL tælles ned, og pakken sendes videre."
+    },
+    "role": {
+      "bridge": {
+        "describe": {
+          "kid": "En vej forbinder din enhed, dette gennemgangsstop og serveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+          "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker nævner ny MAC-adresse og urørt IP-header. Under pausen løftes den gamle lag 2-ramme af, den nye lander, og pakken fortsætter med samme IP-mærke og TTL."
+        }
+      }
+    }
   }
 }

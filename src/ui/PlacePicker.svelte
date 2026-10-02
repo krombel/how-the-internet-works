@@ -4,8 +4,8 @@
   // the chosen place has some, "How do you get online?" offers them. A card on wide screens, a bottom sheet on phones.
   import { onMount } from 'svelte';
   import { nodeArt } from '../model/components';
-  import { activityIds, basePlace, content, placeFamily } from '../model/registry';
-  import { themeState, tr, view } from '../state.svelte';
+  import { activityIds, basePlace, content, inEra, placeFamily } from '../model/registry';
+  import { nav, themeState, tr, trActivity, view } from '../state.svelte';
   import Icon from './Icon.svelte';
 
   let { places, activity, slot, onpick, onclose }: {
@@ -67,7 +67,7 @@
   <div class="options">
     {#each activityIds() as a (a)}
       <button class="btn option wide" class:on={a === activity} aria-pressed={a === activity} onclick={() => onpick({ activity: a })}>
-        <span>{tr(`activity.${a}.title`)}</span>
+        <span>{trActivity(inEra(content.activities, a, nav.route.era), 'title')}</span>
       </button>
     {/each}
   </div>
