@@ -76,12 +76,14 @@ src/                      the engine: no content ids anywhere
   main.ts App.svelte state.svelte.ts router.ts
   engine/                 camera (semantic zoom), gestures, motion, packets, sound, speech (read aloud), svg, geometry,
                           zoom
-  model/                  registry (content globs), components (Svelte globs), strings, schema + validate (zod),
+  model/                  registry (content globs), strings, schema + validate (zod),
                           resolve (route), layout (path scenes), tree (scene tree), packet (the packet model),
                           stack (LayerCtx), ladder (what lies below a scene), location (URL), regions (owner outlines),
                           trip (km, light, owners), describe (the keys a scene's text and description are under),
                           focus (a scene's spots: the keys' and the list view's), textmap (the scene tree as a list)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
+                          lazy (the Svelte content loaded on demand: device art, backdrops, dives, era flavour),
+                          Arrive (fades in a backdrop that lands late),
                           art-base/ (fallback art slots), theme-types (the theme contract)
   ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
                           list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
@@ -403,8 +405,8 @@ mark (`mark`) to draw inside its own shape, so up and down still differ by shape
   `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
   (`scene.<id>.<layer>.at.<node>` … `scene.<id>.<layer>`), for a scene serving several layers.
 
-Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour): a scene's chunk is fetched when the
-flight towards it starts, and the peek preloads the layer dives it offers.
+Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour and the device art): a scene's chunk is
+fetched when the flight towards it starts, and the peek preloads the layer dives it offers.
 
 From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, `arrived()` (true while the reader is at this scene) and `soundOut()` (the Web Audio output while sound is on, else `null`: a scene's own short sound, the dial-up handshake), and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text; a data colour is mixed into the ink with `labelInk`, and `on` names the body it is printed on) and `TagAt`.
 
@@ -435,6 +437,27 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 
 **Place backdrops** get `{ orient, w, h, time }` and draw in root-scene coordinates. They may wrap parts in `<Depth d>` for parallax.
 
+**Device art and backdrops load with their route (#91).** Each node's art and each place's and group's backdrop is a
+chunk of its own (`render/lazy.svelte.ts`), so a new device or place adds nothing to the first load. A route's art
+(`routeArt`: every hop's device, inside its groups and on its side branches too, each group's entry, its places'
+backdrops and its groups') loads together, `loadRouteArt`:
+- **The start route** before the first paint, with the theme, its fonts and the language (`main.ts`), so the first
+  picture has no placeholder and a flight into the internet finds its devices there.
+- **A place switch** (the picker, the time machine, Back) as the route changes (an effect in `App.svelte`), while the
+  morph runs. Ahead of it when it can be: a picker option pointed at or focused, and an era chosen in the time machine
+  (the trip it would take), fetch that route's art before the tap.
+- **Anything drawn** asks for its own (`deviceArt`, `placeBackdrop`, `groupBackdrop`), so a dive that draws a device off
+  its route (`Node`) loads it too.
+- **The dialogs' pictures** come before the dialog: the picker opens once its places' pictures are here (`pictures`,
+  `ui/picker.ts`; at once after the first time), and the time machine loads its start devices with its chunk.
+
+Until a device's art is here the theme's `Device` gets `pending` and draws a small placeholder in the device's spot
+(Storybook: a soft pebble in `--tan-pale`, no outline and no face, so day and night both read it as "something is
+here"); a backdrop not here yet leaves the theme's sky and hills, which are always drawn under it. Art that lands after
+its placeholder showed fades in over 0.25 s (the theme's `Device`; `render/Arrive.svelte` for backdrops), so nothing
+pops; art there from the start just shows. With 300 ms of network latency the art lands while the morph's newcomers
+are still fading in, so no placeholder is seen; the screenshot script waits for it (`artLoading`).
+
 **Era props** get `EraPropsProps` (`{ layer, spots, devices, traffic, age, time, still }`) and draw in root-scene
 coordinates too; **era parcel marks** get `{ dir, size }` (see *Add an era* in [authoring.md](authoring.md)).
 
@@ -443,13 +466,14 @@ coordinates too; **era parcel marks** get `{ dir, size }` (see *Add an era* in [
 | Point | Where | What plugs in |
 |---|---|---|
 | Content data | `model/registry.ts` | `content/<kind>/<id>/<kind>.ts` (node.ts, technology.ts, era.ts, …) |
-| Svelte content | `model/components.ts`, `render/lazy.svelte.ts` | node art, layer envelopes, place backdrops; dive scenes and era flavour, on demand |
+| Svelte content | `render/lazy.svelte.ts` | node art and place and group backdrops (with their route, #91), dive scenes and era flavour, all on demand |
 | Strings | `model/strings.ts` + the `string-packs` plugin in `vite.config.ts` | `content/**/locales/<lang>.json`, auto-namespaced by folder (`node.phone.name`, `place.home.stop.router.kid`) |
 | Themes | `state.svelte.ts` (`loadTheme`) | `content/themes/<id>/`, with unset slots falling back to `render/art-base/` |
 | Validation | `model/validate.ts` | runs every schema and cross-reference; dev + tests only |
 
 **The theme contract** (`render/theme-types.ts`) has only engine-level slots: `Defs`, `Backdrop` (sky and hills),
-`Device` (places the node art, adds a face and a focus ring, and a fallback body; `kbd`: the keyboard's two-tone ring
+`Device` (places the node art, adds a face and a focus ring, a small placeholder while the art loads (`pending`) and a
+fallback body; `kbd`: the keyboard's two-tone ring
 round it, its shapes classed `kbd-ink` and `kbd-gap` so forced colours can repaint them), `Link` (by `look`; `kbd`
 likewise round the link), `Packet` (with its `dir`: up, a request, and down, an answer, look different by shape, not
 just colour), `Hint` (a door: `dive`, `expand`, `swap`, drawn in two parts, a
@@ -624,9 +648,11 @@ Vitest (`npm test`) covers:
 - contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
   night, with translucent cards composited over the page background
 
-CI runs `npm ci && npm test && npm run build` on every PR and push to main. The accessibility check (`npm run
-evaluate -- --only=a11y`, below) runs locally before a merge, and in CI only on demand (Run workflow) as two parallel
-jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`, about 18 min each), to save Actions minutes.
+CI runs `npm ci && npm test && npm run build`, and beside it the accessibility check (`npm run evaluate --
+--only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`), on every PR and
+push to main. The jobs run on two self-hosted runners on a lab PC (label `lab`), inside the Playwright image, so
+they cost no Actions minutes; perf (`--only=perf`) stays on a developer machine, since a software renderer can't
+measure frame times.
 
 ## Performance
 
@@ -679,7 +705,7 @@ catching a packet on the overview costs about 35 % more; even on dive panels onl
 heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
 between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 96.7 kB gz (about 0.5 kB of it #59's era variants: the variant fields, the route's era, the strings' era lookup, the cross-fade and the two activity variants, whose words, like every item's words for the past, are a lazy chunk of about 1.2 kB; rush hour's removal, #114, took off about 0.7 kB; about 1.1 kB of it the era flavour of #59: its loader, the mount in the root scene and the parcel's mark, about 0.65 kB, with the places' prop spots and the English words that describe the props, about 0.35 kB; the props and mark are lazy chunks of about 1–2.2 kB per era; about 1.1 kB of it the time machine's top-bar button, its era stops and the start devices of #59's way in, with their English strings, about 0.4 kB; about 0.8 kB the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 3.2 kB with its CSS and `eraTrip`; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
+Initial JS is about 91.2 kB gz (about 0.6 kB of it #59's era variants: the variant fields, the route's era, the strings' era lookup, the cross-fade and the two activity variants, whose words, like every item's words for the past, are a lazy chunk of about 1.2 kB; 96.2 kB before #91 made the device art and the place and group backdrops lazy: about 8.5 kB of art left the first load; their loader, one entry per file, costs about 1.2 kB of it, about 30 bytes per device or place added from now on, and the fade-in for art that lands late about 0.25 kB; a device's chunk is 0.3–0.5 kB, a backdrop's 0.6–1.5 kB; rush hour's removal, #114, took off about 0.7 kB; about 1.1 kB of it the era flavour of #59: its loader, the mount in the root scene and the parcel's mark, about 0.65 kB, with the places' prop spots and the English words that describe the props, about 0.35 kB; the props and mark are lazy chunks of about 1–2.2 kB per era; about 1.1 kB of it the time machine's top-bar button, its era stops and the start devices of #59's way in, with their English strings, about 0.4 kB; about 0.8 kB the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 3.2 kB with its CSS and `eraTrip`; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
 chunk of about 2.2 kB with their CSS, loaded only on a first visit; 91.7 kB before them, with the accessibility work of
 #53; about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the

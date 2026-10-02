@@ -3,24 +3,29 @@
   // Places a node's own art (content/nodes/<id>/art/Device.svelte) and gives it the storybook look: chunky brown
   // outlines, paper colours, a blinking face and a gentle bob in dives. The node art only uses the shared classes.
   import type { DeviceProps } from '$core/api';
-  let { id, x, y, size, time, Art, face, context, focused, kbd }: DeviceProps = $props();
+  let { id, x, y, size, time, Art, face, pending, context, focused, kbd }: DeviceProps = $props();
   const blink = $derived(Math.sin(time * 3 + id.length * 0.7) > 0.93);
   const bob = $derived(context === 'dive' ? Math.sin(time * 1.5 + id.length) * 3 : 0);
+  // art that lands after its placeholder showed (#91) fades in; art there from the start just shows
+  let late = $state(false);
+  $effect.pre(() => { if (pending) late = true; });
 </script>
 
 <g class="storybook-device dev-{id}" class:focused transform="translate({x - size / 2} {y - size / 2 + bob}) scale({size / 200})">
   {#if kbd}<g class="kbd"><circle class="kbd-gap" cx="100" cy="100" r="108" /><circle class="kbd-ink" cx="100" cy="100" r="108" /></g>{/if}
   {#if focused}<circle class="focus" cx="100" cy="100" r="98" />{/if}
-  {#if Art}<Art {time} />{:else}<rect class="body peach" x="34" y="44" width="132" height="112" rx="26" />{/if}
-  {#if face || !Art}
-    {@const f = face ?? [100, 104]}
-    <g class="face" transform="translate({f[0]} {f[1]})">
-      <ellipse class="eye" cx="-18" cy="-7" rx="5.5" ry={blink ? 1.4 : 6} />
-      <ellipse class="eye" cx="18" cy="-7" rx="5.5" ry={blink ? 1.4 : 6} />
-      <path class="smile" d="M-15 12 Q0 24 15 12" />
-    </g>
-  {/if}
+  {#if Art}<g class:late><Art {time} />{#if face}{@render faceAt(face)}{/if}</g>
+  {:else if pending}<rect class="pending" x="58" y="66" width="84" height="76" rx="26" />
+  {:else}<rect class="body peach" x="34" y="44" width="132" height="112" rx="26" />{@render faceAt([100, 104])}{/if}
 </g>
+
+{#snippet faceAt(f: [number, number])}
+  <g class="face" transform="translate({f[0]} {f[1]})">
+    <ellipse class="eye" cx="-18" cy="-7" rx="5.5" ry={blink ? 1.4 : 6} />
+    <ellipse class="eye" cx="18" cy="-7" rx="5.5" ry={blink ? 1.4 : 6} />
+    <path class="smile" d="M-15 12 Q0 24 15 12" />
+  </g>
+{/snippet}
 
 <style>
   /* the keyboard's ring, as the engine draws focus (this theme keeps its colours: ink over a gap in the page colour), outside the stop's own glow */
@@ -48,4 +53,8 @@
   }
   .storybook-device :global(.hi) { fill: var(--paper); opacity: .55; }
   .eye { fill: var(--line); }
+  /* while the art loads (#91): a soft body-coloured pebble where the device will be, no outline, no face */
+  .pending { fill: var(--tan-pale); opacity: .6; }
+  .late { animation: arrive .25s ease-out; }
+  @keyframes arrive { from { opacity: 0; } }
 </style>

@@ -7,7 +7,6 @@
   import { curvePath, WORLD_SIZE } from '../engine/geometry';
   import { perPx, pts } from '../engine/svg';
   import { trafficOn, type LivePacket } from '../engine/packets';
-  import { groupBackdrops, nodeArt, placeBackdrops } from '../model/components';
   import { badgeBox, badgeSize, doorsOf, layoutDoors, type Door } from '../model/doors';
   import { placeTexts, type Per } from '../model/labels';
   import { propSpots, type PathScene, type SNode } from '../model/layout';
@@ -18,7 +17,8 @@
   import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import { untrack } from 'svelte';
   import { getScene, getWorld, legibleSize, tagSize } from './ctx';
-  import { eraArt } from './lazy.svelte';
+  import { deviceArt, eraArt, groupBackdrop, placeBackdrop } from './lazy.svelte';
+  import Arrive from './Arrive.svelte';
   import TagAt from './TagAt.svelte';
   import Text from './Text.svelte';
 
@@ -50,7 +50,7 @@
   const nodeTag = (n: SNode) => (nerd ? trFirst([...routeKeys(`tag.${n.id}`), `node.${n.node.id}.tag`]) : '');
   const flowColour = (flow: string, kind: string) =>
     route.activity.flows.find((f) => f.id === flow)?.packets.find((p) => p.kind === kind)?.colour ?? '#fff';
-  const GroupBackdrop = $derived(ps.group ? groupBackdrops[route.hops[ps.group].node.id] : undefined);
+  const GroupBackdrop = $derived(ps.group ? groupBackdrop(route.hops[ps.group].node.id) : null);
   const regions = $derived(regionsOf(route, ps));
   // only the networks on the packets' way are named: a side branch is just faintly there
   const named = $derived(regions.filter((g) => !g.aside));
@@ -107,11 +107,14 @@
 
 <g class="scene scene-{ps.key}">
   <A.Backdrop kind={root ? 'root' : 'group'} orient={view.orient} w={W.w} h={W.h} time={view.time} />
-  {#if GroupBackdrop}<GroupBackdrop orient={view.orient} w={W.w} h={W.h} time={view.time} />{/if}
+  {#if ps.group}
+    <Arrive of={GroupBackdrop}>{#snippet children(G)}<G orient={view.orient} w={W.w} h={W.h} time={view.time} />{/snippet}</Arrive>
+  {/if}
   {#if root}
     {#each backdrops as b (b.id)}
-      {@const B = placeBackdrops[b.id]}
-      {#if B}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={view.time} /></g>{/if}
+      <Arrive of={placeBackdrop(b.id)}>
+        {#snippet children(B)}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={view.time} /></g>{/snippet}
+      </Arrive>
     {/each}
     {@render flavour('back')}
   {/if}
@@ -128,15 +131,15 @@
   {/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
   {#each ps.nodes as n (n.id)}
-    {@const art = nodeArt[n.node.id]}
+    {@const art = deviceArt(n.node.id)}
     {#if n.was}
-      {@const was = nodeArt[n.was.node.id]}
+      {@const was = deviceArt(n.was.node.id)}
       <g opacity={n.was.alpha}>
-        <A.Device id={n.was.node.id} Art={was?.default ?? null} face={was?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={false} kbd={false} />
+        <A.Device id={n.was.node.id} Art={was.Art} face={was.face} pending={was.pending} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={false} kbd={false} />
       </g>
     {/if}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
-      <A.Device id={n.node.id} Art={art?.default ?? null} face={art?.face ?? null} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
+      <A.Device id={n.node.id} Art={art.Art} face={art.face} pending={art.pending} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
     </g>
   {/each}
   {#if root}{@render flavour('front')}{/if}

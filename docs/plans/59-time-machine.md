@@ -398,9 +398,9 @@ eager in all**.
 | 11–14. Flats 2010, ~2002, milestones, 1985 lab | estimated in each step's plan update | |
 
 - **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 6–8's eager cost is new device art and
-  the server room's backdrop. Best order: #91 before PR 6. Era props are lazy whether or not #91 has landed.
-  Whichever lands first, the time machine must not show placeholders mid-trip: once #91 is in, choosing an era in the panel **prefetches the target trip's art** (the
-  devices of its route and its backdrop), and the panel awaits its era pictures' art as it loads (it is lazy anyway).
+  the server room's backdrop. Done before PR 6 (the "after #91" estimates above apply): each device and backdrop is a
+  chunk of its own, loaded with the first route that draws it. Choosing an era in the panel **prefetches the target
+  trip's art** (the devices of its route and its backdrops), and the panel loads its era pictures' art with its chunk.
 - **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main), and so do every content item's blocks
   for an era of the past (`"1995": { … }`, since PR 3: the `eraBlocks` plugin leaves them out of the eager English;
   a dive's come with the dive strings, the rest are `virtual:past-strings`, about 1.2 kB, loaded with the time
@@ -611,10 +611,11 @@ Made while building PR 3 (era variants as content):
   34.6 kB of them up front. It is awaited at start for a link into the past, loaded with the time machine's panel,
   and loaded when a route of the past is shown another way (the picker's access chips: the text updates when it
   arrives, a few ms later). The places of the past keep their own strings eager.
-- **Eager JS: +0.57 kB gz** (96.70 against 96.13 on main; the plan said ~0.5): the variant fields, the route's era,
-  `withEra`, the cross-fade, `trActivity`, the past-strings loader and the two activity variants' data. A phone
-  start at `home/watch-video` fetches 105.0 kB of JS against 104.4; a start at `home-dialup/watch-video` 107.3 against
-  105.6 (the past chunk). Before the era pack it was +0.99 kB.
+- **Eager JS: +0.6 kB gz** (93.31 against 92.71 on main after #91, index.html's static imports gzipped; 96.70
+  against 96.13 before #91; the plan said ~0.5): the variant fields, the route's era, `withEra`, the cross-fade,
+  `trActivity`, the past-strings loader and the two activity variants' data. Before #91, a phone start at
+  `home/watch-video` fetched 105.0 kB of JS against 104.4, and one at `home-dialup/watch-video` 107.3 against 105.6
+  (the past chunk). Before the era pack it was +0.99 kB.
 - **Titles are gerunds**, like today's ("Opening a web page with a picture", "Watching a small video").
 - **Flows**: 1995 and 2010 are `ip › tcp › http` on port 80 (client ports 1031 and 50112). 1995's packets are a
   `request` up and a `page` down; 2010 keeps the video's kinds. The down parcel is still drawn as the theme's film

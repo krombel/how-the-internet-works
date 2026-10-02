@@ -3,10 +3,12 @@
   // slot says `only`). A place's variants (other ways of getting online from it) are not places of their own: when
   // the chosen place has some, "How do you get online?" offers them. A card on wide screens, a bottom sheet on phones.
   import { onMount } from 'svelte';
-  import { nodeArt } from '../model/components';
   import { activityIds, basePlace, content, inEra, placeFamily } from '../model/registry';
+  import { resolveRoute } from '../model/resolve';
+  import { deviceArt, loadRouteArt } from '../render/lazy.svelte';
   import { nav, themeState, tr, trActivity, view } from '../state.svelte';
   import Icon from './Icon.svelte';
+  import { iconOf } from './picker';
 
   let { places, activity, slot, onpick, onclose }: {
     places: string[]; activity: string; slot: number;
@@ -22,15 +24,12 @@
   const options = $derived(allowed.filter((id) => placeFamily(id, allowed)[0] === id));
   const here = $derived(places[slot]);
   const family = $derived(placeFamily(here, allowed));
-  /** A place's picture: the first device after the start (Wi-Fi box, cell tower, …). */
-  const iconOf = (id: string) => {
-    const hops = content.places[id].hops.filter((h) => 'at' in h) as { at: string; node?: string }[];
-    const h = hops[1] ?? hops[0];
-    return h.node ?? h.at;
-  };
   let dialog: HTMLDivElement;
   onMount(() => dialog.querySelector<HTMLButtonElement>('.option.on, .option')?.focus());
-  const choose = (id: string) => onpick({ places: places.map((p, i) => (i === slot ? id : p)) });
+  const placesWith = (id: string) => places.map((p, i) => (i === slot ? id : p));
+  const choose = (id: string) => onpick({ places: placesWith(id) });
+  /** Pointed at or focused: fetch that place's art ahead of the tap (#91). */
+  const ahead = (id: string) => void loadRouteArt(resolveRoute({ activity, places: placesWith(id) }));
   const inFamily = (id: string) => basePlace(id) === basePlace(here);
 </script>
 
@@ -44,10 +43,11 @@
   <div class="options">
     {#each options as p (p)}
       {@const icon = iconOf(p)}
-      {@const art = nodeArt[icon]}
-      <button class="btn option" class:on={inFamily(p)} aria-pressed={inFamily(p)} onclick={() => choose(inFamily(p) ? here : p)}>
+      {@const art = deviceArt(icon)}
+      <button class="btn option" class:on={inFamily(p)} aria-pressed={inFamily(p)} onclick={() => choose(inFamily(p) ? here : p)}
+        onpointerenter={() => ahead(p)} onfocus={() => ahead(p)}>
         <svg viewBox="0 0 200 200" aria-hidden="true">
-          <A.Device id={icon} Art={art?.default ?? null} face={art?.face ?? null} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
+          <A.Device id={icon} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
         </svg>
         <span>{tr(`place.${basePlace(p)}.name`)}</span>
       </button>
@@ -57,7 +57,7 @@
     <h2>{tr('pick.access')}</h2>
     <div class="options">
       {#each family as v (v)}
-        <button class="btn option row" class:on={v === here} aria-pressed={v === here} onclick={() => choose(v)}>
+        <button class="btn option row" class:on={v === here} aria-pressed={v === here} onclick={() => choose(v)} onpointerenter={() => ahead(v)} onfocus={() => ahead(v)}>
           <span>{tr(`place.${v}.access`)}</span>
         </button>
       {/each}

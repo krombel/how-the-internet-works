@@ -1,8 +1,10 @@
 import { mount } from 'svelte';
 import App from './App.svelte';
 import './ui/ui.css';
-import { eraOf, nowEra } from './model/registry';
+import { nowEra } from './model/registry';
+import { resolveRoute } from './model/resolve';
 import { loadPack } from './model/strings';
+import { loadRouteArt } from './render/lazy.svelte';
 import { current } from './router';
 import { loadDiveStrings, loadPastStrings, loadTheme, settings } from './state.svelte';
 
@@ -15,9 +17,12 @@ if (import.meta.env.DEV) {
 // The first theme is loaded before mounting so the first paint already has the right art and fonts.
 // Switching later re-renders in place (see the style effect in App.svelte).
 // The same for the language in the link, so a Danish link doesn't flash English first, and for the dive strings
-// when the link goes below the overview (into a dive, "router~ip", or a group that holds some), and for the words
-// of the past when it goes to a place of another era (#59).
-const start = current();
-const past = start.places.some((p) => eraOf(p) !== nowEra());
-await Promise.all([loadTheme(settings.style), loadPack(start.lang), start.path.length > 0 && loadDiveStrings(), past && loadPastStrings()]);
+// when the link goes below the overview (into a dive, "router~ip", or a group that holds some), for the start route's
+// art (its devices and backdrops, #91), so nothing on it is a placeholder, and for the words of the past when the route
+// is in another era (#59).
+const start = current(), route = resolveRoute(start);
+await Promise.all([
+  loadTheme(settings.style), loadPack(start.lang), start.path.length > 0 && loadDiveStrings(), loadRouteArt(route),
+  route.era !== nowEra() && loadPastStrings(),
+]);
 mount(App, { target: document.body });

@@ -1,6 +1,6 @@
 // Content discovery: every folder under /content is found with import.meta.glob, so adding a folder adds content.
-// This module only loads data (definition files + strings), never Svelte components (see components.ts), so it
-// also runs in tests.
+// This module only loads data (definition files + strings), never Svelte components (those load on demand,
+// render/lazy.svelte.ts), so it also runs in tests.
 import type { ActivityDef, EraDef, LayerDef, NodeDef, OwnerDef, PlaceDef, SceneDef, SegmentDef, TechDef } from '../define';
 
 export type WithId<T> = T & { id: string; /** Source file, for error messages. */ file: string };

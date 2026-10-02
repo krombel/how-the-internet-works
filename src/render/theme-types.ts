@@ -19,11 +19,16 @@ export interface RoadProps { d: string; orient: Orient; time: number }
  *  also of a network node's (content/nodes/<id>/art/Backdrop.svelte), drawn over the theme's in its unfolded scene. */
 export interface PlaceBackdropProps { orient: Orient; w: number; h: number; time: number }
 /** A node's own art (content/nodes/<id>/art/Device.svelte) draws its body in a 200×200 box; the theme's Device
- *  slot places it, adds a face at `face` (if the theme draws faces), a focus ring, and a fallback when there's no art. */
+ *  slot places it, adds a face at `face` (if the theme draws faces), a focus ring, a placeholder while the art loads
+ *  (`pending`) and a fallback when there's no art. */
 export interface DeviceProps {
   id: string; x: number; y: number; size: number; time: number;
   Art: Component<{ time: number }> | null;
   face: [number, number] | null;
+  /** The node's art is on its way (it loads with its place, #91): Art is null for now. Draw a small, quiet placeholder
+   *  (no face, not the fallback body), in tokens so day and night both look right, so the art can take its place;
+   *  fade the art in when it lands after the placeholder showed. */
+  pending?: boolean;
   /** 'path' = in a path scene; 'dive' = drawn big inside a dive scene. */
   context: 'path' | 'dive';
   focused: boolean;
