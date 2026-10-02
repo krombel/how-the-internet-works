@@ -177,7 +177,8 @@ Navigating the scene shows a packet's physical life; catching one shows its laye
   (`view.time`) that drives the traffic, the dives, the night sky and the doors' breathing stops (`clockRate` in
   `engine/motion.ts` eases the rate to exactly 0 and back). It is remembered (`settings.paused`, `localStorage`).
   Tapping a packet, moving or frozen, catches it, and motion is paused while it is caught; letting it go resumes
-  unless ⏸ is on.
+  unless ⏸ is on. A finger lands a moment behind a moving packet, so its tap area trails it: each packet is
+  hit-tested where it is and where it was a quarter of a second ago (`packetNear`, #122).
 - The caught packet is drawn as a ghost (`poseOn`) waiting at a **chain hop**: just before it, on the link it arrives
   by (`caughtSpot`). A packet caught between hops waits at the hop ahead, or the one behind when the scene doesn't
   draw the hop ahead (a collapsed group): `hopAhead`. Its live twin is hidden while caught.
@@ -188,7 +189,7 @@ Navigating the scene shows a packet's physical life; catching one shows its laye
   camera flies there. The camera tracks the ghost until the user pans or zooms (`followStep` in `engine/camera.ts`:
   an exponential ease, which lands exactly on the ghost once within a twentieth of a pixel, so where it rests doesn't
   depend on the frame timing that got it there, #40).
-- **Catch by kind** (the caption's chips, "Catch: Request · Video"; issue #74) starts the packet where that kind enters
+- **Catch by kind** (the caption's chips while "What can I explore?" is on, "Catch: Request · Video"; issues #74, #122) starts the packet where that kind enters
   the scene on screen, so ◀ ▶ can take it all the way across and on into the next scene: at the first hop on its way
   that the scene draws (`entryHop`, walking from its sender with `stepHop`, with the same `drawn` test as `hopAhead`).
   As the chain is laid out left → right, that is the left (portrait: the bottom) for a request and the right (the top)
@@ -261,8 +262,9 @@ caption and the strings (`door.*`):
 | **Open up** | `expand` | a group node (`kind: network`) | its own path scene | orange lens with a door (its label shows when pointed at or lit); a breathing dashed ring round the group |
 | **Change** | `swap` | the start device (root only) | the place / activity picker | berry rounded square with arrows |
 
-A fourth verb, **Catch**, is for packets (issue #17, above): the caption lists the flow's packet kinds ("Catch: Request ·
-Video") and a chip catches a packet of that kind where it enters the scene on screen (issue #74, above).
+A fourth verb, **Catch**, is for packets (issue #17, above): while "What can I explore?" is on, the caption lists the
+flow's packet kinds ("Catch: Request · Video") and a chip catches a packet of that kind where it enters the scene on
+screen (issue #74, above).
 
 Dives have two more, caption chips only (issue #13), joining an envelope and the signal that carries it:
 
@@ -282,13 +284,22 @@ dive; `CaptionDoor.path` carries where they go.
   its tap target is. A tap right on a badge beats a packet passing under it.
 - **Hover and focus.** With a mouse, the door under the pointer glows and shows its label (and the cursor becomes a
   pointer over anything tappable). Pointing at or focusing a caption chip lights its badge in the scene the same way.
-- **"What can I explore?"** (the ✨ button in the chrome) lights every door of the current scene with its label for
-  six seconds, or until tapped again, a tap on the scene or a scene change. If some are off screen (zoomed in on a
-  stop), it steps back to the whole scene first. It isn't shown where a scene has no doors (dives).
-- **Caption chips.** The caption lists the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a
-  stop, only that stop's own). Links of the same technology share one chip (the first) at scene level; walking to a
-  stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
-  SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
+- **"What can I explore?"** (the ✨ button in the chrome, a toggle with `aria-pressed`; issue #122) lights every door
+  of the current scene with its label and swaps the caption's story for its chips (below), until it is tapped again,
+  Esc, a tap on the scene, a catch or a scene change (a door from the list is one). At a stop, or with doors off
+  screen, it steps back to the whole scene first, so what is lit and what is listed agree. It is there wherever there
+  is something to explore: doors in the scene, a dive's *How it travels* / *What it carries*, or packets to catch.
+  Focus goes into the list (once the caption shows) and the announcer says how many things there are ("7 things to
+  explore"); closed with Esc from the list, focus goes back to the button, and letting go of a packet caught from it
+  comes back there too.
+- **Caption chips.** The caption tells only the story (title, text, where you are, the time machine) until "What can
+  I explore?" is on; then, in the same space (it keeps the story's height and the list scrolls if it must), it lists
+  the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a stop, only that stop's own) and the
+  packets to catch. Links of the same technology share one chip (the first) at scene level; walking to a stop gives
+  each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene SVG is
+  `aria-hidden`; the list view lists every door too). On small screens only the verb's icon is shown; the group keeps
+  the verb as its label. On a portrait phone the folded card's title is then only for screen readers, so two rows of
+  chips fit; on a short landscape screen the pill holds one row, scrolling sideways.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 - **First-run coach marks** (issue #21). A visit that starts at the top (`coachRun` in `ui/coach.ts`: the overview, no
   stop) and has never had them gets, after 700 ms of the scene moving, four cards (`ui/CoachMarks.svelte` with
@@ -512,7 +523,8 @@ engine:
 - **Focus after navigation** (`App.svelte`). A navigation sets `navigated`; when the caption shows again (the flight has
   landed) focus moves to its heading (`tabindex="-1"`) if the control that was used has gone or turned `inert`,
   otherwise the arrival is announced. Hidden UI is `inert`, never only transparent. Catching a packet remembers the
-  focused element (`catchFrom`) and focuses the peek; letting go gives it back (`keepFocus`). The picker makes
+  focused element (`catchFrom`; "What can I explore?" when caught from its list, which is gone by then) and focuses
+  the peek; letting go gives it back (`keepFocus`). The picker makes
   everything behind it `inert` and gives focus back to its opener. Where focus has nowhere better to go it goes to
   where you are in the scene (SceneKeys' button with `tabindex="0"`), else the caption's heading.
 - **One focus model** (`model/focus.ts`, `spotsOf`): a scene's spots, the whole scene then its stops in `sideways`
@@ -626,7 +638,7 @@ Vitest (`npm test`) covers:
 - the packet model: every value on every link resolves; NAT and CGNAT rewrites, the TTL count-down, MAC continuity
   across bridges, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
   router, core, tower, mobile core, both ends); catching and stepping (`hopAhead`, `stepHop`, `caughtSpot`,
-  `hopScenePath`); catching by kind (`entryHop`): for every place, activity, path scene, orientation and direction,
+  `hopScenePath`, and a tap a moment behind a moving packet, `packetNear`); catching by kind (`entryHop`): for every place, activity, path scene, orientation and direction,
   the entry hop is at the edge the packet comes in by, it glides in from outside, and stepping on passes every hop the
   scene draws
 - the URL round trip

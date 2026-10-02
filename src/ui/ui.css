@@ -177,13 +177,16 @@ button { cursor: pointer; }
 .caption .chip { font-size: 12.5px; padding: 3px 10px; min-height: 24px; border-radius: 99px; background: var(--btn); font-weight: 800; }
 .caption .chip u { text-underline-offset: 2px; color: var(--link); }
 .caption :is(.read, .time) svg { width: 15px; height: 15px; }
-/* doors, by verb: "Look inside: Wi-Fi · Fibre   Open up: The internet" */
-.caption .doors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+/* exploring (#122): the doors, by verb ("Look inside: Wi-Fi · Fibre   Open up: The internet"), in the story's place;
+   the caption keeps the story's height (set inline) and the list scrolls if it needs more */
+.caption.exploring .cap-in { display: flex; flex-direction: column; height: 100%; }
+.caption .doors { display: flex; flex-wrap: wrap; align-content: flex-start; align-items: center; gap: 4px 14px; flex: 1; min-height: 0;
+  overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 6px; margin: -6px; }
 .caption .verb { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .caption .verb-name { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; color: var(--door-ink); }
 .caption .verb-name svg { width: 15px; height: 15px; }
 .caption .door { box-shadow: inset 0 0 0 2px var(--door-ink); }
-.caption .door:hover, .caption .door:focus-visible, .caption .doors.lit .door { background: var(--door-ink); color: var(--btn-on-ink); }
+.caption .door:hover, .caption .door:focus-visible { background: var(--door-ink); color: var(--btn-on-ink); }
 /* small screens: just the verb's icon (its name is the group's label for screen readers) */
 @media (max-width: 520px), (max-height: 500px) { .caption .verb-name span { display: none; } .caption .doors { gap: 4px 10px; } }
 .door-dive { --door-ink: var(--door-dive, var(--accent)); }
@@ -195,6 +198,10 @@ button { cursor: pointer; }
 .caption.compact { width: fit-content; max-width: min(560px, calc(100% - 20px)); padding: 2px 6px 2px 16px; }
 .caption.compact:not(.open) :is(p, .tag, .foot) { display: none; }
 .caption.compact h2 { margin: 0; font-size: 17px; }
+/* exploring in the pill: one row of chips, scrolling sideways */
+.caption.compact.exploring { padding-block: 6px; max-width: calc(100% - 20px); }
+.caption.compact .doors { flex-wrap: nowrap; }
+.caption.compact .verb { flex-wrap: nowrap; white-space: nowrap; }
 .cap-toggle { display: flex; align-items: center; gap: 4px; max-width: 100%; min-height: 40px; padding: 0; border: 0; background: none;
   font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
 .cap-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -203,7 +210,8 @@ button { cursor: pointer; }
 .caption.open .cap-in { background: linear-gradient(var(--card), var(--card)), var(--bg); }
 .caption.compact.open .cap-in { position: absolute; bottom: calc(-1 * var(--card-edge-w)); left: 50%; translate: -50% 0;
   width: min(760px, calc(100vw - 20px)); max-height: calc(100vh - 20px); overflow: auto; padding: 2px 16px 12px; }
-/* folded card (a portrait phone): the title (a button that opens the rest), two lines of text and the doors; open, the
+/* folded card (a portrait phone): the title (a button that opens the rest) and two lines of text (exploring: the doors
+   in their place, #122); open, the
    whole caption lies over the scene, from the folded card's bottom up to the top bar at most (scrolling past that) */
 .caption.folded .cap-toggle { width: 100%; min-height: 32px; justify-content: space-between; text-align: start; }
 .caption.folded .cap-toggle span { white-space: normal; }
@@ -439,7 +447,7 @@ button { cursor: pointer; }
   .caption .verb-name, .caption .tag, .caption .note-name, .ladder .rung svg { color: CanvasText; }
   .ladder .rung.signal { outline: 2px solid CanvasText; outline-offset: -2px; }
   :is(.seg .btn.on, .menu-opts .btn.on, .ladder .rung.on, .peek header .chip.on, [aria-pressed='true'], .more-btn[aria-expanded='true'], .time-btn[aria-expanded='true'],
-    .caption .door:hover, .caption .doors.lit .door) { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
+    .caption .door:hover) { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
   :focus-visible { outline-color: Highlight !important; }
   .scene-key[data-kind='scene']:focus-visible { outline-color: Highlight !important; }
   .kbd-ink { stroke: Highlight !important; }

@@ -203,6 +203,9 @@ async function sample(p, cdp, ms, during) {
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 const A11Y_STATES = [
   { name: 'overview', where: 'home/watch-video', views: ['desktop', 'phone', 'short', 'zoom'] },
+  // "What can I explore?" on (#122): the caption lists the doors and packets, on the overview and in a dive
+  { name: 'explore', where: 'home/watch-video', explore: true, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'explore-wifi', where: 'home/watch-video/phone-ap', explore: true, views: ['desktop', 'phone', 'short'] },
   { name: 'internet', where: 'home/watch-video/internet', views: ['desktop'] },
   { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
@@ -438,6 +441,7 @@ async function a11y(style) {
     if (s.coach !== undefined) { await p.waitForSelector('.coach.placed'); for (let i = 0; i < s.coach; i++) await p.click('.coach-next'); }
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
+    if (s.explore) { await p.click('.explore-btn'); await still(p); }
     if (s.picker) await p.evaluate(() => window.__app.picker(true));
     if (s.time === 'chip') { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); }
     else if (s.time) await p.click('.time-btn');
@@ -484,16 +488,35 @@ async function a11y(style) {
     }
     await ctx.close();
   }
-  // 3. journeys: focus comes back after a door, a catch, letting go, the picker and the time machine
+  // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker and the time
+  //    machine
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
   await still(p);
   const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
-  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await still(p); await check('a door from the caption');
+  // "What can I explore?" (#122): a toggle; on, focus goes into its list and the announcer says how many things there
+  // are; Esc puts the story back and focus on the button. A door from the list, or a catch, ends it too.
+  const explore = async () => { await p.focus('.explore-btn'); await p.keyboard.press('Enter'); await still(p); };
+  const pressed = () => p.evaluate(() => document.querySelector('.explore-btn')?.getAttribute('aria-pressed'));
+  if (await p.$('.caption .doors')) fail('journey: explore', 'the caption lists the doors before it is asked to');
+  await explore();
+  if ((await pressed()) !== 'true') fail('journey: explore', 'its button is not pressed');
+  if (!(await p.evaluate(() => !!document.activeElement?.closest('.caption .doors')))) fail('journey: explore', 'focus is not in its list');
+  await check('explore');
+  const things = await p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 2000 }).then((h) => h.jsonValue(), () => '');
+  if (!/^\d+ things to explore$/.test(things)) fail('journey: explore', `the announcer says "${things}"`);
   await p.keyboard.press('Escape'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.explore-btn') && !document.querySelector('.caption .doors'))) || (await pressed()) !== 'false')
+    fail('journey: explore', 'Esc does not bring the story back, with focus on its button');
+  await explore();
+  await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await still(p); await check('a door from the caption');
+  if ((await pressed()) === 'true') fail('journey: explore', 'it stays on through a door');
+  await p.keyboard.press('Escape'); await still(p);
+  await explore();
   await p.focus('.caption .door-catch .door'); await p.keyboard.press('Enter'); await p.waitForSelector('.peek'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.id === 'peek-title'))) fail('journey: catch', 'focus is not on the peek panel');
   await p.keyboard.press('Tab'); await check('Tab in the peek panel');
   await p.keyboard.press('Escape'); await still(p); await check('letting go');
+  if (!(await p.evaluate(() => document.activeElement?.matches('.explore-btn')))) fail('journey: catch', 'letting go, focus is not back on "What can I explore?"');
   await p.focus('.more-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.menu');
   if (!(await p.evaluate(() => !!document.activeElement?.closest('.menu')))) fail('journey: ⋯', 'focus is not in the menu');
   await p.keyboard.press('Escape'); await p.waitForTimeout(100);
@@ -604,6 +627,7 @@ async function speechJourney(style, fail) {
     if (!(await said()).includes('Read aloud is on.')) fail('journey: read aloud', 'turning it on says nothing');
   }
   await p.keyboard.press('Escape');
+  await p.click('.explore-btn'); await still(p);
   await p.focus('.caption .door-dive .door'); await p.keyboard.press('Enter'); await still(p);
   const cap = await p.evaluate(() => ({ title: document.querySelector('.caption h2')?.textContent?.trim(), body: document.querySelector('.caption p')?.textContent?.trim() }));
   const heard = await p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 2000 }).then((h) => h.jsonValue()).catch(() => '');

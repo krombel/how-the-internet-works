@@ -7,7 +7,7 @@
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
-  import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
+  import { caughtSpot, livePackets, packetNear, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { speaker, spoken } from './engine/speech';
   import { textBox } from './engine/svg';
@@ -216,7 +216,7 @@
     navigated = true;
     endCoach();
     speaker.cancel();
-    if (switched || keyOf(next.path) !== keyOf(prev.path)) { setExplore(false); chipHot = null; }
+    if (switched || keyOf(next.path) !== keyOf(prev.path)) setExplore(false);
     if (caught && (switched || !catchNav)) release(true);
     const from = validPrefix(route, prev.path), tv = switched ? null : travelOf(route, from, next.path, view.orient);
     // the ladder as it was seen (`via` is still the last stack's link)
@@ -273,6 +273,7 @@
     if (picker) return closePicker();
     if (TimeMachine) return closeTime();
     if (caught) return release();
+    if (explore) return setExplore(false, true);
     if (here.stop) return go({ stop: null }, true);
     if (here.path.length) go({ path: parentPath(here.path) });
   }
@@ -336,7 +337,9 @@
   const drawnIn = (path: string[]) => (h: number) => keyOf(hopScenePath(route, h, view.orient, path) ?? []) === keyOf(path);
   /** Hold `c`: its ghost glides from `from` to `to` along that link (then jumps to `then`), the camera tracking it. */
   function grab(c: Caught, from: Spot, to: number, then: Spot | null) {
-    if (!caught) catchFrom = document.activeElement;
+    // caught from the list: letting go comes back to "What can I explore?", as the list is gone
+    if (!caught) catchFrom = document.activeElement?.closest('.caption .doors') ? exploreBtn() : document.activeElement;
+    setExplore(false);
     caught = c;
     ghost = from;
     glide = { a: from.t, b: to, t0: performance.now(), then };
@@ -523,8 +526,10 @@
     const badges = layoutDoors(doors, size, lit, hot, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
     return { info, ps, sk, size, doors, badges };
   }
-  /** What's under a screen point: a door's badge, a packet (a generous ≥ 30 px radius, for small fingers), what a door
-   *  opens, or a stop. */
+  /** How far behind a moving packet a tap may land and still catch it (seconds, real time). */
+  const TAP_LAG = 0.25;
+  /** What's under a screen point: a door's badge, a packet (a generous ≥ 30 px radius, for small fingers, trailing a
+   *  moving one by `TAP_LAG`), what a door opens, or a stop. */
   function hitAt(sx: number, sy: number): Hit | null {
     const now = badgesNow();
     if (!now) return null;
@@ -534,12 +539,11 @@
     // right on a badge beats a packet passing under it; near one, the packet wins
     let i = onBadge(0);
     if (i >= 0) return { door: doors[i] };
-    let best: { p: LivePacket; d: number } | null = null;
-    for (const p of packets.get(hereKey) ?? []) {
-      const s = toScreen(cam, toRoot(info.frame, p.pose)), d = Math.hypot(s.x - sx, s.y - sy);
-      if (d < 32 && (!best || d < best.d)) best = { p, d };
-    }
-    if (best) return { packet: best.p };
+    const near = packetNear(packets.get(hereKey) ?? [], ps.links, TAP_LAG * timeScale, (p) => {
+      const s = toScreen(cam, toRoot(info.frame, p));
+      return Math.hypot(s.x - sx, s.y - sy);
+    }, 32);
+    if (near) return { packet: near };
     i = onBadge(Math.max(size * 0.2, minR - size * 1.2));
     if (i >= 0) return { door: doors[i] };
     for (const d of doors) {
@@ -583,28 +587,45 @@
     pointed = hit && 'door' in hit ? hit.door.id : null;
     stage.style.cursor = hit ? 'pointer' : '';
   }
-  // "What can I explore?": every door in the scene lights up with its label, for a few seconds or until tapped again.
+  // "What can I explore?" (#122): every door in the scene lights up with its label, and the caption swaps its story
+  // for the doors and the packets to catch, until it is tapped again, Esc, a tap on the scene, a catch or a scene
+  // change. Focus goes into the list (once the caption shows) and the announcer says how many there are; closed from
+  // the list, focus goes back to the button.
   const hereDoors = $derived.by(() => {
     const at = hereScene();
     return at ? doorsOf(at.ps, here.path.length === 0, diveRuns(route, at.ps.group, view.orient).byLink, view.orient, nameW) : [];
   });
-  let explore = $state(false), exploreTimer = 0;
+  /** Exploring, and still waiting for the caption to show (after stepping back) to swap in the list. */
+  let explore = $state(false), exploreIn = $state(false);
   /** The doors are lit ("What can I explore?", or the coach marks) and the one that glows. */
   const lit = $derived(explore || (!!Coach && coaching === 'all'));
   const hot = $derived(coachHot ?? chipHot ?? pointed);
-  function setExplore(on: boolean) {
-    clearTimeout(exploreTimer);
+  const exploreBtn = () => document.querySelector<HTMLElement>('.explore-btn');
+  /** `back`: focus was in the list, so it goes back to the button (Esc). */
+  function setExplore(on: boolean, back = false) {
+    if (back && explore && document.activeElement?.closest('.caption')) void tick().then(() => exploreBtn()?.focus());
     explore = on;
-    if (on) exploreTimer = window.setTimeout(() => (explore = false), 6000);
+    exploreIn = on;
+    if (!on) chipHot = null;
   }
   function toggleExplore() {
-    if (explore || !hereDoors.length) return setExplore(false);
+    if (explore || !canExplore) return setExplore(false);
     const info = sceneInfo(route, here.path, view.orient);
-    // some doors are off screen (zoomed in on a stop): step back to see the whole scene
-    if (doorsInView(hereDoors, info.frame, cam, view.vp).length < hereDoors.length) go({ stop: null }, true);
+    // at a stop (its caption lists only its own doors) or with doors off screen: step back to the whole scene, lit and
+    // listed alike (the count the announcer says is enough)
+    if (hereDoors.length && (here.stop || doorsInView(hereDoors, info.frame, cam, view.vp).length < hereDoors.length)) { go({ stop: null }, true); navigated = false; }
     sfx.pop();
     setExplore(true);
   }
+  $effect(() => {
+    if (!exploreIn || !showCaption || caught) return;
+    const n = caption.doors.length + catchable.length;
+    untrack(() => {
+      exploreIn = false;
+      void tick().then(() => captionEl?.querySelector<HTMLElement>('.doors button')?.focus());
+      announce(trCount('explore.count', n));
+    });
+  });
   // First-run coach marks (#21, ui/coach.ts): a visit that starts at the top and has never had them gets them, once
   // the reader has seen the scene move for a moment; one that had them before the time machine came (#59) gets only
   // its card. They load as their own chunk, only then, and are remembered as soon as they show. While they show, the
@@ -678,6 +699,8 @@
   let captionEl = $state<HTMLElement>();
   let captionH = $state(150);
   const caption = $derived(captionFor(route, here.path, here.stop, view.orient));
+  /** Something to explore here: doors in the scene, or the caption's (a dive's "How it travels"), or packets. */
+  const canExplore = $derived(hereDoors.length + caption.doors.length + catchable.length > 0);
   const crumbs = $derived(here.path.map((_, i) => here.path.slice(0, i + 1)).reduce(
     (out, p) => [...out, { title: sceneTitle(route, p, view.orient), path: p }],
     [{ title: sceneTitle(route, [], view.orient), path: [] as string[] }],
@@ -844,7 +867,7 @@
         },
       },
     });
-    return () => { offNav(); clearTimeout(exploreTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys);
+    return () => { offNav(); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys);
       window.removeEventListener('keydown', modality, true); window.removeEventListener('pointerdown', modality, true); };
   });
 
@@ -880,10 +903,10 @@
 <div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen || !!TimeMachine}>
   <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
   {#if Coach}
-    <Coach run={coaching ?? 'all'} doors={hereDoors} canExplore={hereDoors.length > 0} wide={view.vp.w >= 1100} {eras} era={hereEra}
+    <Coach run={coaching ?? 'all'} doors={hereDoors} {canExplore} wide={view.vp.w >= 1100} {eras} era={hereEra}
       rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
   {/if}
-  <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
+  <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} {canExplore} ontoggle={toggleExplore}
     time={eras.length > 1 ? { year: eraYear(route) } : null} timeOpen={!!TimeMachine} ontime={() => openTime()} onpretime={loadTime}
     paused={held} onpause={togglePause} quiet={peekOpen} onmap={openMap} />
   <main>
@@ -901,7 +924,7 @@
       <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
-    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={lit} catches={catchable} oncatch={catchKind}
+    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={explore && !exploreIn} catches={catchable} oncatch={catchKind}
       ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
     {#if !peekOpen}
       <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}

@@ -341,8 +341,12 @@ always muted again on reload.
 
 - **Tap** a door to go down a level: a magnifier (*Look inside*) or the *Open up* door. Tapping a link or a device
   that has a door opens it too (the home router and the cell tower have a magnifier on their corner: look inside a
-  device, issue #9); tapping any other device or link selects it as the current stop and shows its caption. The caption lists the doors as chips, and *What can I
-  explore?* lights them all up with their labels (see "Doors" in [architecture.md](architecture.md)).
+  device, issue #9); tapping any other device or link selects it as the current stop and shows its caption. The caption tells the
+  story; *What can I explore?* (a toggle, issue #122) lights the doors up with their labels and swaps the caption's
+  text for them as chips (*Look inside*, *Open up*, *How it travels*, *What it carries*, *Catch*), in the same space.
+  Tapping it again, Esc, the scene or a door brings the story back (see "Doors" in [architecture.md](architecture.md)).
+- **Tap a parcel** to catch it. A finger lands a moment behind a moving one, so the tap area trails it by a quarter
+  of a second; *Catch* in the explore list catches one of a kind without aiming.
 - **Pinch or scroll** is continuous zoom. Zooming far enough out goes back up a level, as does the round ⌃
   button, Esc, the breadcrumb or browser Back.
 - **Flick** left or right, or up and down in portrait, to step to the previous or next stop at the current
@@ -381,14 +385,15 @@ always muted again on reload.
   below per orientation.
 - **Chrome** fits on two tight rows (breadcrumb, then the controls at the end of the row), and the caption sits at
   the bottom where thumbs are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px
-  phone; *Explore* is only there when there is something to explore (not in dives), and the others keep their place
+  phone; *Explore* is only there when there is something to explore (doors, a dive's envelopes, packets), and the others keep their place
   when it goes. One row doesn't fit: the controls take about 230 of 360–390 px and would cut every breadcrumb short.
   The scene fades out under the bar (`--bar-fade`, the paper by default), so labels that slide under it don't show
   between the buttons. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies
   below (a ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; on a
   big screen the count is in words ("4 ways down"), on a phone it's a badge whose words are its accessible name. Only
   a roomy desktop keeps a layer stack open beside the scene.
-- **Caption** (issue #54). Folded to its title, two lines of the text and the chips, so the scene keeps most of the
+- **Caption** (issue #54). Folded to its title and two lines of the text (exploring: two rows of chips in their
+  place, the title then only for screen readers; issue #122), so the scene keeps most of the
   screen. The title is a button (with `aria-expanded`): it opens the whole caption over the scene, up to the top bar
   and scrolling beyond that, with the scale line, the place, the gesture hint and *Want to know more?*. The title
   again, or Esc, folds it, and so does going somewhere else. The scene doesn't move while it is open. The folded text
@@ -396,7 +401,8 @@ always muted again on reload.
   caption is never cut. The ▲ ▼ buttons sit on its top corners.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
   its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
-  the whole caption over the scene. The scene keeps about 280 of 390 px (it had 105–145).
+  the whole caption over the scene; exploring, the pill is one row of chips instead (as wide as the screen allows,
+  scrolling sideways), at the same height. The scene keeps about 280 of 390 px (it had 105–145).
   - A dive fills that height, its border and flap tucked under the bars' edges (issue #33). Even so, 14 px on screen is
     about 42 world units, so dives here use a compact layout: bigger text, fewer labels, and small detail (the rows of
     an envelope, long MAC addresses, the nerd field list) drawn as lines or shortened. The caption still names it all.
