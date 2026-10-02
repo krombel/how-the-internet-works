@@ -7,9 +7,10 @@
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
 //                        ring; focus comes back after a door, a catch and the picker; read aloud and the announcer
-//                        say a scene's description); every control at least 24 px, not cut off (at 200 % zoom too:
-//                        the zoom view) and not under another; every scene's labels at 4.5:1 (3:1 when large) on
-//                        their halo or what's behind them. Prints what fails, exits 1 if anything does; writes nothing.
+//                        say a scene's description; the first-run coach marks, which every other run skips); every
+//                        control at least 24 px, not cut off (at 200 % zoom too: the zoom view) and not under another;
+//                        every scene's labels at 4.5:1 (3:1 when large) on their halo or what's behind them. Prints
+//                        what fails, exits 1 if anything does; writes nothing.
 //   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
 //                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
@@ -73,11 +74,14 @@ const old = existsSync(metricsPath) ? JSON.parse(readFileSync(metricsPath, 'utf8
 const metrics = { ...old };
 
 /** `speech`: give the page a fake speechSynthesis with an English and a Danish voice (a headless browser may have no
- *  voices at all), which notes what it was asked to say in `window.__said`; `on` also turns read aloud on (#53). */
-async function open(view, url, speech = null) {
+ *  voices at all), which notes what it was asked to say in `window.__said`; `on` also turns read aloud on (#53).
+ *  `coach`: a first visit, which gets the coach marks (#21); every other page has had them already, so no shot, timing
+ *  or check sees them unasked. */
+async function open(view, url, speech = null, coach = false) {
   const v = VIEWS[view];
   const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch, colorScheme: MODE === 'night' ? 'dark' : 'light' });
   const p = await ctx.newPage();
+  if (!coach) await p.addInitScript(coached);
   if (speech) await p.addInitScript(fakeSpeech, speech.on);
   p.on('pageerror', (e) => console.log('  pageerror', e.message));
   p.on('console', (m) => m.type() === 'error' && console.log('  console', m.text()));
@@ -86,6 +90,7 @@ async function open(view, url, speech = null) {
   await p.evaluate(() => document.fonts.ready);
   return { ctx, p };
 }
+function coached() { localStorage.setItem('coached', '1'); }
 function fakeSpeech(on) {
   const said = (window.__said = []);
   const voices = [{ lang: 'en-GB', default: true, localService: true, name: 'en' }, { lang: 'da-DK', default: false, localService: true, name: 'da' }];
@@ -177,6 +182,10 @@ const A11Y_STATES = [
   // read aloud on: the caption's "Read again", and the ⋯ menu with its toggle (#53)
   { name: 'speech', where: 'home/watch-video/phone-ap', speech: true, views: ['desktop', 'phone', 'short'] },
   { name: 'speech-menu', where: 'home/watch-video', speech: true, menu: true, views: ['desktop', 'phone'] },
+  // a first visit's coach marks (#21): the first, on "Open up", and the last, on "What can I explore?" (`coach`: how
+  // many times Next was pressed)
+  { name: 'coach', where: 'home/watch-video', coach: 0, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'coach-explore', where: 'home/watch-video', coach: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
 ];
 /** In the page: why the focused element is wrong (on the page itself, hidden, inert, or without a visible ring), or
  *  null. */
@@ -323,8 +332,9 @@ async function a11y(style) {
   const fails = [];
   const fail = (where, what) => { fails.push(`${where}: ${what}`); console.log(`  ✗ ${where}: ${what}`); };
   const prep = async (s, view) => {
-    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null);
+    const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null, s.coach !== undefined);
     await still(p);
+    if (s.coach !== undefined) { await p.waitForSelector('.coach.placed'); for (let i = 0; i < s.coach; i++) await p.click('.coach-next'); }
     if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); }
     if (s.detail) await p.click('.peek header .chip');
     if (s.picker) await p.evaluate(() => window.__app.picker(true));
@@ -352,8 +362,9 @@ async function a11y(style) {
       await ctx.close();
     }
   // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
-  //    the browser's own controls, which the page sees as focus on <body>: that ends the round.
-  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da')) {
+  //    the browser's own controls, which the page sees as focus on <body>: that ends the round. (Danish nerd and the
+  //    last coach mark Tab like the overview and the first one.)
+  for (const s of A11Y_STATES.filter((x) => x.name !== 'nerd-da' && x.name !== 'coach-explore')) {
     const { ctx, p } = await prep(s, 'desktop');
     // a long route has many stops (the list view has a button for each), so the round may take as many Tabs as the
     // page has things to focus, and a few more
@@ -418,6 +429,7 @@ async function a11y(style) {
   await check('a door in the list view');
   await ctx.close();
   await speechJourney(style, fail);
+  await coachJourney(style, fail);
   await labelContrast(style, fail);
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
   if (fails.length) process.exitCode = 1;
@@ -451,6 +463,53 @@ async function speechJourney(style, fail) {
   await ctx.close();
 }
 
+/** The first-run coach marks (#21): a first visit to the top gets them, and the announcer says the first. They come
+ *  after the skip link in the Tab order and trap nothing; Next keeps focus; Esc ends them, puts focus back in the page
+ *  and they don't come again. A link into a scene gets none (and doesn't use them up); a tap on the scene ends them
+ *  and still opens what it hit. */
+async function coachJourney(style, fail) {
+  // waiting for them allows a slow (SWIFTSHADER) runner 20 s; that none come, 3 s after the page stands still
+  const first = async (where, want) => {
+    const { ctx, p } = await open('desktop', url(style, 'en', where), null, true);
+    await still(p);
+    return { ctx, p, shown: await p.waitForSelector('.coach.placed', { timeout: want ? 20000 : 3000 }).then(() => true, () => false) };
+  };
+  const coached = (p) => p.evaluate(() => localStorage.getItem('coached'));
+  let { ctx, p, shown } = await first('home/watch-video', true);
+  if (!shown) fail('journey: coach marks', 'none on a first visit');
+  else {
+    const says = 'Getting started. 1 of 3.';
+    const heard = await p.waitForFunction((s) => document.querySelector('[role=status]')?.textContent?.trim().startsWith(s), says, { timeout: 10000 })
+      .then(() => says, () => p.evaluate(() => document.querySelector('[role=status]')?.textContent?.trim() ?? ''));
+    if (heard !== says) fail('journey: coach marks', `the announcer says "${heard}"`);
+    await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
+    if (!(await p.evaluate(() => document.querySelector('.skip') && document.activeElement?.matches('.coach button')))) fail('journey: coach marks', 'they are not the next Tab stop after the skip link');
+    await p.keyboard.press('Tab'); await p.keyboard.press('Enter');
+    if (!(await p.locator('.coach', { hasText: '2 of 3' }).count())) fail('journey: coach marks', 'Next does not step on');
+    if (!(await p.evaluate(() => document.activeElement?.matches('.coach-next')))) fail('journey: coach marks', 'focus is not on Next after it');
+    await p.keyboard.press('Escape'); await still(p);
+    if (await p.$('.coach')) fail('journey: coach marks', 'Esc does not end them');
+    const bad = await p.evaluate(focusProblem);
+    if (bad) fail('journey: coach marks', `after Esc: ${bad}`);
+    if ((await coached(p)) !== '1') fail('journey: coach marks', 'they are not remembered');
+    await p.reload(); await p.waitForFunction(() => window.__app); await still(p); await p.waitForTimeout(1500);
+    if (await p.$('.coach')) fail('journey: coach marks', 'they come again');
+  }
+  await ctx.close();
+  ({ ctx, p, shown } = await first('home/watch-video/internet', false));
+  if (shown) fail('journey: coach marks', 'a link into a scene gets them');
+  if ((await coached(p)) !== null) fail('journey: coach marks', 'a link into a scene uses them up');
+  await ctx.close();
+  ({ ctx, p, shown } = await first('home/watch-video', true));
+  if (shown) {
+    const [x, y] = await p.evaluate(() => window.__app.doorAt('internet'));
+    await p.mouse.click(x, y); await still(p);
+    if (await p.$('.coach')) fail('journey: coach marks', 'a tap on the scene does not end them');
+    if ((await p.evaluate(() => window.__app.loc().path.join('/'))) !== 'internet') fail('journey: coach marks', 'a tap on "Open up" does not open it');
+  }
+  await ctx.close();
+}
+
 // ------------------------------------------------------------------ not by colour alone (--only=vision)
 /** The places where colour carries meaning (owner regions, request and video, the fibre colours, the doors), each as
  *  one sheet: as it is, through the four colour-vision deficiencies Chromium emulates, and in forced colours (a light
@@ -476,6 +535,7 @@ async function vision(style) {
       const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1, hasTouch: !!v.touch, isMobile: !!v.touch,
         colorScheme: MODE === 'night' ? 'dark' : 'light', forcedColors: forced ? 'active' : 'none' });
       const p = await ctx.newPage();
+      await p.addInitScript(coached);
       await p.goto(url(style, s.lang ?? 'en', s.where, s.q ?? ''));
       await p.waitForFunction(() => window.__app, null, { timeout: 15000 });
       await p.evaluate(() => document.fonts.ready);
