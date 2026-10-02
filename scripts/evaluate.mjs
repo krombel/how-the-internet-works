@@ -13,9 +13,10 @@
 //                        what fails, exits 1 if anything does; writes nothing.
 //   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
 //                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
-//   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still) from baseUrl against
-//                        the same one from otherUrl (e.g. main, built and previewed on another port). Prints the changed
-//                        pixels per shot and writes .tmp/diff/<name>.png (changes in red) for those that differ.
+//   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still, taken until two in a row
+//                        match) from baseUrl against the same one from otherUrl (e.g. main, built and previewed on
+//                        another port). Prints the changed pixels per shot and writes .tmp/diff/<name>.png (changes in
+//                        red) for those that differ.
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
 // Runs take turns machine-wide (a lock in the temp dir, see below); EVALUATE_NO_LOCK=1 opts out.
 import { chromium } from 'playwright';
@@ -118,6 +119,31 @@ const still = (p) => p.evaluate(async () => {
 });
 /** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
 const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
+/** Catch a packet of `kind` where it enters the view (`__app.catch`, #74), then step it on a hop for each hop after the
+ *  first in `at`, checking each time that it waits at that hop. A catch that lands anywhere else (#40) fails the run
+ *  rather than giving a different picture, or checking a different state. */
+async function catchAt(p, kind, at, label) {
+  await p.evaluate((k) => window.__app.catch(k), kind);
+  await p.waitForSelector('.peek');
+  for (const [i, hop] of at.entries()) {
+    if (i) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
+    const got = await p.evaluate(() => window.__app.caught()?.hop ?? null);
+    if (got !== hop) throw new Error(`${label}: the caught ${kind} waits at ${got ?? 'nothing'}${i ? ` ${i} hop(s) on` : ''}, not at ${hop}`);
+  }
+}
+
+/** For a pixel diff: screenshots until two in a row are the same. Under load the GPU now and then hands over a frame
+ *  with some tiles not final yet (the page's dot grid, shadows and blurs off by a level or two). */
+async function stableShot(p, name) {
+  let a = await p.screenshot({ type: 'png' });
+  for (let i = 0; i < 5; i++) {
+    await p.waitForTimeout(100);
+    const b = await p.screenshot({ type: 'png' });
+    if (a.equals(b)) return a;
+    a = b;
+  }
+  throw new Error(`${name}: still changing after 6 screenshots`);
+}
 
 /** In the page: compare two PNGs (base64). Returns the pixels that differ at all, those that differ visibly, the
  *  largest difference (sum over RGB), and a diff image: `b` faded, changes in red. */
@@ -167,8 +193,8 @@ const A11Y_STATES = [
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
   { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone', 'zoom'] },
   { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=nerd', views: ['desktop', 'zoom'] },
-  { name: 'caught', where: 'home/watch-video', catch: true, views: ['desktop', 'phone', 'short', 'zoom'] },
-  { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: true, detail: true, views: ['desktop'] },
+  { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
   // another way online (#3): the phone line's dive, and the picker with its access row on a variant
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
@@ -339,7 +365,7 @@ async function a11y(style) {
     const { ctx, p } = await open(view, url(style, s.lang ?? 'en', s.where, s.q ?? ''), s.speech ? { on: true } : null, s.coach !== undefined);
     await still(p);
     if (s.coach !== undefined) { await p.waitForSelector('.coach.placed'); for (let i = 0; i < s.coach; i++) await p.click('.coach-next'); }
-    if (s.catch) { await p.evaluate(() => window.__app.catch('video')); await p.waitForSelector('.peek'); }
+    if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
     if (s.picker) await p.evaluate(() => window.__app.picker(true));
     if (s.ladder) await p.click('.crumbs .here');
@@ -523,7 +549,7 @@ const VISION_SHOTS = [
   { view: 'desktop', where: 'home/watch-video', name: 'home' },
   { view: 'desktop', where: 'home/watch-video/internet', name: 'internet' },
   { view: 'phone', where: 'street/watch-video/internet', name: 'internet-street-phone' },
-  { view: 'desktop', where: 'home/watch-video', catch: 'request', name: 'peek' },
+  { view: 'desktop', where: 'home/watch-video', catch: 'request', at: ['phone'], name: 'peek' },
   { view: 'desktop', where: 'home/watch-video/internet/home-cabinet', name: 'gpon' },
   { view: 'desktop', where: 'home/watch-video/internet/cabinet-backhaul', name: 'metro' },
   { view: 'phone', where: 'home/watch-video/internet/bng-core', q: '&level=nerd', name: 'backbone-nerd-phone' },
@@ -545,7 +571,7 @@ async function vision(style) {
       await p.evaluate(() => document.fonts.ready);
       await settle(p);
       await p.evaluate(() => window.__app.setClock(5.2, true));
-      if (s.catch) { await p.evaluate((k) => window.__app.catch(k), s.catch); await p.waitForSelector('.peek'); await p.waitForTimeout(1500); }
+      if (s.catch) { await catchAt(p, s.catch, s.at, `vision ${s.name}`); await p.waitForTimeout(1500); }
       await still(p);
       const cdp = await ctx.newCDPSession(p);
       for (const type of forced ? ['none'] : VISION) {
@@ -733,12 +759,13 @@ for (const style of STYLES) {
     shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=nerd', name: 'router-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', grow: 'ip', name: 'grow-desktop' });
-    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', name: 'peek-desktop' });
-    shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', name: 'peek-street-phone' });
-    // the caught request one hop on from the home router, in nerd mode, and its detail tree
-    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', catch: 'request', steps: 1, name: 'peek-nerd-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=nerd', lang: 'da', catch: 'request', detail: true, name: 'peek-tree-da-phone' });
+    // `at`: the hop the packet is caught at, then one per step on
+    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], grow: 'ip', name: 'grow-desktop' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], name: 'peek-desktop' });
+    shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', at: ['cell-tower'], name: 'peek-street-phone' });
+    // the caught request one hop on from the phone, in nerd mode, and its detail tree
+    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', catch: 'request', at: ['phone', 'ap'], name: 'peek-nerd-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=nerd', lang: 'da', catch: 'request', at: ['phone'], detail: true, name: 'peek-tree-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', picker: true, name: 'picker-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video', picker: true, name: 'picker-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', morph: true, name: 'morph-desktop' });
@@ -748,9 +775,7 @@ for (const style of STYLES) {
       // a fixed clock so packets sit in the same spots across runs (held still for a pixel diff)
       await p.evaluate((hold) => window.__app.setClock(5.2, hold), !!DIFF);
       if (s.catch) {
-        await p.evaluate((k) => window.__app.catch(k), s.catch);
-        await p.waitForSelector('.peek');
-        for (let i = 0; i < (s.steps ?? 0); i++) { await p.waitForTimeout(800); await p.evaluate(() => window.__app.step(1)); }
+        await catchAt(p, s.catch, s.at, s.name);
         if (s.detail) await p.click('.peek header .chip');
         // (longer for a diff: the camera's tracking of the caught packet eases in exponentially)
         await p.waitForTimeout(DIFF ? 4000 : 1500);
@@ -767,8 +792,7 @@ for (const style of STYLES) {
         await p.evaluate(() => window.__app.go({ places: ['street'] }));
         await p.waitForTimeout(330);
       } else await p.waitForTimeout(700);
-      const shot = await p.screenshot(DIFF ? { type: 'png' }
-        : { path: `docs/img/app-${style}${MODE === 'night' ? '-night' : ''}-${s.name}.jpg`, type: 'jpeg', quality: s.view === 'phone' ? 68 : 74 });
+      const shot = DIFF ? await stableShot(p, s.name) : await p.screenshot({ path: `docs/img/app-${style}${MODE === 'night' ? '-night' : ''}-${s.name}.jpg`, type: 'jpeg', quality: s.view === 'phone' ? 68 : 74 });
       await ctx.close();
       return shot;
     };

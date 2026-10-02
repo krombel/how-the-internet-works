@@ -30,9 +30,14 @@ jobs:
       - run: npm run build
 
   a11y:
+    name: a11y (${{ matrix.mode }})
     runs-on: ubuntu-latest
-    # day and night, one after the other on a software renderer: about 30 min since the coach marks' checks (#21)
-    timeout-minutes: 45
+    # day and night side by side, each about 15 min on a software renderer (about 30 min one after the other, #21)
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [day, night]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -48,13 +53,9 @@ jobs:
         run: |
           npx vite preview --host 127.0.0.1 --port 5318 --strictPort &
           for i in $(seq 30); do curl -sf http://127.0.0.1:5318/ >/dev/null && exit 0; sleep 1; done; exit 1
-      - name: Accessibility, day
-        run: npm run evaluate -- --only=a11y
+      - name: Accessibility, ${{ matrix.mode }}
+        run: npm run evaluate -- --only=a11y --mode="$MODE"
         env:
-          SWIFTSHADER: '1'
-          EVALUATE_NO_LOCK: '1'
-      - name: Accessibility, night
-        run: npm run evaluate -- --only=a11y --mode=night
-        env:
+          MODE: ${{ matrix.mode }}
           SWIFTSHADER: '1'
           EVALUATE_NO_LOCK: '1'
