@@ -1,0 +1,75 @@
+{
+  "title": "The phone-call envelope",
+  "kid": "On a dial-up call your parcels travel in a phone-call envelope. Only your computer and the internet company’s modem open it; the telephone exchange in between just passes the sound along. Before any parcel goes, the two ends say hello: they agree how to talk, check who you are, and give your computer its address.",
+  "nerd": "PPP (RFC 1661) in HDLC-like framing (RFC 1662): 0x7E flags, address 0xFF, control 0x03, a protocol number (0x0021 for IPv4) and a frame check. LCP opens the link and agrees MRU and options, CHAP authenticates with a challenge and a hash, and IPCP assigns the address. Then IPv4 packets ride in the frames until someone hangs up.",
+  "describe": {
+    "kid": "Your computer and the internet company’s modem sit at the two ends of a phone line, with an envelope going back and forth. One card takes the envelope apart: start, address, what’s inside, your parcel, a check and end. The other card shows the hello: how to talk, who are you, and which address you get.",
+    "nerd": "The two PPP endpoints sit at the ends of the call while a frame shuttles between them. One card lists the frame: flag 7E, address FF and control 03, protocol 0021, the IP packet, FCS and flag. The other plays LCP configure, CHAP challenge and response, and IPCP handing out 203.0.113.7."
+  },
+  "online": {
+    "kid": "Online!",
+    "nerd": "IPCP up: IP flows"
+  },
+  "frameTitle": {
+    "kid": "Inside the envelope",
+    "nerd": "PPP frame (RFC 1662)"
+  },
+  "part": {
+    "flag": {
+      "kid": "Start or end here",
+      "nerd": "Flag"
+    },
+    "address": {
+      "kid": "To the other end",
+      "nerd": "Address, control"
+    },
+    "proto": {
+      "kid": "Says: an IP parcel",
+      "nerd": "Protocol: IPv4"
+    },
+    "packet": {
+      "kid": "Your parcel",
+      "nerd": "The IP packet"
+    },
+    "fcs": {
+      "kid": "A check, for crackles",
+      "nerd": "Frame check (CRC)"
+    }
+  },
+  "helloTitle": {
+    "kid": "Saying hello",
+    "nerd": "LCP, CHAP, IPCP"
+  },
+  "talk": {
+    "lcp": {
+      "ask": {
+        "kid": "Shall we talk like this?",
+        "nerd": "LCP Configure-Request"
+      },
+      "answer": {
+        "kid": "Yes, let’s!",
+        "nerd": "Configure-Ack"
+      }
+    },
+    "chap": {
+      "ask": {
+        "kid": "Who are you? Prove it!",
+        "nerd": "CHAP Challenge"
+      },
+      "answer": {
+        "kid": "It’s me, here’s my secret sum",
+        "nerd": "Response: MD5 hash"
+      }
+    },
+    "ipcp": {
+      "ask": {
+        "kid": "Which address can I have?",
+        "nerd": "IPCP Request: 0.0.0.0"
+      },
+      "answer": {
+        "kid": "You’re 203.0.113.7",
+        "nerd": "Nak: use 203.0.113.7"
+      }
+    }
+  }
+}

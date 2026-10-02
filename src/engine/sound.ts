@@ -91,6 +91,8 @@ class Sfx {
     this.tone(f, this.timbre.decay, loud ? 0.9 : 0.12);
     if (loud) this.tone(f * 1.5, this.timbre.decay * 1.4, 0.7, 1, 0.09);
   }
+  /** Where a scene may play a short sound of its own (the dial-up modem's handshake), or null while muted. */
+  out() { return this.enabled && this.ctx && this.master ? { ctx: this.ctx, dest: this.master as AudioNode } : null; }
   /** Reached the end of a row of stops. */
   bump() { this.tone(this.timbre.blip * 0.25, 0.16, 0.6, 0.7); }
 }

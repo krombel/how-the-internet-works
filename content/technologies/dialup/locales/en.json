@@ -1,0 +1,6 @@
+{
+  "name": "Phone call",
+  "kid": "The modem turns the parcel into whistles and hisses and sends them down the phone line, like a very fast, very noisy phone call.",
+  "nerd": "A V.90 modem call: up to 56 kbit/s down and 33.6 kbit/s up, in practice less. The call holds one circuit through the exchange for as long as you are online.",
+  "tag": "V.90 · 56k"
+}

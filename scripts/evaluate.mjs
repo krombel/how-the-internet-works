@@ -173,6 +173,7 @@ const A11Y_STATES = [
   // another way online (#3): the phone line's dive, and the picker with its access row on a variant
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
   { name: 'picker-dsl', where: 'home-dsl/watch-video', picker: true, views: ['phone'] },
+  { name: 'dialup', where: 'home-dialup/watch-video/laptop-internet', views: ['desktop', 'phone', 'short'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone', 'zoom'] },
@@ -254,10 +255,13 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home/watch-video/internet/cabinet~ethernet', 'home/watch-video/internet/backhaul~vlan', 'home/watch-video/internet/core~mpls',
   'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
   'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn',
-  // the other ways online at home (#3): the phone line and fibre to the building
+  // the other ways online at home (#3): the phone line, fibre to the building and dial-up
   'home-dsl/watch-video', 'home-dsl/watch-video/router', 'home-dsl/watch-video/internet/home-cabinet',
   'home-fttb/watch-video', 'home-fttb/watch-video/router', 'home-fttb/watch-video/internet',
-  'home-fttb/watch-video/internet/basement-backhaul'];
+  'home-fttb/watch-video/internet/basement-backhaul',
+  // and dial-up: the call, its PPP envelope at both ends, and the telephone exchange on the way
+  'home-dialup/watch-video', 'home-dialup/watch-video/laptop-internet', 'home-dialup/watch-video/internet',
+  'home-dialup/watch-video/laptop~ppp', 'home-dialup/watch-video/internet/bng~ppp'];
 /** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
  *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
  *  when large: 24 px, or 18.7 px bold). */
