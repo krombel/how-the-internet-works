@@ -1,0 +1,6 @@
+{
+  "name": "Telefonopkald",
+  "kid": "Modemmet laver pakken om til fløjt og sus og sender dem ned ad telefonlinjen, som et meget hurtigt og meget larmende telefonopkald.",
+  "nerd": "Et V.90-modemopkald: op til 56 kbit/s ned og 33,6 kbit/s op, i praksis mindre. Opkaldet holder ét kredsløb gennem centralen, så længe du er online.",
+  "tag": "V.90 · 56k"
+}

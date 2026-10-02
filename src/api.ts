@@ -19,7 +19,17 @@ export { default as Node } from './render/Node.svelte';
 export { default as TagAt } from './render/TagAt.svelte';
 export { default as Text } from './render/Text.svelte';
 
-import { trl } from './state.svelte';
+import { sfx } from './engine/sound';
+import { getScene } from './render/ctx';
+import { nav, settings, trl } from './state.svelte';
 import type { Level } from './define';
 /** Strings of one content item: `const L = strings('layer.ip')` then `L('from')` (level-aware, English fallback). */
 export const strings = (prefix: string) => (key: string, level?: Level) => trl(`${prefix}.${key}`, level);
+/** Call while a scene initialises: `const here = arrived()`, then `here()` says whether the reader is at this scene
+ *  (not passing through it, or looking at it from its parent or a layer below). */
+export function arrived() {
+  const s = getScene();
+  return () => nav.loc.path.length === s.path.length && nav.loc.path.every((p, i) => p === s.path[i]);
+}
+/** Where a scene may play a short sound of its own, only while the reader has sound on (else null). Reactive. */
+export const soundOut = () => (settings.sound ? sfx.out() : null);

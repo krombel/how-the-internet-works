@@ -150,7 +150,7 @@ describe('validation messages', () => {
 
   it('groups a place with its variants, base first, in order (the picker shows one place and its ways online)', () => {
     expect([basePlace('home-dsl'), basePlace('home'), basePlace('street')]).toEqual(['home', 'home', 'street']);
-    expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl']);
+    expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl', 'home-dialup']);
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
     expect(placeFamily('street')).toEqual(['street']);
   });

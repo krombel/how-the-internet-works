@@ -1,7 +1,7 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
-  code: { ethertype: '0x0800 (IPv4)' },
+  code: { ethertype: '0x0800 (IPv4)', ppp: '0x0021 (IPv4)' },
   fields: [
     { id: 'version', bits: 4, value: '4' },
     { id: 'ihl', bits: 4, value: '5 (20 bytes)' },
