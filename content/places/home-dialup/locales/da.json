@@ -23,7 +23,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "Telefonnettet (et kredsløb gennem centralen, slet ikke en del af internettet) til udbyderens modembank, derefter udbyderens kerne og så enten peering i et IXP eller betalt transit – og til sidst en CDN-cache. Hvert farvet felt er én operatørs net."
+      "nerd": "Telefonnettet (et kredsløb gennem centralen, slet ikke en del af internettet) til udbyderens modembank, derefter udbyderens kerne og så enten peering i et IXP eller betalt transit – og til sidst en CDN-cache. Hvert farvet felt er én operatørs net. Det her er internettet i dag: i 1995 fandtes der ingen CDN’er."
     }
   }
 }

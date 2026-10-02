@@ -16,6 +16,7 @@
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
+  import { timeStops } from './model/registry';
   import type { Loc } from './model/location';
   import { entryHop, hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
   import type { Route } from './model/resolve';
@@ -28,7 +29,7 @@
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
-  import { captionFold, captionFor, sceneTitle, type CaptionFold } from './ui/caption';
+  import { captionFold, captionFor, sceneTitle, timeChip, type CaptionFold } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
   import { COACHED, firstRun } from './ui/coach';
   import type CoachMarksT from './ui/CoachMarks.svelte';
@@ -37,6 +38,7 @@
   import SceneKeys from './ui/SceneKeys.svelte';
   import StepButtons from './ui/StepButtons.svelte';
   import type TextMapT from './ui/TextMap.svelte';
+  import type TimeMachineT from './ui/TimeMachine.svelte';
 
   startRouter();
   let stage: HTMLDivElement;
@@ -265,6 +267,7 @@
   function up() {
     if (Coach) return endCoach();
     if (picker) return closePicker();
+    if (TimeMachine) return closeTime();
     if (caught) return release();
     if (here.stop) return go({ stop: null }, true);
     if (here.path.length) go({ path: parentPath(here.path) });
@@ -468,6 +471,30 @@
     mapOpen = false;
     void tick().then(() => keepFocus(mapFrom));
   }
+  // The time machine (TimeMachine.svelte, #59): the eras of where you are (slot 0's family), from the caption's chip on
+  // the overview or the list view. A dialog like the picker; it loads, with the era strings, when the chip is pointed
+  // at. Travelling is a place switch; when it lands, focus goes to the caption's title.
+  const eras = $derived(timeStops(route.slots[0].place, route.slots[0].options));
+  /** The open time machine (its component), or null. */
+  let TimeMachine = $state.raw<typeof TimeMachineT | null>(null), timeFrom: Element | null = null, timeLanded = false;
+  const loadTime = () => Promise.all([import('./ui/TimeMachine.svelte'), loadDiveStrings()]).then(([m]) => m.default);
+  function openTime(from: Element | null = document.activeElement) {
+    timeFrom = from;
+    void loadTime().then((m) => (TimeMachine = m));
+  }
+  function closeTime() {
+    TimeMachine = null;
+    void tick().then(() => keepFocus(timeFrom));
+  }
+  function timeFromMap() {
+    mapOpen = false;
+    openTime(mapFrom);
+  }
+  function travel(place: string) {
+    TimeMachine = null;
+    timeLanded = true;
+    go({ places: route.slots.map((s, i) => (i === 0 ? place : s.place)) });
+  }
   /** Go somewhere picked in the list view; focus goes there in the scene. */
   function mapGo(path: string[], stop: string | null) {
     mapOpen = false;
@@ -578,7 +605,7 @@
   const COACH_AFTER_MS = 700;
   async function startCoach() {
     const [m] = await Promise.all([import('./ui/CoachMarks.svelte'), new Promise((r) => setTimeout(r, COACH_AFTER_MS))]);
-    if (!firstRun(localStorage.getItem(COACHED), here) || caught || picker || mapOpen) return;
+    if (!firstRun(localStorage.getItem(COACHED), here) || caught || picker || mapOpen || TimeMachine) return;
     localStorage.setItem(COACHED, '1');
     Coach = m.default;
   }
@@ -672,7 +699,9 @@
       navigated = false;
       readAloud(spoken(title, describe, body, ...notes.map((n) => n.text)));
       const said = { title, below: doors, describe, body };
-      if (!keepFocus()) announce(arrival(said, loc.lang));
+      const heading = timeLanded ? captionEl?.querySelector('h2') : null;
+      timeLanded = false;
+      if (!keepFocus(heading)) announce(arrival(said, loc.lang));
       else if (describe) announce(arrival({ ...said, title: '' }, loc.lang));
     });
   });
@@ -759,7 +788,7 @@
     ro.observe(stage);
     if (firstRun(localStorage.getItem(COACHED), here)) void startCoach();
     const keys = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker || mapOpen) return;
+      if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker || mapOpen || TimeMachine) return;
       // a focused text that scrolls takes its arrow keys
       if (e.key !== 'Escape' && (e.target as Element).closest?.('[data-scroll]')) return;
       if (e.key === 'Escape') up();
@@ -842,7 +871,7 @@
   });
 </script>
 
-<div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen}>
+<div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen || !!TimeMachine}>
   <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
   {#if Coach}
     <Coach doors={hereDoors} canExplore={hereDoors.length > 0} wide={view.vp.w >= 1100} rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
@@ -864,7 +893,7 @@
       <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
-    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} explore={lit} catches={catchable} oncatch={catchKind}
+    <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={lit} catches={catchable} oncatch={catchKind}
       ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
     {#if !peekOpen}
       <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
@@ -885,5 +914,9 @@
   <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={closePicker} />
 {/if}
 {#if mapOpen && TextMap}
-  <TextMap {route} {here} caught={caught && route.chain[caught.hop].id} onclose={closeMap} ongo={mapGo} onswap={() => { mapOpen = false; openPicker(0); }} />
+  <TextMap {route} {here} caught={caught && route.chain[caught.hop].id} onclose={closeMap} ongo={mapGo} onswap={() => { mapOpen = false; openPicker(0); }}
+    ontime={eras.length > 1 ? timeFromMap : undefined} />
+{/if}
+{#if TimeMachine}
+  <TimeMachine stops={eras} here={route.slots[0].place} onpick={travel} onclose={closeTime} />
 {/if}

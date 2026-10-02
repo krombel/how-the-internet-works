@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { describeKeys } from './describe';
-import { basePlace, content, placeFamily, type Content } from './registry';
+import { basePlace, content, placeFamily, timeStops, type Content } from './registry';
 import { loadAllPacks, lookupLevel, packs, type Json } from './strings';
 import { resolveRoute } from './resolve';
 import { childrenOf, diveSubject, sceneRef, sideways, type SceneRef } from './tree';
@@ -72,6 +72,13 @@ describe('content', () => {
       walk(sceneRef(r, [], o)!);
     }
     expect([...bad]).toEqual([]);
+  });
+
+  it('gives every era its name, text and picture description, at both levels, in every language (#59)', () => {
+    const bad: string[] = [];
+    for (const era of Object.keys(content.eras)) for (const lang of Object.keys(packs))
+      for (const k of ['name', 'kid', 'nerd', 'describe.kid', 'describe.nerd']) if (!packs[lang].strings[`era.${era}.${k}`]) bad.push(`${lang} era.${era}.${k}`);
+    expect(bad).toEqual([]);
   });
 
   it('names neighbouring stretches that dive into the same scene apart, in every language', () => {
@@ -162,6 +169,28 @@ describe('validation messages', () => {
     expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl', 'home-dialup']);
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
     expect(placeFamily('street')).toEqual(['street']);
+  });
+
+  it('finds the time machine’s stops (#59): one per era of the family, oldest first, the place itself for its own era', () => {
+    const now = new Date().getFullYear();
+    const home = [{ era: '1995', place: 'home-dialup', year: 1995 }, { era: '2010', place: 'home-dsl', year: 2010 }, { era: 'today', place: 'home', year: now }];
+    expect(timeStops('home')).toEqual(home);
+    expect(timeStops('home-dialup')).toEqual(home);
+    expect(timeStops('home-fttb')).toEqual([...home.slice(0, 2), { era: 'today', place: 'home-fttb', year: now }]);
+    expect(timeStops('home', ['street', 'home-dsl', 'home'])).toEqual(home.slice(1));
+    expect(timeStops('street')).toEqual([]);
+  });
+
+  it('checks eras (#59): known, named and described, and two of them or none in a family', () => {
+    expect(broken((c) => { c.places['home-dsl'].era = '2001'; })).toContain('home-dsl/place.ts › era: "2001" is not an era. Did you mean "2010"?');
+    expect(broken((c) => { delete c.places['home-fttb'].era; })).toContain('home-fttb/place.ts › era: "home" and its ways of getting online have eras, so this needs one too.');
+    expect(broken((c) => { c.places.street.era = '1995'; }))
+      .toContain('street/place.ts › era: every way of getting online from "street" is in the era "1995"; a time machine needs two eras at least');
+    const msg = broken((c) => { c.eras['1985'] = { year: 1985.5, id: '1985', file: 'content/eras/1985/era.ts' }; });
+    expect(msg).toContain('content/eras/1985/era.ts › year:');
+    expect(msg).toContain('content/eras/1985/era.ts › strings: missing English string "era.1985.name"');
+    expect(msg).toContain('missing English string "era.1985" or "era.1985.kid"');
+    expect(msg).toContain('missing English string "era.1985.describe.kid"');
   });
 
   it('asks for missing English strings', () => {

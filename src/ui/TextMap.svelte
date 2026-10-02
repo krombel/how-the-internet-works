@@ -3,7 +3,8 @@
   // keyboard, screen readers, print and anyone who'd rather read. Each scene has a heading (deeper scenes, deeper
   // headings), what its picture shows (`describe`) and its caption's text; a path scene lists its stops in stepping
   // order, each with its text and the scenes it opens. Where you are and the caught packet's hop are marked. A dialog
-  // over the app (inert meanwhile): it opens at where you are, and Esc or × closes it.
+  // over the app (inert meanwhile): it opens at where you are, and Esc or × closes it. Where the place has eras, its
+  // top scene offers the time machine (#59).
   import { onMount } from 'svelte';
   import type { Loc } from '../model/location';
   import type { Route } from '../model/resolve';
@@ -12,7 +13,7 @@
   import { captionFor } from './caption';
   import Icon from './Icon.svelte';
 
-  let { route, here, caught, onclose, ongo, onswap }: {
+  let { route, here, caught, onclose, ongo, onswap, ontime }: {
     route: Route; here: Loc;
     /** The hop the caught packet waits at (its id), if one is caught. */
     caught: string | null;
@@ -21,6 +22,8 @@
     ongo: (path: string[], stop: string | null) => void;
     /** Change where you are (the start device's door). */
     onswap: () => void;
+    /** Open the time machine (#59), where the place has eras. */
+    ontime?: () => void;
   } = $props();
   const map = $derived(mapOf(route, view.orient));
   const key = (path: string[]) => path.join('/');
@@ -52,6 +55,7 @@
     <button class="btn" aria-label="{tr(verb(s))}: {c.title}" onclick={() => ongo(s.path, null)}>
       {#if s.via}<Icon name={s.via === 'expand' ? 'open' : 'look'} />{/if}{tr(verb(s))}
     </button>
+    {#if depth === 3 && ontime}<button class="btn" aria-haspopup="dialog" onclick={ontime}><Icon name="time" />{tr('time.title')}</button>{/if}
     {#if s.stops.length}
       <ol class="map-stops">
         {#each s.stops as st (st.spot.stop)}{@render stop(s, st, depth)}{/each}

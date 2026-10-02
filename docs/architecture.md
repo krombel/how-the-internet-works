@@ -36,7 +36,8 @@ graph LR
 | **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. Its **header schema** (`fields`: id, bits, value template, which roles use it) drives the packet model and the peek (below). `openAt` lists the roles that read it (TCP: only endpoints), `seals` makes it encrypt what's inside, and `dive` names the layer dive scene behind its magnifier. Issues #5, #8, #17. |
 | **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`, the border router's `border-inside` with its route book choosing the exchange over transit, the exchange's `ixp-inside` with its shared switch and route server, the data centre's `leaf-spine` and `server-inside`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `http-chunk`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared GPON thread with its splitter on the access fibre, DWDM colours on metro fibre, the exchange's short cross-connects and the data centre's CWDM links, boosters every 80 km on the backbone and repeaters on the sea floor under the `submarine` cable, both spaced from the stretch's real `km`), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → border router → IXP → CDN, with transit as a dashed side branch off the border router). Hops, links, side branches, per-hop overrides and layout. |
-| **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. A place with `variantOf` is another way online from the same place (`home-dsl`, `home-fttb`, `home-dialup`): the picker shows the base once with a row of `access` chips. |
+| **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. A place with `variantOf` is another way online from the same place (`home-dsl`, `home-fttb`, `home-dialup`): the picker shows the base once with a row of `access` chips. A place may have an `era`. |
+| **Era** | `content/eras/<id>/` | A time the internet at home looked different (`1995`, `2010`, `today`; issue #59): a `year`, a `name`, the `kid`/`nerd` text the time machine shows, and a `describe` of its picture. A place family whose members have eras gets the time machine: an era switch is a place switch to the family member of that era (`timeStops`). |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
 | **Owner** | `content/owners/<id>/` | Who runs a hop: your ISP, the exchange, the video company, a transit carrier (issue #20). Hops say `owner`; inside a group, each owner's hops become a tinted region with a sign, so the internet reads as a network of networks. |
 | **Locale** | `content/locales/<lang>/` | `meta.json` (`name`, `dir`) and `ui.json` (chrome strings). Every other folder carries its own `locales/<lang>.json`. |
@@ -58,7 +59,7 @@ Bigger ones get a plan first, in [plans/](plans/README.md).
 | Idea | What to add |
 |---|---|
 | Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/GPON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
-| Issue #59: a time machine | An era on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Plan: [plans/59-time-machine.md](plans/59-time-machine.md). |
+| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, the 🕰️ chip in the caption and its lazy panel (`ui/TimeMachine.svelte`); the internet inside is today's for every era. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
 | Issue #2: IoT, LoRaWAN | A **node** (`sensor`, `lora-gateway`, `network-server`), a **technology** `lorawan` (look `radio`) with a `lorawan` **layer** and a `chirp` dive **scene**, a **place** (`garden`, `field`), and an **activity** such as `send-reading` with a small upward flow. `only` keeps it to places that make sense. Plan: [plans/2-iot-lorawan.md](plans/2-iot-lorawan.md). |
 | Messaging | An activity with two place slots (`me`, `friend`) around a `messaging-server` segment, and an `e2ee` layer that the server can't open (`openAt: ['endpoint']`). |
 | Video call (P2P, WebRTC) | A second flow on a direct path, with the NAT traversal shown on the routers (`role: 'nat'`). |
@@ -86,7 +87,7 @@ src/                      the engine: no content ids anywhere
                           hour, style, list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
                           Change (a changed value), Announcer + announce (what a screen reader hears), SceneKeys (the
                           keyboard in the scene), TextMap (the list view), CoachMarks + coach, coach-marks (the
-                          first-run coach marks)…
+                          first-run coach marks), TimeMachine (the eras of where you are, #59)…
 content/
   locales/{en,da}/        meta.json ui.json
   themes/storybook/       theme.ts tokens.css meta.json art/*.svelte
@@ -97,6 +98,7 @@ content/
   segments/<id>/          segment.ts  locales/
   owners/<id>/            owner.ts  locales/
   places/<id>/            place.ts  art/Backdrop.svelte  locales/
+  eras/<id>/              era.ts  locales/
   activities/<id>/        activity.ts  locales/
 ```
 
@@ -362,6 +364,15 @@ Picking another place in the picker (the swap badge on the start device, or "Cha
 
 Packets restart on the new route, and the caption waits for the morph to finish.
 
+**The time machine (issue #59)** is the same morph. `timeStops(place, options)` (`model/registry.ts`) lists the eras
+of the place's family, oldest first, each with the family member to go to (the place itself for its own era, else the
+first of that era by `order`). With two or more, the caption shows a 🕰️ chip (`timeChip`, `ui/caption.ts`; on the
+overview, with the year when it isn't today's) and the list view a "Travel in time" button. Both open
+`ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking): a native radio group of the eras,
+each with its device, year and way online. Choosing one shows its text; its button (or Enter) switches the place, and
+when the morph lands focus goes to the caption's heading and the announcer says the place's `describe`. There is no
+era in the URL: the place says it.
+
 ## The context that content gets
 
 **Dive scenes** (`Scene.svelte`) get `{ subject }`, a `LinkSubject`, a `NodeSubject` or a `LayerSubject` (`subject.kind`):
@@ -413,7 +424,7 @@ TCP, TLS and HTTP are sealed everywhere but the two ends. The IP layer shows the
 
 | Point | Where | What plugs in |
 |---|---|---|
-| Content data | `model/registry.ts` | `content/<kind>/<id>/<kind>.ts` (node.ts, technology.ts, …) |
+| Content data | `model/registry.ts` | `content/<kind>/<id>/<kind>.ts` (node.ts, technology.ts, era.ts, …) |
 | Svelte content | `model/components.ts` | node art, layer envelopes, dive scenes, place backdrops |
 | Strings | `model/strings.ts` + the `string-packs` plugin in `vite.config.ts` | `content/**/locales/<lang>.json`, auto-namespaced by folder (`node.phone.name`, `place.home.stop.router.kid`) |
 | Themes | `state.svelte.ts` (`loadTheme`) | `content/themes/<id>/`, with unset slots falling back to `render/art-base/` |
@@ -515,7 +526,7 @@ engine:
   2. the activity
   3. the item itself (`node.router`)
 - **English fallback.** Any missing string falls back to English. `npm run check:content` prints translation coverage.
-- **Bundling.** English ships in the main bundle, except the dive strings (the layers': header field names and meanings; the dive scenes': their captions and labels): they load as one chunk (`virtual:dive-strings`) on the first catch, on entering any dive, or at start for a link below the overview (`loadDiveStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
+- **Bundling.** English ships in the main bundle, except the dive strings (the layers': header field names and meanings; the dive scenes': their captions and labels; the eras' texts, #59): they load as one chunk (`virtual:dive-strings`) on the first catch, on entering any dive, on opening the time machine, or at start for a link below the overview (`loadDiveStrings`; text asked for them earlier updates when they arrive). Other languages load on first use, one chunk each (about 6 kB gz for da), via the `virtual:string-packs` plugin in `vite.config.ts`. Adding a language therefore costs nothing for readers who don't pick it.
 - **Languages.** English and Danish, the languages we can review ourselves (issue #11).
 - **RTL.** A language's `meta.json` sets `dir`, which `setLang` puts on `<html>`: the chrome mirrors (logical CSS properties), the diagrams don't. No shipped language is right-to-left, so `src/rtl.test.ts` keeps the support working with a made-up test-only language. A reviewed RTL language comes back as content only: its locale folder, plus faces for its script in the theme's `tokens.css`.
 
@@ -646,7 +657,7 @@ catching a packet on the overview costs about 35 % more; even on dive panels onl
 heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
 between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 93.1 kB gz (about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
+Initial JS is about 93.9 kB gz (about 0.8 kB of it the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 2.5 kB with its CSS; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
 chunk of about 2.2 kB with their CSS, loaded only on a first visit; 91.7 kB before them, with the accessibility work of
 #53; about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the

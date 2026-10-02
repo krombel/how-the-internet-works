@@ -8,6 +8,7 @@ import { doorsOf } from '../model/doors';
 import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
+import { timeStops } from '../model/registry';
 import type { Route } from '../model/resolve';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
@@ -27,6 +28,14 @@ export interface CaptionText { title: string; tag?: string; body: string; descri
  *  a card cut to its title, two lines and its doors on a narrow one (a portrait phone), else not at all. */
 export type CaptionFold = 'pill' | 'card' | null;
 export const captionFold = (w: number, h: number): CaptionFold => (isShort(w, h) ? 'pill' : w < 700 ? 'card' : null);
+
+/** The caption's time machine chip (#59), on the overview of a place whose family has two eras or more: the year of
+ *  an older era, or null in the newest ("Travel in time"). None (null) elsewhere. */
+export function timeChip(r: Route, path: string[]) {
+  const { place, options } = r.slots[0], stops = timeStops(place, options);
+  if (path.length || stops.length < 2) return null;
+  return { year: stops.at(-1)!.place === place ? null : stops.find((s) => s.place === place)!.year };
+}
 
 /** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip.
  *  Dives of the same technology name share one chip (the first); their badges on the map open the others. */

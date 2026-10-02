@@ -42,6 +42,15 @@ The work comes in four slices:
   in the scene; Esc or × gives focus back to what opened it. Print prints the list, on the page's paper. Each scene's
   description (slice 3, `describe`: what its picture shows) comes before its caption text, so the list is the
   picture's text alternative.
+- **The time machine** (#59, `ui/TimeMachine.svelte`, a lazy chunk): the 🕰️ chip in the caption ("Travel in time",
+  with the year when it isn't today's) and the same button in the list view open a dialog like the picker (the page
+  behind it `inert`, Esc, × or a click outside closes it and gives focus back to its opener). The eras are a native
+  radio group in a `fieldset` ("When?"), so the arrow keys choose and a screen reader says "1995 Dial-up (the old
+  days), radio button, 1 of 3"; it opens with focus on where you are ("You are here"), and each era's text and what
+  its picture shows are the radio's description (`aria-describedby`). Choosing only chooses (and shows the text); the
+  button ("Travel to 1995", or "Stay here") or Enter on a radio goes. The trip is a place switch: when the morph lands,
+  focus goes to the caption's heading and the announcer says what lies below and the new place's description. It adds
+  no motion of its own; under `prefers-reduced-motion` the morph is a short cross-fade.
 - **First-run coach marks** (#21, `ui/CoachMarks.svelte`, a lazy chunk): a first visit that starts at the top gets
   three short cards, pointing at "Open up", a "Look inside" and "What can I explore?". They don't take over: the
   card is a labelled `aside`, not a dialog, so it moves no focus and traps none; its Skip and Next come right after
@@ -126,8 +135,8 @@ It prints each problem and exits non-zero if there is one; it writes no screensh
 animation or transition is running (`document.getAnimations()`), so nothing is judged mid-fade, however slow the
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
-  router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the open ladder, the ⋯ menu
-  and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
+  router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the time machine, the open ladder, the ⋯
+  menu and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
   view and the first-run coach marks (the first card and the last), rush hour's caption note and the list view with
   it, a nerd's extra in a dive, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
@@ -142,7 +151,9 @@ machine (#70). It checks:
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
   screen, or on a control without a visible ring (for the scene's keys: on a stop, the theme's ring in the scene).
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
-  the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button),
+  the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button), the
+  time machine (it opens on where you are, Tab stays in it, Esc back to the chip; ← ← and Enter go to 1995, focus on
+  the caption's heading, the announcer says the arrival; and back to today),
   the scene's keys (Tab in, → → to the Wi‑Fi, Enter into its dive, Esc), the list view (the skip link opens it at
   where you are, Tab stays in it, Esc back to the skip link; from ⋯, a door in it lands in the scene), and read aloud:
   turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the title, the
@@ -155,7 +166,7 @@ machine (#70). It checks:
 Every other page the evaluate opens (shots, timings, checks, the vision sheets) has had the coach marks already
 (`coached` in `localStorage`), so none of them sees the cards.
 
-`--only=perf` also times walking the scene's keys (`keysWalk`).
+`--only=perf` also times walking the scene's keys (`keysWalk`) and the time machine's trip to 1995 (`morphToDialup`).
 
 axe can't judge SVG text over art (it reports it as "needs review"); the label check above does.
 

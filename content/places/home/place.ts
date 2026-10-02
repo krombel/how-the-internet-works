@@ -3,6 +3,7 @@ import { definePlace } from '$core/define';
 // At home: the phone on Wi-Fi, a cable to the home router, and fibre to the home (FTTH) up the street.
 export default definePlace({
   order: 1,
+  era: 'today',
   hops: [
     { at: 'phone', addr: '192.168.1.23' },
     { link: 'wifi', km: 0.005 },

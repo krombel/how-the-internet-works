@@ -164,6 +164,22 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       if (of?.variantOf !== undefined) add(p.file, 'variantOf', `"${p.variantOf}" is itself a variant of "${of.variantOf}"; use "${of.variantOf}"`);
       need(p.file, `place.${p.id}.access`);
     } else if (Object.values(c.places).some((v) => v.variantOf === p.id)) need(p.file, `place.${p.id}.access`);
+    ref(p.file, 'era', 'eras', p.era, 'an era');
+  }
+  for (const e of Object.values(c.eras)) {
+    schema(e.file, S.era, strip(e));
+    need(e.file, `era.${e.id}.name`);
+    needLevelled(e.file, `era.${e.id}`);
+    need(e.file, `era.${e.id}.describe.kid`);
+  }
+  // the time machine (#59) moves within a family by era: all of it has eras or none, and at least two of them
+  for (const base of Object.values(c.places).filter((p) => p.variantOf === undefined)) {
+    const family = Object.values(c.places).filter((p) => p.id === base.id || p.variantOf === base.id);
+    const dated = family.filter((p) => p.era !== undefined);
+    if (!dated.length) continue;
+    for (const p of family) if (p.era === undefined) add(p.file, 'era', `"${base.id}" and its ways of getting online have eras, so this needs one too.`);
+    if (new Set(dated.map((p) => p.era)).size < 2)
+      add(base.file, 'era', `every way of getting online from "${base.id}" is in the era "${dated[0].era}"; a time machine needs two eras at least (or no era at all).`);
   }
 
   for (const a of Object.values(c.activities)) {

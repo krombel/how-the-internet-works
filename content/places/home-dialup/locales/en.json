@@ -23,7 +23,7 @@
   },
   "inside": {
     "internet": {
-      "nerd": "The telephone network (a circuit through the exchange, not part of the internet at all) to the ISP's modem bank, then the ISP's core, then either peering at an IXP or paid transit, ending at a CDN cache. Each shaded area is one operator’s network."
+      "nerd": "The telephone network (a circuit through the exchange, not part of the internet at all) to the ISP's modem bank, then the ISP's core, then either peering at an IXP or paid transit, ending at a CDN cache. Each shaded area is one operator’s network. This is today’s internet: in 1995 there were no CDNs."
     }
   }
 }

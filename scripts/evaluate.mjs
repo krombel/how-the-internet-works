@@ -1,16 +1,17 @@
 // App evaluation: screenshots (desktop + portrait phone, and a few short-landscape phone) of the key places, dives,
 // layer dives, languages and a caught packet (pause + step, the peek and its detail tree), bytes loaded, and frame
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
-// morph, opening a layer dive from the peek and stepping up the stack) at 1× and 6× CPU throttle.
+// morphs (back to 1995, and to the street), opening a layer dive from the peek and stepping up the stack) at 1× and 6×
+// CPU throttle.
 // Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
-//                        ring; focus comes back after a door, a catch and the picker; read aloud and the announcer
-//                        say a scene's description; the first-run coach marks, which every other run skips); every
-//                        control at least 24 px, not cut off (at 200 % zoom too: the zoom view) and not under another;
-//                        every scene's labels at 4.5:1 (3:1 when large) on their halo or what's behind them. Prints
-//                        what fails, exits 1 if anything does; writes nothing.
+//                        ring; focus comes back after a door, a catch, the picker and the time machine; read aloud
+//                        and the announcer say a scene's description; the first-run coach marks, which every other
+//                        run skips); every control at least 24 px, not cut off (at 200 % zoom too: the zoom view) and
+//                        not under another; every scene's labels at 4.5:1 (3:1 when large) on their halo or what's
+//                        behind them. Prints what fails, exits 1 if anything does; writes nothing.
 //   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
 //                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still, taken until two in a row
@@ -202,6 +203,8 @@ const A11Y_STATES = [
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
   { name: 'picker-dsl', where: 'home-dsl/watch-video', picker: true, views: ['phone'] },
   { name: 'dialup', where: 'home-dialup/watch-video/laptop-internet', views: ['desktop', 'phone', 'short'] },
+  // the time machine (#59): its panel, on today's home
+  { name: 'time', where: 'home/watch-video', time: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   // the ⋯ menu over a caught packet's layers (#90)
@@ -420,6 +423,7 @@ async function a11y(style) {
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
     if (s.picker) await p.evaluate(() => window.__app.picker(true));
+    if (s.time) { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); await p.waitForSelector('.picker.time'); }
     if (s.ladder) await p.click('.crumbs .here');
     if (s.menu) { await p.click('.more-btn'); await p.waitForSelector('.menu'); }
     if (s.about) { await p.click('.menu [role=menuitem]:last-child'); await p.waitForSelector('.about-box'); }
@@ -454,13 +458,14 @@ async function a11y(style) {
     for (let i = 1; i <= most; i++) {
       await p.keyboard.press('Tab');
       const bad = await p.evaluate(focusProblem);
-      if (bad === 'focus on the page') { if (i < 3) fail(`${s.name} Tab ${i}`, 'nothing to Tab to'); break; }
+      // (the time machine opens on its eras, a Tab from its last control)
+      if (bad === 'focus on the page') { if (i < (s.time ? 2 : 3)) fail(`${s.name} Tab ${i}`, 'nothing to Tab to'); break; }
       if (bad) fail(`${s.name} Tab ${i}`, bad);
       if (i === most) fail(s.name, 'Tab never gets round');
     }
     await ctx.close();
   }
-  // 3. journeys: focus comes back after a door, a catch, letting go, and the picker
+  // 3. journeys: focus comes back after a door, a catch, letting go, the picker and the time machine
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
   await still(p);
   const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
@@ -482,6 +487,35 @@ async function a11y(style) {
   }
   await p.keyboard.press('Escape'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
+  // the time machine (#59): it opens on where you are, Tab stays in it and Esc comes back; the arrows choose 1995 and
+  // Enter goes there: focus on the caption's title, and the announcer says what the picture shows
+  const timeIn = () => p.evaluate(() => (document.activeElement === document.body ? 'browser' : document.activeElement?.closest('.picker.time') ? 'dialog' : 'page'));
+  await p.focus('.caption .chip.time'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.picker.time input[data-here]:checked')))) fail('journey: time machine', 'it does not open on where you are');
+  for (let i = 0; i < 12; i++) {
+    await p.keyboard.press('Tab');
+    const where = await timeIn();
+    if (where === 'page') { fail('journey: time machine', 'Tab reaches the page behind the dialog'); break; }
+    if (where !== 'browser') await check('Tab in the time machine');
+  }
+  await p.keyboard.press('Escape'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.caption .chip.time')))) fail('journey: time machine', 'focus is not back on its button');
+  // from the list view: it opens on where you are, and Esc gives focus back to what opened the list
+  await p.focus('.skip'); await p.keyboard.press('Enter'); await p.waitForSelector('.map'); await still(p);
+  await p.focus('.map button:has-text("Travel in time")'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+  if (!(await p.evaluate(() => !document.querySelector('.map') && document.activeElement?.matches('.picker.time input[data-here]')))) fail('journey: time machine', 'from the list view, it does not open on where you are');
+  await p.keyboard.press('Escape'); await still(p);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.skip')))) fail('journey: time machine', 'from the list view, focus is not back on the skip link');
+  await p.focus('.caption .chip.time');
+  await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+  await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowLeft'); await p.keyboard.press('Enter'); await still(p);
+  if ((await p.evaluate(() => window.__app.loc().places[0])) !== 'home-dialup') fail('journey: time machine', `Enter on 1995 goes to ${await p.evaluate(() => window.__app.loc().places[0])}`);
+  if (!(await p.evaluate(() => document.activeElement?.matches('.caption h2')))) fail('journey: time machine', 'focus is not on the caption after the trip');
+  const told = await p.evaluate(() => document.querySelector('[role=status]')?.textContent?.trim() ?? '');
+  if (told.length < 40) fail('journey: time machine', `arriving, the announcer says only "${told}"`);
+  await p.focus('.caption .chip.time'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
+  await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight'); await p.keyboard.press('Enter'); await still(p);
+  if ((await p.evaluate(() => window.__app.loc().places[0])) !== 'home') fail('journey: time machine', 'it does not come back to today');
   // the scene's keys (#53): into the picture, two stops along, in through the Wi‑Fi's door and back out
   const at = () => p.evaluate(() => { const l = window.__app.loc(); return `${l.path.join('/')}:${l.stop}`; });
   await p.focus('.scene-key'); await check('the scene');
@@ -739,6 +773,11 @@ for (const style of STYLES) {
       });
       await p.keyboard.press('Escape');
       await settle(p);
+      // the time machine (#59): to 1995 (other devices, the backdrop sliding), its idle, and back to today
+      r.morphToDialup = await sample(p, cdp, 1200, () => go({ places: ['home-dialup'] }));
+      await settle(p);
+      r.dialupIdle = await sample(p, cdp, 1500);
+      await go({ places: ['home'] }); await settle(p);
       // the place morph: the house slides away, the street slides in
       r.morphToStreet = await sample(p, cdp, 1200, () => go({ places: ['street'] }));
       await settle(p);

@@ -1,6 +1,7 @@
 # Plan: the time machine (issue #59)
 
-Status: **plan only**. Nothing here is built yet. Part of #59. It builds on the access technologies of #3 (PRs #82
+Status: **PRs 1 and 2 built** (together, in one PR): the eras 1995, 2010 and today on the home family, the 🕰️ chip
+and its lazy panel. PRs 3 onward are not started. Part of #59. It builds on the access technologies of #3 (PRs #82
 and #83).
 
 ## Goal and audience
@@ -289,6 +290,40 @@ Decided for now (the user may overrule any of them):
   props carry the era instead.
 - **The way in is a chip in the caption**, not a top-bar button (no room on a phone) and not in the ⋯ menu (which is
   for settings you set once, and where kids wouldn't find it).
+
+Decided while building PRs 1 and 2 (together, in one PR):
+- **One helper, `timeStops(place, among?)`**, instead of `eraOf` and `placeForEra`: it lists the family's eras, oldest
+  first, each with the member to go to (the place itself for its own era, else the first of that era by `order`). The
+  chip, the panel and the list view all need the whole list, so one function serves them, tested on the real content
+  and on fixtures. `place.era` is the "era of" lookup.
+- **The chip draws a clock icon (`time` in `ui/icons.ts`), not the 🕰️ emoji**: it takes the theme's ink, day and
+  night, and forced colours, like the other chips' icons. Today it reads "Travel in time"; in another era the year
+  ("1995"), with "Travel in time:" for screen readers. It shows on the overview only, like *Change*; it hides when the
+  caption is folded, like *Change*. The list view's "Travel in time" button is there at every depth of the place.
+- **Choosing an era doesn't travel yet.** A tap or the arrows choose an era and show its text under the dial; the
+  button ("Travel to 1995", or "Stay here" on your own era, which closes the panel) or Enter on a radio goes. With a
+  native radio group the arrows both move and choose, so going on choosing would send a keyboard user to 2010 on the
+  way to 1995; and a reader can read each era's text before going.
+- **The picture of an era is the device that connects the home then** (the last device of the place before its
+  access link: the dial-up computer, the DSL router, the fibre router), drawn by the theme's existing device art. Each
+  era's `describe` is written for that picture. When another family gets eras, its eras' pictures may need their own
+  describe (or a per-place one).
+- **The panel is the picker's dialog**: the same classes, stacking (its backdrop at `z-index` 20 and the card at 21,
+  over the chrome and the caption), backdrop, sheet in portrait and Esc handling, so it stays in step with the picker and the ⋯ menu;
+  it is centred like the picker, not anchored to the caption. In short landscape it is compact: the title row with the
+  button and ×, then the eras in a row with year and way online only.
+- **Strings**: the panel's own strings (`time.*`) are in `ui.json`, so the eager chip needs nothing lazy; the eras'
+  texts (`era.*`) are in the lazy dive-strings chunk, which the panel awaits as it loads (pointing at or focusing the
+  chip starts both).
+- **Eager JS grew about 0.8 kB gz**, more than the plan's 0.2–0.5 kB: the App wiring (open, close, travel, focus on
+  arrival, `inert`, the list view's button) is about 0.4 kB, the era definitions, schema, validation and `timeStops`
+  about 0.3 kB, the chip and its icon about 0.1 kB. The panel (about 1.8 kB JS and 0.8 kB CSS gz) is lazy. The
+  panel's radios are checked and focused from code, not with `bind:group` or `checked=`, whose runtime would load up
+  front with the app.
+- **The 1995 home's nerd text for the internet** says that the internet inside is today's (no CDNs then), in one
+  short sentence.
+- **Reduced motion**: the place morph is already a short cross-fade under `prefers-reduced-motion` (`view.still`), so
+  the time machine needed no change there.
 
 Still open:
 - Should the era show all the time (a small "1995" badge on the overview), or only in the caption?
