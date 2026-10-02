@@ -445,6 +445,12 @@ Each is small, leaves main working and says "Part of #59".
    at the time (the user's principle): where people really did this in an era, that era gets a trip there.
 5. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
    and nerd), like with like.
+   - **Era packet speed.** In older eras the parcels move visibly slower along the route: a gentle, bounded scale
+     (slow, medium, fast, say), derived from the route's bottleneck `rate`, not true to scale (1995's dial-up was
+     about 35,000× slower than today's fibre). The caption's "how long it takes" line carries the real difference.
+     Under reduced motion and pause it follows the clock as packets do now; it stays within the perf budget (the
+     evaluate phases' p95).
+   - **Not on rush hour**: rush hour is being removed (#114), so this step doesn't build on it.
 6. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
    bank, the small ISP's router, an `e1` to the upstream (DIX as the aside), CANTAT-3 (`submarine-sdh`), the US
    backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
