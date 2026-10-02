@@ -86,6 +86,19 @@ export function livePackets(specs: PacketSpec[], links: SLink[], time: number, p
   return out;
 }
 
+/** The packet nearest a tap (`dist` from a pose, within `r`), each tested where it is and where it was `lag` ago (in
+ *  scene time): a finger lands a moment behind a moving packet, so the hit area trails it (#122). */
+export function packetNear(packets: LivePacket[], links: SLink[], lag: number, dist: (p: Pose) => number, r: number): LivePacket | null {
+  const byId = new Map(links.map((l) => [l.id, l]));
+  let best: { p: LivePacket; d: number } | null = null;
+  for (const p of packets) {
+    const was = pose(p.spec, byId, p.age - lag);
+    const d = Math.min(dist(p.pose), was ? dist(was) : Infinity);
+    if (d < r && (!best || d < best.d)) best = { p, d };
+  }
+  return best?.p ?? null;
+}
+
 /** Which ways packets are going on a link right now. */
 export const trafficOn = (packets: LivePacket[], link: string | undefined) => ({
   up: packets.some((p) => p.dir === 'up' && p.pose.link.id === link),
