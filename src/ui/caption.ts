@@ -6,9 +6,9 @@ import type { LearnMore, Level, Orient } from '../define';
 import { isShort } from '../engine/camera';
 import { doorsOf } from '../model/doors';
 import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
+import { eraStops, eraYear } from '../model/era';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
-import { timeStops } from '../model/registry';
 import type { Route } from '../model/resolve';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
@@ -29,12 +29,12 @@ export interface CaptionText { title: string; tag?: string; body: string; descri
 export type CaptionFold = 'pill' | 'card' | null;
 export const captionFold = (w: number, h: number): CaptionFold => (isShort(w, h) ? 'pill' : w < 700 ? 'card' : null);
 
-/** The caption's time machine chip (#59), on the overview of a place whose family has two eras or more: the year of
- *  an older era, or null in the newest ("Travel in time"). None (null) elsewhere. */
+/** The caption's time machine chip (#59), on every overview (when there is somewhere else in time to go): the year
+ *  of an older era, or null in the newest ("Travel in time"). None (null) elsewhere. */
 export function timeChip(r: Route, path: string[]) {
-  const { place, options } = r.slots[0], stops = timeStops(place, options);
-  if (path.length || stops.length < 2) return null;
-  return { year: stops.at(-1)!.place === place ? null : stops.find((s) => s.place === place)!.year };
+  const { place, options } = r.slots[0];
+  if (path.length || eraStops(place, options, r.content).length < 2) return null;
+  return { year: eraYear(r) };
 }
 
 /** The doors of a path scene (all of them; at a stop only that stop's own), named. Changing place has its own chip.

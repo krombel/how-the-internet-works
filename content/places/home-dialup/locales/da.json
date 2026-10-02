@@ -8,11 +8,11 @@
     "nerd": "Oversigten over et hjem i 1990’erne: én computer, hvis modem ringer til udbyderen over telefonlinjen, som telefonen deler. Intet LAN og ingen NAT: PPP går fra computeren til udbyderens gateway. Forespørgsler går op, og video kommer tilbage med modemfart."
   },
   "tag": {
-    "laptop": "56k-modem · 203.0.113.7",
+    "pc": "56k-modem · 203.0.113.7",
     "bng": "Modembank · PPP"
   },
   "stop": {
-    "laptop": {
+    "pc": {
       "kid": "Computeren har et modem indeni. Det ringer til internetselskabets telefonnummer og synger så din pakke ned ad telefonlinjen som fløjt og sus.",
       "nerd": "Ingen router: modemets PPP-forbindelse gør computeren selv til en vært på internettet med den offentlige adresse 203.0.113.7, som den fik fra IPCP til dette opkald."
     },

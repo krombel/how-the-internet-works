@@ -1,5 +1,6 @@
 {
   "name": "Ved skrivebordet",
+  "where": "ved skrivebordet",
   "kid": "Ingen radio denne gang: pakkerne løber gennem et kabel direkte ind i routeren og så ud langs en glastråd til internettet.",
   "nerd": "Med kabel: Ethernet-rammer går direkte fra den bærbares port til hjemmerouteren, som NAT-oversætter pakkerne og sender dem videre over fiberforbindelsen (GPON) til internetudbyderen.",
   "describe": {

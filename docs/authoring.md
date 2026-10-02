@@ -377,15 +377,21 @@ the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
 
 ### Add an era (issue #59)
 
-An era is a time the place looked different: the home in 1995 (dial-up), 2010 (DSL) and today (fibre). The time
-machine (🕰️ in the caption, "Travel in time" in the list view) switches between the members of a place family by
-their era, so an era switch is a place switch: no new route, URL or dive.
+An era is a time the place looked different: the home in 1995 (dial-up on a PC), 2010 (DSL, a laptop on Wi‑Fi) and
+today (fibre, a phone). The time machine (its button in the top bar, 🕰️ in the caption, "Travel in time" in the list
+view) switches between the members of a place family by their era, so an era switch is a place switch: no new route,
+URL or dive. From a place with no member in an era (the street in 1995), it goes to that era's own trip, the first
+place of that era, and says so.
 - `content/eras/<id>/era.ts`: `defineEra({ year: 1995 })`. The folder name is the id (`today` is the present,
   whose `year` is the current one). The panel lists eras by `year`.
 - Strings in `locales/<lang>.json`: `name` (the year, or "Today"), `kid`/`nerd` (what home internet was like then, as
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
-  device that connects the home (the last device before the access link). Write `describe` in English and Danish.
-  The era texts load with the dive strings, when the panel opens.
+  start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
+  Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
+  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). The era texts
+  load with the dive strings, when the panel opens.
+- Each base place says where it is, `where` ("at home", "on the street"), for the time machine's "In 1995 you'd have
+  done this at home." Validation fails on a base place without it.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
   where only some members have an era, and on a family whose members all share one era (a time machine needs two).
   Two members of one era are fine (`home` and `home-fttb` are both `today`): the time machine goes to the place you

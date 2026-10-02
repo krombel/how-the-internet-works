@@ -1,5 +1,6 @@
 {
   "name": "On the street",
+  "where": "on the street",
   "kid": "Out on the street there’s no Wi-Fi, so the parcels fly by radio to a cell tower, and from there along a glass thread to the internet.",
   "nerd": "On 5G the phone talks NR to a gNB, which tunnels the packets (GTP-U) over fibre to the mobile core; its UPF does carrier-grade NAT towards the internet.",
   "describe": {

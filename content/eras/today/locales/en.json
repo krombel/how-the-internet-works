@@ -3,7 +3,7 @@
   "kid": "A thin glass thread brings the internet into the house as flashes of light, fast enough for everyone at home to watch videos at once.",
   "nerd": "Fibre to the home or to the building: GPON or XGS-PON (gigabits, shared by a neighbourhood), or Ethernet from the basement. Wi‑Fi 6 and NAT at home.",
   "describe": {
-    "kid": "A box with two antennas and three little lights: the router, the front door of your home network.",
-    "nerd": "A home router of today: two Wi‑Fi antennas and status lights, with fibre, or a cable from the basement, as its uplink."
+    "kid": "A phone in your hand. It’s on Wi‑Fi to the router, and the router has a glass thread to the internet.",
+    "nerd": "A smartphone on Wi‑Fi 6 behind a home router, with fibre, or a cable from the basement, as its uplink."
   }
 }

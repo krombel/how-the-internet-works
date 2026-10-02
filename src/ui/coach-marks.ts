@@ -3,20 +3,27 @@
 import type { Viewport } from '../engine/camera';
 import type { Rect } from '../engine/geometry';
 import type { Door } from '../model/doors';
+import type { EraStop } from '../model/era';
+import type { CoachRun } from './coach';
 
-export type CoachMark = { kind: 'expand' | 'dive'; door: Door } | { kind: 'explore'; door: null };
+export type CoachMark = { kind: 'expand' | 'dive'; door: Door } | { kind: 'explore' | 'time'; door: null };
 
-/** The marks, in order: the first door that opens up, the first that looks inside, then "What can I explore?". What
- *  the scene doesn't have is left out. */
-export function coachMarks(doors: Door[], canExplore: boolean): CoachMark[] {
+/** The marks, in order: the first door that opens up, the first that looks inside, "What can I explore?", then the
+ *  time machine's button; only that last one for a reader who had the others (`run` 'time'). What the scene doesn't
+ *  have is left out. */
+export function coachMarks(doors: Door[], canExplore: boolean, canTime: boolean, run: Exclude<CoachRun, null>): CoachMark[] {
   const out: CoachMark[] = [];
-  for (const kind of ['expand', 'dive'] as const) {
+  if (run === 'all') for (const kind of ['expand', 'dive'] as const) {
     const door = doors.find((d) => d.kind === kind);
     if (door) out.push({ kind, door });
   }
-  if (canExplore) out.push({ kind: 'explore', door: null });
+  if (canExplore && run === 'all') out.push({ kind: 'explore', door: null });
+  if (canTime) out.push({ kind: 'time', door: null });
   return out;
 }
+
+/** The eras the time machine card names: those you could go to from `here`, by year, null for the newest (`now`). */
+export const otherEras = (stops: EraStop[], here: string, now: string) => stops.filter((s) => s.era !== here).map((s) => (s.era === now ? null : s.year));
 
 /** Which side of its target a card is on. */
 export type Side = 'below' | 'above' | 'right' | 'left';

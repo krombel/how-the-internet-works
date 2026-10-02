@@ -3,7 +3,7 @@
   "kid": "Telefonlinjen bar internet og telefonsamtaler på samme tid, som toner for høje til at høre. En kasse med et modem indeni sendte Wi‑Fi ud i alle rum.",
   "nerd": "DSL: ADSL2+ og siden VDSL2 fra gadeskabe, fra nogle få til flere titals Mbit/s på kobberparret. En modemrouter derhjemme laver NAT og 802.11n-Wi‑Fi.",
   "describe": {
-    "kid": "En kasse med én antenne og to små lamper. Bølgede toner kommer ud af siden: modemmet indeni synger ned ad telefonlinjen.",
-    "nerd": "En DSL-modemrouter: én Wi‑Fi-antenne, statuslamper og DMT-toner, der forlader telefonstikket."
+    "kid": "En bærbar, slået op på bordet. Den er på Wi‑Fi, uden kabel: kassen med modemmet indeni synger ned ad telefonlinjen.",
+    "nerd": "En bærbar på 802.11n-Wi‑Fi til en DSL-modemrouter, der laver NAT og sender DMT-toner ned ad telefonparret."
   }
 }

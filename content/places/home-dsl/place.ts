@@ -1,14 +1,15 @@
 import { definePlace } from '$core/define';
 import home from '../home/place';
 
-// At home on the phone line (xDSL): the same house, Wi-Fi and cable, but the router has a modem that sends tones down
-// the copper phone pair to a DSLAM in the street cabinet. From there it's fibre, as with fibre to the home.
+// At home on the phone line (xDSL), around 2010: the same house, Wi-Fi and cable, but you're on a laptop (the start
+// device of 2010, #59), and the router has a modem that sends tones down the copper phone pair to a DSLAM in the street
+// cabinet. From there it's fibre, as with fibre to the home.
 export default definePlace({
   variantOf: 'home',
   order: 1.4,
   era: '2010',
   hops: [
-    { at: 'phone', addr: '192.168.1.23' },
+    { at: 'laptop', addr: '192.168.1.23' },
     { link: 'wifi', km: 0.005 },
     { at: 'ap' },
     { link: 'ethernet', km: 0.005 },
@@ -22,8 +23,28 @@ export default definePlace({
     { link: 'backbone', km: 25 },
   ],
   entry: { internet: 'home' },
-  // laid out as at home: the same house, the same rooms
-  layout: home.layout,
+  // laid out as at home (the same house, the same rooms), the laptop where the phone would be
+  layout: {
+    overview: {
+      landscape: {
+        nodes: { laptop: [225, 590, 210], ap: [655, 540, 180, 'above'], router: [1015, 618, 190] },
+        links: {
+          'laptop-ap': { bend: -0.15, label: [0, 90] },
+          'ap-router': { bend: 0.18, label: [-30, 95, 'end'] },
+          'router-internet': { curve: [[1090, 590], [1250, 595], [1290, 430]], label: [10, 70, 'start'] },
+        },
+      },
+      portrait: {
+        nodes: { laptop: [220, 1400, 210], ap: [650, 1150, 170], router: [464, 885, 180, 'above'] },
+        links: {
+          'laptop-ap': { bend: -0.3, label: [5, -50] },
+          'ap-router': { bend: 0.2, label: [-50, 40, 'end'] },
+          'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
+        },
+      },
+    },
+    internet: home.layout!.internet,
+  },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Digital_subscriber_line', title: 'DSL', level: 'both', lang: 'en' },
     { url: 'https://da.wikipedia.org/wiki/DSL', title: 'DSL', level: 'both', lang: 'da' },

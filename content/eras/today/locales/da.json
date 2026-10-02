@@ -3,7 +3,7 @@
   "kid": "En tynd glastråd bringer internettet ind i huset som lysglimt, hurtigt nok til at alle derhjemme kan se video på én gang.",
   "nerd": "Fiber til huset eller til bygningen: GPON eller XGS-PON (gigabit, delt af et kvarter) eller Ethernet fra kælderen. Wi‑Fi 6 og NAT derhjemme.",
   "describe": {
-    "kid": "En kasse med to antenner og tre små lamper: routeren, hoveddøren til dit hjemmenetværk.",
-    "nerd": "En hjemmerouter fra i dag: to Wi‑Fi-antenner og statuslamper, med fiber eller et kabel fra kælderen som forbindelse udadtil."
+    "kid": "En telefon i din hånd. Den er på Wi‑Fi til routeren, og routeren har en glastråd ud til internettet.",
+    "nerd": "En smartphone på Wi‑Fi 6 bag en hjemmerouter med fiber eller et kabel fra kælderen som forbindelse udadtil."
   }
 }

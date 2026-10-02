@@ -42,22 +42,29 @@ The work comes in four slices:
   in the scene; Esc or × gives focus back to what opened it. Print prints the list, on the page's paper. Each scene's
   description (slice 3, `describe`: what its picture shows) comes before its caption text, so the list is the
   picture's text alternative.
-- **The time machine** (#59, `ui/TimeMachine.svelte`, a lazy chunk): the 🕰️ chip in the caption ("Travel in time",
-  with the year when it isn't today's) and the same button in the list view open a dialog like the picker (the page
-  behind it `inert`, Esc, × or a click outside closes it and gives focus back to its opener). The eras are a native
+- **The time machine** (#59, `ui/TimeMachine.svelte`, a lazy chunk): its button in the top bar on every screen (a
+  clock and the era you're in, "Today" or the year; its name "Travel in time: 1995", `aria-haspopup="dialog"` and
+  `aria-expanded`), the 🕰️ chip in the caption on every overview and the same button in the list view open a dialog
+  like the picker (the page behind it `inert`, Esc, × or a click outside closes it and gives focus back to its
+  opener). Below 400 px "What can I explore?" shows only its icon (its name stays), so the row still fits. The eras are a native
   radio group in a `fieldset` ("When?"), so the arrow keys choose and a screen reader says "1995 Dial-up (the old
   days), radio button, 1 of 3"; it opens with focus on where you are ("You are here"), and each era's text and what
   its picture shows are the radio's description (`aria-describedby`). Choosing only chooses (and shows the text); the
-  button ("Travel to 1995", or "Stay here") or Enter on a radio goes. The trip is a place switch: when the morph lands,
-  focus goes to the caption's heading and the announcer says what lies below and the new place's description. It adds
-  no motion of its own; under `prefers-reduced-motion` the morph is a short cross-fade.
+  button ("Travel to 1995", or "Stay here") or Enter on a radio goes. Where the place had no way online in an era
+  (the street in 1995), that era's stop is its own trip at home: a line under the eras says so, marked with the clock,
+  and it is in the radio's description too, so it is heard before going. The trip is a place switch: when the morph
+  lands, focus goes to the caption's heading and the announcer says the era first ("It's 1995.", "Back to today.",
+  and why you are somewhere else), then what lies below and the new place's description. It adds no motion of its
+  own; under `prefers-reduced-motion` the morph is a short cross-fade.
 - **First-run coach marks** (#21, `ui/CoachMarks.svelte`, a lazy chunk): a first visit that starts at the top gets
-  three short cards, pointing at "Open up", a "Look inside" and "What can I explore?". They don't take over: the
+  four short cards, pointing at "Open up", a "Look inside", "What can I explore?" and the time machine's button. A
+  reader who had the first three before the time machine came gets its card alone, once ("New. Hop in the time
+  machine: see this trip in 1995 or 2010.", no count). They don't take over: the
   card is a labelled `aside`, not a dialog, so it moves no focus and traps none; its Skip and Next come right after
   the skip link in the Tab order (the skip link stays first and on top). Esc, a tap anywhere but its buttons (which
   still does what it would have done) or going anywhere ends them. Meanwhile the scene holds still on the pause's clock (⏸
   still shows only the reader's own pause), and the doors are lit as by "What can I explore?". The announcer says
-  each card ("Getting started. 1 of 3. …"), and read aloud reads it when it is on. With `prefers-reduced-motion` the
+  each card ("Getting started. 1 of 4. …"), and read aloud reads it when it is on. With `prefers-reduced-motion` the
   card neither fades in nor glides. Shown once (`localStorage`); a link straight into a scene or a stop gets none.
 - **Hints name keys after a key** (`view.keys`, set by the last input): "Press Enter to look inside. The arrow keys
   walk along." instead of "Tap the magnifier…" (`hint.*.keys`).
@@ -135,9 +142,10 @@ It prints each problem and exits non-zero if there is one; it writes no screensh
 animation or transition is running (`document.getAnimations()`), so nothing is judged mid-fade, however slow the
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
-  router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the time machine, the open ladder, the ⋯
+  router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
   menu and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
-  view and the first-run coach marks (the first card and the last), rush hour's caption note and the list view with
+  view and the first-run coach marks (the first card, "What can I explore?" and the time machine's, and the one card a
+  returning reader gets), rush hour's caption note and the list view with
   it, a nerd's extra in a dive, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
 - **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
@@ -153,7 +161,9 @@ machine (#70). It checks:
 - **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
   the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button), the
   time machine (it opens on where you are, Tab stays in it, Esc back to the chip; ← ← and Enter go to 1995, focus on
-  the caption's heading, the announcer says the arrival; and back to today),
+  the caption's heading, the announcer says the arrival; and back to today; from the top bar inside the TCP dive, at
+  home and on the street: Esc back to the button, ← ← and Enter go to the PC's TCP in 1995, focus on the caption's
+  heading, the announcer says "It's 1995." first and, from the street, why you are at home, and the button says 1995),
   the scene's keys (Tab in, → → to the Wi‑Fi, Enter into its dive, Esc), the list view (the skip link opens it at
   where you are, Tab stays in it, Esc back to the skip link; from ⋯, a door in it lands in the scene), and read aloud:
   turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the title, the
@@ -161,7 +171,8 @@ machine (#70). It checks:
   an English and a Danish voice (a headless browser may have none), which notes what it was asked to say. Then the
   coach marks: a first visit gets them and the announcer says the first; Tab goes skip link, then the card; Next
   steps on and keeps focus; Esc ends them, leaves focus somewhere visible and they don't come back after a reload; a
-  link into a scene gets none (and doesn't use them up); a tap on "Open up" ends them and opens it.
+  link into a scene gets none (and doesn't use them up); a tap on "Open up" ends them and opens it. A returning reader
+  (`coached` `'1'`) gets the time machine's card alone, said as new with no count, and after Esc never again.
 
 Every other page the evaluate opens (shots, timings, checks, the vision sheets) has had the coach marks already
 (`coached` in `localStorage`), so none of them sees the cards.

@@ -37,7 +37,7 @@ graph LR
 | **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`, the border router's `border-inside` with its route book choosing the exchange over transit, the exchange's `ixp-inside` with its shared switch and route server, the data centre's `leaf-spine` and `server-inside`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `http-chunk`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared GPON thread with its splitter on the access fibre, DWDM colours on metro fibre, the exchange's short cross-connects and the data centre's CWDM links, boosters every 80 km on the backbone and repeaters on the sea floor under the `submarine` cable, both spaced from the stretch's real `km`), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → border router → IXP → CDN, with transit as a dashed side branch off the border router). Hops, links, side branches, per-hop overrides and layout. |
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. A place with `variantOf` is another way online from the same place (`home-dsl`, `home-fttb`, `home-dialup`): the picker shows the base once with a row of `access` chips. A place may have an `era`. |
-| **Era** | `content/eras/<id>/` | A time the internet at home looked different (`1995`, `2010`, `today`; issue #59): a `year`, a `name`, the `kid`/`nerd` text the time machine shows, and a `describe` of its picture. A place family whose members have eras gets the time machine: an era switch is a place switch to the family member of that era (`timeStops`). |
+| **Era** | `content/eras/<id>/` | A time the internet at home looked different (`1995`, `2010`, `today`; issue #59): a `year`, a `name`, the `kid`/`nerd` text the time machine shows, and a `describe` of its picture (the era's start device). Every place gets the time machine: an era switch is a place switch to the family member of that era, else to the era's own trip (`eraStops`). |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand. |
 | **Owner** | `content/owners/<id>/` | Who runs a hop: your ISP, the exchange, the video company, a transit carrier (issue #20). Hops say `owner`; inside a group, each owner's hops become a tinted region with a sign, so the internet reads as a network of networks. |
 | **Locale** | `content/locales/<lang>/` | `meta.json` (`name`, `dir`) and `ui.json` (chrome strings). Every other folder carries its own `locales/<lang>.json`. |
@@ -59,7 +59,7 @@ Bigger ones get a plan first, in [plans/](plans/README.md).
 | Idea | What to add |
 |---|---|
 | Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/GPON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
-| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, the 🕰️ chip in the caption and its lazy panel (`ui/TimeMachine.svelte`); the internet inside is today's for every era. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
+| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no way online in an era (the street, the desk), the era's own trip; the internet inside is today's for every era. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
 | Issue #2: IoT, LoRaWAN | A **node** (`sensor`, `lora-gateway`, `network-server`), a **technology** `lorawan` (look `radio`) with a `lorawan` **layer** and a `chirp` dive **scene**, a **place** (`garden`, `field`), and an **activity** such as `send-reading` with a small upward flow. `only` keeps it to places that make sense. Plan: [plans/2-iot-lorawan.md](plans/2-iot-lorawan.md). |
 | Messaging | An activity with two place slots (`me`, `friend`) around a `messaging-server` segment, and an `e2ee` layer that the server can't open (`openAt: ['endpoint']`). |
 | Video call (P2P, WebRTC) | A second flow on a direct path, with the NAT traversal shown on the routers (`role: 'nat'`). |
@@ -303,10 +303,13 @@ dive; `CaptionDoor.path` carries where they go.
   stop gives each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene
   SVG is `aria-hidden`). On small screens only the verb's icon is shown; the group keeps the verb as its label.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
-- **First-run coach marks** (issue #21). A visit that starts at the top (`firstRun` in `ui/coach.ts`: the overview, no
-  stop) and has never had them gets, after 700 ms of the scene moving, three cards (`ui/CoachMarks.svelte` with
+- **First-run coach marks** (issue #21). A visit that starts at the top (`coachRun` in `ui/coach.ts`: the overview, no
+  stop) and has never had them gets, after 700 ms of the scene moving, four cards (`ui/CoachMarks.svelte` with
   `ui/coach-marks.ts`, one lazy chunk loaded only then): the first *Open up*, the first *Look inside*
-  (`coachMarks(doors)`; what the scene lacks is left out), then "What can I explore?". They reuse what is there: the
+  (`coachMarks(doors, …)`; what the scene lacks is left out), "What can I explore?", then the time machine's button
+  ("Hop in the time machine: see this trip in 1995 or 2010", the other eras from here, #59). A reader who had them
+  before the time machine (`coached` is `'1'`; all of them is `'2'`) gets that last card alone, once, as "New", with
+  no count and the doors not lit. They reuse what is there: the
   doors are lit as by "What can I explore?" (`lit`), the door pointed at is `hot`, and the scene holds still on the
   pause's clock (`paused`; ⏸ shows only the reader's own pause, `held`). `placeMark` puts each card below its target,
   else above, else beside it, in the room the top bar and the caption leave, with its tail on the target; a door's
@@ -364,14 +367,21 @@ Picking another place in the picker (the swap badge on the start device, or "Cha
 
 Packets restart on the new route, and the caption waits for the morph to finish.
 
-**The time machine (issue #59)** is the same morph. `timeStops(place, options)` (`model/registry.ts`) lists the eras
-of the place's family, oldest first, each with the family member to go to (the place itself for its own era, else the
-first of that era by `order`). With two or more, the caption shows a 🕰️ chip (`timeChip`, `ui/caption.ts`; on the
-overview, with the year when it isn't today's) and the list view a "Travel in time" button. Both open
-`ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking): a native radio group of the eras,
-each with its device, year and way online. Choosing one shows its text; its button (or Enter) switches the place, and
-when the morph lands focus goes to the caption's heading and the announcer says the place's `describe`. There is no
-era in the URL: the place says it.
+**The time machine (issue #59)** is the same morph. `eraStops(place, options)` (`model/era.ts`) lists every era,
+oldest first, each with the place to go to: the place itself for its own era, else the first of its family of that era
+by `order`, else the era's own trip (the first place of that era, `instead`: the street and the desk have no way
+online in 1995). A place's era is `eraOf` (`model/registry.ts`; none is today's). With two or more stops, the top bar
+shows the time machine's button on every screen (`.time-btn`, `ui/Chrome.svelte`: a clock and "Today" or the year,
+`eraYear`), the caption a 🕰️ chip on every overview (`timeChip`, `ui/caption.ts`) and the list view a "Travel in
+time" button. They open `ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking): a native
+radio group of the eras, each with a picture of its start device (the place's first hop: a PC, a laptop, a phone), its
+year and way online. Choosing one shows its text, and for the era's own trip a line saying so ("In 1995 you'd have
+done this at home. You'll travel there."; for nerds, what there was where you are, `era.<era>.away.<place>`); its
+button (or Enter) goes there with `eraTrip` (`model/era-trip.ts`, loaded with the panel): slot 0 becomes the stop's
+place, the steps naming the old start device (`phone~tcp`, `phone-ap`) name the new one (`pc~tcp`, `pc-internet`), and
+the path is kept as far as it still exists. When the morph lands, focus goes to the caption's heading and the
+announcer says the era first ("It's 1995.", "Back to today.", and why you are somewhere else), then the arrival. The
+panel's words are `ui/time.ts`, in its chunk too. There is no era in the URL: the place says it.
 
 ## The context that content gets
 
@@ -659,7 +669,7 @@ catching a packet on the overview costs about 35 % more; even on dive panels onl
 heaviest phase, costs 5–25 % more. p95 is the same either way, and identical builds drifted about 12 % in total CPU
 between blocks of runs, so it stays on the device dives only.
 
-Initial JS is about 93.9 kB gz (about 0.8 kB of it the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 2.5 kB with its CSS; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
+Initial JS is about 95.8 kB gz (about 1.1 kB of it the time machine's top-bar button, its era stops and the start devices of #59's way in, with their English strings, about 0.4 kB; about 0.8 kB the time machine's chip, its wiring and the eras, #59, whose panel is a lazy chunk of about 3.2 kB with its CSS and `eraTrip`; about 0.3 kB of it the undersea cable's technology and the stretch's links that its km counter adds up, #39 and #42; about 0.7 kB of it the first-run coach marks' wiring, #21, whose cards are a lazy
 chunk of about 2.2 kB with their CSS, loaded only on a first visit; 91.7 kB before them, with the accessibility work of
 #53; about 0.1 kB of it catching by kind where the packet enters the view, #74; about 0.5 kB the slide between rungs, #62; about 1.2 kB the ⋯ menu and About; about 1.0 kB the device dives and sideways devices of #9 and #38; about 3.2 kB the owners, border router and trip scale of #20 and #25; about 2.0 kB the depth ladder, #22, #14, #32; 72.2 kB before day and night, #43; 68.6 kB before the sideways travel and stretches of #36 and #34; 64.1 kB before the doors of issue #19 and the stack view of #17), against 60.9 kB for the
 prototype. Dive scenes are lazy chunks (2–7 kB gz each), so adding dives doesn't grow the first load; so are the

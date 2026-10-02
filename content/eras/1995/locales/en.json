@@ -3,7 +3,12 @@
   "kid": "Home internet was a phone call. The computer’s modem rang the internet company, beeping and screeching, and while you were online, nobody could use the phone.",
   "nerd": "Dial-up: a modem at 28.8 kbit/s (56k came in 1998) calls the ISP’s modem bank, and PPP gives the PC its own public address. No Wi‑Fi, no router, no NAT.",
   "describe": {
-    "kid": "A computer with a big screen and a keyboard. Its modem is hidden inside, and it phones the internet company.",
-    "nerd": "The PC itself: its internal modem dials the ISP on the phone line, with no router in between."
+    "kid": "A big beige computer with a deep screen, and a keyboard on a cable. Its modem is hidden inside, and it phones the internet company.",
+    "nerd": "A desktop PC: its internal modem dials the ISP on the phone line, with no router in between."
+  },
+  "away": {
+    "street": {
+      "nerd": "Out and about in 1995, GSM could carry data: a 9.6 kbit/s circuit-switched call (CSD) from a phone with a cable to a laptop. Far too slow for video."
+    }
   }
 }

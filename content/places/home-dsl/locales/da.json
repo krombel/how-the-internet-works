@@ -4,14 +4,18 @@
   "kid": "Pakkerne suser gennem luften, ned ad et kabel til routeren og så langs den gamle kobbertelefonlinje som små toner ud til et skab på din gade – og videoen kommer tilbage samme vej!",
   "nerd": "Det samme hjemmenetværk, men routerens uplink er VDSL2: DMT-toner på kobbertelefonparret til en DSLAM i gadeskabet et par hundrede meter væk og derefter fiber til udbyderen.",
   "describe": {
-    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en gammel telefon på et lille bord. Din telefon sender pakker med Wi‑Fi til adgangspunktet, med kabel til routeren og så ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kommer tilbage.",
-    "nerd": "Hjemmevisningen viser LAN-ruten fra telefon til adgangspunkt og router, hvis uplink er kobbertelefonlinjen (VDSL2). Fastnettelefonen deler det samme par. Pakker går op over Wi‑Fi, Ethernet og VDSL; video kommer samme vej tilbage."
+    "kid": "Et gennemskåret hus ligger mellem grønne bakker med en gammel telefon på et lille bord. Din bærbare sender pakker med Wi‑Fi til adgangspunktet, med kabel til routeren og så ad telefonlinjen til internetskyen. Forespørgsler går ud, og video kommer tilbage.",
+    "nerd": "Hjemmevisningen viser LAN-ruten fra bærbar til adgangspunkt og router, hvis uplink er kobbertelefonlinjen (VDSL2). Fastnettelefonen deler det samme par. Pakker går op over Wi‑Fi, Ethernet og VDSL; video kommer samme vej tilbage."
   },
   "tag": {
-    "phone": "Wi-Fi 6 · 192.168.1.23",
+    "laptop": "Wi-Fi 4 · 192.168.1.23",
     "router": "VDSL2-modem · NAT → 203.0.113.7"
   },
   "stop": {
+    "laptop": {
+      "kid": "Omkring 2010 gik man på nettet med en bærbar, uden kabel: dens Wi‑Fi sender dine pakker gennem luften til boksen på væggen.",
+      "nerd": "En bærbar med et 802.11n-kort (Wi‑Fi 4), nogle titals Mbit/s i luften: mere end DSL-linjen bagved kunne bære. Den fik 192.168.1.23 af routeren via DHCP."
+    },
     "router": {
       "kid": "Routeren er hjemmets hoveddør. Den skriver dit hjems adresse på pakken, og dens modem synger den ud ad telefonlinjen.",
       "nerd": "NAT omskriver 192.168.1.23 til den offentlige 203.0.113.7; det indbyggede VDSL2-modem sender så rammerne som DMT-toner på telefonparret."

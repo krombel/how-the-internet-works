@@ -163,7 +163,11 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       const of = c.places[p.variantOf];
       if (of?.variantOf !== undefined) add(p.file, 'variantOf', `"${p.variantOf}" is itself a variant of "${of.variantOf}"; use "${of.variantOf}"`);
       need(p.file, `place.${p.id}.access`);
-    } else if (Object.values(c.places).some((v) => v.variantOf === p.id)) need(p.file, `place.${p.id}.access`);
+    } else {
+      if (Object.values(c.places).some((v) => v.variantOf === p.id)) need(p.file, `place.${p.id}.access`);
+      // where you are, in a sentence: the time machine's "In 1995 you'd have done this at home" (#59)
+      need(p.file, `place.${p.id}.where`);
+    }
     ref(p.file, 'era', 'eras', p.era, 'an era');
   }
   for (const e of Object.values(c.eras)) {

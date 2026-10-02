@@ -24,6 +24,8 @@
   const routerHop = $derived(route.chain[(apHop?.index ?? ctx.to.index) + 1] ?? ctx.server);
   const focusId = $derived(ctx.to.id);
   const shortMac = (id: string) => `…${fakeMac(id).slice(-5)}`;
+  /** The neighbour waiting its turn on the air: the other kind of device than yours. */
+  const neighbour = $derived(phoneHop.node.id === 'laptop' ? 'phone' : 'laptop');
   const phoneName = $derived(nerd ? shortMac(phoneHop.id) : yours(phoneHop));
   const apName = $derived(nerd ? shortMac(apHop.id) : S('label.ap'));
   const routerName = $derived(nerd ? shortMac(routerHop.id) : S('label.router'));
@@ -151,7 +153,7 @@
 <!-- card 2: taking turns -->
 <Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="var(--teal)" />
 <Text x={c1.x + 34} y={title2Y} text={S('label.takingTurns')} size={T.big} kind="big" anchor="start" />
-{#if !compact}<Node id="laptop" x={c1.x + c1.w * 0.15} y={lineY + (portrait ? 10 : 4)} size={portrait ? 98 : 82} />{/if}
+{#if !compact}<Node id={neighbour} x={c1.x + c1.w * 0.15} y={lineY + (portrait ? 10 : 4)} size={portrait ? 98 : 82} />{/if}
 {#if !portrait && !compact}<Text x={c1.x + c1.w * 0.15} y={lineY + 72} text={S('label.neighbour')} size={21} kind="small" />{/if}
 <path d={`M${tlX0} ${lineY} H${tlX1}`} stroke="var(--line)" stroke-width="6" stroke-linecap="round" opacity="0.45" />
 {#each timeline as label, i}
@@ -193,7 +195,7 @@
 
 <!-- nodes on the road -->
 <Node id={phoneHop.node.id} x={L.phone.x} y={L.phone.y} size={L.phone.size} focused={focusId === phoneHop.id} />
-<g opacity="0.45"><Node id="laptop" x={L.laptop.x} y={L.laptop.y} size={L.laptop.size} /></g>
+<g opacity="0.45"><Node id={neighbour} x={L.laptop.x} y={L.laptop.y} size={L.laptop.size} /></g>
 <Node id={apHop.node.id} x={L.ap.x} y={L.ap.y} size={L.ap.size} focused={focusId === apHop.id} />
 <Node id={routerHop.node.id} x={L.router.x} y={L.router.y} size={L.router.size} />
 {#if !compact}

@@ -1,5 +1,6 @@
 {
   "name": "At home",
+  "where": "at home",
   "access": "Fibre to the house",
   "kid": "Little parcels of data zoom through the air, down a cable and along a glass thread to the internet – and the video comes back the same way!",
   "nerd": "At home, packets leave over 802.11 Wi-Fi, are bridged onto Ethernet at the access point, NATed by the home router and forwarded over a fibre uplink to the ISP.",

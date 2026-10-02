@@ -3,7 +3,12 @@
   "kid": "Internet derhjemme var et telefonopkald. Computerens modem ringede op til internetfirmaet med bip og hvin, og mens man var på nettet, kunne ingen bruge telefonen.",
   "nerd": "Opkaldsforbindelse: et modem på 28,8 kbit/s (56k kom i 1998) ringer til udbyderens modembank, og PPP giver pc’en sin egen offentlige adresse. Ingen Wi‑Fi, ingen router, ingen NAT.",
   "describe": {
-    "kid": "En computer med en stor skærm og et tastatur. Modemmet sidder gemt indeni, og det ringer op til internetfirmaet.",
-    "nerd": "Selve pc’en: dens indbyggede modem ringer op til udbyderen på telefonlinjen, uden nogen router imellem."
+    "kid": "En stor beige computer med en dyb skærm og et tastatur i en ledning. Modemmet sidder gemt indeni, og det ringer op til internetfirmaet.",
+    "nerd": "En stationær pc: dens indbyggede modem ringer op til udbyderen på telefonlinjen, uden nogen router imellem."
+  },
+  "away": {
+    "street": {
+      "nerd": "Ude på farten i 1995 kunne GSM bære data: et kredsløbskoblet opkald (CSD) på 9,6 kbit/s fra en telefon med et kabel til en bærbar. Alt for langsomt til video."
+    }
   }
 }

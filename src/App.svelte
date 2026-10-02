@@ -14,11 +14,12 @@
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
   import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
+  import { eraStops, eraYear } from './model/era';
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
-  import { timeStops } from './model/registry';
   import type { Loc } from './model/location';
   import { entryHop, hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
+  import { eraOf } from './model/registry';
   import type { Route } from './model/resolve';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
@@ -31,7 +32,7 @@
   import Caption from './ui/Caption.svelte';
   import { captionFold, captionFor, sceneTitle, timeChip, type CaptionFold } from './ui/caption';
   import Chrome from './ui/Chrome.svelte';
-  import { COACHED, firstRun } from './ui/coach';
+  import { COACH_ALL, COACHED, coachRun, type CoachRun } from './ui/coach';
   import type CoachMarksT from './ui/CoachMarks.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
@@ -305,7 +306,7 @@
   let prevIds = new Map<string, Map<string, LivePacket>>();
   let caught = $state.raw<Caught | null>(null);
   /** The first-run coach marks while they show (their component, a lazy chunk; below), and the door they point at. */
-  let Coach = $state.raw<typeof CoachMarksT | null>(null), coachHot = $state<string | null>(null);
+  let Coach = $state.raw<typeof CoachMarksT | null>(null), coachHot = $state<string | null>(null), coaching = $state<CoachRun>(null);
   /** What the ⏸ button shows: the reader's pause, or a caught packet's. The coach marks hold the scene still too. */
   const held = $derived(settings.paused || !!caught);
   const paused = $derived(held || !!Coach);
@@ -471,12 +472,14 @@
     mapOpen = false;
     void tick().then(() => keepFocus(mapFrom));
   }
-  // The time machine (TimeMachine.svelte, #59): the eras of where you are (slot 0's family), from the caption's chip on
-  // the overview or the list view. A dialog like the picker; it loads, with the era strings, when the chip is pointed
-  // at. Travelling is a place switch; when it lands, focus goes to the caption's title.
-  const eras = $derived(timeStops(route.slots[0].place, route.slots[0].options));
-  /** The open time machine (its component), or null. */
-  let TimeMachine = $state.raw<typeof TimeMachineT | null>(null), timeFrom: Element | null = null, timeLanded = false;
+  // The time machine (TimeMachine.svelte, #59): every era, from where you are (slot 0), from the top bar's button on
+  // every screen, the caption's chip on the overview or the list view. A dialog like the picker; it loads, with the era
+  // strings, when the button or the chip is pointed at. Travelling is a place switch with the start device's steps
+  // carried over (`eraTrip`); when it lands, focus goes to the caption's title and the announcer says the era first.
+  const eras = $derived(eraStops(route.slots[0].place, route.slots[0].options));
+  const hereEra = $derived(eraOf(route.slots[0].place, route.content));
+  /** The open time machine (its component), or null. What to say first on landing after a trip in time, or null. */
+  let TimeMachine = $state.raw<typeof TimeMachineT | null>(null), timeFrom: Element | null = null, timeLanded: string | null = null;
   const loadTime = () => Promise.all([import('./ui/TimeMachine.svelte'), loadDiveStrings()]).then(([m]) => m.default);
   function openTime(from: Element | null = document.activeElement) {
     timeFrom = from;
@@ -490,10 +493,10 @@
     mapOpen = false;
     openTime(mapFrom);
   }
-  function travel(place: string) {
+  function travel({ trip, said }: { trip: Partial<Loc>; said: string }) {
     TimeMachine = null;
-    timeLanded = true;
-    go({ places: route.slots.map((s, i) => (i === 0 ? place : s.place)) });
+    timeLanded = said;
+    go(trip);
   }
   /** Go somewhere picked in the list view; focus goes there in the scene. */
   function mapGo(path: string[], stop: string | null) {
@@ -583,7 +586,7 @@
   });
   let explore = $state(false), exploreTimer = 0;
   /** The doors are lit ("What can I explore?", or the coach marks) and the one that glows. */
-  const lit = $derived(explore || !!Coach);
+  const lit = $derived(explore || (!!Coach && coaching === 'all'));
   const hot = $derived(coachHot ?? chipHot ?? pointed);
   function setExplore(on: boolean) {
     clearTimeout(exploreTimer);
@@ -599,14 +602,17 @@
     setExplore(true);
   }
   // First-run coach marks (#21, ui/coach.ts): a visit that starts at the top and has never had them gets them, once
-  // the reader has seen the scene move for a moment. They load as their own chunk, only then, and are remembered as
-  // soon as they show. While they show, the doors are lit as by "What can I explore?" and the scene holds still (the
+  // the reader has seen the scene move for a moment; one that had them before the time machine came (#59) gets only
+  // its card. They load as their own chunk, only then, and are remembered as soon as they show. While they show, the
+  // doors are lit as by "What can I explore?" (not for the time machine's card alone) and the scene holds still (the
   // pause's clock); a tap anywhere, Esc or going anywhere ends them.
   const COACH_AFTER_MS = 700;
   async function startCoach() {
     const [m] = await Promise.all([import('./ui/CoachMarks.svelte'), new Promise((r) => setTimeout(r, COACH_AFTER_MS))]);
-    if (!firstRun(localStorage.getItem(COACHED), here) || caught || picker || mapOpen || TimeMachine) return;
-    localStorage.setItem(COACHED, '1');
+    const run = coachRun(localStorage.getItem(COACHED), here);
+    if (!run || caught || picker || mapOpen || TimeMachine) return;
+    localStorage.setItem(COACHED, COACH_ALL);
+    coaching = run;
     Coach = m.default;
   }
   function endCoach() {
@@ -699,10 +705,10 @@
       navigated = false;
       readAloud(spoken(title, describe, body, ...notes.map((n) => n.text)));
       const said = { title, below: doors, describe, body };
-      const heading = timeLanded ? captionEl?.querySelector('h2') : null;
-      timeLanded = false;
-      if (!keepFocus(heading)) announce(arrival(said, loc.lang));
-      else if (describe) announce(arrival({ ...said, title: '' }, loc.lang));
+      const landed = timeLanded ?? '', heading = timeLanded === null ? null : captionEl?.querySelector('h2');
+      timeLanded = null;
+      if (!keepFocus(heading)) announce(spoken(landed, arrival(said, loc.lang)));
+      else if (describe || landed) announce(spoken(landed, arrival({ ...said, title: '' }, loc.lang)));
     });
   });
   const readAgain = $derived(reading() ? () => readAloud(spoken(caption.title, caption.describe, caption.body, ...caption.notes.map((n) => n.text))) : undefined);
@@ -786,7 +792,7 @@
     });
     const ro = new ResizeObserver(resize);
     ro.observe(stage);
-    if (firstRun(localStorage.getItem(COACHED), here)) void startCoach();
+    if (coachRun(localStorage.getItem(COACHED), here)) void startCoach();
     const keys = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || picker || mapOpen || TimeMachine) return;
       // a focused text that scrolls takes its arrow keys
@@ -874,9 +880,11 @@
 <div class={portrait ? 'port' : 'land'} inert={!!picker || mapOpen || !!TimeMachine}>
   <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
   {#if Coach}
-    <Coach doors={hereDoors} canExplore={hereDoors.length > 0} wide={view.vp.w >= 1100} rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
+    <Coach run={coaching ?? 'all'} doors={hereDoors} canExplore={hereDoors.length > 0} wide={view.vp.w >= 1100} {eras} era={hereEra}
+      rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
   {/if}
   <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} canExplore={hereDoors.length > 0} ontoggle={toggleExplore}
+    time={eras.length > 1 ? { year: eraYear(route) } : null} timeOpen={!!TimeMachine} ontime={() => openTime()} onpretime={loadTime}
     paused={held} onpause={togglePause} quiet={peekOpen} onmap={openMap} />
   <main>
     <h1 class="sr">{tr('app.title')}</h1>
@@ -918,5 +926,5 @@
     ontime={eras.length > 1 ? timeFromMap : undefined} />
 {/if}
 {#if TimeMachine}
-  <TimeMachine stops={eras} here={route.slots[0].place} onpick={travel} onclose={closeTime} />
+  <TimeMachine stops={eras} here={hereEra} at={here} onpick={travel} onclose={closeTime} />
 {/if}
