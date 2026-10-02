@@ -20,7 +20,8 @@ What changed from the first plan, in short:
 - **1985, before the internet** (a home computer dials one BBS) is the step after the three trips (decided).
   Later and optional: a **communication line** across the eras (BBS → IRC → instant messaging → an end-to-end
   encrypted messenger).
-- **The decisions are settled** (user, 2026-10-02): see *Decisions*. No separate ADSL or 2002 era.
+- **The decisions are settled** (user, 2026-10-02): see *Decisions*. Each era shows what was really available at the time;
+  a ~2002 broadband era is now planned (#115), which reverses the earlier "no ADSL or 2002 era".
 
 ## Goal and audience
 
@@ -163,6 +164,7 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
 | `#/en/street/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (a phone on 3G then, not built yet; said so) |
+| `#/en/desk/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (then a laptop on a cable to the DSL router) |
 | PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
@@ -218,7 +220,7 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 - Dives that explain today's technology learn the route's era only through strings: a scene reads an optional
   `<key>.<era>` string (e.g. `copper-pulses`' `nerd.1995`) when the route's era has one. One small engine change (the
   dive's subject carries the route's era), in PR 3.
-- `dsl-tones`' ADSL mode is not needed (no ADSL era).
+- `dsl-tones`' ADSL mode is not needed for 2010 (#115's ~2002 era will want it).
 | Activity | `watch-video-1995`: "Open a web page with a picture", flow `ip › tcp › http` (no TLS), a 40 kB page + picture | SSL 2.0 shipped in Netscape in 1995 for shops, but pages and pictures were plain HTTP. Video was barely possible: stamp-sized clips (160 × 120, a few frames a second) that you mostly downloaded first; the nerd text says so in one sentence. |
 | How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | |
 
@@ -269,7 +271,7 @@ would notice ("a calendar on the wall says 1995").
 
 | Era | Picks |
 |---|---|
-| 1985 (with its PR) | Green phosphor text on the home computer's and the BBS's screens; a blocky, pixel-art welcome banner on the BBS (drawn with rectangles, no font); a floppy disk on the desk; **the parcel as a little floppy**. |
+| 1985 (with its PR) | Green phosphor text on the home computer's and the BBS's screens; a blocky, pixel-art welcome banner on the BBS (drawn with rectangles, no font); a floppy disk on the desk; a Teletext page on the TV (with a nerd note); **the parcel as a little floppy**. |
 | 1995 | A soft CRT glow round the PC's screen; a wall calendar ("1995"); a mouse on a mouse pad; an external modem whose lights blink while packets are on the dial-up line; an hourglass by the screen while the page loads; **the parcel with a little stamp**. |
 | 2010 | Two antennas on the DSL router; a buffering wheel on the laptop's screen while the video starts; a slider phone on the sofa; a star sticker on the laptop's lid; **the parcel with a glossy highlight**. |
 | today | A smart speaker on the shelf (a plain cylinder with a light ring); a skeleton loader (grey bars) on the phone's screen while the video starts; the parcel as it is. |
@@ -321,6 +323,8 @@ What it needs from the engine (it is the first trip that is not "client → inte
 - Its era flavour (green phosphor, the pixel banner, the floppy parcel), as in *Era flavour*.
 - Nodes `home-computer` (generic, no brand) and `bbs`; era `1985`; `rate` 1200 bit/s, so the line says "about 4
   minutes for this little picture".
+- **Teletext** is a prop on the TV with a nerd note (pages of text sent along with the TV picture), not a trip.
+- **An honest line**: most kids weren't online in 1985; the era's text says so (a few had a modem, most had none).
 
 ## Later: the communication line (optional; decided: after the content line)
 
@@ -390,6 +394,7 @@ eager in all**.
 | 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
 | 9. The picker and eras | ~0.1 kB | |
 | 10. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
+| 11–14. Flats 2010, ~2002, milestones, 1985 lab | estimated in each step's plan update | |
 
 - **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 6–8's eager cost is new device art and
   the server room's backdrop. Best order: #91 before PR 6. Era props are lazy whether or not #91 has landed.
@@ -439,9 +444,10 @@ Each is small, leaves main working and says "Part of #59".
    variant string fallback, the cross-fade for a changed node, the route's era on a dive's subject (for `<key>.<era>`
    strings), validation and tests. First callers: the 1995 and 2010
    activity variants with honest flows (no TLS) and wording ("Open a web page with a picture", "Watch a small video").
-4. **The street in 2010: a phone on 3G** (#113). A 2010 member of the street's family: the phone on 3G (HSPA) to a
-   NodeB and the mobile core, with era-true words (en + da, kid + nerd); the time machine then goes there from the
-   street in 2010, and `era.2010.instead.street` (added in PR 2) goes. The eras should show what was really available
+4. **The street and the desk in 2010** (#113). 2010 members of both families: on the street, the phone on 3G (HSPA)
+   to a NodeB and the mobile core; at the desk, a laptop on a cable to the DSL router; era-true words (en + da, kid +
+   nerd). The time machine then goes there in 2010, and `era.2010.instead.street` (added in PR 2) goes. The 1995
+   desk wording is fixed in the same step. The eras should show what was really available
    at the time (the user's principle): where people really did this in an era, that era gets a trip there.
 5. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
    and nerd), like with like.
@@ -464,10 +470,16 @@ Each is small, leaves main working and says "Part of #59".
    the arrival line when the picker takes you back to today.
 10. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
    a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
-11. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
+11. **The flats in 2010 on cable TV** (#118), with #109.
+12. **A ~2002 broadband era** (#115), after the 1995 and 2010 trips are complete: ADSL over ATM; the activity is
+    downloading a song (Napster may be named). This reverses the earlier "no ADSL or 2002 era".
+13. **Milestones on the dial** (#116): about 5–7 dots for moments in between, with no trip.
+14. **The desk in 1985 as a university lab** (#117), after the 1985 BBS: the internet before the web.
+15. **The communication line** (optional, later; its own plan update): `send-message` and its era variants, two place
     slots, relays, `e2ee`.
 
-No ADSL or 2002 era (decided): 2010's ADSL2+ is a remark in its nerd text.
+Also optional: **ISDN in 1995** (#119), after step 6. **Today's street stays 5G only**; a full part on the mobile
+generations is an idea (#108).
 
 ## Risks
 
@@ -502,9 +514,14 @@ Decided by the user (2026-10-02), the five questions of the first draft of this 
    arrival adds the nerd-only GSM data note (CSD, 9.6 kbit/s; see *What the time machine does*).
 3. **1995's activity** is "open a web page with a picture" (about 15 s), with stamp-sized clips as a nerd note.
 4. **2010's DSL** stays `home-dsl`'s VDSL2 from the street cabinet, with the nerd remark that most homes still had
-   ADSL2+. No separate ADSL or 2002 era.
+   ADSL2+. (No separate ADSL or 2002 era, at first; reversed on 2 Oct: #115.)
 5. **1985's BBS** is wanted: PR 10, the step after the three trips, no longer optional. The communication line stays
    later and optional.
+6. **The eras brainstorm** (user, 2 Oct, in a #59 comment): each era shows what was really available at the time.
+   Scheduled: the street and the desk in 2010 (#113, step 4), the flats in 2010 on cable TV (#118, with #109), a
+   ~2002 broadband era (#115), milestones on the dial (#116), the desk in 1985 as a university lab (#117). Optional
+   or ideas: ISDN in 1995 (#119), the mobile generations (#108); today's street stays 5G only. 1985's Teletext is a
+   TV prop and a nerd note, not a trip. Rush hour goes (#114); older eras get slower parcels (step 5).
 
 Kept from building #94: one helper for the stops (now `eraTrip`); the clock icon from `ui/icons.ts`, not the emoji;
 choosing separate from going; the panel is the picker's dialog; panel strings in `ui.json`, era strings lazy; radios
@@ -564,7 +581,7 @@ Made while building PR 2 (era flavour):
   what was really available at the time). `era.<era>.instead.<place>` (generic, in `ui/time.ts`, loaded with the
   panel's strings) replaces "In 2010 you'd have done this at home. You'll travel there." for the street in 2010, kid
   and nerd, en + da, so the two lines can't contradict each other; `away` stays the extra note (1995's GSM). The trip
-  itself is a new step 4 (#113); later steps moved up by one.
+  itself is a new step 4 (#113, now the street and the desk in 2010); later steps moved up by one.
 - **The dial-up handshake isn't played when switching to 1995** (it would get old switching back and forth); it
   stays in the modem-call dive. Tapping the modem to play it was skipped: it would make a decoration a real button
   (focus, a name in en + da, keys, and a door-sized target clear of the labels), more than this PR's small touches.
