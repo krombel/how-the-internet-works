@@ -13,9 +13,14 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Both jobs run on the self-hosted runners on the lab PC (label `lab`, two of them so day and night run side by side),
+# inside the Playwright image, whose version must match package-lock's `playwright` (the install step below is then a
+# no-op; after a Playwright bump it fetches the matching browser until the image tag is bumped too). Self-hosted
+# runners cost no Actions minutes. Before the repo goes public, restrict them (fork PRs must never reach them).
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, lab]
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,11 +36,10 @@ jobs:
 
   a11y:
     name: a11y (${{ matrix.mode }})
-    # on demand only (Run workflow): each job takes ~18 min of Actions time, so PRs run the check locally instead
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    # day and night side by side, each about 15 min on a software renderer (about 30 min one after the other, #21)
-    timeout-minutes: 30
+    runs-on: [self-hosted, lab]
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    # day and night side by side on the two lab runners, on a software renderer (#21)
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -49,12 +53,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: npm run build
       - name: Serve the build
         run: |
           npx vite preview --host 127.0.0.1 --port 5318 --strictPort &
-          for i in $(seq 30); do curl -sf http://127.0.0.1:5318/ >/dev/null && exit 0; sleep 1; done; exit 1
+          for i in $(seq 30); do node -e "fetch('http://127.0.0.1:5318/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" && exit 0; sleep 1; done; exit 1
       - name: Accessibility, ${{ matrix.mode }}
         run: npm run evaluate -- --only=a11y --mode="$MODE"
         env:
