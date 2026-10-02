@@ -1,0 +1,125 @@
+{
+  "title": "Asking for a chunk of video",
+  "kid": "A video comes in small chunks, a few seconds each. First, {yours} writes a slip: chunk 42, medium please. The video server finds it on its shelf, stamps it 200 OK and sends it back. When the connection gets slower, the next slip asks for low quality, so the film keeps playing instead of stopping to wait.",
+  "nerd": "HTTP rides inside TLS, so only the two ends read it. The player sends GET /video/720p/42.m4s with Host: video.example, and the CDN cache answers 200 OK (a HIT; 404 would mean no such chunk, 304 that a kept copy is still fresh, 206 Partial Content answers a Range: bytes=… request). Adaptive bitrate (DASH): the player measures throughput and its buffer, and picks the next segment's representation from the manifest, here 360p.",
+  "describe": {
+    "kid": "A road links {yours} and the video server. On the left card a slip asks for chunk 42 in medium, and it walks to the server. The server finds 42 on its shelf, stamps 200 OK and sends a big film box back. Then the signal bars drop, the next slip asks for 43 in low, and a smaller film box comes back.",
+    "nerd": "The left card shows the request: GET /video/720p/42.m4s and Host, beside signal bars. The right card is the CDN's cache shelf: 42 is a hit, stamped 200 OK, and a large segment walks back. The bars fall, the next request is for 360p, segment 43 misses, is fetched from the origin cloud and stored, and a smaller segment returns."
+  },
+  "at": {
+    "cdn": {
+      "title": "The video server answers",
+      "kid": "The video server reads each slip. If the chunk is on its shelf it sends it at once; if not, it fetches it from the main copy far away and keeps a copy for the next viewer. Every answer starts with a stamp: 200 OK means here it is.",
+      "nerd": "At the CDN edge HTTP is open: it reads the request line and headers, looks the URL up in its cache, and answers with a status line, headers (Content-Type: video/mp4, Content-Length, Cache-Control, Age) and the body. A miss is fetched from the origin and stored for its max-age, so the next request for it is a hit.",
+      "describe": {
+        "kid": "The video server is highlighted at the end of the road. Slips arrive from {yours}. On the server's card, chunk 42 is already on the shelf, so a 200 OK stamp comes down and a big film box walks back. Chunk 43 in low isn't there: a box comes from the main copy in a cloud onto the shelf, then a smaller film box walks back.",
+        "nerd": "The CDN cache server is the focused endpoint. Requests arrive, and on the cache card segment 42 is a hit: 200 OK, and a large response walks back. After the client's bars drop it asks for 360p segment 43, a miss: the origin cloud sends a copy to the shelf, it is stored, and a smaller 200 OK response returns."
+      }
+    }
+  },
+  "sealed": {
+    "title": "{hop} sees only sizes",
+    "kid": "{hop} carries the slips and the film boxes, but they are locked inside the secret handshake's box. It can't read which chunk is asked for or what the answer says. All it can tell is which way each box goes and how big it is.",
+    "nerd": "At {hop}, HTTP is sealed inside TLS: the path, Host, status and body are ciphertext. What leaks is direction, timing and record length: a ~400 B request, a ~750 kB response, then a ~200 kB one, which hints that the player dropped to a lower bitrate.",
+    "describe": {
+      "kid": "{hop} stands in the middle of the road. Locked boxes walk past it: a tiny one towards the video server, a big one back, another tiny one, then a smaller one back. The left card collects them by size. The right card shows the letter inside, scribbled and padlocked.",
+      "nerd": "A middle hop sits on the road while encrypted records pass in both directions. The left card lines up what it can observe: a small request, a large response, a small request and a smaller response, with their sizes. The right card shows the HTTP message as unreadable ciphertext under a padlock."
+    }
+  },
+  "card": {
+    "ask": {
+      "kid": "The request slip",
+      "nerd": "The request"
+    },
+    "answer": {
+      "kid": "At the video server",
+      "nerd": "Cache and status"
+    },
+    "seen": {
+      "kid": "All it can see",
+      "nerd": "Only sizes"
+    },
+    "locked": {
+      "kid": "The letter inside",
+      "nerd": "HTTP inside TLS"
+    }
+  },
+  "slip": {
+    "chunk": "Video chunk {n}",
+    "med": "Medium, please!",
+    "low": "Low, please!"
+  },
+  "meter": {
+    "fast": {
+      "kid": "Fast",
+      "nerd": "3 Mbit/s"
+    },
+    "slow": {
+      "kid": "Slow",
+      "nerd": "0.8 Mbit/s"
+    }
+  },
+  "status": {
+    "slower": {
+      "kid": "Slower! Ask for low",
+      "nerd": "Throughput fell: 360p"
+    },
+    "play": {
+      "kid": "Still playing!",
+      "nerd": "No stall: buffer kept"
+    },
+    "guess": {
+      "kid": "Smaller boxes: lower quality?",
+      "nerd": "Sizes hint at the bitrate"
+    },
+    "locked": {
+      "kid": "Only the two ends can read it",
+      "nerd": "Path, Host, status: ciphertext"
+    }
+  },
+  "shelf": {
+    "hit": {
+      "kid": "On the shelf!",
+      "nerd": "HIT · Age: 31"
+    },
+    "miss": {
+      "kid": "Not on the shelf…",
+      "nerd": "MISS"
+    },
+    "fetch": {
+      "kid": "From the main copy",
+      "nerd": "GET from origin"
+    },
+    "kept": {
+      "kid": "Kept a copy!",
+      "nerd": "Stored · max-age"
+    }
+  },
+  "origin": {
+    "kid": "Main copy",
+    "nerd": "Origin"
+  },
+  "size": {
+    "ask": {
+      "kid": "tiny",
+      "nerd": "400 B"
+    },
+    "med": {
+      "kid": "big",
+      "nerd": "750 kB"
+    },
+    "low": {
+      "kid": "small",
+      "nerd": "200 kB"
+    }
+  },
+  "tag": {
+    "mpd": "MPD: 1080p · 720p · 360p",
+    "rate": "throughput ≈ 3 → 0.8 Mbit/s",
+    "range": "Range: bytes=… → 206",
+    "hit": "X-Cache: HIT · Age: 31",
+    "miss": "X-Cache: MISS → origin",
+    "length": "TLS hides all but length",
+    "guess": "size ÷ 2 s ≈ bitrate"
+  }
+}

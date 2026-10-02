@@ -33,27 +33,27 @@ describe('depth ladder (#22)', () => {
 describe('layer ladder (#14, #32)', () => {
   it('stacks the layers carried on one link at a layer dive\'s hop, top first, over that link\'s signal', () => {
     // IP rides both sides of the router: by default the side it leaves on (fibre), or the side you came from
-    expect(stack(belowOf(home, ['router~ip'], 'landscape'))).toEqual(['router~tls!', 'router~tcp!', '*router~ip', 'router~gpon', '~router-internet']);
-    expect(stack(belowOf(home, ['router~ip'], 'landscape', 'ap-router'))).toEqual(['router~tls!', 'router~tcp!', '*router~ip', 'router~ethernet', '~ap-router']);
+    expect(stack(belowOf(home, ['router~ip'], 'landscape'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', '*router~ip', 'router~gpon', '~router-internet']);
+    expect(stack(belowOf(home, ['router~ip'], 'landscape', 'ap-router'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', '*router~ip', 'router~ethernet', '~ap-router']);
     // a link envelope stands on its own link: no fibre frame on the copper
-    expect(stack(belowOf(home, ['router~ethernet'], 'landscape'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~ap-router']);
-    expect(stack(belowOf(desk, ['router~ethernet'], 'landscape', 'router-cabinet'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~laptop-router']);
-    expect(stack(belowOf(home, ['phone~tls'], 'portrait'))).toEqual(['*phone~tls', 'phone~tcp', 'phone~ip', 'phone~wifi', '~phone-ap']);
+    expect(stack(belowOf(home, ['router~ethernet'], 'landscape'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~ap-router']);
+    expect(stack(belowOf(desk, ['router~ethernet'], 'landscape', 'router-cabinet'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', 'router~ip', '*router~ethernet', '~laptop-router']);
+    expect(stack(belowOf(home, ['phone~tls'], 'portrait'))).toEqual(['phone~http', '*phone~tls', 'phone~tcp', 'phone~ip', 'phone~wifi', '~phone-ap']);
     // MPLS rides the long haul into the border router (#25); its other side, the cross-connect, carries plain Ethernet
     expect(stack(belowOf(home, ['internet', 'border~mpls'], 'landscape'))?.slice(-3)).toEqual(['*internet/border~mpls', 'internet/border~ethernet', '~internet/bng-core']);
     expect(stack(belowOf(home, ['internet', 'border~ethernet'], 'landscape', 'border-ixp'))?.slice(-3)).toEqual(['internet/border~ip', '*internet/border~ethernet', '~internet/border-ixp']);
   });
 
   it('stacks what a signal carries over it: the envelopes on all its links, then what they carry', () => {
-    expect(stack(belowOf(home, ['phone-ap'], 'landscape'))).toEqual(['ap~tls!', 'ap~tcp!', 'ap~ip', 'ap~wifi', '*~phone-ap']);
-    expect(stack(belowOf(desk, ['laptop-router'], 'landscape'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', 'router~ethernet', '*~laptop-router']);
+    expect(stack(belowOf(home, ['phone-ap'], 'landscape'))).toEqual(['ap~http!', 'ap~tls!', 'ap~tcp!', 'ap~ip', 'ap~wifi', '*~phone-ap']);
+    expect(stack(belowOf(desk, ['laptop-router'], 'landscape'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', 'router~ip', 'router~ethernet', '*~laptop-router']);
     // only this link's envelopes: not the cell tower's radio one
     expect(stack(belowOf(street, ['cell-tower-internet'], 'landscape'))).toEqual(
-      ['cell-tower~tls!', 'cell-tower~tcp!', 'cell-tower~ip', 'cell-tower~gtp', 'cell-tower~ethernet', '*~cell-tower-internet']);
+      ['cell-tower~http!', 'cell-tower~tls!', 'cell-tower~tcp!', 'cell-tower~ip', 'cell-tower~gtp', 'cell-tower~ethernet', '*~cell-tower-internet']);
     expect(stack(belowOf(home, ['internet', 'home-cabinet'], 'landscape'))?.slice(-2)).toEqual(['internet/cabinet~gpon', '*~internet/home-cabinet']);
     // a stretch of links (#34) shares what all of them carry: the long haul is label-switched all along
     const run = belowOf(home, ['internet', 'bng-core'], 'landscape');
-    expect(stack(run)).toEqual(['internet/core~tls!', 'internet/core~tcp!', 'internet/core~ip', 'internet/core~mpls', 'internet/core~ethernet', '*~internet/bng-core']);
+    expect(stack(run)).toEqual(['internet/core~http!', 'internet/core~tls!', 'internet/core~tcp!', 'internet/core~ip', 'internet/core~mpls', 'internet/core~ethernet', '*~internet/bng-core']);
     expect(run?.kind === 'stack' && run.link).toBe('bng-core');
     // and so does the caption's What it carries; the exchange's cross-connects carry plain Ethernet, no label
     expect(carriedBy(home, sceneRef(home, ['internet', 'bng-core'], 'landscape')!, 'landscape').map((u) => u.layer)).toEqual(['ethernet', 'mpls']);
@@ -63,9 +63,9 @@ describe('layer ladder (#14, #32)', () => {
   it('stacks what a device handles on one of its links, the one you came by or else the one it sends on (#9)', () => {
     // none lit: you're at the device, not one of its envelopes
     const out = belowOf(home, ['router'], 'landscape');
-    expect(stack(out)).toEqual(['router~tls!', 'router~tcp!', 'router~ip', 'router~gpon', '~router-internet']);
+    expect(stack(out)).toEqual(['router~http!', 'router~tls!', 'router~tcp!', 'router~ip', 'router~gpon', '~router-internet']);
     expect(out?.kind === 'stack' && [out.hop, out.link]).toEqual(['router', 'router-cabinet']);
-    expect(stack(belowOf(home, ['router'], 'landscape', 'ap-router'))).toEqual(['router~tls!', 'router~tcp!', 'router~ip', 'router~ethernet', '~ap-router']);
+    expect(stack(belowOf(home, ['router'], 'landscape', 'ap-router'))).toEqual(['router~http!', 'router~tls!', 'router~tcp!', 'router~ip', 'router~ethernet', '~ap-router']);
     // a link that isn't at the device can't hold it
     expect(stack(belowOf(home, ['router'], 'landscape', 'phone-ap'))?.at(-1)).toBe('~router-internet');
     // and its caption's What it carries is its links' envelopes, one each side
