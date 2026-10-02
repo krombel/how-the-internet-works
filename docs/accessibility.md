@@ -137,8 +137,10 @@ npm run evaluate -- --only=a11y               # day
 npm run evaluate -- --only=a11y --mode=night  # night
 ```
 
-It prints each problem and exits non-zero if there is one; it writes no screenshots or metrics. CI runs both side by side
-(the `a11y` job's day/night matrix in `.github/workflows/ci.yml`, "a11y (day)" and "a11y (night)"). It checks each state once it stands still: the camera has landed and no CSS
+It prints each problem and exits non-zero if there is one; it writes no screenshots or metrics. Every PR runs both locally
+before it's merged. CI can run them side by side on demand (Actions → CI → Run workflow: the `a11y` job's day/night
+matrix in `.github/workflows/ci.yml`, "a11y (day)" and "a11y (night)"); they don't run on every push, to save Actions
+minutes. It checks each state once it stands still: the camera has landed and no CSS
 animation or transition is running (`document.getAnimations()`), so nothing is judged mid-fade, however slow the
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,

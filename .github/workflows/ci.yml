@@ -31,6 +31,8 @@ jobs:
 
   a11y:
     name: a11y (${{ matrix.mode }})
+    # on demand only (Run workflow): each job takes ~18 min of Actions time, so PRs run the check locally instead
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     # day and night side by side, each about 15 min on a software renderer (about 30 min one after the other, #21)
     timeout-minutes: 30
