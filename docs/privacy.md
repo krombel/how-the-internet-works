@@ -12,7 +12,7 @@ sends nothing about you anywhere.
   bundled and served from the same site as the page. Nothing is fetched from a CDN, font service or other site.
 - **Where you are in the app is in the address.** The language, place, activity and scene are in the URL (e.g.
   `#/da/street/watch-video/internet`), and a few settings can be in its query (`?level=nerd`, `?mode=night`,
-  `?style=…`, `?rush=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
+  `?style=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
   page request, like any address.
 
 ## What it remembers in your browser
@@ -27,7 +27,6 @@ are never sent anywhere, and you can delete them by clearing the site's data in 
 | `mode` | `day` or `night` | Day or night, only when you picked the one your system doesn't prefer |
 | `paused` | `1` | The packets are paused (removed when you play them again) |
 | `speech` | `1` | Read aloud is on (removed when you turn it off) |
-| `rush` | `on` or `off` | Rush hour always or never (removed when it follows the evening clock again) |
 | `coached` | `1` | The first-visit tips were shown, so they aren't shown again |
 
 Nothing else is stored: sound is always off when the page loads, and the language comes from the address.
@@ -41,7 +40,6 @@ Nothing else is stored: sound is always off when the page loads, and the languag
 - **Read aloud** uses your browser's own speech (`speechSynthesis`). The app prefers voices that run on your device,
   but on some browsers and systems the only voice for a language is an online one, and then the browser's maker
   turns the text into speech on its servers.
-- **Rush hour** follows your device's clock (busier in the evening). The time is read in the browser and never sent.
 - **Learn-more links** open other sites (mostly Wikipedia) in a new tab only when you click one. That site then gets
   your request like any visit, and your browser usually tells it which site the link was on (just the address of
   this site, not the page you were on).

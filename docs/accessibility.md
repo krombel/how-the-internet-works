@@ -145,8 +145,7 @@ machine (#70). It checks:
   router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
   menu and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
   view and the first-run coach marks (the first card, "What can I explore?" and the time machine's, and the one card a
-  returning reader gets), rush hour's caption note and the list view with
-  it, a nerd's extra in a dive, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
+  returning reader gets), a nerd's extra in a dive and the list view with it, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
   violations** is the bar; there is no baseline of allowed ones.
 - **Controls** in each of those states: at least 24 × 24 px, not cut off by the window or a box that doesn't scroll,
   and not under another control (an open pop-up aside). An open pop-up's own controls must be on top of everything,

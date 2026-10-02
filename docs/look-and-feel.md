@@ -165,19 +165,8 @@ Night is a **mode** of Storybook, not a fifth style: the same picture book, read
 | TLS dive | ![](img/app-storybook-tls-desktop.jpg) | ![](img/app-storybook-night-tls-desktop.jpg) |
 | Peek, phone | ![](img/app-storybook-peek-street-phone.jpg) | ![](img/app-storybook-night-peek-street-phone.jpg) |
 
-#### Rush hour (issue #44)
-
-In the evening (19–23 h on the reader's clock, or always or never from the ⋯ menu) the roads fill up: the video
-couriers come twice as often, the long-haul fibre flashes three times per colour instead of two, and the caption gets
-a "Rush hour" note with a clock. Nothing new is drawn and nothing changes colour, so it looks the same by day and by
-night, and the reader still catches the same kinds of packet. Under `prefers-reduced-motion` the traffic keeps its
-usual pace and only the note says it. Notes (this one, and a nerd's "Extra" in the physical dives, #31) are 14 px
-under the caption's text with their name in the door ink; on a phone's folded card they are cut to one line.
-
-| | Day | Night |
-|---|---|---|
-| Home, rush hour | ![](img/app-storybook-home-rush-desktop.jpg) | ![](img/app-storybook-night-home-rush-desktop.jpg) |
-| Phone, rush hour | ![](img/app-storybook-home-rush-phone.jpg) | ![](img/app-storybook-night-home-rush-phone.jpg) |
+Caption notes (a nerd's "Extra" in the physical dives, #31) are 14 px under the caption's text with their name in the
+door ink; on a phone's folded card they are cut to one line.
 
 ### Neon blueprint: the old style pushed further
 

@@ -19,7 +19,6 @@ to a CDN server:
 - **Look inside** the links: Wi‑Fi waves, light in a glass thread (shared by your street on the access fibre, colours sharing one thread on metro fibre, boosters every 80 km on the backbone), and 5G beams with their time × frequency seats. This goes up to three levels deep. Stepping sideways between dives zooms out, travels along the path and zooms back in.
 - **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field for nerds and a protocol tree for details.
 - **Switch place**: the scene morphs and the packets re-route.
-- **Rush hour**: in the evening (19–23 h on your clock) everyone streams at once, so the roads fill up with video.
 
 It comes in kid and nerd levels, in English and Danish, by day and by night. Learn-more links point onwards.
 
@@ -28,7 +27,7 @@ It comes in kid and nerd levels, in English and Danish, by day and by night. Lea
 | ![The overview at home: phone, Wi‑Fi access point, home router and the fibre to the internet](docs/img/app-storybook-home-desktop.jpg) | ![Inside the internet at night: the hops from the street cabinet to the video company](docs/img/app-storybook-night-internet-desktop.jpg) |
 
 The location is in the URL, e.g. `#/da/street/watch-video/internet/@mobile-core`; `?level=nerd` starts in nerd
-mode, `?mode=night` at night, and `?rush=on` (or `off`) shows rush hour at any time (or never).
+mode, and `?mode=night` at night.
 
 ## How it's built
 

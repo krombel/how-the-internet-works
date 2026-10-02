@@ -3,7 +3,7 @@
   // Long haul (backbone): many thinner colours on a thread as long as the stretch really is (#42). The light fades
   // through each span and a booster makes every colour bright again at once; a counter follows the first colour's
   // flash and counts the kilometres.
-  import { TagAt, Text, busy, strings, view, type LinkSubject } from '$core/api';
+  import { TagAt, Text, strings, view, type LinkSubject } from '$core/api';
   import { FIBRE, LONG_HAUL, boostersOf, breaksOf, channelRoute, fadeAt, fibrePulses, haulOf, kmAt, laneNumbers, stretchKm, toScene, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
@@ -20,8 +20,7 @@
   const routes = H.lanes.map((c, i) => channelRoute(i, c));
   const haul = $derived(haulOf(stretchKm(subject.run), H.spanKm, F.x0, F.x1));
   const amps = $derived(boostersOf(haul));
-  // in rush hour (#44) the backbone is busier: three flashes in each colour, not two
-  const pulses = $derived(fibrePulses(view.time, routes, busy() ? 3 : 2));
+  const pulses = $derived(fibrePulses(view.time, routes, 2));
   const o = $derived(view.orient);
   const portrait = $derived(o === 'portrait');
   /** Booster labels beside the thread (upright, in scene coordinates). */

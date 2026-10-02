@@ -74,8 +74,8 @@ src/                      the engine: no content ids anywhere
   api.ts                  the only module Svelte content imports ($core/api)
   define.ts               defineNode/defineTechnology/… for definition files ($core/define; types only)
   main.ts App.svelte state.svelte.ts router.ts
-  engine/                 camera (semantic zoom), gestures, motion, packets, rush (rush hour), sound, speech (read
-                          aloud), svg, geometry, zoom
+  engine/                 camera (semantic zoom), gestures, motion, packets, sound, speech (read aloud), svg, geometry,
+                          zoom
   model/                  registry (content globs), components (Svelte globs), strings, schema + validate (zod),
                           resolve (route), layout (path scenes), tree (scene tree), packet (the packet model),
                           stack (LayerCtx), ladder (what lies below a scene), location (URL), regions (owner outlines),
@@ -83,8 +83,8 @@ src/                      the engine: no content ids anywhere
                           focus (a scene's spots: the keys' and the list view's), textmap (the scene tree as a list)
   render/                 World (camera + recursive scenes), SceneView, PathScene, Node, Depth, Text, TagAt,
                           art-base/ (fallback art slots), theme-types (the theme contract)
-  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, rush
-                          hour, style, list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
+  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
+                          list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
                           Change (a changed value), Announcer + announce (what a screen reader hears), SceneKeys (the
                           keyboard in the scene), TextMap (the list view), CoachMarks + coach, coach-marks (the
                           first-run coach marks), TimeMachine (the eras of where you are, #59)…
@@ -110,7 +110,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 ## From URL to pixels
 
 ```
-#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=nerd  ?style=<theme>  ?mode=day|night  ?rush=auto|on|off
+#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=nerd  ?style=<theme>  ?mode=day|night
 #/da/street/watch-video/internet/@mobile-core
 #/en/home/watch-video/internet/home-cabinet                         (three levels: the access fibre)
 #/en/home/watch-video/router~ip                                     (a layer dive: IP at the home router)
@@ -196,29 +196,14 @@ Navigating the scene shows a packet's physical life; catching one shows its laye
   panned away. It looks like the scene's own packets of that kind (their flow, colour and spec, `specsFor`), whether or
   not one is moving right now, and hides none of them. Tapping a packet still catches that one where it is.
 
-### Rush hour (issue #44)
-
-In the evening the internet is at its busiest, mostly with video. The app shows it with the traffic it already has:
-- **When.** `engine/rush.ts`: `isRush(choice, now)` is true from 19:00 up to 23:00 on the reader's clock (`RUSH_HOURS`)
-  for `auto`, always for `on`, never for `off`. The choice is `settings.rush`: the ⋯ menu's "Rush hour: Evenings ·
-  Always · Never", remembered in `localStorage` unless it is `auto`, and `?rush=` in the URL wins on load (evaluate
-  pins it `off`, so shots and timings don't depend on the time of day). `view.rush` is the answer; App looks again on
-  every hour (`untilNextHour`), so a page left open turns into rush hour at seven. It is not tied to night mode.
-- **Busier traffic.** A packet spec may say `rush: <factor>` (watch-video's video: 2). In rush hour `specsFor(…, busy)`
-  divides its `every` by it: the same kinds on the same flows, just closer together, so catching by kind, the
-  caption's catch chips and the deterministic catches of the shots (`__app.caught().hop`) are unchanged. `busy()` is
-  `view.rush && !view.still`: with reduced motion the traffic keeps its usual pace. A dive may use it too: the
-  long-haul fibre draws three flashes in each colour instead of two.
-- **The caption says so.** An activity with `rush: { learnMore }` has an `activity.<id>.rush` text (kid and nerd). In
-  rush hour the caption shows it as a **note** under the text on the overview and in its groups (not at a stop or in
-  a dive), and puts its links first.
+### Caption notes
 
 **Caption notes** (`CaptionText.notes`, `{ kind, text }`) are short extras under the caption's text, each with its icon
-and name ("Rush hour:", "Extra:"); the list view shows them too, and read aloud reads them. Besides rush hour there is
-the nerd's **extra** (issue #31): a dive's `extra` string, looked up like its text (most specific first, so a
-technology or a layer's role may have its own) and shown at nerd level only. The physical dives use it for what's
-next (PoE and 2.5/5/10GBASE-T on copper, Wi‑Fi 7's multi-link operation, XGS-PON and GPON sharing one splitter)
-without a new scene. On a phone's folded card a note is one line; in the short-landscape pill it shows once opened.
+and name ("Extra:"); the list view shows them too, and read aloud reads them. The one kind is the nerd's **extra**
+(issue #31): a dive's `extra` string, looked up like its text (most specific first, so a technology or a layer's role
+may have its own) and shown at nerd level only. The physical dives use it for what's next (PoE and 2.5/5/10GBASE-T on
+copper, Wi‑Fi 7's multi-link operation, XGS-PON and GPON sharing one splitter) without a new scene. On a phone's folded
+card a note is one line; in the short-landscape pill it shows once opened.
 
 ### The packet model (`model/packet.ts`)
 
@@ -633,7 +618,6 @@ CI runs `npm ci && npm test && npm run build`, and beside it the accessibility c
   long-haul and metro fibre idles, a step on from the backbone to the undersea cable (#39) and its idle, and Wi‑Fi →
   copper on the overview
 - node dives (#9, #38): copper → the home router's dive → fibre, stepping, and the router dive's idle
-- rush hour (#44): the overview, the inside of the internet and the long-haul fibre idle with the busier traffic
 
 `--only=a11y` runs the accessibility check instead (axe-core on the key states in three viewports, a Tab round and
 keyboard journeys; it exits non-zero on any problem and writes nothing): see [accessibility](accessibility.md).

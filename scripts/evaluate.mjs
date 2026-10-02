@@ -120,10 +120,8 @@ const still = (p) => p.evaluate(async () => {
   }
   throw new Error('still moving after 30 s');
 });
-/** `where` is the hash after the language, e.g. 'home/watch-video/internet'. Rush hour (#44) is off unless `q` asks for
- *  it, so a run doesn't depend on the time of day. */
-const url = (style, lang, where, q = '', base = BASE) =>
-  `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q.includes('rush=') ? '' : '&rush=off'}${q}#/${lang}/${where}`;
+/** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
+const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
 /** Catch a packet of `kind` where it enters the view (`__app.catch`, #74), then step it on a hop for each hop after the
  *  first in `at`, checking each time that it waits at that hop. A catch that lands anywhere else (#40) fails the run
  *  rather than giving a different picture, or checking a different state. */
@@ -221,10 +219,9 @@ const A11Y_STATES = [
   // read aloud on: the caption's "Read again", and the ⋯ menu with its toggle (#53)
   { name: 'speech', where: 'home/watch-video/phone-ap', speech: true, views: ['desktop', 'phone', 'short'] },
   { name: 'speech-menu', where: 'home/watch-video', speech: true, menu: true, views: ['desktop', 'phone'] },
-  // rush hour's note on the caption, and its links (#44); a nerd's extra in a dive (#31); the list view with both
-  { name: 'rush', where: 'home/watch-video', q: '&rush=on&level=nerd', views: ['desktop', 'phone', 'short', 'zoom'] },
+  // a nerd's extra in a dive (#31), and in the list view
   { name: 'extra', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=nerd', views: ['desktop', 'phone', 'short'] },
-  { name: 'rush-map', where: 'home/watch-video', q: '&rush=on&level=nerd', map: true, views: ['desktop', 'phone'] },
+  { name: 'extra-map', where: 'home/watch-video', q: '&level=nerd', map: true, views: ['desktop', 'phone'] },
   // a first visit's coach marks (#21): the first, on "Open up", "What can I explore?" and the last, on the time machine
   // (`coach`: how many times Next was pressed); and the one card a reader who had them before the time machine gets
   { name: 'coach', where: 'home/watch-video', coach: 0, views: ['desktop', 'phone', 'short', 'zoom'] },
@@ -842,20 +839,6 @@ for (const style of STYLES) {
       await settle(p);
       r.layerStepIdle = await sample(p, cdp, 1500);
     }
-    // rush hour (#44): the same scenes, twice the video on the way
-    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-    await p.goto(url(style, 'en', 'home/watch-video', '&rush=on'));
-    await p.waitForFunction(() => window.__app);
-    for (const rate of [1, 6]) {
-      await cdp.send('Emulation.setCPUThrottlingRate', { rate });
-      const r = m.perf[`${rate}x`];
-      await go({ places: ['home'], path: [], stop: null }); await settle(p);
-      r.rushIdle = await sample(p, cdp, 2000);
-      await go({ path: ['internet'] }); await settle(p);
-      r.rushInternetIdle = await sample(p, cdp, 1500);
-      await go({ path: ['internet', 'bng-core'] }); await settle(p);
-      r.rushBackboneIdle = await sample(p, cdp, 1500);
-    }
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await ctx.close();
     console.log(' ', JSON.stringify(m));
@@ -905,11 +888,7 @@ for (const style of STYLES) {
       ['home/watch-video/internet/core-border', 'submarine'],
       ['home/watch-video/router', 'router'], ['street/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
-    // rush hour (#44): busier roads and the caption's note; nerd extras (#31) in the physical dives
-    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&rush=on', name: 'home-rush-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video', q: '&rush=on', name: 'home-rush-phone' });
-    shots.push({ view: 'short', where: 'home/watch-video', q: '&rush=on', name: 'home-rush-short' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet', lang: 'da', q: '&level=nerd&rush=on', name: 'internet-rush-nerd-da-phone' });
+    // nerd extras (#31) in the physical dives
     shots.push({ view: 'desktop', where: 'home/watch-video/phone-ap', q: '&level=nerd', name: 'wifi-nerd-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/ap~wifi', q: '&level=nerd', name: 'wifi-frame-nerd-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=nerd', name: 'fibre-nerd-da-phone' });
