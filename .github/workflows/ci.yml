@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 # Both jobs run on the self-hosted runners on the lab PC (label `lab`, two of them so day and night run side by side),
-# inside the Playwright image, whose version must match package-lock's `playwright` (the install step below is then a
-# no-op; after a Playwright bump it fetches the matching browser until the image tag is bumped too). Self-hosted
+# inside the Playwright image (the a11y jobs with the PC's GPU, /dev/dri), whose version must match package-lock's
+# `playwright` (the install step below is then a no-op; after a Playwright bump it fetches the matching browser until the image tag is bumped too). Self-hosted
 # runners cost no Actions minutes. Before the repo goes public, restrict them (fork PRs must never reach them).
 jobs:
   build:
@@ -36,9 +36,14 @@ jobs:
 
   a11y:
     name: a11y (${{ matrix.mode }})
+    # on PRs (and by hand); a push to main is a PR that already passed it on the latest main
+    if: github.event_name != 'push'
     runs-on: [self-hosted, lab]
-    container: mcr.microsoft.com/playwright:v1.63.0-noble
-    # day and night side by side on the two lab runners, on a software renderer (#21)
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      # the lab PC's Intel GPU (Mesa): about 3× faster than the software renderer
+      options: --device /dev/dri
+    # day and night side by side on the two lab runners
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -63,5 +68,4 @@ jobs:
         run: npm run evaluate -- --only=a11y --mode="$MODE"
         env:
           MODE: ${{ matrix.mode }}
-          SWIFTSHADER: '1'
           EVALUATE_NO_LOCK: '1'
