@@ -43,6 +43,9 @@
     return r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
   });
   const at = $derived(target && w && h ? placeMark(target, { w, h }, view.vp) : null);
+  // it glides from mark to mark, but not into its first place: from the corner it waits in unplaced, it would sweep
+  // across the scene, and a tap on a door it passes would land on it (#87)
+  let shown = $state(false);
 
   $effect(() => { if (!mark) onend(); });
   $effect(() => onhot(mark?.door?.id ?? null));
@@ -64,7 +67,8 @@
 
 <svelte:window {onpointerup} />
 {#if mark}
-  <aside class="coach card {at?.side ?? ''}" class:placed={!!at} aria-label={tr('coach.label')} data-ui bind:offsetWidth={w} bind:offsetHeight={h}
+  <aside class="coach card {at?.side ?? ''}" class:placed={!!at} class:shown aria-label={tr('coach.label')} data-ui bind:offsetWidth={w} bind:offsetHeight={h}
+    onanimationend={() => (shown = true)}
     style:left="{at?.x ?? 0}px" style:top="{at?.y ?? 0}px" style:--tail="{at?.tail ?? 0}px">
     <p dir="auto">{text}</p>
     <div class="coach-foot">
@@ -79,7 +83,8 @@
   /* above the top bar and the caption (10), under a pop-up (20) and the skip link (40); opaque, like an open caption */
   .coach { position: fixed; z-index: 15; width: min(320px, calc(100vw - 20px)); padding: 12px 14px 10px; visibility: hidden;
     background: linear-gradient(var(--card), var(--card)), var(--bg); color: var(--ink); }
-  .coach.placed { visibility: visible; animation: coach-in 0.25s ease-out both; transition: left 0.3s ease, top 0.3s ease; }
+  .coach.placed { visibility: visible; animation: coach-in 0.25s ease-out both; }
+  .coach.placed.shown { transition: left 0.3s ease, top 0.3s ease; }
   .coach p { margin: 0 0 8px; font-size: 16px; font-weight: 700; line-height: 1.35; }
   .coach-foot { display: flex; align-items: center; gap: 8px; }
   .coach-count { flex: 1; color: var(--muted); font-size: 13px; font-weight: 700; }
@@ -92,5 +97,5 @@
   .coach.right::before { left: -9px; top: calc(var(--tail) - 9px); rotate: -135deg; }
   .coach.left::before { right: -9px; top: calc(var(--tail) - 9px); rotate: 45deg; }
   @keyframes coach-in { from { opacity: 0; scale: 0.96; } }
-  @media (prefers-reduced-motion: reduce) { .coach.placed { animation: none; transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .coach.placed { animation: none; } .coach.placed.shown { transition: none; } }
 </style>
