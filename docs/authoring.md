@@ -418,11 +418,6 @@ Strings:
 - `peek.<kind>` ("Caught: a piece of video")
 - `stop.*`
 
-Rush hour (issue #44, see the architecture): give a packet `rush: <factor>` to send it that many times as often in
-the evening (watch-video's video has `rush: 2`; the reader's own requests keep their pace). To have the caption say
-so, add `rush: { learnMore: [...] }` to the activity and a `rush` string with `kid` and `nerd` in every language
-(validation asks for it); its links come first in rush hour.
-
 ## Make art mode-aware (day and night, issue #43)
 
 Storybook has a day and a night mode. The reader's OS setting picks the default; the ☀️/🌙 button and `?mode=day|night`

@@ -2,10 +2,6 @@
   "title": "Watching a video",
   "kid": "You ask for a video.",
   "nerd": "The app fetches the video in small segments over HTTPS (HTTP inside TLS inside TCP), and the server streams them back.",
-  "rush": {
-    "kid": "It's evening, rush hour on the internet! Lots of people are watching videos at the same time, so the roads are full of parcels.",
-    "nerd": "Evening peak, about 19–23 h local time: the busiest hours of the day, and about two thirds of the traffic coming down to homes is video. ISPs, exchanges and transit links are sized for this peak, not the average, and CDN caches close to you serve the popular videos so they don't all cross the backbone."
-  },
   "packet": {
     "request": "Request",
     "video": "Video"

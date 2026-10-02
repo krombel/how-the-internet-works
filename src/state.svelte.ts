@@ -4,7 +4,6 @@
 import { tick } from 'svelte';
 import type { Level, Mode, Orient } from './define';
 import type { Viewport } from './engine/camera';
-import { isRush, RUSH_CHOICES, type Rush } from './engine/rush';
 import { sfx } from './engine/sound';
 import { speaker } from './engine/speech';
 import { clearMeasureCache, textBox } from './engine/svg';
@@ -75,9 +74,8 @@ export const THEME_IDS = Object.keys(themeModules).map(idOf).sort((a, b) => meta
 export const themeSwatches: Record<string, string> = Object.fromEntries(THEME_IDS.map((id) => [id, metaOf(id).swatch]));
 
 /** `paused`: the reader stopped all motion (remembered, like the level: it's an access need, WCAG 2.2.2). `speech`:
- *  read aloud (#53; remembered too). `rush`: when it is rush hour (#44): by the reader's clock, always or never
- *  (`?rush=` in the link wins on load; a choice other than `auto` is remembered). */
-export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean; speech: boolean; rush: Rush }
+ *  read aloud (#53; remembered too). */
+export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean; speech: boolean }
 const pick = <T extends string>(v: string | null, ok: readonly T[], d: T): T => (v && (ok as readonly string[]).includes(v) ? (v as T) : d);
 export const settings = $state<Settings>({
   style: pick(q.get('style'), THEME_IDS, pick(localStorage.getItem('style'), THEME_IDS, THEME_IDS[0])),
@@ -85,8 +83,9 @@ export const settings = $state<Settings>({
   mode: 'day', // set below
   paused: localStorage.getItem('paused') === '1',
   speech: localStorage.getItem('speech') === '1',
-  rush: pick(q.get('rush'), RUSH_CHOICES, pick(localStorage.getItem('rush'), RUSH_CHOICES, 'auto')),
 });
+// rush hour is gone (#114): forget the choice a reader may have stored for it
+localStorage.removeItem('rush');
 
 /** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode`
  *  already in the query is kept in step with the reader's choice. */
@@ -94,7 +93,6 @@ export function syncUrl() {
   const p = new URLSearchParams(location.search);
   if (THEME_IDS.length > 1) p.set('style', settings.style);
   if (p.has('mode')) p.set('mode', settings.mode);
-  if (p.has('rush')) p.set('rush', settings.rush);
   const qs = p.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`;
   if (url !== location.pathname + location.search + location.hash) history.replaceState(history.state, '', url);
@@ -165,24 +163,10 @@ const calm = matchMedia('(prefers-reduced-motion: reduce)');
 /** `still`: the reader prefers reduced motion (decorative motion, like the doors' breathing, stands still). */
 /** `mode`: day or night (always day when the theme has no night). */
 /** `keys`: the last input was a key, not a pointer (the hints name keys; App sets it). */
-/** `rush`: it is rush hour (#44, `settings.rush`): the caption says so, and unless `still` the traffic is busier. */
-export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean; mode: Mode; keys: boolean; rush: boolean }>({
+export const view = $state<{ vp: Viewport; orient: Orient; time: number; real: number; followId: string | null; still: boolean; mode: Mode; keys: boolean }>({
   vp: { w: 1, h: 1, top: 0, bottom: 0 }, orient: 'landscape', time: 0, real: 0, followId: null, still: calm.matches, mode: 'day', keys: false,
-  rush: isRush(settings.rush, new Date()),
 });
 calm.addEventListener('change', () => (view.still = calm.matches));
-/** Busier traffic for rush hour: only with motion (reduced motion keeps the usual pace, and the caption still says it). */
-export const busy = () => view.rush && !view.still;
-
-/** Whether it is rush hour now (App calls it again on the hour, for `auto`). */
-export const updateRush = (now = new Date()) => { view.rush = isRush(settings.rush, now); };
-export function setRush(r: Rush) {
-  settings.rush = r;
-  if (r === 'auto') localStorage.removeItem('rush');
-  else localStorage.setItem('rush', r);
-  syncUrl();
-  updateRush();
-}
 
 // ------------------------------------------------------------------ day and night
 // The reader's mode follows the OS (prefers-color-scheme) until they pick one with the toggle; `?mode=day|night` in

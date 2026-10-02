@@ -12,7 +12,7 @@ export { fakeLabel, fakeMac } from './model/packet';
 export { defineTheme } from './render/art-base';
 export { labelInk } from './render/colour';
 export { legibleSize } from './render/ctx';
-export { busy, fill, nameOf, view, yours } from './state.svelte';
+export { fill, nameOf, view, yours } from './state.svelte';
 
 export { default as Depth } from './render/Depth.svelte';
 export { default as Node } from './render/Node.svelte';

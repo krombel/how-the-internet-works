@@ -158,8 +158,6 @@ export const packet = z.strictObject({
   /** Seconds between two packets (default: one at a time). */
   every: z.number().positive().optional(),
   offset: z.number().min(0).optional(),
-  /** How many times as many of these in the evening rush hour (issue #44; default 1: the same). */
-  rush: z.number().min(1).optional(),
   colour,
 });
 export const flow = z.strictObject({
@@ -205,9 +203,6 @@ export const activity = z.strictObject({
   layout: layout.optional(),
   order: z.number().optional(),
   learnMore: learnMoreList,
-  /** It has a rush hour (issue #44): its `rush` string (kid and nerd) shows in the overview's and groups' captions
-   *  then, with these links first. */
-  rush: z.strictObject({ learnMore: learnMoreList }).optional(),
 });
 
 export const localeMeta = z.strictObject({ name: z.string().min(1), dir: z.enum(['ltr', 'rtl']), note: z.string().optional() });

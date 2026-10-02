@@ -7,7 +7,6 @@
   import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
-  import { untilNextHour } from './engine/rush';
   import { caughtSpot, livePackets, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { speaker, spoken } from './engine/speech';
@@ -26,7 +25,7 @@
   import { divesLoading } from './render/dives.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { busy, loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, updateRush, view } from './state.svelte';
+  import { loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, view } from './state.svelte';
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
@@ -364,7 +363,7 @@
   function catchKind(kind: string) {
     const ref = sceneRef(route, here.path, view.orient);
     if (ref?.kind !== 'path') return false;
-    const spec = specsFor(pathScene(route, ref.group, view.orient), route.activity.flows, busy()).find((s) => s.kind === kind);
+    const spec = specsFor(pathScene(route, ref.group, view.orient), route.activity.flows).find((s) => s.kind === kind);
     if (!spec) return false;
     const hop = entryHop(route, spec.dir, drawnIn(here.path));
     const spot = hop === null ? null : spotAt(here.path, hop, spec.dir);
@@ -430,7 +429,7 @@
       const ref = sceneInfo(route, m.path, o).ref;
       if (ref.kind !== 'path') continue;
       const own = pathScene(route, ref.group, o), shown = morphScenes.get(m.key) ?? own;
-      let list = livePackets(specsFor(own, route.activity.flows, busy()), shown.links, view.time, m.key);
+      let list = livePackets(specsFor(own, route.activity.flows), shown.links, view.time, m.key);
       const ids = new Map(list.map((p) => [p.id, p]));
       for (const [id, p] of prevIds.get(m.key) ?? []) if (!ids.has(id) && m.key === hereKey && p.age > p.spec.duration * 0.85 && !speaker.speaking) sfx.blip(false, p.dir);
       prevIds.set(m.key, ids);
@@ -811,10 +810,6 @@
     };
     window.addEventListener('keydown', modality, true);
     window.addEventListener('pointerdown', modality, true);
-    // rush hour by the reader's clock (#44): look again on the hour
-    let rushTimer = 0;
-    const onTheHour = () => { rushTimer = window.setTimeout(() => { updateRush(); onTheHour(); }, untilNextHour(new Date()) + 50); };
-    onTheHour();
     // Test/screenshot hook (scripts/evaluate.mjs).
     Object.assign(window, {
       __app: {
@@ -844,7 +839,7 @@
         },
       },
     });
-    return () => { offNav(); clearTimeout(exploreTimer); clearTimeout(rushTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys);
+    return () => { offNav(); clearTimeout(exploreTimer); cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('keydown', keys);
       window.removeEventListener('keydown', modality, true); window.removeEventListener('pointerdown', modality, true); };
   });
 
