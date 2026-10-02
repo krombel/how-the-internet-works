@@ -13,7 +13,8 @@
     "backbone": "96 λ · EDFA / 80 km",
     "lan-wdm": "4 λ · 1295–1310 nm",
     "cwdm4": "4 λ · 1271–1331 nm",
-    "fttb": "BiDi · ↑1310 ↓1490 nm · én tråd"
+    "fttb": "BiDi · ↑1310 ↓1490 nm · én tråd",
+    "submarine": "EDFA / {span} km · jævnstrøm fra land"
   },
   "gpon": {
     "title": "Lys delt af hele vejen",
@@ -40,12 +41,12 @@
     }
   },
   "backbone": {
-    "title": "Lys på tværs af landet",
-    "kid": "Internettets motorveje er glastråde, hundredvis af kilometer lange, under vejene og endda under havet. Lyset bliver svagere undervejs, så cirka hver 80. km gør en forstærker alle farverne klare igen på én gang.",
-    "nerd": "Long-haul DWDM: 64–96 bølgelængder i C-båndet, hver på 100–800 Gbit/s med kohærent optik. Erbium-doterede fiberforstærkere cirka hver 80. km forstærker alle farverne på én gang; søkabler krydser oceanerne.",
+    "title": "Lys på motorvejen",
+    "kid": "Internettets motorveje er glastråde under vejene, fra by til by. Lyset bliver svagere undervejs, så på en lang tråd gør en forstærker cirka hver 80. km alle farverne klare igen på én gang. Se tælleren: den lægger kilometerne sammen.",
+    "nerd": "Long-haul DWDM: 64–96 bølgelængder i C-båndet, hver på 100–800 Gbit/s med kohærent optik. Erbium-doterede fiberforstærkere (EDFA’er) cirka hver 80. km forstærker alle farverne på én gang; en kort strækning klarer sig uden.",
     "describe": {
-      "kid": "En lang glastråd er delt i brede strækninger med forstærkere undervejs. Otte lys, nummereret 1 til 8 og farvet som en regnbue fra rød til lyserød, løber sammen gennem kernen. De bliver svagere på turen og klare igen ved hver forstærker. Kilometermærker tæller den lange vej.",
-      "nerd": "Long-haul-visningen viser otte DWDM-bølgelængder i én fiber, λ1 til λ8, nummereret ved laserne og modtagerne. Brudmærker står for lange strækninger. Pulser dæmpes over hver strækning, og EDFA’er forstærker alle kanaler ved punkter for hver 80 km. Mærket nævner 96 bølgelængder og EDFA hver 80 km."
+      "kid": "En lang glastråd med et brudmærke står for mange kilometer. Otte lys, nummereret 1 til 8 og farvet som en regnbue fra rød til lyserød, løber sammen gennem kernen og bliver lidt svagere undervejs. Et rødt tal under det første lys tæller kilometerne. Lange tråde får forstærkere, der gør lyset klart igen.",
+      "nerd": "Long-haul-visningen viser otte DWDM-bølgelængder i én fiber, λ1 til λ8, nummereret ved laserne og modtagerne. Brudmærker står for den rigtige længde, og en tæller følger λ1 i km. Fiberen deles i strækninger på op til 80 km; pulser dæmpes over hver, og en EDFA forstærker alle kanaler mellem dem. Mærket nævner 96 bølgelængder og EDFA hver 80 km."
     },
     "booster": "Forstærker"
   },
@@ -79,5 +80,28 @@
     "upColour": "i én farve",
     "down": "På vej ned",
     "downColour": "i en anden farve"
+  },
+  "submarine": {
+    "title": "Lys under havet",
+    "kid": "Her krydser internettet havet! Glastrådene ligger i et kabel, så tykt som en haveslange, helt nede på havbunden. Strøm løber gennem kablet fra land ud til forstærkerne, som gør lyset klart igen på vejen over.",
+    "nerd": "Et søkabel: nogle få fiberpar i et stålrør, omviklet med kobber og polyethylen, armeret og nedgravet nær kysten mod ankre og trawl. Landingsstationerne sender flere kV jævnstrøm gennem kobberet til repeaterne (EDFA’er) for hver 60–80 km.",
+    "describe": {
+      "kid": "Et kig fra siden ned i havet mellem to landingsstationer på kysten. Et kabel løber ned ad skrænten og hen ad havbunden med forstærkere på. Farvede lysglimt og små gule gnister af strøm farer langs kablet, et rødt tal tæller kilometerne, og en haj svømmer forbi. En cirkel viser kablet skåret over.",
+      "nerd": "Et kig fra siden på et søkabel mellem to landingsstationer. Kablet er nedgravet nær kysten og ligger på havbunden med en repeater for hver strækning på op til 60 km. Fire bølgelængder krydser og dæmpes over hver strækning; gnister viser jævnstrøm fra land. Et tværsnit viser fibre i et rør, kobber og stålarmering. En tæller følger λ1 i km."
+    },
+    "landing": "Landingsstation",
+    "repeater": {
+      "kid": "Forstærker",
+      "nerd": "Repeater"
+    },
+    "inside": "Inde i kablet",
+    "copper": {
+      "kid": "Strøm",
+      "nerd": "Kobber: strøm"
+    },
+    "glass": {
+      "kid": "Glastråde",
+      "nerd": "Fiberpar"
+    }
   }
 }

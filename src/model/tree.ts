@@ -305,6 +305,9 @@ export function diveRuns(r: Route, group: string | null, o: Orient): { runs: Div
   m.set(k, out);
   return out;
 }
+/** The links a link dive stands for: its stretch, in route order (one link, unless it is a run). */
+export const runOf = (r: Route, ref: SceneRef, o: Orient): SLink[] =>
+  diveRuns(r, sceneRef(r, parentPath(ref.path), o)!.group, o).byLink.get(ref.link!.id)!.links;
 
 /** The point at arc length `s` along a chain (clamped to its ends). */
 export function chainAt(ch: Chain, s: number): Pt {

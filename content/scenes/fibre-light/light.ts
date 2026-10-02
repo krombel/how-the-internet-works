@@ -1,12 +1,12 @@
 // The fibre dive's maths (style-agnostic). Coordinates are in a landscape 1600×900 "track space"; portrait layouts
-// rotate the track (see trackMatrix). One glass thread, told four ways by where it runs (the link's technology):
+// rotate the track (see trackMatrix). One glass thread, told five ways by where it runs (the link's technology):
 // access (a street shares it through a splitter: light home reaches every house, light up takes turns), a building's
-// own thread (one colour up, another down), metro (a few colours share it, each its own channel) and long haul (many
-// colours, far: boosters make the fading light bright).
+// own thread (one colour up, another down), metro (a few colours share it, each its own channel), long haul (many
+// colours, far: boosters make the fading light bright) and under the sea (sea.ts: a cable on the sea floor).
 import type { Orient, Pt } from '$core/api';
 
-type Mode = 'access' | 'building' | 'metro' | 'long-haul';
-const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone: 'long-haul' };
+type Mode = 'access' | 'building' | 'metro' | 'long-haul' | 'submarine';
+const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone: 'long-haul', submarine: 'submarine' };
 /** How this stretch of fibre is told, from its technology (any other fibre is metro). */
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'metro';
 /** The nerd tag of a metro-told thread: a cross-connect's optic puts its few colours close together (LAN-WDM), a
@@ -58,12 +58,12 @@ export function channelRoute(i: number, ch: Channel): Pt[] {
   return ch.reverse ? r.reverse() : r;
 }
 
-function polyLength(pts: Pt[]) {
+export function polyLength(pts: Pt[]) {
   let L = 0;
   for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
   return L;
 }
-function pointAt(pts: Pt[], s: number): Pt {
+export function pointAt(pts: Pt[], s: number): Pt {
   for (let i = 1; i < pts.length; i++) {
     const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
     if (s <= d) {
@@ -76,12 +76,12 @@ function pointAt(pts: Pt[], s: number): Pt {
 }
 
 export interface LightPulse { channel: number; head: Pt; trail: Pt[] }
-function pulseAt(route: Pt[], s: number, channel: number, trail = 70, samples = 6): LightPulse {
+export function pulseAt(route: Pt[], s: number, channel: number, trail = 70, samples = 6): LightPulse {
   const tr: Pt[] = [];
   for (let k = 0; k <= samples; k++) tr.push(pointAt(route, Math.max(0, s - (trail * k) / samples)));
   return { channel, head: tr[0], trail: tr };
 }
-const wrap = (x: number, L: number) => ((x % L) + L) % L;
+export const wrap = (x: number, L: number) => ((x % L) + L) % L;
 
 /** Light pulses for all channels at time t: each pulse = head position + short trail. */
 export function fibrePulses(t: number, routes: Pt[][], perChannel = 3) {
@@ -135,22 +135,35 @@ export function accessPulses(t: number, routes: { up: Pt[][]; down: Pt[][] }): L
 export const BUILDING: Channel[] = [{ y: 330, reverse: false }, { y: 570, reverse: true }];
 
 // ---------------------------------------------------------------- long haul: many colours, far
-/** Eight thinner colours, two boosters splitting the thread into three spans (≈ breaks: much longer than drawn). */
+/** Eight thinner colours on a thread as long as the stretch really is (`haulOf`). */
 export const LONG_HAUL = {
   lanes: Array.from({ length: 8 }, (_, i): Channel => ({ y: 205 + i * 70, reverse: false })),
-  amps: [643, 957],
-  breaks: [487, 800, 1113],
+  /** A booster about every 80 km. */
   spanKm: 80,
-  /** How faint the light gets by the end of a span (0 = as bright as it left). */
-  fadeMax: 0.7,
 };
-/** How faint a pulse at x is: fading through each span, bright again after each booster. */
-export function fadeAt(x: number): number {
-  const { x0, x1 } = FIBRE, stops = [x0, ...LONG_HAUL.amps, x1];
-  if (x <= x0) return 0;
-  if (x >= x1) return LONG_HAUL.fadeMax;
-  const i = stops.findIndex((s) => s > x) - 1;
-  return (LONG_HAUL.fadeMax * (x - stops[i])) / (stops[i + 1] - stops[i]);
+/** How faint the light gets by the end of a full span (0 = as bright as it left). */
+const FADE_MAX = 0.7;
+
+/** A long thread drawn from x = a to b that really is `km` long (#42): cut into as many spans as it needs (a booster
+ *  every `spanKm` or so, at most `max` spans drawn), each fading as far as its length fades the light. */
+export interface Haul { km: number; a: number; b: number; stops: number[]; fade: number }
+export function haulOf(km: number, spanKm: number, a: number, b: number, max = 6): Haul {
+  const n = Math.min(max, Math.max(1, Math.ceil(km / spanKm)));
+  const stops = Array.from({ length: n + 1 }, (_, i) => a + ((b - a) * i) / n);
+  return { km, a, b, stops, fade: FADE_MAX * Math.min(1, km / n / spanKm) };
 }
-/** The distance markers: km at the start, at each booster and at the end. */
-export const milestones = () => [FIBRE.x0, ...LONG_HAUL.amps, FIBRE.x1].map((x, i) => ({ x, km: i * LONG_HAUL.spanKm }));
+/** The boosters (or a cable's repeaters): between the spans. */
+export const boostersOf = (h: Haul) => h.stops.slice(1, -1);
+/** "Much longer than drawn" marks: one in the middle of each span. */
+export const breaksOf = (h: Haul) => h.stops.slice(1).map((x, i) => (h.stops[i] + x) / 2);
+/** How faint a pulse at x is: fading through each span, bright again after each booster. */
+export function fadeAt(h: Haul, x: number): number {
+  if (x <= h.a) return 0;
+  if (x >= h.b) return h.fade;
+  const i = h.stops.findIndex((s) => s > x) - 1;
+  return (h.fade * (x - h.stops[i])) / (h.stops[i + 1] - h.stops[i]);
+}
+/** How long a stretch of links is, all told (links without a length count as none). */
+export const stretchKm = (run: { km?: number }[]) => run.reduce((s, l) => s + (l.km ?? 0), 0);
+/** How far along the stretch x is, in km (0 before it starts, all of it after it ends). */
+export const kmAt = (h: Haul, x: number) => h.km * Math.min(1, Math.max(0, (x - h.a) / (h.b - h.a)));

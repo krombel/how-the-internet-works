@@ -27,8 +27,8 @@ export default definePlace({
     ...home.layout,
     // the basement switch where the street cabinet is at home
     internet: {
-      landscape: { nodes: { flats: [140, 620, 120], basement: [278, 440, 150, 'above'], backhaul: [440, 680, 150], bng: [650, 450, 150, 'above'] } },
-      portrait: { nodes: { flats: [200, 1470, 130], basement: [700, 1380, 150], backhaul: [180, 1230, 150], bng: [720, 1060, 150] } },
+      landscape: { nodes: { flats: [140, 620, 120], basement: [278, 440, 150, 'above'], backhaul: [410, 690, 150], bng: [650, 450, 150, 'above'] } },
+      portrait: { nodes: { flats: [200, 1470, 130], basement: [700, 1380, 150], backhaul: [180, 1230, 150], bng: [720, 1060, 150] }, links: { 'bng-core': { bend: 0.08 } } },
     },
   },
   learnMore: [

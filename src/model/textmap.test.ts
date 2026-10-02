@@ -28,6 +28,9 @@ describe('text map', () => {
     const inside = m.stops.find((s) => s.spot.stop === 'internet')!.scenes[0];
     expect(inside.stops.find((s) => s.spot.stop === 'cabinet-backhaul')!.scenes.map((c) => c.path.at(-1))).toEqual(['cabinet-backhaul']);
     expect(inside.stops.find((s) => s.spot.stop === 'backhaul-bng')!.scenes).toEqual([]);
+    // the backbone and the undersea cable are a dive each, side by side (#39)
+    expect(inside.stops.find((s) => s.spot.stop === 'bng-core')!.scenes.map((c) => `${c.via}:${c.path.join('/')}`)).toEqual(['dive:internet/bng-core']);
+    expect(inside.stops.find((s) => s.spot.stop === 'core-border')!.scenes.map((c) => `${c.via}:${c.path.join('/')}`)).toEqual(['dive:internet/core-border']);
   });
 
   it('has every scene of every route exactly once, in both orientations, and each one resolves', () => {

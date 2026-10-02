@@ -27,8 +27,8 @@ export default definePlace({
       },
     },
     internet: {
-      landscape: { nodes: { home: [140, 620, 120], exchange: [320, 430, 150, 'above'], bng: [560, 640, 150] } },
-      portrait: { nodes: { home: [200, 1470, 130], exchange: [640, 1330, 150], bng: [700, 1060, 150] } },
+      landscape: { nodes: { home: [140, 620, 120], exchange: [320, 430, 150, 'above'], bng: [540, 560, 150] }, links: { 'bng-core': { bend: 0.6 } } },
+      portrait: { nodes: { home: [200, 1470, 130], exchange: [640, 1330, 150], bng: [700, 1060, 150] }, links: { 'bng-core': { bend: 0.08 } } },
     },
   },
   learnMore: [

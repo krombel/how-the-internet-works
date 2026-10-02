@@ -275,7 +275,7 @@ function controlProblems() {
 const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
   'home/watch-video/phone-ap', 'street/watch-video/phone-cell-tower', 'home/watch-video/router', 'street/watch-video/cell-tower',
   'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/cabinet-backhaul',
-  'home/watch-video/internet/bng-core', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
+  'home/watch-video/internet/bng-core', 'home/watch-video/internet/core-border', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
   'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
   'home/watch-video/phone~http', 'home/watch-video/router~http', 'home/watch-video/internet/datacentre/cdn~http',
   'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
@@ -659,6 +659,10 @@ for (const style of STYLES) {
       });
       await settle(p);
       r.backboneIdle = await sample(p, cdp, 1500);
+      // on across the sea: the undersea cable (#39), and its idle
+      r.travelToSea = await sample(p, cdp, 3500, () => p.keyboard.press('ArrowRight'));
+      await settle(p);
+      r.submarineIdle = await sample(p, cdp, 1500);
       await go({ path: ['internet', 'cabinet-backhaul'] }); await settle(p);
       r.metroIdle = await sample(p, cdp, 1500);
       // and on the overview: the Wi‑Fi dive to the copper dive, past the access point
@@ -733,6 +737,7 @@ for (const style of STYLES) {
       // all the way down (issues #13, #18): the link envelopes and the signals under them
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/bng-core', name: `backbone-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/core-border', name: `submarine-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/cabinet-backhaul', name: `metro-${view}` });
       shots.push({ view, where: 'home/watch-video/ap~wifi', name: `wifi-frame-${view}` });
       shots.push({ view, where: 'home/watch-video/router~ethernet', name: `ethernet-me-${view}` });
@@ -748,9 +753,11 @@ for (const style of STYLES) {
     // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
     for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
       ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone'],
+      ['home/watch-video/internet/core-border', 'submarine'],
       ['home/watch-video/router', 'router'], ['street/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
     shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=nerd', name: 'backbone-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/core-border', lang: 'da', q: '&level=nerd', name: 'submarine-nerd-da-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=nerd', name: 'gpon-nerd-phone' });
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
