@@ -165,7 +165,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - **A phone on its side (issue #33).** A dive's wide panel fits the height between the top bar and the caption pill, not the width, so it got about half the screen. There `camFor` uses `diveFit` (`engine/zoom.ts`): the panel's top and bottom rims (`DIVE_RIM`, shares of its height that hold only its border and flap) may run under the bars' edges, and it keeps 80 px clear each side for the ◀ ▶ buttons. That is about 1.2× bigger; path scenes and other screens are fitted as before.
    - **No faint previews on a phone (issue #90).** At a stop the camera zooms in so far that the groups and dives around it would show through, faint. On a phone (`isPhone`) `mixes` squeezes a child's progress (`squeezed` in `engine/zoom.ts`) so it fades in only once you zoom right into it; the doors already say what's inside. Desktop keeps the previews.
 6. **Packets** (`engine/packets.ts`). Each flow's packets run along every link of the scene at a per-link pace. Tapping one **catches** it (below).
-7. **Text that stays inside (issue #90).** Labels keep a minimum size on screen, so on a small screen they grow in world units and could run off the scene. `placeTexts` (`model/labels.ts`, pure) places a path scene's signs, names and nerd tags: each is pushed inside the world, and a tag takes the first of a few spots (stacked, over the art, beside the name) that fits and is clear of the other text and art. `labels.test.ts` checks every place, language and orientation at small sizes; `npm run evaluate` checks that no scene text leaves its panel or the window.
+7. **Text that stays inside, and apart (issues #90, #72).** Labels keep a minimum size on screen, so on a small screen they grow in world units and could run off the scene or onto each other. `placeTexts` (`model/labels.ts`, pure) places a path scene's signs, names and nerd tags, and the same call is what `overlap.test.ts` checks: each is pushed inside the world; a link's name goes with its door badge, at its authored offset from the badge moved out clear of it, or, if that covers something, at the nearest clear spot round the badge (eight ways, three distances); a tag takes the first of a few spots (stacked, over the art, beside the name) that fits and covers nothing (names, signs, art, badges, tags placed before it), else the nearest clear spot round its device or badge. Where the whole tag has no room it shows its first fact ("XGS-PON" of "XGS-PON · 10 Gbit/s"), and where that has none either it waits until zoomed in. On a big screen every tag shows whole (the test checks). A device's tag may hang its string over its own art, not its body. A single link's badge, like a stretch's, slides along its link off the middle when the middle isn't clear of the device names (`linkSpot` in `doors.ts`). `labels.test.ts` checks every place, language and orientation at small sizes; `npm run evaluate` checks that no scene text leaves its panel or the window.
 8. **Doors** (`model/doors.ts`, below). What a path scene lets you open, drawn by the theme's `Hint`, hit-tested in `App.svelte` and listed in the caption.
 
 ### Pause, catch and step (issue #17)
@@ -574,10 +574,12 @@ Vitest (`npm test`) covers:
   re-planned mid-glide; neighbouring stretches into the same scene have different titles in every language
 - doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
   place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
-- crowding (#64, `model/overlap.test.ts`): in every path scene of every place × activity, orientation, language and
-  level, at the size a small screen draws them (2× portrait, 1.9× landscape), door badges, device names, link names
-  and owner signs keep apart from each other and from the devices, and every link shows at least two packets' worth
-  of itself. Known crowding is listed in the test; a new case fails, and so does a listed one that's gone
+- crowding (#64, #72, `model/overlap.test.ts`): in every path scene of every place × activity, orientation, language
+  and level, at the authored size and at the size a small screen draws them (doors' `GROW`: 1.7× portrait, 1.9×
+  landscape), door badges, device names, link names, owner signs and nerd tags, where `placeTexts` puts them, keep
+  apart from each other and from the devices, every link shows at least two packets' worth of itself, and at the
+  authored size no tag is cut to its first fact. Known short links are listed in the test (there is no known overlap
+  left); a new case fails, and so does a listed one that's gone
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - device dives (#9, #38): validation, the child and its frame on the device, its layer stack above it, the badge
   away from the name, stepping and travelling link → device → link with no dive panel showing on the glide, a device

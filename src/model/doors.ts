@@ -3,8 +3,9 @@
 // changes where you are and what you do ('swap'). The scene art, the tap/hover targets, "What can I explore?" and the
 // caption's door chips all read this one list, so a badge is always where its tap target is.
 import type { Cam, Viewport } from '../engine/camera';
-import { bezier, type Orient, type Pt, type Rect } from '../engine/geometry';
-import { labelY, startNode, type PathScene, type SNode } from './layout';
+import { bezier, WORLD_SIZE, type Orient, type Pt, type Rect } from '../engine/geometry';
+import { boxAt, keepIn, labelReach } from './labels';
+import { labelY, startNode, type PathScene, type SLink, type SNode } from './layout';
 import { nodeDive, toRoot, type DiveRun, type Frame } from './tree';
 
 export type DoorKind = 'dive' | 'expand' | 'swap';
@@ -51,8 +52,9 @@ export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: stri
 }
 
 /** A scene's doors: the swap badge first (root only), then the dives and groups in route order. A stretch of links
- *  that is one dive (`runs`, by link: see `diveRuns`) has one badge, on its links clear of the devices between them
- *  (`stretchSpot`; `nameW` measures a device's name). A device's dive has its badge on the device's left corner away
+ *  that is one dive (`runs`, by link: see `diveRuns`) has one badge, on its links clear of the devices between them, and
+ *  a single link's badge is at its middle unless that is too near a device (`linkSpot`; `nameW` measures a device's
+ *  name). A device's dive has its badge on the device's left corner away
  *  from its name (the start device's swap badge is on its top right). Items still fading in or out while switching place have none (a
  *  link only the other place has, isn't in `runs` either: it stands alone). */
 export function doorsOf(ps: PathScene, root: boolean, runs: Map<string, DiveRun>, o: Orient, nameW: (n: SNode) => number): Door[] {
@@ -66,38 +68,42 @@ export function doorsOf(ps: PathScene, root: boolean, runs: Map<string, DiveRun>
     const l = n ? null : ps.links.find((k) => k.id === id), run = runs.get(id);
     if (!l?.dive || l.alpha <= 0.5 || (run && run.step !== id)) continue;
     const many = run && run.links.length > 1;
-    out.push({ kind: 'dive', id, links: many ? run.links.map((k) => k.id) : [id], at: many ? stretchSpot(ps, run, o, nameW) : bezier(l, 0.5) });
+    out.push({ kind: 'dive', id, links: many ? run.links.map((k) => k.id) : [id], at: many ? linkSpot(ps, run.links, run.at, o, nameW) : linkSpot(ps, [l], bezier(l, 0.5), o, nameW) });
   }
   return out;
 }
 
 /** How much bigger than authored names and badges get at most, at rest on a small screen: they never render under the
  *  theme's minimum (1.5–1.6× on a phone, 1.8× in short landscape). */
-const GROW: Record<Orient, number> = { portrait: 1.7, landscape: 1.9 };
+export const GROW: Record<Orient, number> = { portrait: 1.7, landscape: 1.9 };
 /** How far a badge's mark reaches from its spot (its ring, and its bob up and down: about 1.3 × its size), at its
  *  biggest in orientation `o`, or at `sk` screen px per scene unit. */
 export const badgeReach = (o: Orient, sk = 1 / GROW[o]) => 1.3 * badgeSize(28, sk);
+/** The square a badge's mark keeps to at `size` (its ring and its bob, as `badgeReach`): what text keeps clear of. */
+export const badgeBox = (at: Pt, size: number): Rect => ({ x: at.x - size * 1.3, y: at.y - size * 1.3, w: size * 2.6, h: size * 2.6 });
 
 /** What a device covers at its biggest: its art, and its name (`nameW`: its width at the authored 28 units), which
- *  grows up from its baseline. */
+ *  grows up from its baseline, pushed inside the world as `placeTexts` draws it. */
 export function nodeBoxes(n: SNode, nameW: number, o: Orient): Rect[] {
-  const f = 28 * GROW[o], w = nameW * GROW[o];
-  return [{ x: n.x - n.size / 2, y: n.y - n.size / 2, w: n.size, h: n.size }, { x: n.x - w / 2, y: labelY(n) - f * 0.8, w, h: f }];
+  const f = 28 * GROW[o], e = labelReach(nameW * GROW[o], f, 'middle');
+  return [{ x: n.x - n.size / 2, y: n.y - n.size / 2, w: n.size, h: n.size }, boxAt(keepIn({ x: n.x, y: labelY(n) }, e, WORLD_SIZE[o]), e)];
 }
 
 /** How far `p` is from the nearest of `boxes` (0 inside one). */
 export const clearance = (p: Pt, boxes: Rect[]) =>
   Math.min(...boxes.map((b) => Math.hypot(Math.max(0, b.x - p.x, p.x - b.x - b.w), Math.max(0, b.y - p.y, p.y - b.y - b.h))));
 
-/** Where a stretch's badge goes: on one of its links, away from their ends, as near the stretch's middle (`run.at`,
- *  often the device between two links) as it can while clear of every device and its name by `badgeReach` and a gap, at
- *  any size; failing that, as clear as it can. The whole-stretch glow shows what it covers. */
-function stretchSpot(ps: PathScene, run: DiveRun, o: Orient, nameW: (n: SNode) => number): Pt {
+/** Where a link's badge goes, or a stretch's: on one of its links, away from their ends, as near `at` (the link's
+ *  midpoint; the stretch's middle, often the device between two links) as it can while clear of every device and its
+ *  name by `badgeReach` and a gap, at any size; failing that, as clear as it can. A stretch's whole glow shows what it
+ *  covers. */
+function linkSpot(ps: PathScene, links: SLink[], at: Pt, o: Orient, nameW: (n: SNode) => number): Pt {
   const boxes = ps.nodes.flatMap((n) => nodeBoxes(n, nameW(n), o)), need = badgeReach(o) + 8;
-  let best = run.at, score = -Infinity;
-  for (const l of run.links) for (let t = 0.2; t < 0.81; t += 0.05) {
+  if (clearance(at, boxes) >= need) return at;
+  let best = at, score = -Infinity;
+  for (const l of links) for (let t = 0.2; t < 0.81; t += 0.05) {
     const p = bezier(l, t), c = clearance(p, boxes);
-    const sc = c >= need ? 1e6 - Math.hypot(p.x - run.at.x, p.y - run.at.y) : c;
+    const sc = c >= need ? 1e6 - Math.hypot(p.x - at.x, p.y - at.y) : c;
     if (sc > score) { score = sc; best = p; }
   }
   return best;

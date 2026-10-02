@@ -24,27 +24,27 @@ export default definePlace({
     overview: {
       landscape: {
         // everything indoors: the Wi-Fi box on the wall, so the radio hop crosses the room and not the roof
-        nodes: { phone: [230, 590, 210], ap: [590, 560, 180, 'above'], router: [1015, 600, 190] },
+        nodes: { phone: [225, 590, 210], ap: [655, 540, 180, 'above'], router: [1015, 618, 190] },
         links: {
           'phone-ap': { bend: -0.15, label: [0, 90] },
-          'ap-router': { bend: 0.18, label: [0, -50] },
-          'router-internet': { curve: [[1090, 590], [1250, 600], [1290, 430]], label: [40, 70] },
+          'ap-router': { bend: 0.18, label: [-30, 95, 'end'] },
+          'router-internet': { curve: [[1090, 590], [1250, 595], [1290, 430]], label: [10, 70, 'start'] },
         },
       },
       portrait: {
         // the Wi-Fi box and the phone downstairs, the router up in the attic, the fibre out through the roof
         nodes: { phone: [220, 1400, 210], ap: [650, 1150, 170], router: [464, 885, 180, 'above'] },
         links: {
-          'phone-ap': { bend: -0.2, label: [5, -50] },
-          'ap-router': { bend: 0.2, label: [200, 0] },
+          'phone-ap': { bend: -0.3, label: [5, -50] },
+          'ap-router': { bend: 0.2, label: [-50, 40, 'end'] },
           'router-internet': { curve: [[550, 880], [740, 700], [610, 480]], label: [100, -60] },
         },
       },
     },
     internet: {
       // the house a little higher than the backhaul switch, so their names (at their biggest, in short landscape) don't meet
-      landscape: { nodes: { home: [140, 620, 120], cabinet: [295, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [650, 450, 150, 'above'] } },
-      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [650, 1030, 150] } },
+      landscape: { nodes: { home: [140, 620, 120], cabinet: [285, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [660, 450, 150, 'above'] } },
+      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [720, 1030, 150] } },
     },
   },
   learnMore: [

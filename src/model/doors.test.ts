@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fit } from '../engine/camera';
 import { bezier } from '../engine/geometry';
 import { badgeReach, badgeSize, clearance, doorsInView, doorsOf, layoutDoors, nodeBoxes, type Door } from './doors';
-import { morphScene, pathScene, type SNode } from './layout';
+import { morphScene, pathScene, type PathScene, type SNode } from './layout';
 import { content } from './registry';
 import { resolveRoute } from './resolve';
 import { loadAllPacks, packs } from './strings';
@@ -110,6 +110,19 @@ describe('doors', () => {
     expect(d[0].at.y).toBeLessThan(n('phone').y);
   });
 
+  it('slides a link\'s badge off its middle when a device\'s name is there, at its biggest (#72)', () => {
+    const node = (id: string, x: number, y: number) => ({ id, kind: 'entry', x, y, size: 100, label: 'below', alpha: 1 }) as SNode;
+    const link = { id: 'a-b', from: 'a', to: 'b', dive: 'x', alpha: 1, p0: { x: 200, y: 450 }, c: { x: 800, y: 450 }, p1: { x: 1400, y: 450 } };
+    const scene = (nodes: SNode[]) => ({ key: 'overview', group: null, nodes, links: [link], route: ['a-b'], stops: ['a-b'], signs: {} }) as unknown as PathScene;
+    const ends = [node('a', 200, 450), node('b', 1400, 450)], w = () => 200;
+    expect(doorsOf(scene(ends), false, new Map(), 'landscape', w)[0].at).toEqual({ x: 800, y: 450 });
+    // a device just over the middle: its name, grown, reaches down to the link
+    const over = node('c', 800, 330), [d] = doorsOf(scene([...ends, over]), false, new Map(), 'landscape', w);
+    expect(d.at.y).toBeCloseTo(450);
+    expect(d.at.x).not.toBeCloseTo(800);
+    expect(clearance(d.at, nodeBoxes(over, 200, 'landscape'))).toBeGreaterThanOrEqual(badgeReach('landscape'));
+  });
+
   it('has no doors on things still fading in or out while switching place', () => {
     const a = pathScene(home, null, 'landscape'), b = pathScene(street, null, 'landscape');
     // the phone and the cloud glide over; the 5G link and its dive only fade in
@@ -139,9 +152,7 @@ describe('doors', () => {
   // generic: a scene's dives are small copies of their scenes, each centred on its badge. Two that overlap show through
   // each other once dived into (on a phone the stretches zigzag, so badges one above the other must be a scene apart)
   const OVERLAPPING_DIVES = [
-    'home-fttb landscape /internet: flats-basement × basement-backhaul',
     'home-fttb portrait /internet: basement-backhaul × backhaul-bng',
-    'home-fttb portrait /internet: flats-basement × basement-backhaul',
   ];
   it('keeps a scene\'s dives from overlapping', () => {
     const found = new Set<string>();
