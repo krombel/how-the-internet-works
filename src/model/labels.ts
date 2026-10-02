@@ -1,8 +1,12 @@
-// Where a path scene's text goes (#90): device names, link names, owner signs and nerd tags stay inside their world,
-// a rim in from its edge (a nested scene's panel draws its frame over the outer 24 or so; the root's is the screen).
-// Labels grow as the camera zooms out (they never render under the theme's labelMinPx), so a spot that fits at the
-// authored size can run off the panel on a small screen: a tag then tries its other spots (beside the name, the
-// other side, under the name) before it is pushed in; names and signs are pushed in.
+// Where a path scene's text goes (#90, #72): device names, link names, owner signs and nerd tags stay inside their
+// world, a rim in from its edge (a nested scene's panel draws its frame over the outer 24 or so; the root's is the
+// screen), and off each other. Labels grow as the camera zooms out (they never render under the theme's labelMinPx), so
+// a spot that fits at the authored size can run off the panel, or onto a badge, on a small screen:
+// - a link's name and its door badge go as one: the name keeps its authored side of the badge, moved out as both grow;
+// - names and signs are pushed in;
+// - a tag takes the first of its spots that fits and covers nothing; failing that, its first fact alone ("XGS-PON"
+//   for "XGS-PON · 10 Gbit/s") at the first spot where that does; failing that, it is left out until there is room
+//   (zoomed in closer).
 import type { Pt, Rect } from '../engine/geometry';
 import { bezier } from '../engine/geometry';
 import { labelY, type SLink, type SNode } from './layout';
@@ -11,6 +15,8 @@ export type Anchor = 'start' | 'middle' | 'end';
 /** How far a box reaches from its anchor point: left, right, up, down. */
 export interface Reach { l: number; r: number; t: number; b: number }
 export interface Spot extends Pt { anchor: Anchor }
+/** A placed tag and the text it shows (the whole tag, or its first fact). */
+export interface TagSpot extends Spot { text: string }
 
 /** How far in from the world's edge text keeps. */
 export const RIM = 30;
@@ -40,29 +46,35 @@ export function keepIn(p: Pt, e: Reach, W: World, rim = RIM): Pt {
   return { x: axis(p.x, e.l, e.r, W.w), y: axis(p.y, e.t, e.b, W.h) };
 }
 
+/** `p` moved on along `u` (a unit vector) the least so a box reaching `e` around it is `gap` clear of `b`. */
+export function clearOf(p: Pt, u: Pt, e: Reach, b: Rect, gap: number): Pt {
+  // how far along u until the box is past b on one axis: lo/hi are b's near and far edges, a/z the box's reach
+  const axis = (v: number, du: number, lo: number, hi: number, a: number, z: number) =>
+    v - a >= hi + gap || v + z <= lo - gap ? 0 : du > 1e-9 ? (hi + gap + a - v) / du : du < -1e-9 ? (lo - gap - z - v) / du : Infinity;
+  const t = Math.min(axis(p.x, u.x, b.x, b.x + b.w, e.l, e.r), axis(p.y, u.y, b.y, b.y + b.h, e.t, e.b));
+  return Number.isFinite(t) ? { x: p.x + u.x * t, y: p.y + u.y * t } : p;
+}
+
 /** The box a reach puts around `p`. */
 export const boxAt = (p: Pt, e: Reach): Rect => ({ x: p.x - e.l, y: p.y - e.t, w: e.l + e.r, h: e.t + e.b });
 const hits = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-/** The first spot whose box fits and is clear of what is `taken`; else the first that fits; else the first, pushed in. */
-function choose(spots: Spot[], reach: (a: Anchor) => Reach, W: World, taken: Rect[], own?: Rect): Spot {
-  const inside = spots.filter((s) => fits(s, reach(s.anchor), W));
-  const ok = inside.find((s) => !taken.some((t) => t !== own && hits(boxAt(s, reach(s.anchor)), t))) ?? inside[0];
-  return ok ?? { ...keepIn(spots[0], reach(spots[0].anchor), W), anchor: spots[0].anchor };
-}
+/** A tag's first fact: the text before its first " · ". */
+export const firstFact = (tag: string) => tag.split(' · ')[0];
 
 export interface Texts {
   nodes: { n: SNode; name: string; tag: string }[];
-  /** Drawn at the root only. */
-  links: { l: SLink; name: string; tag: string }[];
+  /** Drawn at the root only. `badge`: its own door's badge, which its name keeps clear of. */
+  links: { l: SLink; name: string; tag: string; badge?: Rect }[];
   signs: { at: Pt; name: string }[];
   /** What else a tag keeps clear of: the door badges. */
   badges: Rect[];
 }
-export interface Placed { name: Spot; tag: Spot | null }
+export interface Placed { name: Spot; tag: TagSpot | null }
 
-/** Where a path scene's text goes: the signs and names pushed inside the world, then each tag at its first spot that
- *  fits and covers nothing (names, signs, devices, badges, the tags placed before it). */
+/** Where a path scene's text goes: the signs and names pushed inside the world (a link's name clear of its badge
+ *  first), then each tag at its first spot that fits and covers nothing (names, signs, devices, badges, the tags placed
+ *  before it), whole or as its first fact, or nowhere. */
 export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boolean) {
   const signs = t.signs.map((g) => {
     const e = signReach(per(g.name, 'label') * s.sign, s.sign);
@@ -72,28 +84,67 @@ export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boo
     const w = per(name, 'label') * s.name, e = labelReach(w, s.name, 'middle');
     return { at: { ...keepIn({ x: n.x, y: labelY(n) }, e, W), anchor: 'middle' as Anchor }, e, w };
   });
-  const linkNames = t.links.map(({ l, name }) => {
-    const m = bezier(l, 0.5), [dx, dy, a = 'middle'] = l.label, e = labelReach(per(name, 'label') * s.link, s.link, a);
-    return { m, at: { ...keepIn({ x: m.x + dx, y: m.y + dy }, e, W), anchor: a }, e };
-  });
-  const arts = t.nodes.map(({ n }): Rect => ({ x: n.x - n.size / 2, y: n.y - n.size / 2, w: n.size, h: n.size }));
-  const taken: Rect[] = [...signs.map((g) => boxAt(g.at, g.e)), ...names.map((k) => boxAt(k.at, k.e)), ...linkNames.map((k) => boxAt(k.at, k.e)), ...arts, ...t.badges];
-  // a device's tag may hang its string over the device's own art
-  const tagged = (tag: string, spots: () => Spot[], own?: Rect): Spot | null => {
-    if (!tag) return null;
-    const tw = per(tag, 'tag') * s.tag, reach = (a: Anchor) => tagReach(tw, s.tag, a), at = choose(spots(), reach, W, taken, own);
+  // a device's art, round, fills about 0.84 of its size
+  const arts = t.nodes.map(({ n }): Rect => ({ x: n.x - n.size * 0.42, y: n.y - n.size * 0.42, w: n.size * 0.84, h: n.size * 0.84 }));
+  const taken: Rect[] = [...signs.map((g) => boxAt(g.at, g.e)), ...names.map((k) => boxAt(k.at, k.e)), ...arts, ...t.badges];
+  const free = (at: Pt, e: Reach, own?: Rect) => fits(at, e, W) && !taken.some((r) => r !== own && hits(boxAt(at, e), r));
+  const linkNames = t.links.map(({ l, name, badge }) => {
+    const m = badge ? { x: badge.x + badge.w / 2, y: badge.y + badge.h / 2 } : bezier(l, 0.5), w = per(name, 'label') * s.link;
+    const [dx, dy, a = 'middle'] = l.label, want = { x: m.x + dx, y: m.y + dy }, d = Math.hypot(dx, dy);
+    const reach = (k: Anchor) => labelReach(w, s.link, k), gap = s.link * 0.2;
+    // its authored spot; if that covers something, the spot round its badge nearest it that doesn't
+    const authored: Spot = { ...settle(want, d ? { x: dx / d, y: dy / d } : { x: 0, y: 1 }, reach(a), W, badge, gap), anchor: a };
+    const at = free(authored, reach(a)) ? authored : around(m, [d, d + s.link, d + 2 * s.link], reach, W, badge, gap, want, free) ?? authored;
     taken.push(boxAt(at, reach(at.anchor)));
-    return at;
+    return { m, at, w };
+  });
+  // failing its spots, a tag takes the free one round `c` (out of the way of `own`: its device's art, or its link's
+  // badge) nearest the first of them, and no further from `c` than the second of `rs`. A device's tag may hang its
+  // string over its own art (`art`), not its body (which starts 0.94 of its size in from the end of its string)
+  const tagged = (tag: string, spots: () => Spot[], c: Pt, rs: number[], own?: Rect, art?: Rect): TagSpot | null => {
+    if (!tag) return null;
+    const near = (q: Pt, e: Reach) => {
+      const b = boxAt(q, e);
+      return Math.hypot(Math.max(b.x - c.x, 0, c.x - b.x - b.w), Math.max(b.y - c.y, 0, c.y - b.y - b.h)) <= rs[1];
+    };
+    const ok = (q: Pt, e: Reach) => free(q, e, art) && !(art && hits(boxAt(q, { ...e, l: e.l - s.tag * 0.94 }), art));
+    for (const text of new Set([tag, firstFact(tag)])) {
+      const tw = per(text, 'tag') * s.tag, reach = (a: Anchor) => tagReach(tw, s.tag, a), ss = spots();
+      const at = ss.find((q) => ok(q, reach(q.anchor))) ?? around(c, rs, reach, W, own, s.tag * 0.3, ss[0], (q, e) => near(q, e) && ok(q, e));
+      if (!at) continue;
+      taken.push(boxAt(at, reach(at.anchor)));
+      return { ...at, text };
+    }
+    return null;
   };
   const nodes = t.nodes.map(({ n, tag }, i): Placed => {
-    const { at, w: nw } = names[i];
-    return { name: at, tag: tagged(tag, () => nodeSpots(n, at, nw, s, W, portrait), arts[i]) };
+    const { at, w: nw } = names[i], r = n.size / 2;
+    return { name: at, tag: tagged(tag, () => nodeSpots(n, at, nw, s, W, portrait), n, [r, r + s.tag * 2, r + s.tag * 4], arts[i], arts[i]) };
   });
-  const links = t.links.map(({ l, tag }, i): Placed => {
-    const { m, at } = linkNames[i];
-    return { name: at, tag: tagged(tag, () => linkSpots(l, m, at, s, portrait)) };
+  const links = t.links.map(({ l, tag, badge }, i): Placed => {
+    const { m, at, w } = linkNames[i], r = (badge ? badge.w / 2 : 0) + 12;
+    return { name: at, tag: tagged(tag, () => linkSpots(l, m, at, w, badge, s, portrait), m, [r, r + s.tag * 2, r + s.tag * 4], badge) };
   });
   return { nodes, links, signs: signs.map((g) => g.at) };
+}
+
+/** `p` inside the world, moved on along `u` (a unit vector) until `gap` clear of `own` if there is one, and back in. */
+function settle(p: Pt, u: Pt, e: Reach, W: World, own: Rect | undefined, gap: number): Pt {
+  const q = keepIn(p, e, W);
+  return keepIn(own ? clearOf(q, u, e, own, gap) : q, e, W);
+}
+
+/** The spot round `c`, eight ways out at each of the radii `rs` (anchored away from `c`, settled clear of `own`), that
+ *  is `free` and nearest `want`; or null. */
+function around(c: Pt, rs: number[], reach: (a: Anchor) => Reach, W: World, own: Rect | undefined, gap: number, want: Pt, free: (at: Pt, e: Reach) => boolean): Spot | null {
+  let best: Spot | null = null, far = Infinity;
+  for (let i = 0; i < 8; i++) for (const r of rs) {
+    const u = { x: Math.cos((i * Math.PI) / 4), y: Math.sin((i * Math.PI) / 4) }, a: Anchor = u.x > 0.5 ? 'start' : u.x < -0.5 ? 'end' : 'middle';
+    const e = reach(a), at: Spot = { ...settle({ x: c.x + u.x * r, y: c.y + u.y * r }, u, e, W, own, gap), anchor: a };
+    const f = Math.hypot(at.x - want.x, at.y - want.y);
+    if (f < far && free(at, e)) { best = at; far = f; }
+  }
+  return best;
 }
 
 /** Where a device's tag may go, best first. */
@@ -104,11 +155,11 @@ function nodeSpots(n: SNode, at: Spot, nw: number, s: Sizes, W: World, portrait:
   const left: Spot = { x: at.x - nw / 2 - gap - s.tag * 0.68, y: mid, anchor: 'end' };
   const art: Spot = n.label === 'above' ? { x: n.x, y: n.y + half + s.tag * 1.08, anchor: 'middle' } : { x: n.x, y: n.y - half - s.tag * 0.58, anchor: 'middle' };
   const sides = n.x < W.w / 2 ? [right, left] : [left, right];
+  // beside the art, towards the middle of the world, where there is room for a long callout, or away from it
+  const r = n.x < W.w / 2, off = n.size / 2 + 14;
+  const towards: Spot = { x: n.x + (r ? off : -off), y: n.y + 8, anchor: r ? 'start' : 'end' };
+  const away: Spot = { x: n.x + (r ? -off : off), y: n.y + 8, anchor: r ? 'end' : 'start' };
   if (portrait) {
-    // beside the art, towards the middle of the screen, where there is room for a long callout
-    const r = n.x < W.w / 2, off = n.size / 2 + 14;
-    const towards: Spot = { x: n.x + (r ? off : -off), y: n.y + 8, anchor: r ? 'start' : 'end' };
-    const away: Spot = { x: n.x + (r ? -off : off), y: n.y + 8, anchor: r ? 'end' : 'start' };
     const under: Spot = { x: at.x, y: at.y + s.name * 0.3 + gap + s.tag * 1.08, anchor: 'middle' };
     return [towards, away, under, ...sides, art];
   }
@@ -118,17 +169,21 @@ function nodeSpots(n: SNode, at: Spot, nw: number, s: Sizes, W: World, portrait:
   const stacked: Spot = n.label === 'above'
     ? { x, y: at.y - Math.max(44, s.name * 0.85 + 4 + s.tag * 0.58), anchor: edge }
     : { x, y: at.y + Math.max(36, s.name * 0.3 + 4 + s.tag * 1.08), anchor: edge };
-  return [stacked, art, ...sides];
+  return [stacked, art, ...sides, towards, away];
 }
 
 /** Where a link's tag may go, best first. */
-function linkSpots(l: SLink, m: Pt, at: Spot, s: Sizes, portrait: boolean): Spot[] {
+function linkSpots(l: SLink, m: Pt, at: Spot, nw: number, badge: Rect | undefined, s: Sizes, portrait: boolean): Spot[] {
   const dx = l.label[0], dy = l.label[1], a = at.anchor;
-  if (portrait) {
-    // across the link from its name; else under the name, the same way out from the link
-    const beside: Spot = { x: m.x + (dx < 0 ? 26 : -26), y: m.y + 8, anchor: dx < 0 ? 'start' : 'end' };
-    const under: Spot = { x: at.x + (a === 'start' ? s.tag * 1.75 : a === 'end' ? -s.tag * 0.68 : 0), y: at.y + s.link * 0.3 + s.tag * 1.3, anchor: a };
-    return [beside, under];
-  }
-  return [{ x: at.x, y: at.y + (dy < 0 ? -40 : 34), anchor: 'middle' }];
+  // across the link from its name, past its badge; under (or over) the name, the same way out from the link
+  const off = (badge ? badge.w / 2 : 0) + 12;
+  const beside: Spot = { x: m.x + (dx < 0 ? off + s.tag * 1.75 : -off - s.tag * 0.68), y: m.y + 8, anchor: dx < 0 ? 'start' : 'end' };
+  const shift = a === 'start' ? s.tag * 1.75 : a === 'end' ? -s.tag * 0.68 : 0;
+  const under: Spot = { x: at.x + shift, y: at.y + s.link * 0.3 + s.tag * 1.3, anchor: a };
+  const over: Spot = { x: at.x + shift, y: at.y - s.link * 0.85 - s.tag * 0.78, anchor: a };
+  if (portrait) return [beside, under, over];
+  // landscape: stacked just beyond the name, centred on it or flush with either end of it
+  const y = at.y + (dy < 0 ? -Math.max(40, s.link * 0.85 + s.tag * 0.78) : Math.max(34, s.link * 0.3 + s.tag * 1.3)), left = at.x - (a === 'start' ? 0 : a === 'middle' ? nw / 2 : nw);
+  const stacked: Spot[] = [{ x: left + nw / 2, y, anchor: 'middle' }, { x: left, y, anchor: 'start' }, { x: left + nw, y, anchor: 'end' }];
+  return [...stacked, dy < 0 ? under : over, beside];
 }

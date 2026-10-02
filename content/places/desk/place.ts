@@ -22,7 +22,7 @@ export default definePlace({
         nodes: { laptop: [420, 575, 220], router: [1010, 580, 200] },
         links: {
           'laptop-router': { bend: -0.18, label: [0, 60] },
-          'router-internet': { curve: [[1100, 570], [1250, 580], [1290, 430]], label: [40, 70] },
+          'router-internet': { curve: [[1100, 570], [1250, 580], [1290, 430]], label: [10, 70, 'start'] },
         },
       },
       portrait: {
@@ -35,8 +35,8 @@ export default definePlace({
     },
     internet: {
       // the house a little higher than the backhaul switch, so their names (at their biggest, in short landscape) don't meet
-      landscape: { nodes: { home: [140, 620, 120], cabinet: [295, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [650, 450, 150, 'above'] } },
-      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [650, 1030, 150] } },
+      landscape: { nodes: { home: [140, 620, 120], cabinet: [285, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [660, 450, 150, 'above'] } },
+      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [720, 1030, 150] } },
     },
   },
   learnMore: [

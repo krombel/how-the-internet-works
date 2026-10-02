@@ -20,7 +20,7 @@ export default defineSegment({
     datacentre: {
       landscape: {
         nodes: {
-          ixp: [260, 770, 120], 'dc-router': [440, 450, 150, 'above'], 'load-balancer': [620, 690, 150], spine: [870, 390, 150],
+          ixp: [260, 770, 120], 'dc-router': [440, 450, 150, 'above'], 'load-balancer': [620, 684, 150], spine: [870, 390, 150],
           'rack-switch': [1110, 710, 150], cdn: [1330, 470, 160], origin: [1490, 200, 120],
         },
         links: { 'cdn-origin': { bend: 0.1 } },
