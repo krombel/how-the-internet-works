@@ -17,9 +17,8 @@ import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trFirst, trl, view, y
 /** A door to open from the caption, by verb: look inside a link's technology or a device, open up a group (doors of the path
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
-/** A note under the caption's text: that it is rush hour (#44: the activity's `rush` text, on the overview and in its
- *  groups), or a nerd's extra (#31: a scene's `extra`, at nerd level only). */
-export interface CaptionNote { kind: 'rush' | 'extra'; text: string }
+/** A note under the caption's text: a nerd's extra (#31: a scene's `extra`, at nerd level only). */
+export interface CaptionNote { kind: 'extra'; text: string }
 /** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). `describe`:
  *  what the picture shows, to be heard (#53: the announcer and read aloud say it; empty at a stop along the way). */
 export interface CaptionText { title: string; tag?: string; body: string; describe: string; hint: string; doors: CaptionDoor[]; links: LearnMore[]; notes: CaptionNote[] }
@@ -71,10 +70,6 @@ function extraOf(keys: string[], lv: Level, vars: Record<string, string> = {}): 
   const text = lv === 'nerd' ? trFirst(keys.map((k) => `${k}.extra`), lv) : '';
   return text ? [{ kind: 'extra', text: fill(text, vars) }] : [];
 }
-/** In rush hour (#44), the activity's rush text, and its links first. */
-const rushNotes = (r: Route, lv: Level): CaptionNote[] =>
-  (view.rush && r.activity.rush ? [{ kind: 'rush', text: trl(`activity.${r.activity.id}.rush`, lv) }] : []);
-const rushLinks = (r: Route) => (view.rush ? r.activity.rush?.learnMore ?? [] : []);
 
 /** A hint, naming the keys when the last input was a key (#53), else the gestures. */
 const hint = (key: string) => tr(view.keys ? `${key}.keys` : key);
@@ -176,8 +171,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       // tapping a box reads it out only with read aloud on (#90)
       hint: hint(reading() && !view.keys ? 'hint.group.speech' : 'hint.group'),
       doors,
-      links: learnMore([...rushLinks(r), ...(g.node.learnMore ?? [])]),
-      notes: rushNotes(r, lv),
+      links: learnMore(g.node.learnMore ?? []),
+      notes: [],
     };
   }
   const places = r.slots.map((s) => c.places[s.place]);
@@ -188,8 +183,8 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     describe: describeOf(r, ref, lv),
     hint: hint('hint.overview'),
     doors,
-    links: learnMore([...rushLinks(r), ...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
-    notes: rushNotes(r, lv),
+    links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
+    notes: [],
   };
 }
 

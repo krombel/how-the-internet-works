@@ -144,39 +144,4 @@ describe('caption notes', () => {
     state.setLevel('kid');
     expect(notes(['phone-ap'])).toEqual([]);
   });
-
-  it('says it is rush hour on the overview and in its groups, with its links first; not at a stop, nor when it is not (#44)', () => {
-    state.setLang('da'); state.setLevel('kid');
-    state.view.rush = true;
-    expect(notes([])).toEqual([{ kind: 'rush', text: expect.stringMatching(/^Det er aften og myldretid/) }]);
-    expect(notes(['internet'])).toHaveLength(1);
-    expect(notes([], 'router')).toEqual([]);
-    state.setLang('en'); state.setLevel('nerd');
-    expect(caption.captionFor(home, [], null, 'landscape').links[0].url).toBe('https://en.wikipedia.org/wiki/Busy_hour');
-    state.view.rush = false;
-    expect(notes([])).toEqual([]);
-    expect(caption.captionFor(home, [], null, 'landscape').links.map((l) => l.url)).not.toContain('https://en.wikipedia.org/wiki/Busy_hour');
-    state.setLevel('kid');
-  });
-});
-
-describe('the rush hour setting (#44)', () => {
-  it('remembers always or never, forgets the evening default, and keeps the traffic calm under reduced motion', () => {
-    const stored = new Map<string, string>();
-    vi.stubGlobal('localStorage', { getItem: (k: string) => stored.get(k) ?? null, setItem: (k: string, v: string) => stored.set(k, v), removeItem: (k: string) => stored.delete(k) });
-    state.setRush('on');
-    expect([localStorage.getItem('rush'), state.view.rush]).toEqual(['on', true]);
-    state.view.still = true;
-    expect(state.busy()).toBe(false);
-    state.view.still = false;
-    expect(state.busy()).toBe(true);
-    state.setRush('off');
-    expect([localStorage.getItem('rush'), state.busy()]).toEqual(['off', false]);
-    state.setRush('auto');
-    expect(localStorage.getItem('rush')).toBeNull();
-    state.updateRush(new Date(2026, 0, 5, 20, 15));
-    expect(state.view.rush).toBe(true);
-    state.updateRush(new Date(2026, 0, 5, 9, 15));
-    expect(state.view.rush).toBe(false);
-  });
 });

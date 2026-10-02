@@ -158,15 +158,6 @@ describe('validation messages', () => {
     expect(groups(['internet', 'datacentre', { id: 'datacentre', in: 'internet' }])).toContain('groups[2].id: "datacentre" is listed twice');
   });
 
-  it('asks an activity with a rush hour (#44) for its rush text, and checks its links', () => {
-    const msg = broken((c) => {
-      c.activities.chat = { ...c.activities['watch-video'], id: 'chat', file: 'content/activities/chat/activity.ts',
-        rush: { learnMore: [{ url: 'https://example.org/', title: 'Peak', level: 'nerd', lang: 'xx' }] } };
-    });
-    expect(msg).toContain('chat/activity.ts › strings: missing English string "activity.chat.rush" or "activity.chat.rush.kid"');
-    expect(msg).toContain('chat/activity.ts › rush.learnMore[0].lang: "xx" is not a language.');
-  });
-
   it('checks place variants: a known base, one level deep, and an access name', () => {
     expect(broken((c) => { c.places['home-dsl'].variantOf = 'hoem'; })).toContain('place.ts › variantOf: "hoem" is not a place. Did you mean "home"?');
     expect(broken((c) => { c.places.desk.variantOf = 'home-dsl'; })).toContain('desk/place.ts › variantOf: "home-dsl" is itself a variant of "home"; use "home"');

@@ -18,12 +18,10 @@ export interface LivePacket { id: string; kind: string; flow: string; dir: 'up' 
 /** Inside an expanded group the hops are closer together: packets hop a little faster and a little less often. */
 const GROUP_PACE = 0.85, GROUP_EVERY = 1.23;
 
-const memo = { calm: new WeakMap<PathScene, PacketSpec[]>(), busy: new WeakMap<PathScene, PacketSpec[]>() };
-/** The packets a path scene sends. `busy`: rush hour (issue #44), when a kind with `rush` comes that many times as
- *  often (the same kinds, flows and pace, so catching by kind and the peek don't change). */
-export function specsFor(ps: PathScene, flows: FlowDef[], busy = false): PacketSpec[] {
-  const m = busy ? memo.busy : memo.calm;
-  let s = m.get(ps);
+const memo = new WeakMap<PathScene, PacketSpec[]>();
+/** The packets a path scene sends. */
+export function specsFor(ps: PathScene, flows: FlowDef[]): PacketSpec[] {
+  let s = memo.get(ps);
   if (s) return s;
   const g = ps.group !== null;
   s = flows.flatMap((f) => f.packets.map((p) => {
@@ -32,10 +30,10 @@ export function specsFor(ps: PathScene, flows: FlowDef[], busy = false): PacketS
     const every = p.every ? p.every * (g ? GROUP_EVERY : 1) : duration;
     return {
       flow: f.id, kind: p.kind, dir: p.dir, colour: p.colour, route, duration,
-      every: busy ? every / (p.rush ?? 1) : every, offset: (p.offset ?? 0) * (g ? 2 : 1),
+      every, offset: (p.offset ?? 0) * (g ? 2 : 1),
     };
   }));
-  m.set(ps, s);
+  memo.set(ps, s);
   return s;
 }
 

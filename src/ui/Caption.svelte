@@ -1,8 +1,8 @@
 <script lang="ts">
-  // Bottom caption: title + kid/nerd text, its notes (rush hour, #44; a nerd's extra, #31), the doors you can open from
-  // here (as chips, by verb: the keyboard and screen-reader way in), "Read again" while read aloud is on (#53), a
-  // gesture hint, where you are (tap to change), the time machine (#59: on every overview; the year when it isn't
-  // today's) and "Want to know more?" (#4).
+  // Bottom caption: title + kid/nerd text, its notes (a nerd's extra, #31), the doors you can open from here (as chips,
+  // by verb: the keyboard and screen-reader way in), "Read again" while read aloud is on (#53), a gesture hint, where
+  // you are (tap to change), the time machine (#59: on every overview; the year when it isn't today's) and "Want to
+  // know more?" (#4).
   // It may fold (`fold`, from `captionFold`) so the scene keeps the screen; its title is then a button that opens the
   // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes:
   // - `pill` (a short landscape screen): a one-line pill with the title;

@@ -53,8 +53,8 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
   const needLevelled = (file: string, key: string) => {
     if (!(key in en) && !(`${key}.kid` in en)) add(file, 'strings', `missing English string "${key}" or "${key}.kid" (in ${file.replace(/[^/]+$/, '')}locales/en.json)`);
   };
-  const learnMore = (file: string, list: { lang: string }[] | undefined, at = 'learnMore') =>
-    list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `${at}[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
+  const learnMore = (file: string, list: { lang: string }[] | undefined) =>
+    list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
   const has = (path: string) => files.includes(path);
   /** A dive must point at a scene that explains that kind of thing. */
   const dive = (file: string, where: string, id: string | undefined, kind: 'link' | 'node' | 'layer') => {
@@ -191,10 +191,6 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
     need(a.file, `activity.${a.id}.title`);
     needLevelled(a.file, `activity.${a.id}`);
     learnMore(a.file, a.learnMore);
-    if (a.rush) {
-      needLevelled(a.file, `activity.${a.id}.rush`);
-      learnMore(a.file, a.rush.learnMore, 'rush.learnMore');
-    }
     const steps = a.route ?? [];
     steps.forEach((st, i) => {
       if ('segment' in st) ref(a.file, `route[${i}].segment`, 'segments', st.segment, 'a segment');
