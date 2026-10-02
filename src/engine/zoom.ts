@@ -1,7 +1,7 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
 import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
-import { TRAVEL, areaCentre, fit, isShort, progress, smoothstep, type Cam, type Viewport } from './camera';
+import { TRAVEL, areaCentre, fit, isPhone, isShort, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
@@ -56,6 +56,29 @@ const HIDE: [number, number] = [0.6, 0.92];
 /** A device dive's opacity over which the dives beside it fade out. */
 const CROWD: [number, number] = [0.1, 0.4];
 
+/** On a phone a stop's camera zooms in so far that the groups and dives round it would show through, faint (#90): a
+ *  clutter the doors already announce. There a child's progress is squeezed, so it starts to fade in (`FADE_IN`) only
+ *  past the deepest any stop of its scene takes the camera, and still lands at 1 on its own fit. It depends only on the
+ *  camera, so going in and coming out look the same and nothing pops when `decide` changes path. Elsewhere `u` as is. */
+const squeezes = new WeakMap<Route, Map<string, number>>();
+function squeezed(u: number, r: Route, base: string[], step: string, vp: Viewport, o: Orient): number {
+  if (!isPhone(vp.w, vp.h)) return u;
+  let m = squeezes.get(r);
+  if (!m) squeezes.set(r, (m = new Map()));
+  const key = `${o}|${vp.w}|${vp.h}|${vp.top}|${vp.bottom}|${keyOf(base)}|${step}`;
+  let from = m.get(key);
+  if (from === undefined) {
+    const s = sceneInfo(r, base, o), k0 = fit(s.fit, vp).k, f = sceneInfo(r, [...base, step], o).fit;
+    from = FADE_IN[0];
+    for (const stop of pathScene(r, s.ref.group, o).stops) {
+      const p = progress(camFor(r, base, stop, vp, o), vp, k0, f);
+      if (p.prox > 0) from = Math.max(from, Math.min(0.9, p.u + 0.02));
+    }
+    m.set(key, from);
+  }
+  return 1 - ((1 - u) * (1 - FADE_IN[0])) / (1 - from);
+}
+
 /** The zoom a sideways travel between children of `parent` glides at: progress `TRAVEL.u`, as deep into the parent as
  *  it goes before any child starts to show (`FADE_IN`). The child's fit sets the scale of u. */
 export function travelK(r: Route, parent: string[], child: string[], vp: Viewport, o: Orient): number {
@@ -92,8 +115,8 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
         if ((c.kind === 'layer' || intoLayer) && c.step !== path[i]) continue;
         const cp = [...base, c.step];
         const { fit: f } = sceneInfo(r, cp, o);
-        const { u, prox } = progress(cam, vp, k0, f, c.step === path[i] ? nearRect(r, cp, path, o) : f);
-        const a = smoothstep(...FADE_IN, u) * prox;
+        const { u: u0, prox } = progress(cam, vp, k0, f, c.step === path[i] ? nearRect(r, cp, path, o) : f);
+        const u = squeezed(u0, r, base, c.step, vp, o), a = smoothstep(...FADE_IN, u) * prox;
         if (c.step === path[i]) next = a;
         m.set(keyOf(cp), a * reach);
         hide = Math.max(hide, smoothstep(...HIDE, u) * prox);
@@ -127,7 +150,7 @@ export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orie
   while (p.length) {
     const parent = p.slice(0, -1);
     const { u, prox } = progress(cam, vp, fit(sceneInfo(r, parent, o).fit, vp).k, sceneInfo(r, p, o).fit, nearRect(r, p, path, o));
-    if (u < 0.8 || prox < 0.25) p = parent;
+    if (squeezed(u, r, parent, p[p.length - 1], vp, o) < 0.8 || prox < 0.25) p = parent;
     else break;
   }
   if (p.length === path.length) {
@@ -141,7 +164,7 @@ export function decide(cam: Cam, vp: Viewport, r: Route, path: string[], o: Orie
         if (c.kind === 'layer') continue;
         const f = sceneInfo(r, [...p, c.step], o).fit, { u, prox } = progress(cam, vp, k0, f);
         const d = Math.hypot((f.x + f.w / 2) * cam.k + cam.x - mid.x, (f.y + f.h / 2) * cam.k + cam.y - mid.y);
-        if (u > 0.55 && prox > 0.5 && d < best) { best = d; step = c.step; }
+        if (squeezed(u, r, p, c.step, vp, o) > 0.55 && prox > 0.5 && d < best) { best = d; step = c.step; }
       }
       if (step) { p = [...p, step]; found = true; }
     }

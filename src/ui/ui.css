@@ -67,6 +67,8 @@ button { cursor: pointer; }
 .chrome { position: fixed; inset: 0 0 auto 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
   padding: max(10px, env(safe-area-inset-top)) 12px 8px; pointer-events: none; }
 .chrome > * { pointer-events: auto; }
+/* an open menu or list drops down over everything, the packet's layers (.peek) and a growing envelope too (#90) */
+.chrome:has(.pop:not(.pinned)) { z-index: 13; }
 /* the scene fades out under the bar, so a label that slides up under it doesn't show between the buttons */
 .chrome::before { content: ''; position: absolute; inset: 0 0 -18px; z-index: -1; pointer-events: none;
   background: linear-gradient(color-mix(in srgb, var(--bar-fade) 92%, transparent) calc(100% - 30px), transparent); }
@@ -125,7 +127,9 @@ button { cursor: pointer; }
 .pips rect.on { opacity: 1; }
 .ladder { inset-inline: 12px auto; display: grid; gap: 3px; width: max-content; min-width: 200px; max-width: min(320px, calc(100% - 24px));
   max-height: calc(100vh - 100px); overflow: auto; }
-.ladder.pinned { min-width: 0; max-width: 164px; max-height: calc(50vh - 110px); }
+.ladder.pinned { min-width: 0; max-width: 164px; max-height: calc(50vh - 110px); grid-template-columns: minmax(0, 1fr); }
+/* a long name (Danish "Internetknudepunkt") breaks, rather than widening the narrow pinned list past its edge (#90) */
+.ladder.pinned h3 { hyphens: auto; overflow-wrap: anywhere; }
 .ladder .rung { justify-content: flex-start; text-align: start; border-radius: 12px; background: none; font-size: 14px; line-height: 1.2;
   min-height: 36px; padding: 5px 10px; }
 .ladder .rung svg { width: 18px; height: 18px; color: var(--door-ink, currentColor); }
@@ -390,6 +394,10 @@ button { cursor: pointer; }
 @media (max-width: 700px) {
   .chrome { padding-inline: 8px; gap: 6px; }
   .crumbs { font-size: 14px; min-height: 42px; }
+  /* one line, cut short, like a short landscape screen's: a long Danish step ("Inde i internettet") doesn't wrap (#90) */
+  .crumbs .btn:not(.here) { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 24px; }
+  .crumbs .btn:first-child { flex: none; }
+  .crumbs .here { flex-shrink: 0.4; }
   .controls { gap: 6px; }
   .seg .btn { padding: 6px 7px; min-width: 34px; }
   .controls .btn { min-width: 36px; padding-inline: 7px; }

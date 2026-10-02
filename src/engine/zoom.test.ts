@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { resolveRoute } from '../model/resolve';
 import { areaCentre, fit, toWorldPt, travelInterpolator, type Viewport } from './camera';
-import { DIVE_RIM, camFor, decide, mixes, sceneInfo, travelK } from './zoom';
-import { chainAt, chainNear, chainOf, toLocal, toRoot, travelOf } from '../model/tree';
+import { DIVE_RIM, camFor, decide, keyOf, mixes, sceneInfo, travelK } from './zoom';
+import { chainAt, chainNear, chainOf, childrenOf, toLocal, toRoot, travelOf } from '../model/tree';
+import { pathScene } from '../model/layout';
+import type { Route } from '../model/resolve';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const vp: Viewport = { w: 1440, h: 900, top: 0, bottom: 0 };
@@ -115,5 +117,47 @@ describe('sideways travel in the zoom', () => {
       expect(gliding).toBeGreaterThan(5);
       expect(mixes(f(1), v, home, [[...to]], o).get(to.join('/'))).toBeCloseTo(1);
     }
+  });
+});
+
+describe('no previews of what is inside on a phone (#90)', () => {
+  const phones: [Viewport, 'portrait' | 'landscape'][] = [[{ w: 390, h: 844, top: 110, bottom: 280 }, 'portrait'], [{ w: 844, h: 390, top: 60, bottom: 69 }, 'landscape']];
+  const places = ['home', 'street', 'desk', 'home-dsl', 'home-fttb', 'home-dialup'];
+  /** Every path scene of a route, with its children. */
+  const walk = (r: Route, o: 'portrait' | 'landscape', path: string[] = []): string[][] =>
+    [path, ...childrenOf(r, sceneInfo(r, path, o).ref, o).filter((c) => c.kind === 'expand').flatMap((c) => walk(r, o, [...path, c.step]))];
+
+  it('at a stop, nothing of the groups and dives below shows through', () => {
+    for (const place of places) {
+      const r = resolveRoute({ activity: 'watch-video', places: [place] });
+      for (const [v, o] of phones)
+        for (const path of walk(r, o))
+          for (const stop of pathScene(r, sceneInfo(r, path, o).ref.group, o).stops) {
+            const m = mixes(camFor(r, path, stop, v, o), v, r, [path], o);
+            const below = [...m].filter(([k, a]) => k.startsWith(path.length ? `${keyOf(path)}/` : '') && k !== keyOf(path) && a > 0.001);
+            expect(below, `${place} ${keyOf(path)}@${stop}`).toEqual([]);
+            expect(m.get(keyOf(path))).toBeCloseTo(1);
+          }
+    }
+  });
+
+  it('pinching on in still fades a child in, and lands on it whole', () => {
+    const [v, o] = phones[0], path = ['internet'], s = sceneInfo(home, ['internet', 'ixp'], o);
+    const stop = camFor(home, path, 'ixp', v, o), dive = fit(s.fit, v), mid = areaCentre(v);
+    // from the stop's zoom to the dive's, centred on the dive
+    const cam = (t: number) => {
+      const k = stop.k * (dive.k / stop.k) ** t;
+      return { k, x: mid.x - (s.fit.x + s.fit.w / 2) * k, y: mid.y - (s.fit.y + s.fit.h / 2) * k };
+    };
+    const at = (t: number) => mixes(cam(t), v, home, [path], o).get('internet/ixp') ?? 0;
+    expect(at(0)).toBe(0);
+    expect(at(0.5)).toBeGreaterThan(0.05);
+    expect(at(1)).toBeCloseTo(1);
+    expect(decide(cam(1), v, home, path, o)).toEqual(['internet', 'ixp']);
+  });
+
+  it('leaves a desktop as it was', () => {
+    const m = mixes(camFor(home, ['internet'], 'core', vp, 'landscape'), { ...vp, top: 80, bottom: 260 }, home, [['internet']], 'landscape');
+    expect([...m.keys()].some((k) => k.startsWith('internet/') && m.get(k)! > 0.01)).toBe(true);
   });
 });

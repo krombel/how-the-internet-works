@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import { Node, TagAt, Text, nameOf, strings, view, type LayerSubject } from '$core/api';
-  import { layoutFor, parcelX, ramp, tlsMoment } from './tls';
+  import { layoutFor, paintRows, parcelX, ramp, tlsMoment } from './tls';
   import Card from './art/Card.svelte';
   import Certificate from './art/Certificate.svelte';
   import Crow from './art/Crow.svelte';
@@ -28,7 +28,7 @@
   const titleY = (b: { y: number }) => b.y + (view.orient === 'portrait' ? 75 : L.compact ? 72 : 66);
   const phoneLabel = $derived(S('label.phone'));
   const serverLabel = $derived(S('label.server'));
-  const rowLabelW = $derived(Math.max(phoneLabel.length, serverLabel.length) * 0.55 * T.text + (view.orient === 'portrait' ? 130 : L.compact ? 120 : 150));
+  const P = $derived(paintRows(L, view.orient, Math.max(phoneLabel.length, serverLabel.length)));
   const crow = $derived(endpoint === 'middle'
     ? L.crow
     : { x: view.orient === 'portrait' ? (endpoint === 'server' ? 340 : 560) : 800, y: view.orient === 'portrait' ? 1145 : L.compact ? 625 : 505 });
@@ -77,40 +77,15 @@
 
 <Card x={mix.x} y={mix.y} w={mix.w} h={mix.h} tint="var(--teal)" />
 <Text x={mix.x + 34} y={titleY(mix)} text={S(L.compact ? 'label.paintShort' : 'label.paint')} size={T.big} kind="big" anchor="start" />
-{#if view.orient === 'landscape'}
-  {@const y1 = mix.y + (L.compact ? 160 : 152)}{@const y2 = mix.y + (L.compact ? 285 : 266)}
-  {@const labelSize = L.compact ? T.text * 0.82 : T.text}
-  {@const potScale = L.compact ? 1.02 : 1.08}
-  {@const bigPot = L.compact ? 1.1 : 1.18}
-  {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + (L.compact ? 150 : 132)}{@const p2 = p1 + (L.compact ? 150 : 132)}
-  <Text x={mix.x + 42} y={y1 + 13} text={phoneLabel} size={labelSize} kind="small" anchor="start" />
-  <Pot x={p0} y={y1} colour="var(--sun)" scale={potScale} />
-  <Text x={p0 + (L.compact ? 84 : 72)} y={y1 + 13} text="+" size={T.big} kind="big" />
-  <Pot x={p1} y={y1} colour={orange} scale={potScale} />
-  <Text x={p1 + (L.compact ? 84 : 72)} y={y1 + 13} text="=" size={T.big} kind="big" />
-  <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} active={m.beat === 'brown'} scale={bigPot} />
-  <Text x={mix.x + 42} y={y2 + 13} text={serverLabel} size={labelSize} kind="small" anchor="start" />
-  <Pot x={p0} y={y2} colour="var(--sun)" scale={potScale} />
-  <Text x={p0 + (L.compact ? 84 : 72)} y={y2 + 13} text="+" size={T.big} kind="big" />
-  <Pot x={p1} y={y2} colour={green} scale={potScale} />
-  <Text x={p1 + (L.compact ? 84 : 72)} y={y2 + 13} text="=" size={T.big} kind="big" />
-  <Pot x={p2} y={y2} colour={m.brown > 0.75 ? brown : green} active={m.beat === 'brown'} scale={bigPot} />
-{:else}
-  {@const y1 = mix.y + 168}{@const y2 = mix.y + 320}
-  {@const p0 = mix.x + rowLabelW}{@const p1 = p0 + 155}{@const p2 = p0 + 310}
-  <Text x={mix.x + 54} y={y1 + 18} text={phoneLabel} size={T.text} kind="small" anchor="start" />
-  <Pot x={p0} y={y1} colour="var(--sun)" scale={1.18} />
-  <Text x={p0 + 78} y={y1 + 18} text="+" size={T.big} kind="big" />
-  <Pot x={p1} y={y1} colour={orange} scale={1.18} />
-  <Text x={p1 + 78} y={y1 + 18} text="=" size={T.big} kind="big" />
-  <Pot x={p2} y={y1} colour={m.brown > 0.75 ? brown : orange} scale={1.18} />
-  <Text x={mix.x + 54} y={y2 + 18} text={serverLabel} size={T.text} kind="small" anchor="start" />
-  <Pot x={p0} y={y2} colour="var(--sun)" scale={1.18} />
-  <Text x={p0 + 78} y={y2 + 18} text="+" size={T.big} kind="big" />
-  <Pot x={p1} y={y2} colour={green} scale={1.18} />
-  <Text x={p1 + 78} y={y2 + 18} text="=" size={T.big} kind="big" />
-  <Pot x={p2} y={y2} colour={m.brown > 0.75 ? brown : green} scale={1.18} />
-{/if}
+{#each P.rows as y, r}
+  {@const secret = r === 0 ? orange : green}
+  <Text x={P.label} y={y + P.baseline} text={r === 0 ? phoneLabel : serverLabel} size={P.words} kind="small" anchor="start" />
+  <Pot x={P.pots[0]} y={y} colour="var(--sun)" scale={P.scale} />
+  <Text x={P.signs[0]} y={y + P.baseline} text="+" size={T.big} kind="big" />
+  <Pot x={P.pots[1]} y={y} colour={secret} scale={P.scale} />
+  <Text x={P.signs[1]} y={y + P.baseline} text="=" size={T.big} kind="big" />
+  <Pot x={P.pots[2]} y={y} colour={m.brown > 0.75 ? brown : secret} active={m.beat === 'brown'} scale={P.scale} />
+{/each}
 
 {#if endpoint === 'middle'}<line x1={crow.x} x2={crow.x} y1={crow.y + 28} y2={L.road.y - 42} stroke="var(--line)" stroke-width="7" stroke-linecap="round" opacity="0.75" />{/if}
 <line x1={wire.x1} x2={wire.x2} y1={wire.y} y2={wire.y} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.65" />

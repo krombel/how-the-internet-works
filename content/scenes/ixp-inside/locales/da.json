@@ -23,7 +23,7 @@
     "nerd": "Route server"
   },
   "routeServerLine": {
-    "kid": "sender sedler videre",
+    "kid": "deler sedler",
     "nerd": "BGP · ingen trafik"
   },
   "member": {

@@ -76,6 +76,27 @@ export function layoutFor(orient: Orient, vp: { h: number; top: number; bottom: 
   return orient === 'landscape' && vp.h - vp.top - vp.bottom < 420 ? LAYOUT.compact : LAYOUT[orient];
 }
 
+/** Half a paint pot's width at scale 1, rim and outline included (art/Pot.svelte). */
+export const POT_HALF = 52;
+
+/** The paint card's two rows, "who: pot + pot = pot": where the words, pots and signs go so the three pots are one
+ *  size and the signs sit in clear gaps between them (#90), for row words up to `chars` long. */
+export function paintRows(L: Layout, o: Orient, chars: number) {
+  const c = L.cards[1], portrait = o === 'portrait';
+  const words = portrait ? L.size.text : L.compact ? L.size.text * 0.82 : L.size.text;
+  const scale = portrait ? 1.1 : L.compact ? 1.02 : 0.92, half = POT_HALF * scale;
+  const label = c.x + (portrait ? 54 : 42);
+  const first = label + chars * 0.6 * words + 24 + half;
+  const step = Math.min(portrait ? 175 : L.compact ? 165 : 150, (c.x + c.w - 30 - half - first) / 2);
+  return {
+    label, words, scale, half,
+    rows: (portrait ? [168, 320] : L.compact ? [160, 285] : [152, 266]).map((dy) => c.y + dy) as [number, number],
+    pots: [first, first + step, first + 2 * step] as [number, number, number],
+    signs: [first + step / 2, first + 1.5 * step] as [number, number],
+    baseline: portrait ? 18 : 13,
+  };
+}
+
 export type Beat = 'id' | 'mix' | 'swap' | 'brown' | 'locked';
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));

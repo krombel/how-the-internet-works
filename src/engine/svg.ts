@@ -19,7 +19,15 @@ function measure(text: string, size: number, fontVar = '--tag-font', weight = 70
   }
   return w;
 }
-export const clearMeasureCache = () => cache.clear();
+const perCache = new Map<string, number>();
+/** Width of `text` per px of font, measured once at 100 px (for text whose size changes at every step of a zoom). */
+export function perPx(text: string, fontVar: string): number {
+  const key = `${fontVar}|${text}`;
+  let w = perCache.get(key);
+  if (w === undefined) perCache.set(key, (w = measure(text, 100, fontVar) / 100));
+  return w;
+}
+export const clearMeasureCache = () => { cache.clear(); perCache.clear(); };
 
 /** Horizontal box of a text run for a given text-anchor: { x (left edge relative to anchor point), w }. */
 export function textBox(text: string, size: number, anchor: 'start' | 'middle' | 'end', _fallback = 0.6, fontVar = '--tag-font') {

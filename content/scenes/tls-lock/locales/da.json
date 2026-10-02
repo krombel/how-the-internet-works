@@ -18,24 +18,36 @@
     }
   },
   "sealed": {
-    "title": "Det kragen kan se",
-    "kid": "Dette stop bærer pakken, men kan ikke åbne låsen. Ligesom kragen ser det de orange og grønne blandinger og bagefter låste pakker med kruseduller. Selv kasserne, der bærer din pakke, kan ikke læse den.",
-    "nerd": "Ved {hop} er TLS forseglet ende til ende. Hoppet kan videresende lavere lags headers, men TLS-records er AEAD-krypteret tekst; det kan se SNI/certifikat-metadata og offentlige ECDHE-værdier, men ikke HTTP-requesten eller nøglerne.",
+    "title": "Låst på vejen",
+    "kid": "Trin for trin: 1. Telefonen tjekker videoserverens ID. 2. Hver side blander en hemmelig farve i og bytter kun blandingen. 3. Begge får samme farve, og den låser pakken. {hop} bærer bare pakken videre. Ligesom kragen ser stoppet kun blandingerne og en låst kasse.",
+    "nerd": "Ved {hop} er TLS forseglet ende til ende: 1. certifikatet beviser serveren, 2. ECDHE aftaler en nøgle, 3. AEAD forsegler hver record. Hoppet videresender lavere lags headers; det kan se SNI/certifikat-metadata og de offentlige ECDHE-værdier, men ikke HTTP-requesten eller nøglerne.",
     "describe": {
-      "kid": "Et mellemstop står på vejen, mens telefonen og serveren er i enderne. Kortene viser stadig ID-tjek og maling, der blandes, og kragen kigger på de offentlige blandinger. Når låsen kommer på, bliver pakkens ansigt til kruseduller. Stoppet bærer bare den låste pakke videre.",
+      "kid": "Et mellemstop står på vejen, mens telefonen og serveren er i enderne. Kort 1 viser ID-tjekket og kort 2 maling, der blandes, og kragen kigger på de offentlige blandinger. Når låsen kommer på, bliver pakkens ansigt til kruseduller. Stoppet bærer bare den låste pakke videre.",
       "nerd": "Denne ikke-endepunkt-visning viser TLS forseglet over hoppet. Det offentlige certifikat og ECDHE-værdier ses i kortenes historie, men enheden du er ved, videresender kun pakker fra lavere lag. Når records er beskyttet, er pakken låst og krusedullet som krypteret tekst, ikke læsbar HTTP."
     }
   },
   "label": {
     "videoName": "video.example",
     "stamps": "Stempelbog",
-    "locked": "Låst!",
+    "locked": "3 · Låst!",
     "crow": "Kragen ser kun blandinger",
     "crowShort": "Kun blandinger",
-    "prove": "Vis ID",
-    "proveShort": "ID-tjek",
-    "paint": "Bland maling",
-    "paintShort": "Maling",
+    "prove": {
+      "kid": "1 · Tjek ID'et",
+      "nerd": "1 · Certifikat"
+    },
+    "proveShort": {
+      "kid": "1 · ID",
+      "nerd": "1 · Cert."
+    },
+    "paint": {
+      "kid": "2 · Bland farver",
+      "nerd": "2 · Nøgleudveksling"
+    },
+    "paintShort": {
+      "kid": "2 · Maling",
+      "nerd": "2 · Nøgler"
+    },
     "phone": "Telefon",
     "server": "Server",
     "tick": "Stempel OK",

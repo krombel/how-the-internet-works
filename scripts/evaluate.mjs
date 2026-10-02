@@ -204,6 +204,8 @@ const A11Y_STATES = [
   { name: 'dialup', where: 'home-dialup/watch-video/laptop-internet', views: ['desktop', 'phone', 'short'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
+  // the ⋯ menu over a caught packet's layers (#90)
+  { name: 'caught-menu', where: 'home/watch-video', catch: 'video', at: ['router'], menu: true, views: ['desktop', 'phone', 'short'] },
   { name: 'about', where: 'home/watch-video', menu: true, about: true, views: ['desktop', 'phone', 'zoom'] },
   // the scene's keys (#53): two stops along, the ring on the Wi‑Fi; and the list view, opened by the skip link
   { name: 'keys', where: 'home/watch-video', keys: 2, views: ['desktop', 'phone', 'short'] },
@@ -271,8 +273,10 @@ function controlProblems() {
     else {
       const x = r.left + r.width / 2, y = r.top + r.height / 2;
       if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight || (scroller && (x < scroller.left || y < scroller.top || x > scroller.right || y > scroller.bottom))) continue;
-      const over = document.elementFromPoint(x, y)?.closest(CONTROL);
-      if (over && !e.contains(over) && !over.contains(e) && !over.closest('.pop:not(.pinned)')) out.push(`${name(e)} is under ${name(over)}`);
+      const top = document.elementFromPoint(x, y), over = top?.closest(CONTROL), pop = e.closest('.pop:not(.pinned)');
+      // an open menu or list is on top of everything, not only of other controls (#90: ⋯ under the packet's panel)
+      if (pop && top && !pop.contains(top)) out.push(`${name(e)} is under ${top.closest('[class]')?.getAttribute('class') || top.tagName}`);
+      else if (over && !e.contains(over) && !over.contains(e) && !over.closest('.pop:not(.pinned)')) out.push(`${name(e)} is under ${name(over)}`);
     }
   }
   return out;
@@ -346,9 +350,40 @@ async function textContrast([texts, png, dpr]) {
     }
     rs.sort((a, b) => a - b);
     const picture = rs[Math.floor(rs.length / 2)];
-    return halo > picture ? { ...t, ratio: halo, on: 'its halo' } : { ...t, ratio: picture, on: 'the picture' };
+    // a halo in the ink's own tone smears the letters into one blot, whatever the picture behind (#90)
+    const smear = !!t.halo && halo < 1.5;
+    return halo > picture ? { ...t, ratio: halo, on: 'its halo', smear } : { ...t, ratio: picture, on: 'the picture', smear };
   });
 }
+/** In the page: the scene's text (and nerd tags) that runs out of what it is drawn on (#90): a nested scene's panel,
+ *  inside its frame, or the window at the root. */
+function textEscapes() {
+  const out = [];
+  for (const t of document.querySelectorAll('#stage svg text, #stage svg g.tag')) {
+    if (t.tagName === 'text' && t.closest('g.tag')) continue;
+    const r = t.getBoundingClientRect(), text = t.textContent.trim();
+    if (!text || r.width < 2 || !t.checkVisibility({ visibilityProperty: true })) continue;
+    let o = 1;
+    for (let a = t; a && a.tagName !== 'svg'; a = a.parentElement) o *= +getComputedStyle(a).opacity;
+    if (o < 0.6) continue;
+    const g = t.parentElement.closest('g[clip-path]');
+    let box = { l: 0, r: innerWidth, t: -Infinity, b: Infinity }, where = 'the window';
+    if (g) {
+      // the panel is the world's rect its scene is clipped to; its frame is drawn over the outer few units
+      const c = document.getElementById(g.getAttribute('clip-path').slice(5, -1)).querySelector('rect'), m = g.getScreenCTM(), k = Math.hypot(m.a, m.b), rim = 6 * k;
+      box = { l: m.e + rim, r: m.e + +c.getAttribute('width') * k - rim, t: m.f + rim, b: m.f + +c.getAttribute('height') * k - rim };
+      where = 'its panel';
+    }
+    const over = Math.max(box.l - r.left, r.right - box.r, box.t - r.top, r.bottom - box.b);
+    if (over > 1) out.push(`"${text.slice(0, 30)}" runs ${Math.round(over)} px out of ${where}`);
+  }
+  return out;
+}
+// the path scenes, where labels grow the most on small screens and the nerd tags are long, in both languages (#90)
+const PATH_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
+  'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
+  'home-dialup/watch-video', 'home-dialup/watch-video/internet'];
+const PATH_VIEWS = [['phone', 'en', '&level=nerd'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=nerd'], ['desktop', 'da', '&level=nerd']];
 async function labelContrast(style, fail) {
   for (const where of LABEL_SCENES)
     for (const [view, q] of [['desktop', ''], ['desktop', '&level=nerd'], ['phone', '']]) {
@@ -356,14 +391,24 @@ async function labelContrast(style, fail) {
       await still(p);
       await p.evaluate(() => window.__app.setClock(5.2, true));
       await p.waitForTimeout(100);
+      for (const bad of await p.evaluate(textEscapes)) fail(`labels ${where}${q && ' nerd'} ${view}`, bad);
       const texts = await p.evaluate(sceneTexts);
       await p.addStyleTag({ content: '#stage svg text { visibility: hidden !important; }' });
       const png = (await p.screenshot()).toString('base64');
       for (const t of await p.evaluate(textContrast, [texts, png, VIEWS[view].dpr]))
         if (t.ratio < t.min) fail(`labels ${where}${q && ' nerd'} ${view}`, `"${t.text}" ${t.ratio.toFixed(2)} < ${t.min} on ${t.on}`);
+        else if (t.smear) fail(`labels ${where}${q && ' nerd'} ${view}`, `"${t.text}" haloed in its own tone`);
+      await ctx.close();
+    }
+  for (const where of PATH_SCENES)
+    for (const [view, lang, q] of PATH_VIEWS) {
+      const { ctx, p } = await open(view, url(style, lang, where, q));
+      await still(p);
+      for (const bad of await p.evaluate(textEscapes)) fail(`labels ${where} ${lang}${q && ' nerd'} ${view}`, bad);
       await ctx.close();
     }
 }
+
 async function a11y(style) {
   const axe = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
   const fails = [];

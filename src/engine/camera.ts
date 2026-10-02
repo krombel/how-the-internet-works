@@ -9,6 +9,8 @@ export interface Viewport { w: number; h: number; top: number; bottom: number }
 /** A short landscape screen (a phone on its side): the chrome slims down to leave the scene the height. The same test
  *  as the `(orientation: landscape) and (max-height: 499px)` media queries. */
 export const isShort = (w: number, h: number) => w > h && h < 500;
+/** A phone, upright (narrow) or on its side (short). */
+export const isPhone = (w: number, h: number) => w < 700 || isShort(w, h);
 
 /** Viewport for the stage; the insets come from the measured chrome (top bar, caption) when it is on screen. */
 export function viewportFor(el: HTMLElement, chrome?: { top?: number; bottom?: number }): Viewport {
