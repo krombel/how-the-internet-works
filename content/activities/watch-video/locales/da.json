@@ -15,5 +15,21 @@
       "kid": "Din telefon vil se en kattevideo, så den skriver en lille forespørgsel og sender den af sted.",
       "nerd": "Appen åbner en TLS-forbindelse og sender en HTTP GET efter næste videosegment. Styresystemet deler data op i TCP-segmenter inde i IP-pakker."
     }
+  },
+  "1995": {
+    "title": "Vi åbner en hjemmeside med et billede",
+    "kid": "Du åbner en hjemmeside med et billede på.",
+    "nerd": "Browseren henter siden og så billedet, hver med en HTTP/1.0 GET over sin egen TCP-forbindelse: almindelig HTTP, ingen TLS. SSL var lige kommet i Netscape, til webbutikker. Video var frimærkestore klip (160 × 120, få billeder i sekundet), som man hentede ned, før man så dem.",
+    "packet": {
+      "page": "Side"
+    },
+    "peek": {
+      "page": "Fanget: et stykke af siden"
+    }
+  },
+  "2010": {
+    "title": "Vi ser en lille video",
+    "kid": "Du beder om en lille video.",
+    "nerd": "Afspilleren henter videoen som én fil over almindelig HTTP (ingen TLS): en lille 360p-MP4, der begynder at spille, mens resten stadig er på vej (progressive download). Videosider gik over til HTTPS nogle år senere. Cachen, den kom fra, lå som regel i en større by længere væk end i dag."
   }
 }

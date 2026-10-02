@@ -12,10 +12,8 @@ export const startDevice = (place: string, c: Content = defaultContent) => {
   const h = c.places[place].hops.find((h) => 'at' in h) as { at: string; node?: string };
   return h.node ?? h.at;
 };
-/** A route's era: its first place's that has one, else the newest. */
-export const routeEra = (r: Route) => r.slots.map((s) => r.content.places[s.place].era).find(Boolean) ?? nowEra(r.content);
 /** A route's year for the time machine's button and chip, or null in the newest era (it says "Today"). */
-export const eraYear = (r: Route) => { const e = routeEra(r); return e === nowEra(r.content) ? null : r.content.eras[e].year; };
+export const eraYear = (r: Route) => (r.era === nowEra(r.content) ? null : r.content.eras[r.era].year);
 
 /** The time machine's stops from a place, one per era, oldest first: the place itself for its own era, else its
  *  family's first place of that era, else the era's first place. Out of `among` (default: all places); an era with

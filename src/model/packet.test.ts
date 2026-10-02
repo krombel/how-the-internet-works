@@ -3,7 +3,7 @@ import { caughtSpot, livePackets, packetNear, specsFor } from '../engine/packets
 import { pathScene } from './layout';
 import { entryHop, hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
 import { resolveRoute, type Route } from './resolve';
-import { content } from './registry';
+import { activityIds, content } from './registry';
 import { bezier } from '../engine/geometry';
 import { chainOf, childrenOf, hopScenePath, sceneRef } from './tree';
 
@@ -175,7 +175,7 @@ describe('catching and stepping a packet', () => {
     expect([hopStepFor('up', 1), hopStepFor('up', -1), hopStepFor('down', 1), hopStepFor('down', -1)]).toEqual([1, -1, -1, 1]);
     expect(stepHop(home, 3, 'down', hopStepFor('down', -1))).toBe(2);
     // …which holds because every path scene lays its chain out left → right (portrait: bottom → top)
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (path: string[]): void => {
         const ref = sceneRef(r, path)!;
@@ -234,7 +234,7 @@ describe('catching and stepping a packet', () => {
     // every place, activity, path scene, orientation and direction: the entry hop is the first drawn one the packet
     // reaches, at the edge it comes in by, with a spot to wait at; it glides in from outside (never back from further
     // on), and stepping on from there passes every hop the scene draws
-    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       const walk = (path: string[]): void => {
         const ref = sceneRef(r, path)!;

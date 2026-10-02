@@ -56,5 +56,22 @@
       "name": "Urgent-pointer",
       "about": "Bruges stort set ikke."
     }
+  },
+  "1995": {
+    "field": {
+      "dport": {
+        "about": "Hvilken tjeneste hos modtageren: 80 = HTTP, nettet."
+      }
+    },
+    "note": {
+      "kid": "Siden er skåret i nummererede stykker, så intet bliver væk eller blandet sammen."
+    }
+  },
+  "2010": {
+    "field": {
+      "dport": {
+        "about": "Hvilken tjeneste hos modtageren: 80 = HTTP, nettet."
+      }
+    }
   }
 }

@@ -3,10 +3,10 @@
   // slot says `only`). A place's variants (other ways of getting online from it) are not places of their own: when
   // the chosen place has some, "How do you get online?" offers them. A card on wide screens, a bottom sheet on phones.
   import { onMount } from 'svelte';
-  import { activityIds, basePlace, content, placeFamily } from '../model/registry';
+  import { activityIds, basePlace, content, inEra, placeFamily } from '../model/registry';
   import { resolveRoute } from '../model/resolve';
   import { deviceArt, loadRouteArt } from '../render/lazy.svelte';
-  import { themeState, tr, view } from '../state.svelte';
+  import { nav, themeState, tr, trActivity, view } from '../state.svelte';
   import Icon from './Icon.svelte';
   import { iconOf } from './picker';
 
@@ -67,7 +67,7 @@
   <div class="options">
     {#each activityIds() as a (a)}
       <button class="btn option wide" class:on={a === activity} aria-pressed={a === activity} onclick={() => onpick({ activity: a })}>
-        <span>{tr(`activity.${a}.title`)}</span>
+        <span>{trActivity(inEra(content.activities, a, nav.route.era), 'title')}</span>
       </button>
     {/each}
   </div>

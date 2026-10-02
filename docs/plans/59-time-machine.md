@@ -172,9 +172,10 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 1. `variantOf` and `era` on **segments** and **activities** (the schema, the registry's family helpers generalised
    from `placeFamily`, the resolver, validation).
 2. `node` on an activity's **group spec**.
-3. **Strings**: a variant activity's keys fall back to its base's (`activity.watch-video-1995.title` →
-   `activity.watch-video.title`); the caption, peek and picker ask through one helper instead of building
-   `activity.<id>.…` themselves (four call sites). Variant segments are their own string source, as places are.
+3. **Strings**: a variant activity speaks through its base (`activity.watch-video.1995.title` →
+   `activity.watch-video.title`, built in PR 3: the variant's words are the base's block for its era, which loads
+   lazily); the caption, peek and picker ask through one helper (`trActivity`) instead of building
+   `activity.<id>.…` themselves (four call sites). A variant segment speaks through its base's namespace the same way.
 4. **`rate` on technologies** (`{ down, up }` in bit/s), overridable per link (`{ link: 'dialup', rate: … }`, since the
    1995 modem is a 28.8k), and **`size` on a packet kind** (bytes of the whole thing the reader waits for: the page,
    the clip, the video). The caption's "how long it takes" line uses the bottleneck of the route and the era's own
@@ -217,9 +218,9 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 
 - `tdm-frames` takes its slot card from `modem-call` (moved to a shared art file, so both draw the same 32 slots).
   Its modes are chosen by technology id inside the scene, as `fibre-light`'s are (content, not `src/`).
-- Dives that explain today's technology learn the route's era only through strings: a scene reads an optional
-  `<key>.<era>` string (e.g. `copper-pulses`' `nerd.1995`) when the route's era has one. One small engine change (the
-  dive's subject carries the route's era), in PR 3.
+- Dives that explain today's technology learn the route's era only through strings: any content item's locale file
+  may hold a block for an era (`"1995": { "nerd": … }`, read as `<ns>.<id>.1995.nerd`), and every lookup tries the
+  route's era's block first (built in PR 3: the dive's subject already carries the route, so no new field).
 - `dsl-tones`' ADSL mode is not needed for 2010 (#115's ~2002 era will want it).
 | Activity | `watch-video-1995`: "Open a web page with a picture", flow `ip › tcp › http` (no TLS), a 40 kB page + picture | SSL 2.0 shipped in Netscape in 1995 for shops, but pages and pictures were plain HTTP. Video was barely possible: stamp-sized clips (160 × 120, a few frames a second) that you mostly downloaded first; the nerd text says so in one sentence. |
 | How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | |
@@ -400,10 +401,11 @@ eager in all**.
   the server room's backdrop. Done before PR 6 (the "after #91" estimates above apply): each device and backdrop is a
   chunk of its own, loaded with the first route that draws it. Choosing an era in the panel **prefetches the target
   trip's art** (the devices of its route and its backdrops), and the panel loads its era pictures' art with its chunk.
-- **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main). The English strings of era variants
-  (places, segments and activities with an older era) are eager like all place strings. If the first wave passes
-  +3 kB, the `string-packs` plugin keeps them in a lazy pack that is awaited before an older era's route is shown
-  (as `loadDiveStrings`), worth ~1 kB.
+- **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main), and so do every content item's blocks
+  for an era of the past (`"1995": { … }`, since PR 3: the `eraBlocks` plugin leaves them out of the eager English;
+  a dive's come with the dive strings, the rest are `virtual:past-strings`, about 1.2 kB, loaded with the time
+  machine or when a route of the past is shown, and awaited at start for a link into the past). The places of the past (`home-dialup`, `home-dsl`) keep their own strings eager, like all
+  place strings.
 - **New dives are lazy by design** (`render/lazy.svelte.ts`). Device art stays lean: vocabulary classes, no
   gradients, no `{...attrs}` spreads.
 
@@ -591,3 +593,45 @@ Made while building PR 2 (era flavour):
   mount in the root scene and the parcel's mark ~0.35, the places' prop spots ~0.15, and the English words for the
   props in the places' `describe` ~0.16. Mounting the props lazily too was tried and cost more (it split the layout
   chunk). Of the wave's 3 kB, about 0.8 kB remain; the lazy era pack (~1 kB) stays the lever, and PR 3 should take it.
+
+Made while building PR 3 (era variants as content):
+- **Era blocks, not `<key>.<era>` strings.** JSON can't hold a string and a block under one key (`nerd` and
+  `nerd.1995`), so an era's words are a block in the item's locale file (`"1995": { "nerd": … }`), read as
+  `<ns>.<id>.1995.nerd`. Every lookup (`tr`, `trl`, `trFirst`) goes through `withEra`, which puts the era's key just
+  before each content key: a dive, a node, a layer's field values (`@get` in `layers/http`) all speak of the era
+  with no code. Interleaved, so today's more specific key still wins over the era's general one (`sealed` over
+  `1995.kid`); authors put era words at the same depth.
+- **The dive reaches the era through `subject.route.era`**: the subject already carries the route, so no new field.
+- **A variant's words are its base's block for its era** (`activity.watch-video.1995.title`), not a folder of its
+  own: so they load lazily with the other words for the past, and a variant activity or segment speaks through its
+  base's namespace with one helper (`trActivity`, `stringSources`). Validation fails on a variant's own locale file.
+- **The lazy era pack is in** (the lever PR 2 left): the `eraBlocks` plugin keeps every item's era blocks out of the
+  eager English (`?now`). A dive's blocks come with the dive strings; the rest are a chunk of their own,
+  `virtual:past-strings` (`?eras`, about 1.2 kB gz), not the dive strings, so a link into 1995 doesn't fetch all
+  34.6 kB of them up front. It is awaited at start for a link into the past, loaded with the time machine's panel,
+  and loaded when a route of the past is shown another way (the picker's access chips: the text updates when it
+  arrives, a few ms later). The places of the past keep their own strings eager.
+- **Eager JS: +0.6 kB gz** (93.31 against 92.71 on main after #91, index.html's static imports gzipped; 96.70
+  against 96.13 before #91; the plan said ~0.5): the variant fields, the route's era, `withEra`, the cross-fade,
+  `trActivity`, the past-strings loader and the two activity variants' data. Before #91, a phone start at
+  `home/watch-video` fetched 105.0 kB of JS against 104.4, and one at `home-dialup/watch-video` 107.3 against 105.6
+  (the past chunk). Before the era pack it was +0.99 kB.
+- **Titles are gerunds**, like today's ("Opening a web page with a picture", "Watching a small video").
+- **Flows**: 1995 and 2010 are `ip › tcp › http` on port 80 (client ports 1031 and 50112). 1995's packets are a
+  `request` up and a `page` down; 2010 keeps the video's kinds. The down parcel is still drawn as the theme's film
+  reel in 1995: the 1995 parcel's stamp says the era, and a page drawing is a theme change for later.
+- **The dives say the era's truth**: `http-chunk` draws the box and letter unlocked without TLS (any flow, not by
+  era) and says so; its 1995 words say that the drawing shows today's chunked video, while 1995 fetched one page
+  and then its picture (a 1995 drawing waits for PR 7, with the server room). `layers/http` shows HTTP/1.0 in 1995
+  and an mp4 over HTTP/1.1 in 2010. TCP's port note says 80 = HTTP. `server-inside`, `border-inside` and
+  `ixp-inside` have 1995 words (a web server, its network); their drawings stay today's until PR 7.
+- **"your phone" is now `{yours}`** in `tcp-pieces`, `sticker-doors` and `wifi-frame` (every hop's own device, in
+  every era and place), not an era block per device; wifi-radio and the Wi‑Fi technology say 802.11n and WPA2 in 2010.
+- **The internet in the middle stays today's** (PR 6); `nodes/cdn` is a "Web server" in 1995 (no CDNs until
+  1998–99), and the 2010 activity's nerd text says the cache was in a bigger city further away. VDSL2 and the
+  modem-call dive's V.90 stay for PR 5.
+- **Group `node`** is built and validated (a network node, known) but no content uses it yet: PR 7's server room is
+  its first caller.
+- **`since` on content was not added**: nothing needs it yet.
+- **The cross-fade** is drawn by the root `PathScene` only (the old device and its name at `1 - t`), for a stop
+  whose node changes (today's router → 2010's DSL router); everything else in the morph is as before.

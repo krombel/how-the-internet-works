@@ -1,9 +1,10 @@
 import { defineLayer } from '$core/define';
 
 export default defineLayer({
+  // the lines themselves are strings, so an era can have its own (`"1995": { "value": … }` in the locales)
   fields: [
-    { id: 'start', value: { up: 'GET /video/720p/42.m4s HTTP/1.1', down: 'HTTP/1.1 200 OK' }, use: ['endpoint'], kid: { up: '@ask', down: '@send' } },
-    { id: 'header', value: { up: 'Host: video.example', down: 'Content-Type: video/mp4' }, use: ['endpoint'] },
+    { id: 'start', value: { up: '@get', down: '@ok' }, use: ['endpoint'], kid: { up: '@ask', down: '@send' } },
+    { id: 'header', value: { up: '@host', down: '@type' }, use: ['endpoint'] },
   ],
   // the rest of the headers, and this packet's share of the body
   bytes: { up: 360, down: 1300 },

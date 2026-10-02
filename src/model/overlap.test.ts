@@ -11,9 +11,9 @@ import { badgeBox, badgeSize, doorsOf, GROW } from './doors';
 import { boxAt, labelReach, placeTexts, signReach, tagReach, type Per, type Sizes } from './labels';
 import { pathScene, propSpots, type PathScene, type SNode } from './layout';
 import { regionsOf } from './regions';
-import { content } from './registry';
+import { activityIds, content, nowEra } from './registry';
 import { resolveRoute, stringSources, type Route } from './resolve';
-import { loadAllPacks, lookupLevel, packs } from './strings';
+import { firstOf, loadAllPacks, packs, withEra } from './strings';
 import { childrenOf, diveRuns, sceneRef } from './tree';
 
 /** A font's width per character and px, generously (the storybook's Baloo 2 is about 0.47, JetBrains Mono 0.6). */
@@ -41,7 +41,7 @@ function overlap(a: Shape, b: Shape): boolean {
 
 /** Everything drawn in a path scene that must keep apart, at `g` times the authored size. */
 function shapes(r: Route, ps: PathScene, root: boolean, o: Orient, lang: string, level: Level, g: number): { ss: Shape[]; cut: string[] } {
-  const s = sizesAt(g), str = (k: string) => lookupLevel(lang, k, level) ?? '', nerd = level === 'nerd';
+  const s = sizesAt(g), str = (k: string) => firstOf(lang, withEra([k], r.era === nowEra() ? undefined : r.era), level) ?? '', nerd = level === 'nerd';
   const name = (n: SNode) => str(`node.${n.node.id}.name`);
   const doors = doorsOf(ps, root, diveRuns(r, ps.group, o).byLink, o, (n) => per(name(n), 'label') * 28);
   const regions = regionsOf(r, ps).filter((x) => !x.aside);
@@ -126,7 +126,7 @@ describe('path scenes (issues #64, #72)', () => {
   it('keep badges, names, link names, signs, tags and devices apart, and links clear for their packets', async () => {
     await loadAllPacks();
     const overlaps = new Set<string>(), short = new Set<string>(), whole = new Set<string>();
-    for (const lang of Object.keys(packs)) for (const level of LEVELS) for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const lang of Object.keys(packs)) for (const level of LEVELS) for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
         const walk = (path: string[]): void => {

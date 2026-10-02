@@ -12,7 +12,7 @@
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/lazy.svelte';
   import { sceneTitle } from './caption';
-  import { fill, loc, nameOf, readAloud, tr, trFirst, trl, yours } from '../state.svelte';
+  import { fill, loc, nameOf, readAloud, tr, trActivity, trFirst, trl, yours } from '../state.svelte';
   import { announce } from './announce.svelte';
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
@@ -59,7 +59,7 @@
 
 <section class="peek card" class:wide={detail} data-ui aria-labelledby="peek-title">
   <header>
-    <h2 id="peek-title" tabindex="-1" bind:this={title}>{tr(`activity.${route.activity.id}.peek.${kind}`)}</h2>
+    <h2 id="peek-title" tabindex="-1" bind:this={title}>{trActivity(route.activity, `peek.${kind}`)}</h2>
     <button class="btn chip" class:on={detail} aria-pressed={detail} onclick={() => (detail = !detail)}>{tr('peek.detail')}</button>
     <button class="btn" onclick={onclose} aria-label={tr('peek.close')}><Icon name="close" /></button>
   </header>

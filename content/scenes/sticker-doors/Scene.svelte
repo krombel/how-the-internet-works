@@ -48,7 +48,7 @@
     if (layer === 'vlan') return laneRows;
     if (layer === 'mpls') return mplsRows;
     if (role === 'bridge') return [
-      [nerd ? fromMac : S('label.phone'), '1'],
+      [nerd ? fromMac : yours(ctx.client), '1'],
       [m.learned ? (nerd ? nextMac : S('label.reply')) : S('label.unknown'), m.learned ? '2' : '?'],
       ...(nerd ? [[S('book.age'), '~300 s']] : []),
     ];

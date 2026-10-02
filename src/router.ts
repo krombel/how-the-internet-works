@@ -2,8 +2,9 @@
 // Scene and place changes push a history entry (Back undoes them); stop and language changes replace it.
 import { formatHash, normaliseLoc, parseHash, type Loc } from './model/location';
 import { resolveRoute } from './model/resolve';
+import { nowEra } from './model/registry';
 import { loadPack } from './model/strings';
-import { nav, setLang } from './state.svelte';
+import { loadPastStrings, nav, setLang } from './state.svelte';
 
 type Listener = (next: Loc, prev: Loc) => void;
 const listeners = new Set<Listener>();
@@ -29,6 +30,8 @@ function apply(l: Loc) {
   loadPack(l.lang).then(() => { if (cur.lang === l.lang) setLang(l.lang); });
   nav.loc = l;
   nav.route = resolveRoute(l);
+  // the words of the past (#59) redraw the text when they arrive; the time machine has them loaded already
+  if (nav.route.era !== nowEra()) void loadPastStrings();
 }
 
 function update() {

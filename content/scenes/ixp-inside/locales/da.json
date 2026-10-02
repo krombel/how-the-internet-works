@@ -33,5 +33,11 @@
   "straight": {
     "kid": "Pakker kører lige over",
     "nerd": "Data: ét hop, port til port"
+  },
+  "1995": {
+    "describe": {
+      "kid": "En lang fælles switch står i midten. Dit internetfirmas router sidder i den ene ende og webserverens net i den anden. Fire andre net er også sat til. En hjælperkasse har sit eget kabel. Små sedler kører over switchen til hjælperen og tilbage. Så kører din pakke lige over switchen til webserverens net.",
+      "nerd": "Et peering-LAN med seks medlemsporte. Route serveren har sin egen port. BGP UPDATE-sedler krydser switchen til route serveren og tilbage til alle medlemmer. Så krydser pakken switchen i ét hop, fra ISP'ens grænseport til CDN'ens port. Den kommer aldrig forbi route serveren."
+    }
   }
 }

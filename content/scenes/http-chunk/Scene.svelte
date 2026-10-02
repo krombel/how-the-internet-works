@@ -17,6 +17,8 @@
   const T = $derived(L.size);
   const portrait = $derived(view.orient === 'portrait');
   const nerd = $derived(ctx.level === 'nerd');
+  // HTTP inside TLS is locked at every hop between the ends; plain HTTP (1995, 2010) could be read on the way
+  const lock = $derived(!!subject.route.activity.flows.find((f) => f.id === ctx.flow)?.stack.includes('tls'));
   const where: Where = $derived(subject.open ? (ctx.to.id === ctx.server.id ? 'server' : 'client') : 'middle');
   const clientSpot = $derived(where === 'client' ? L.home[0] : L.ends[0]);
   const serverSpot = $derived(where === 'server' ? L.home[1] : L.ends[1]);
@@ -126,7 +128,7 @@
     {@const k = Math.min(seenW * 0.8 / 144, 0.85) * bulk(w)}
     {@const y = bottom(ask) - T.status * 1.4 - 48 * k}
     {#if i < seen}
-      <Locked {x} {y} scale={k} />
+      <Locked {x} {y} scale={k} {lock} />
     {:else}
       <rect x={x - 72 * k} y={y - 48 * k} width={144 * k} height={96 * k} rx="12" fill="none" stroke="var(--kraft-dark)" stroke-width="4" stroke-dasharray="10 8" />
     {/if}
@@ -142,12 +144,16 @@
   {@const ly = top(answer)}
   {@const lh = bottom(answer) - ly}
   <rect x={lx} y={ly} width={lw} height={lh} rx="14" fill="var(--kraft)" stroke="var(--line)" stroke-width="5" />
-  <path d={`M${lx + 40} ${ly + lh * 0.35} c40 -26 70 20 110 0 s70 -20 110 0 M${lx + 40} ${ly + lh * 0.68} c40 -26 70 20 110 0 s70 -20 110 0`} fill="none" stroke="var(--line)" stroke-width="6" stroke-linecap="round" opacity="0.7" />
-  <g transform="translate({lx + lw - 90} {ly + lh / 2 - 10}) scale({Math.min(1.6, lh / 110)})">
-    <path d="M-20 4 V-10 C-20 -34 20 -34 20 -10 V4" fill="none" stroke="var(--line)" stroke-width="8" stroke-linecap="round" />
-    <rect x="-32" y="0" width="64" height="48" rx="10" fill="var(--muted)" stroke="var(--line)" stroke-width="6" />
-    <circle cy="24" r="7" fill="var(--paper)" />
-  </g>
+  {#if lock}
+    <path d={`M${lx + 40} ${ly + lh * 0.35} c40 -26 70 20 110 0 s70 -20 110 0 M${lx + 40} ${ly + lh * 0.68} c40 -26 70 20 110 0 s70 -20 110 0`} fill="none" stroke="var(--line)" stroke-width="6" stroke-linecap="round" opacity="0.7" />
+    <g transform="translate({lx + lw - 90} {ly + lh / 2 - 10}) scale({Math.min(1.6, lh / 110)})">
+      <path d="M-20 4 V-10 C-20 -34 20 -34 20 -10 V4" fill="none" stroke="var(--line)" stroke-width="8" stroke-linecap="round" />
+      <rect x="-32" y="0" width="64" height="48" rx="10" fill="var(--muted)" stroke="var(--line)" stroke-width="6" />
+      <circle cy="24" r="7" fill="var(--paper)" />
+    </g>
+  {:else}
+    <path d={`M${lx + 40} ${ly + lh * 0.3} H${lx + lw - 40} M${lx + 40} ${ly + lh * 0.52} H${lx + lw - 90} M${lx + 40} ${ly + lh * 0.74} H${lx + lw - 60}`} fill="none" stroke="var(--line)" stroke-width="6" stroke-linecap="round" opacity="0.7" />
+  {/if}
   <Text x={answer.x + answer.w / 2} y={statusY(answer)} text={S('status.locked')} size={T.status} kind="big" />
 {/if}
 
@@ -164,7 +170,7 @@
 
 {#if walker}
   {#if !subject.open}
-    <Locked x={wx} y={L.walk} scale={wk} />
+    <Locked x={wx} y={L.walk} scale={wk} {lock} />
     {#if Math.abs(wx - L.hop.x) > L.hop.size / 2 + 72 * wk}<Text x={wx} y={L.walk - 48 * wk - 20} text={sizeWord(walker)} size={T.text} kind="big" />{/if}
   {:else if walker.kind === 'ask'}
     <Note x={wx} y={L.walk} scale={wk * 1.3} />

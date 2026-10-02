@@ -7,9 +7,9 @@ import { badgeBox, doorsOf } from './doors';
 import { boxAt, clearOf, firstFact, fits, keepIn, labelReach, placeTexts, RIM, signReach, tagReach, type Per, type Sizes, type Texts } from './labels';
 import { labelY, pathScene, type SLink, type SNode } from './layout';
 import { regionsOf } from './regions';
-import { content } from './registry';
+import { activityIds, content, nowEra } from './registry';
 import { resolveRoute } from './resolve';
-import { loadAllPacks, lookupLevel, packs } from './strings';
+import { firstOf, loadAllPacks, packs, withEra } from './strings';
 import { childrenOf, diveRuns, sceneRef } from './tree';
 
 const W = WORLD_SIZE.landscape;
@@ -123,9 +123,9 @@ describe('path scene text stays inside its world (#90)', () => {
   it('names, link names, signs and tags, everywhere, at rest on any screen', async () => {
     await loadAllPacks();
     const out = new Set<string>(), crossed = new Set<string>();
-    for (const lang of Object.keys(packs)) for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+    for (const lang of Object.keys(packs)) for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
-      const str = (k: string) => lookupLevel(lang, k, 'nerd') ?? '';
+      const str = (k: string) => firstOf(lang, withEra([k], r.era === nowEra() ? undefined : r.era), 'nerd') ?? '';
       for (const o of ['landscape', 'portrait'] as const) for (const s of [AUTHORED, small(o)]) {
         const WO = WORLD_SIZE[o], portrait = o === 'portrait';
         const walk = (path: string[]): void => {

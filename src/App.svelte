@@ -25,7 +25,7 @@
   import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadDiveStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trCount, view } from './state.svelte';
+  import { loadDiveStrings, loadPastStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trActivity, trCount, view } from './state.svelte';
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
@@ -380,7 +380,7 @@
   }
   /** The packet kinds to catch here, named (path scenes only). */
   const catchable = $derived(stepInfo.kind === 'stop'
-    ? [...new Set(route.activity.flows.flatMap((f) => f.packets.map((k) => k.kind)))].map((kind) => ({ kind, name: tr(`activity.${route.activity.id}.packet.${kind}`) }))
+    ? [...new Set(route.activity.flows.flatMap((f) => f.packets.map((k) => k.kind)))].map((kind) => ({ kind, name: trActivity(route.activity, `packet.${kind}`) }))
     : []);
   /** A live packet's position along its scene link (0–1, the link's own direction). */
   function tOf(p: LivePacket) {
@@ -487,7 +487,9 @@
   const hereEra = $derived(eraOf(route.slots[0].place, route.content));
   /** The open time machine (its component), or null. What to say first on landing after a trip in time, or null. */
   let TimeMachine = $state.raw<typeof TimeMachineT | null>(null), timeFrom: Element | null = null, timeLanded: string | null = null;
-  const loadTime = () => Promise.all([import('./ui/TimeMachine.svelte'), loadDiveStrings(), loadDevices(eras.map((s) => startDevice(s.place)))]).then(([m]) => m.default);
+  const loadTime = () => Promise.all([
+    import('./ui/TimeMachine.svelte'), loadDiveStrings(), loadPastStrings(), loadDevices(eras.map((s) => startDevice(s.place))),
+  ]).then(([m]) => m.default);
   function openTime(from: Element | null = document.activeElement) {
     timeFrom = from;
     void loadTime().then((m) => (TimeMachine = m));

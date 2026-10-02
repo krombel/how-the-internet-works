@@ -62,5 +62,16 @@
       "kid": "Hylder med videoer",
       "nerd": "Cache-objekter på disk"
     }
+  },
+  "1995": {
+    "title": "Inde i webserveren",
+    "kid": "I 1995 boede siden og dens billede på én computer, webserveren. Lys fra datacentrets forbindelse bliver til bits på netværkskortet, og programmet finder siden på sin disk og sender den tilbage. Tegningen viser, hvordan en videoserver gør det i dag, med kopier på hylder.",
+    "nerd": "I 1995 var det én webserver: ét program (for eksempel NCSA HTTPd), der læste filer fra sin disk, uden CDN foran (Akamai begyndte i 1998–99) og uden virtuelle maskiner. Tegningen viser, hvordan en cache-server gør det i dag.",
+    "app": "Webprogram",
+    "ssd": {
+      "line": {
+        "kid": "Hylder med sider"
+      }
+    }
   }
 }
