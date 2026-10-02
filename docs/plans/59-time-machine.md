@@ -397,9 +397,9 @@ eager in all**.
 | 11–14. Flats 2010, ~2002, milestones, 1985 lab | estimated in each step's plan update | |
 
 - **#91 (lazy device art and backdrops)** is the big lever: about half of PRs 6–8's eager cost is new device art and
-  the server room's backdrop. Best order: #91 before PR 6. Era props are lazy whether or not #91 has landed.
-  Whichever lands first, the time machine must not show placeholders mid-trip: once #91 is in, choosing an era in the panel **prefetches the target trip's art** (the
-  devices of its route and its backdrop), and the panel awaits its era pictures' art as it loads (it is lazy anyway).
+  the server room's backdrop. Done before PR 6 (the "after #91" estimates above apply): each device and backdrop is a
+  chunk of its own, loaded with the first route that draws it. Choosing an era in the panel **prefetches the target
+  trip's art** (the devices of its route and its backdrops), and the panel loads its era pictures' art with its chunk.
 - **Era strings stay lazy** (`era.*` in the dive-strings chunk, as on main). The English strings of era variants
   (places, segments and activities with an older era) are eager like all place strings. If the first wave passes
   +3 kB, the `string-packs` plugin keeps them in a lazy pack that is awaited before an older era's route is shown
