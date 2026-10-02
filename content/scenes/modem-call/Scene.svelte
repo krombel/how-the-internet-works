@@ -26,10 +26,11 @@
   const midX = $derived(mids[0]?.x ?? (LINE.x0 + LINE.x1) / 2);
 
   // the handshake runs from the moment the reader arrives (or turns sound on here); seen from outside, it's online
-  const here = arrived();
+  const arrival = arrived();
+  const here = $derived(arrival());
   let since = $state(-1e6);
   $effect(() => {
-    if (!here()) return;
+    if (!here) return;
     const out = soundOut();
     untrack(() => (since = view.time));
     if (out) return play(out, handshake());

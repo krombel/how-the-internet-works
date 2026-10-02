@@ -211,9 +211,10 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   - `TagAt`
   - its own `art/*.svelte` and maths files
   - for a moment that plays once when the reader gets there (the dial-up handshake): `arrived()`, a function that
-    turns true while the reader is at this scene, and `soundOut()`, the sound output (`{ ctx, dest }`) when sound is
-    on in the ⋯ menu, else `null`. Read both in a `$effect`; it reruns when either changes, and its cleanup stops the
-    sound when the reader leaves. Keep it short (a few seconds) and only ever behind the sound toggle.
+    turns true while the reader is at this scene (call it at init and derive it, `$derived(at())`, so it changes
+    only when it flips), and `soundOut()`, the sound output (`{ ctx, dest }`) when sound is on in the ⋯ menu, else
+    `null`. Read both in a `$effect`; it reruns when either changes, and its cleanup stops the sound when the reader
+    leaves. Keep it short (a few seconds) and only ever behind the sound toggle.
 - Strings: `title` (required) and `kid`/`nerd`. Per-technology variants such as `gpon.title` or `gpon.kid` win when the subject is that technology.
   When one scene explains several technologies that can sit next to each other on a route, give each its own
   `<tech>.title` and draw the difference: a reader steps from one stretch to the next and should see what changed (a

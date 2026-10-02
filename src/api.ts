@@ -25,8 +25,9 @@ import { nav, settings, trl } from './state.svelte';
 import type { Level } from './define';
 /** Strings of one content item: `const L = strings('layer.ip')` then `L('from')` (level-aware, English fallback). */
 export const strings = (prefix: string) => (key: string, level?: Level) => trl(`${prefix}.${key}`, level);
-/** Call while a scene initialises: `const here = arrived()`, then `here()` says whether the reader is at this scene
- *  (not passing through it, or looking at it from its parent or a layer below). */
+/** Call while a scene initialises: `const at = arrived()`, then `$derived(at())` says whether the reader is at this scene
+ *  (not passing through it, or looking at it from its parent or a layer below). Derive it, so an effect reruns only
+ *  when it flips and not on every route update. */
 export function arrived() {
   const s = getScene();
   return () => nav.loc.path.length === s.path.length && nav.loc.path.every((p, i) => p === s.path[i]);
