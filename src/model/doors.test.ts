@@ -23,8 +23,8 @@ describe('doors', () => {
     expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     // a stretch of same-technology links is one dive: one badge, and it lights up all of them
     const inside = doorsIn(home, 'internet', 'landscape');
-    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core', 'dive:border', 'dive:border-ixp', 'dive:ixp', 'dive:ixp-datacentre', 'expand:datacentre']);
-    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core', 'core-border'], [], ['border-ixp'], [], ['ixp-datacentre'], []]);
+    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core', 'dive:core-border', 'dive:border', 'dive:border-ixp', 'dive:ixp', 'dive:ixp-datacentre', 'expand:datacentre']);
+    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core'], ['core-border'], [], ['border-ixp'], [], ['ixp-datacentre'], []]);
   });
 
   it('badges a device\'s dive on its corner away from its name, and it opens the device', () => {
@@ -134,6 +134,35 @@ describe('doors', () => {
         walk([]);
       }
     }
+  });
+
+  // generic: a scene's dives are small copies of their scenes, each centred on its badge. Two that overlap show through
+  // each other once dived into (on a phone the stretches zigzag, so badges one above the other must be a scene apart)
+  const OVERLAPPING_DIVES = [
+    'home-fttb landscape /internet: flats-basement × basement-backhaul',
+    'home-fttb portrait /internet: basement-backhaul × backhaul-bng',
+    'home-fttb portrait /internet: flats-basement × basement-backhaul',
+  ];
+  it('keeps a scene\'s dives from overlapping', () => {
+    const found = new Set<string>();
+    for (const activity of Object.keys(content.activities)) for (const place of Object.keys(content.places)) {
+      const r = resolveRoute({ activity, places: [place] });
+      for (const o of ['landscape', 'portrait'] as const) {
+        const walk = (path: string[]): void => {
+          const ref = sceneRef(r, path, o)!;
+          if (ref.kind !== 'path') return;
+          const kids = childrenOf(r, ref, o).filter((c) => c.kind !== 'layer');
+          const rects = kids.map((c) => ({ id: c.step, r: rectToRoot(frameOf(r, [...path, c.step], o), fitRectLocal(sceneRef(r, [...path, c.step], o)!, o)) }));
+          rects.forEach((a, i) => rects.slice(i + 1).forEach((b) => {
+            if (a.r.x < b.r.x + b.r.w && b.r.x < a.r.x + a.r.w && a.r.y < b.r.y + b.r.h && b.r.y < a.r.y + a.r.h) found.add(`${place} ${o} /${path.join('/')}: ${a.id} × ${b.id}`);
+          }));
+          for (const c of kids) if (c.kind === 'expand') walk([...path, c.step]);
+        };
+        walk([]);
+      }
+    }
+    expect([...found].filter((k) => !OVERLAPPING_DIVES.includes(k)), 'dives overlapping').toEqual([]);
+    expect(OVERLAPPING_DIVES.filter((k) => !found.has(k)), 'fixed: drop them from OVERLAPPING_DIVES').toEqual([]);
   });
 
   it('knows which badges are on screen', () => {

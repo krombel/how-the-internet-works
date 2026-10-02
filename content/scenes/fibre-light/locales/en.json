@@ -13,7 +13,8 @@
     "backbone": "96 λ · EDFA / 80 km",
     "lan-wdm": "4 λ · 1295–1310 nm",
     "cwdm4": "4 λ · 1271–1331 nm",
-    "fttb": "BiDi · ↑1310 ↓1490 nm · one strand"
+    "fttb": "BiDi · ↑1310 ↓1490 nm · one strand",
+    "submarine": "EDFA / {span} km · DC from shore"
   },
   "gpon": {
     "title": "Light shared by your street",
@@ -40,12 +41,12 @@
     }
   },
   "backbone": {
-    "title": "Light across the country",
-    "kid": "The internet's motorways are glass threads hundreds of kilometres long, under roads and even under the sea. The light gets fainter as it goes, so every 80 km or so a booster makes all the colours bright again at once.",
-    "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers about every 80 km boost all the colours at once; submarine cables cross the oceans.",
+    "title": "Light on the motorway",
+    "kid": "The internet's motorways are glass threads under the roads, from town to town. The light gets fainter as it goes, so on a long thread a booster every 80 km or so makes all the colours bright again at once. Watch the counter: it adds up the kilometres.",
+    "nerd": "Long-haul DWDM: 64–96 wavelengths in the C-band, each 100–800 Gbit/s with coherent optics. Erbium-doped fibre amplifiers (EDFAs) about every 80 km boost all the colours at once; a short stretch needs none.",
     "describe": {
-      "kid": "A long glass thread is split into wide spans with boosters along the way. Eight lights, numbered 1 to 8 and coloured like a rainbow from red to pink, run together through the core. They fade as they travel, then turn bright again at each booster. Kilometre labels count the long road.",
-      "nerd": "The long-haul view shows eight DWDM wavelengths in one fibre, λ1 to λ8, numbered at the lasers and the receivers. Break marks stand for long spans. Pulses fade across each span, and EDFAs boost all channels at amplifier sites every 80 km. The label notes 96 wavelengths and EDFA every 80 km."
+      "kid": "A long glass thread with a break mark stands for many kilometres. Eight lights, numbered 1 to 8 and coloured like a rainbow from red to pink, run together through the core and fade a little as they go. A red number under the first light counts the kilometres. Long threads get boosters that make the light bright again.",
+      "nerd": "The long-haul view shows eight DWDM wavelengths in one fibre, λ1 to λ8, numbered at the lasers and the receivers. Break marks stand for the real length, and a counter follows λ1 in km. The fibre is cut into spans of up to 80 km; pulses fade across each span and an EDFA boosts all channels between spans. The label notes 96 wavelengths and EDFA every 80 km."
     },
     "booster": "Booster"
   },
@@ -79,5 +80,28 @@
     "upColour": "in one colour",
     "down": "Coming down",
     "downColour": "in another colour"
+  },
+  "submarine": {
+    "title": "Light under the sea",
+    "kid": "Here the internet crosses the sea! The glass threads lie inside a cable as thick as a garden hose, right on the sea floor. Electricity runs through the cable from the shore to power the boosters, which make the light bright again on the way across.",
+    "nerd": "A submarine cable: a few fibre pairs in a steel tube, wrapped in copper and polyethylene, armoured and buried near the shore against anchors and trawls. The landing stations feed several kV of DC through the copper to power the repeaters (EDFAs) every 60–80 km.",
+    "describe": {
+      "kid": "A side view of the sea between two landing stations on the shore. A cable runs down the slope and along the sea floor, with boosters on it. Coloured flashes of light and little yellow sparks of electricity travel along the cable, a red number counts the kilometres, and a shark swims by. A circle shows the cable cut open.",
+      "nerd": "A side view of a submarine cable between two landing stations. The cable is buried near the shore and lies on the sea floor, with a repeater every span of up to 60 km. Four wavelengths cross, fading over each span; sparks show DC power from the shore. A cross-section shows fibres in a tube, copper and steel armour. A counter follows λ1 in km."
+    },
+    "landing": "Landing station",
+    "repeater": {
+      "kid": "Booster",
+      "nerd": "Repeater"
+    },
+    "inside": "Inside the cable",
+    "copper": {
+      "kid": "Power",
+      "nerd": "Copper: power"
+    },
+    "glass": {
+      "kid": "Glass threads",
+      "nerd": "Fibre pairs"
+    }
   }
 }

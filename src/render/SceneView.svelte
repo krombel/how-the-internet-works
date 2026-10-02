@@ -9,6 +9,7 @@
   import { pathScene, type PathScene as PS } from '../model/layout';
   import type { Route } from '../model/resolve';
   import { layerCtx, opens } from '../model/stack';
+  import { runOf } from '../model/tree';
   import { loc, themeState, view } from '../state.svelte';
   import { getWorld, setScene, setWorld, type Mounted, type Subject } from './ctx';
   import { diveView } from './dives.svelte';
@@ -35,7 +36,7 @@
   const ps = $derived(ref.kind === 'path' ? (scene ?? pathScene(route, ref.group, view.orient)) : null);
   const Dive = $derived(ref.dive ? diveView(ref.dive) : null);
   const subject = $derived.by((): Subject | null => {
-    if (ref.link) return { kind: 'link', link: ref.link.link, sceneLink: ref.link, route };
+    if (ref.link) return { kind: 'link', link: ref.link.link, sceneLink: ref.link, run: runOf(route, ref, view.orient).map((l) => l.link), route };
     if (ref.node) {
       const hop = ref.node.hop;
       return { kind: 'node', hop, sceneNode: ref.node, in: route.links[hop.index - 1] ?? null, out: route.links[hop.index] ?? null, route };

@@ -20,6 +20,8 @@ describe('focus', () => {
     // a stretch of same-technology links is one dive, and each of its links opens it
     const inside = spotsOf(home, ['internet'], 'landscape');
     expect(inside.filter((s) => s.stop === 'cabinet-backhaul' || s.stop === 'backhaul-bng').map((s) => s.primary?.id)).toEqual(['cabinet-backhaul', 'cabinet-backhaul']);
+    // the backbone and the undersea cable are two stops, each opening its own dive (#39)
+    expect(list(inside.filter((s) => s.stop === 'bng-core' || s.stop === 'core-border'))).toEqual(['link:bng-core:dive>bng-core', 'link:core-border:dive>core-border']);
     // a dive is one spot: the whole scene
     expect(list(spotsOf(home, ['router'], 'landscape'))).toEqual(['scene:-:']);
   });

@@ -6,8 +6,9 @@ import { defineSegment } from '$core/define';
 export default defineSegment({
   hops: [
     { at: 'core', in: 'internet', owner: 'isp' },
-    // still inside the ISP: label-switched (MPLS) across the country, to its edge in the data centre where the exchange is
-    { link: 'backbone', km: 180 },
+    // still inside the ISP: label-switched (MPLS) across the country, to its edge in the data centre where the exchange is.
+    // The way there crosses the sea (#39): the same trunk in a cable on the sea floor, its own stretch and dive
+    { link: 'submarine', km: 180 },
     // the ISP's door to the other networks: it pops the last label (#25)
     { at: 'border', in: 'internet', owner: 'isp' },
     // from here on everyone is in the same building: short cross-connects to the exchange's switch (one big shared
@@ -21,17 +22,17 @@ export default defineSegment({
   layout: {
     internet: {
       landscape: {
-        nodes: { core: [822, 739, 160], border: [1012, 442, 150, 'above'], transit: [975, 184, 120, 'above'], ixp: [1272, 696, 150], datacentre: [1495, 367, 160] },
+        nodes: { core: [800, 770, 130], border: [1012, 442, 150, 'above'], transit: [975, 184, 120, 'above'], ixp: [1272, 696, 150], datacentre: [1495, 367, 160] },
         // bent just enough to keep the dive badges clear of each other
-        links: { 'border-transit': { bend: 0.08 }, 'bng-core': { bend: 0.14 }, 'core-border': { bend: -0.12 }, 'border-ixp': { bend: 0.19 }, 'ixp-datacentre': { bend: 0.1 } },
+        links: { 'border-transit': { bend: 0.08 }, 'bng-core': { bend: 0.14 }, 'core-border': { bend: 0.3 }, 'border-ixp': { bend: 0.19 }, 'ixp-datacentre': { bend: 0.1 } },
         // the networks' signs (on the packets' way): over their devices' names, the exchange's under its own
         owners: { isp: [465, 265], ixp: [1409, 862], cdn: [1366, 209] },
       },
       portrait: {
-        nodes: { core: [250, 870, 160], border: [645, 706, 150], transit: [719, 527, 100, 'above'], ixp: [190, 651, 150], datacentre: [647, 259, 150] },
-        links: { 'border-transit': { bend: 0.08 }, 'border-ixp': { bend: 0.15 }, 'ixp-datacentre': { bend: -0.34 } },
+        nodes: { core: [180, 870, 160], border: [700, 690, 150], transit: [725, 527, 100, 'above'], ixp: [190, 600, 150], datacentre: [647, 259, 150] },
+        links: { 'border-transit': { bend: 0.08 }, 'border-ixp': { bend: 0.3 }, 'ixp-datacentre': { bend: -0.45 }, 'bng-core': { bend: 0 }, 'core-border': { bend: 0 } },
         // in the gaps the zigzag leaves
-        owners: { isp: [280, 1050], ixp: [226, 480], cdn: [453, 102] },
+        owners: { isp: [280, 1066], ixp: [212, 440], cdn: [453, 102] },
       },
     },
   },

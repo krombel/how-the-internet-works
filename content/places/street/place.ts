@@ -34,7 +34,7 @@ export default definePlace({
     },
     internet: {
       landscape: { nodes: { 'cell-tower': [110, 680, 140], 'mobile-core': [460, 460, 180, 'above'] } },
-      portrait: { nodes: { 'cell-tower': [200, 1440, 150], 'mobile-core': [680, 1170, 180] }, owners: { isp: [250, 1100] } },
+      portrait: { nodes: { 'cell-tower': [200, 1440, 150], 'mobile-core': [680, 1170, 180] }, links: { 'mobile-core-core': { bend: 0.15 } }, owners: { isp: [270, 1090] } },
     },
   },
   learnMore: [

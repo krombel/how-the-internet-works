@@ -9,7 +9,7 @@ import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
-import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, sceneRef, type SceneRef } from '../model/tree';
+import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, routeKeys, tr, trFirst, trl, view, yours } from '../state.svelte';
 
@@ -72,9 +72,9 @@ export function sceneTitle(r: Route, path: string[], o: Orient): string {
 /** A dive that stands for a stretch of links: how many, the devices on the way, and how long it is. */
 function stretchTag(r: Route, ref: SceneRef, o: Orient): string | undefined {
   if (!ref.link) return undefined;
-  const group = sceneRef(r, parentPath(ref.path), o)!.group, links = diveRuns(r, group, o).byLink.get(ref.link!.id)!.links;
+  const links = runOf(r, ref, o);
   if (links.length < 2) return undefined;
-  const ps = pathScene(r, group, o), via = links.slice(0, -1).map((l) => tr(`node.${ps.nodes.find((n) => n.id === l.to)!.node.id}.name`));
+  const ps = pathScene(r, sceneRef(r, parentPath(ref.path), o)!.group, o), via = links.slice(0, -1).map((l) => tr(`node.${ps.nodes.find((n) => n.id === l.to)!.node.id}.name`));
   const km = links.reduce((s, l) => s + (l.link.km ?? 0), 0);
   return [fill(tr('dive.stretches'), { n: links.length, via: new Intl.ListFormat(loc.lang, { type: 'conjunction' }).format(via) }),
     km ? formatKm(km, loc.lang) : ''].filter(Boolean).join(' · ');

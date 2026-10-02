@@ -15,3 +15,16 @@ export interface SplitterProps { x: number; y: number; time: number }
 export interface AmplifierProps { x: number; y: number; time: number }
 /** A "much longer than drawn" cut across the thread (in track space). */
 export interface BreakProps { x: number; y: number; h: number }
+/** The sea, the sea bed and the land either side (drawn upright: `water` and `ground` are outlines, `land` the land's
+ *  top on each side up to the shore, `surface` the water's). */
+export interface SeaProps { water: Pt[]; ground: Pt[]; land: number; shore: [number, number]; surface: number; w: number; time: number }
+/** An undersea cable lying along `points` (its copper power line inside it). */
+export interface CableProps { points: Pt[]; w: number }
+/** A landing station standing on the shore at x (its foot at y); `size`: 1 = normal. */
+export interface StationProps { x: number; y: number; size: number; time: number }
+/** A repeater on the cable, lying on the floor (centred on the cable at x, y). */
+export interface RepeaterProps { x: number; y: number; time: number }
+/** The cable cut open: its glass threads (`colours`) in the middle, copper round them, armour outside. */
+export interface SliceProps { x: number; y: number; r: number; colours: string[] }
+/** A shark swimming at x, y (facing left or right). */
+export interface SharkProps { x: number; y: number; left: boolean; time: number }

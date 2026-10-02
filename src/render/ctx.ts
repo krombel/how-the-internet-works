@@ -29,6 +29,8 @@ export interface LinkSubject {
   link: Link;
   /** The link as drawn in the parent scene (for a collapsed group this is the link entering it). */
   sceneLink: SLink;
+  /** The route links this dive stands for, in route order: a stretch of same-technology links is one dive (#34). */
+  run: Link[];
   route: Route;
 }
 /** What a device dive explains: the hop it was opened at, as drawn in its parent, and the links either side (null at
