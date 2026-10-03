@@ -1,36 +1,39 @@
 <script lang="ts">
   // "Where are you?" / "What are you doing?": every place folder is offered in every activity (unless the activity's
   // slot says `only`). A place's variants (other ways of getting online from it) are not places of their own: when
-  // the chosen place has some, "How do you get online?" offers them. A card on wide screens, a bottom sheet on phones.
+  // the chosen place has some of its era, "How do you get online?" offers them. The picker stays in the era you are
+  // in (#59): each place goes to its member of that era, or, with none, to the era's own trip, with the time
+  // machine's line under it ("In 1995 you'd have done this at home"), part of the option's description and said on
+  // arrival (with the nerds' note, as the time machine's arrival). Other years are the time machine's ("Other years" opens it). A card on wide screens, a bottom sheet on
+  // phones.
   import { onMount } from 'svelte';
-  import { activityIds, basePlace, content, inEra, placeFamily } from '../model/registry';
+  import { activityIds, basePlace, content, inEra } from '../model/registry';
   import { resolveRoute } from '../model/resolve';
   import { deviceArt, loadRouteArt } from '../render/lazy.svelte';
   import { nav, themeState, tr, trActivity, view } from '../state.svelte';
   import Icon from './Icon.svelte';
-  import { iconOf } from './picker';
+  import { allowedPlaces, iconOf, placeOptions, waysOnline } from './picker';
+  import type { elsewhere as Elsewhere } from './time';
 
-  let { places, activity, slot, onpick, onclose }: {
+  let { places, activity, slot, elsewhere, onpick, onclose, ontime }: {
     places: string[]; activity: string; slot: number;
-    onpick: (p: { places?: string[]; activity?: string }) => void; onclose: () => void;
+    /** The time machine's line for a place with no way online in this era (loaded with it, `ui/time.ts`). */
+    elsewhere?: typeof Elsewhere;
+    /** Go: the places or the activity, and what to say on arrival when a place took you to the era's own trip. */
+    onpick: (p: { places?: string[]; activity?: string; said?: string }) => void; onclose: () => void;
+    /** Open the time machine (#59), where there is another era to go to. */
+    ontime?: () => void;
   } = $props();
   const A = $derived(themeState.current.art);
-  const allowed = $derived.by(() => {
-    const s = content.activities[activity]?.route.filter((x) => 'place' in x)[slot];
-    const only = s && 'only' in s ? s.only : undefined;
-    return Object.values(content.places).filter((p) => !only || only.includes(p.id)).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((p) => p.id);
-  });
-  /** One option per place: the first of its family (itself, or a variant when the place isn't allowed here). */
-  const options = $derived(allowed.filter((id) => placeFamily(id, allowed)[0] === id));
+  const allowed = $derived(allowedPlaces(activity, slot));
   const here = $derived(places[slot]);
-  const family = $derived(placeFamily(here, allowed));
+  const options = $derived(placeOptions(here, nav.route.era, allowed));
+  const ways = $derived(waysOnline(here, nav.route.era, allowed));
   let dialog: HTMLDivElement;
   onMount(() => dialog.querySelector<HTMLButtonElement>('.option.on, .option')?.focus());
   const placesWith = (id: string) => places.map((p, i) => (i === slot ? id : p));
-  const choose = (id: string) => onpick({ places: placesWith(id) });
   /** Pointed at or focused: fetch that place's art ahead of the tap (#91). */
   const ahead = (id: string) => void loadRouteArt(resolveRoute({ activity, places: placesWith(id) }));
-  const inFamily = (id: string) => basePlace(id) === basePlace(here);
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (onclose(), e.stopPropagation())} />
@@ -41,28 +44,32 @@
     <button class="btn" onclick={onclose} aria-label={tr('ui.close')}><Icon name="close" /></button>
   </header>
   <div class="options">
-    {#each options as p (p)}
-      {@const icon = iconOf(p)}
+    {#each options as o (o.id)}
+      {@const icon = iconOf(o.to)}
       {@const art = deviceArt(icon)}
-      <button class="btn option" class:on={inFamily(p)} aria-pressed={inFamily(p)} onclick={() => choose(inFamily(p) ? here : p)}
-        onpointerenter={() => ahead(p)} onfocus={() => ahead(p)}>
+      {@const line = o.instead && elsewhere?.(o.instead, o.id, o.to !== here, false)}
+      <button class="btn option" class:on={o.on} aria-pressed={o.on} aria-describedby={line ? `pick-i-${o.id}` : undefined}
+        onclick={() => onpick({ places: placesWith(o.to), said: o.instead ? elsewhere?.(o.instead, o.id, false) : undefined })}
+        onpointerenter={() => ahead(o.to)} onfocus={() => ahead(o.to)}>
         <svg viewBox="0 0 200 200" aria-hidden="true">
           <A.Device id={icon} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
         </svg>
-        <span>{tr(`place.${basePlace(p)}.name`)}</span>
+        <span>{tr(`place.${o.instead ? basePlace(o.id) : o.to}.name`)}</span>
+        {#if line}<small id="pick-i-{o.id}" class="instead" aria-hidden="true"><Icon name="time" />{line}</small>{/if}
       </button>
     {/each}
   </div>
-  {#if family.length > 1}
+  {#if ways.length > 1}
     <h2>{tr('pick.access')}</h2>
     <div class="options">
-      {#each family as v (v)}
-        <button class="btn option row" class:on={v === here} aria-pressed={v === here} onclick={() => choose(v)} onpointerenter={() => ahead(v)} onfocus={() => ahead(v)}>
+      {#each ways as v (v)}
+        <button class="btn option row" class:on={v === here} aria-pressed={v === here} onclick={() => onpick({ places: placesWith(v) })} onpointerenter={() => ahead(v)} onfocus={() => ahead(v)}>
           <span>{tr(`place.${v}.access`)}</span>
         </button>
       {/each}
     </div>
   {/if}
+  {#if ontime}<button class="btn years" aria-haspopup="dialog" onclick={ontime}><Icon name="time" />{tr('pick.years')}</button>{/if}
   <h2>{tr('pick.what')}</h2>
   <div class="options">
     {#each activityIds() as a (a)}

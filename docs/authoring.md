@@ -381,8 +381,8 @@ the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
   with other devices gives its own `layout` (`home-dialup`: the desk's computer, the line past the telephone).
   Reuse the base's backdrop pieces and existing device art where they fit: backdrops and device art load up front.
 - Strings: the base and every variant need `access`, the short name of their way online ("Fibre to the house", "Phone
-  line (DSL)"). The picker lists the base once, and under it a row of `access` chips, one per family member, in
-  `order`.
+  line (DSL)"). The picker lists the base once, and under it a row of `access` chips, one per family member of the
+  era you are in, in `order` (the other eras' members are the time machine's).
 - Variants are one level deep: a variant of a variant fails validation, as does a missing `access`.
 - URLs name the variant (`#/en/home-dsl/watch-video`), so every link, dive and list view works as for any place.
 
@@ -403,7 +403,9 @@ place of that era, and says so.
   Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
   said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where the
   generic line reads wrong, `instead.<place>` (kid and nerd) replaces "In 1995 you'd have done this at home. You'll
-  travel there." and must say where you'll go itself (1995's `instead.desk`: the PC at home sits at a desk too).
+  travel there." and must say where you'd have been instead (1995's `instead.desk`: the PC at home sits at a desk
+  too); "You'll travel there." follows it when you go. The place picker shows the same line under a place with no
+  way online in the era you are in.
   Where an era has a member of the place's family, `at.<base place>` (`kid`, `nerd`, `describe.kid`/`.nerd`) takes the
   place of the era's own words in the panel and the arrival (2010's `at.street`: phones on 3G; `at.desk`: a cable to
   the DSL modem). The era texts load with the dive strings, when the panel opens.

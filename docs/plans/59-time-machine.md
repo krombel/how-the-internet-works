@@ -62,8 +62,9 @@ for 30 years (packets, addresses, envelopes inside envelopes, routers reading th
    in 1995, watch a small video in 2010, stream one today. The caption says how long it takes, like with like.
 7. **Small era touches** around the house: a calendar on the wall, a modem whose lights blink as the page arrives, a
    buffering wheel in 2010, a smart speaker today (*Era flavour*, below).
-8. **The picker** ("Where are you?") marks the ways online with their year ("Dial-up · 1995") and says when a place
-   would take you back to today.
+8. **The picker** ("Where are you?") stays in the era you are in (decided by the user, 3 Oct): each place is its
+   member of that era, and a place with none says where you'd have done it then ("In 1995 you'd have done this at
+   home"). Only the time machine changes the era; the picker's "Other years" opens it.
 
 ```mermaid
 graph LR
@@ -152,11 +153,16 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
    same instance id (`spine`: a leaf–spine spine → an aggregation switch) cross-fades in place instead of swapping its
    art in one frame.
 
-**Place switching and eras.** The picker keeps the era where it can: in 1995, picking another place takes that
-place's 1995 member; a place with none (the street) takes you back to today, and the picker says so under it
-("Only today"), and so does the arrival. The access chips stay: they list the whole family, each with its year
-("Fibre · today", "Fibre to the building · today", "DSL · 2010", "Dial-up · 1995"), so `home-dsl`, `home-fttb` and
-`home-dialup` work as before, and picking "Dial-up" is a trip to 1995 (the top bar says so).
+**Place switching and eras** (revised by the user, 3 Oct). Once an era is picked you stay in it: only the time
+machine changes the era. The picker offers each place as its member of the current era, by the time machine's own
+rule (`eraStops`): in 2010 the desk is `desk-2010`, the street `street-2010`, home `home-dsl`. A place with no member
+in the era keeps its option, with the time machine's line under it ("In 1995 you'd have done this at home", or the
+era's own `era.<era>.instead.<place>`, as for the desk in 1995), and picking it goes to the era's trip (the time
+machine's `instead` stop), still in the era; the arrival says why, as the time machine's does. The access chips ("How
+do you get online?") list only the era's ways online (today fibre and fibre to the building; 2010 DSL; 1995
+dial-up), so the section is gone when only one is left; other years are the time machine's, and the picker's
+"Other years ⏲" opens it. Links into another era (`#/en/home-dialup/…`) work as before: the place carries the era,
+and the top bar shows it.
 
 **URLs** (no new parameter; the place carries the era):
 
@@ -188,7 +194,7 @@ place's 1995 member; a place with none (the street) takes you back to today, and
    takes" line uses the bottleneck of the route and the era's own `size`, so it compares like with like.
 5. **Era strings** (`era.<id>.name/kid/nerd/describe`) stay as they are; `describe` is rewritten for the new pictures
    (the start devices). New `ui.json` strings: `time.now` (the top bar's "Today"), `time.instead` ("In {era} you'd
-   have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`; and the
+   have done this at {place}. You'll travel there."), `pick.years` (the picker's "Other years"), `coach.time`; and the
    optional, nerd-only `era.<era>.away.<place>` (the GSM note above).
 
 ## Era-accurate content
@@ -502,8 +508,10 @@ Each is small, leaves main working and says "Part of #59".
    mode of `server-inside`; no CDN, no origin.
 8. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
    away in words, the 2010 nerd texts.
-9. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
-   the arrival line when the picker takes you back to today.
+9. **The picker stays in the era** (#146; the user's design of 3 Oct). Each place is its member of the current
+   era (`eraStops`); a place with none keeps its option with the time machine's "instead" line and goes to the era's
+   trip, said on arrival; the access chips list only the era's ways online; "Other years" opens the time machine. A
+   test fails if the picker offers, or lands on, a place of another era.
 10. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
    a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
 11. **The flats in 2010 on cable TV** (#118), with #109.
@@ -529,8 +537,8 @@ generations is an idea (#108).
 - **Eager growth**: device art and English strings; mitigations above (#91, a lazy era pack).
 - **Anachronisms**: the optional `since` check; each content PR lists its sources.
 - **Morph cost**: inside the data centre whole regions swap; the new evaluate phases watch p95.
-- **Two "switch" UIs** (the picker's access row, the dial) reach the same places. The year tags make the overlap a
-  feature: the access row is "what kind of home", the dial is "when".
+- **Two "switch" UIs** (the picker, the dial) could reach the same places. They don't overlap: the picker is "where,
+  and what kind of home" within the era, the dial is "when" (step 9).
 
 ## Decisions
 
@@ -794,3 +802,20 @@ Made while building PR 6 (1995: the internet):
   and two layers' definitions with their read-more links, the two devices' and the owner's names, the segment and its
   layouts, the two dives' loader entries. The words of the past grew from about 4.5 to 8.2 kB gz (lazy), the dive
   strings from 37.1 to 42.5 kB gz (lazy).
+
+Made while building PR 9 (the picker stays in the era, #146):
+- **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,
+  the time machine's own; your own family stays where you are. The option shows the member's name ("On the street,
+  on 3G" in 2010) and picture; a place with no member shows its own name and the picture of where it goes.
+- **The line under such a place** is the time machine's `elsewhere`, short: why, and "You'll travel there." only
+  where it does go somewhere (in 1995 every place is the one home trip, so there it doesn't); the nerds' note (GSM on
+  the street) is left for the arrival, which says it as the time machine's does, so the cards stay short in short
+  landscape. An era's own `instead.<place>` line no longer ends in "You'll travel there.": `elsewhere` adds it, so the
+  two can't disagree.
+- **Arrival**: going there lands like a trip in time (focus on the caption's heading, the line said first); picking
+  it where you are already says the line and gives focus back to the picker's opener.
+- **"Other years ⏲"** (decided: yes): a small button under the places (and the access chips) that opens the time
+  machine, from slot 0 when there is another era; Esc there gives focus back to the picker's opener. Without it the
+  picker, which used to reach DSL and dial-up through its chips, would have no way to other years. About 90 bytes gz.
+- **Loading**: `ui/time.ts` stays lazy (with the panel): the picker loads it, and the dive strings (the era's own
+  lines), before it opens when a place would go to the era's trip. Importing it eagerly cost 0.35 kB more.
