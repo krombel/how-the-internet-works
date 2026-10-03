@@ -23,31 +23,61 @@ export interface Door {
  *  screen (`sk` is screen px per scene unit). Badges and their tap targets scale with it. */
 export const badgeSize = (labelMinPx: number, sk: number) => Math.max(22, (labelMinPx * 0.8) / sk);
 
-/** A badge's footprint in scene units (centre and size), and whether it shows its label. */
-export interface Badge { x: number; y: number; w: number; h: number; labelled: boolean }
+/** A badge's footprint in scene units (centre and size), whether it shows its label, and which way the label's pill
+ *  runs from the mark: on (`flip` false) or back (`flip`, so its label ends at the mark). */
+export interface Badge { x: number; y: number; w: number; h: number; labelled: boolean; flip: boolean }
+/** What a door's label keeps clear of (#137, labels win): the scene's text as placed (`placeTexts`: names, link names,
+ *  signs, tags), and if it can, the devices' art; inside the world (`W`; anywhere, `null`). */
+export interface Keep { texts: Rect[]; arts: Rect[]; W: { w: number; h: number } | null }
+
+const area = (a: Rect, b: Rect) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+const boxOf = (b: Badge): Rect => ({ x: b.x - b.w / 2, y: b.y - b.h / 2, w: b.w, h: b.h });
+
+/** What a labelled badge covers as drawn, bobbing 0.18·size up and down: pointed at (`hot`), it grows up to 1.12×
+ *  round its mark (`mx`, and its height), in a glow 0.35·size round it (the theme contract: `HintProps.hot`). */
+const drawn = (b: Badge, mx: number, size: number, hot: boolean): Rect => {
+  const r = boxOf(b), k = hot ? 1.12 : 1, p = size * (hot ? 0.35 : 0.2);
+  return { x: mx + (r.x - p - mx) * k, y: b.y + (r.y - p - b.y) * k, w: (r.w + 2 * p) * k, h: (r.h + 2 * p) * k };
+};
 
 /** Where each door's badge goes, roughly as themes draw it: a mark about 2.4·size across at its spot; labelled (every
  *  door while `lit`; the `hot` one) a pill that fits the label (`textW` measures it), centred on the spot for
- *  'expand', else starting at the mark. While lit, pills that would cover each other are nudged apart up or down
- *  ('expand' ones stay put, the rest give way in order). */
-export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: string | null, textW: (d: Door) => number): Badge[] {
-  const h = size * 2.4;
-  const boxes = doors.map((d): Badge => {
-    if (!lit && hot !== d.id) return { x: d.at.x, y: d.at.y, w: h, h, labelled: false };
-    const w = textW(d) + size * 3.2;
-    return { x: d.kind === 'expand' ? d.at.x : d.at.x - h / 2 + w / 2, y: d.at.y, w, h, labelled: true };
-  });
-  if (!lit) return boxes;
-  const order = doors.map((_, i) => i).sort((a, b) => +(doors[a].kind !== 'expand') - +(doors[b].kind !== 'expand'));
-  const gap = size * 0.2;
-  order.forEach((i, k) => {
-    const a = boxes[i];
-    for (let pass = 0; pass < k; pass++) {
-      const b = order.slice(0, k).map((j) => boxes[j]).find((b) => Math.abs(a.x - b.x) * 2 < a.w + b.w && Math.abs(a.y - b.y) * 2 < a.h + b.h + gap * 2);
-      if (!b) break;
-      a.y = a.y >= b.y ? b.y + (a.h + b.h) / 2 + gap : b.y - (a.h + b.h) / 2 - gap;
+ *  'expand', else running on from the mark. Labels win (#137): a pill covers no text of the scene (`keep`), no other
+ *  door's mark and no other pill (lit, the 'expand' ones first, the rest in order). It runs on from its mark or back
+ *  from it, at its spot or nudged up or down a pill at a time, up to two; of two ways that fit, the one off the devices'
+ *  art. A lit door whose label fits nowhere shows its mark alone, its label waiting for a zoom or a point (the one
+ *  pointed at shows it anyway, as clear as it can). Computed when the scene, the zoom or what is lit changes, never per
+ *  frame at rest. */
+export function layoutDoors(doors: Door[], size: number, lit: boolean, hot: string | null, textW: (d: Door) => number, keep: Keep = { texts: [], arts: [], W: null }): Badge[] {
+  const h = size * 2.4, gap = size * 0.2;
+  const boxes = doors.map((d): Badge => ({ x: d.at.x, y: d.at.y, w: h, h, labelled: false, flip: false }));
+  const marks = boxes.map(boxOf), pills: Rect[] = [];
+  const order = doors.map((_, i) => i).filter((i) => lit || hot === doors[i].id).sort((a, b) => +(doors[a].kind !== 'expand') - +(doors[b].kind !== 'expand'));
+  const out = ({ x, y, w, h: rh }: Rect) => {
+    const W = keep.W;
+    return !W || (x >= 0 && y >= 0 && x + w <= W.w && y + rh <= W.h) ? 0 : w * rh - area({ x, y, w, h: rh }, { x: 0, y: 0, ...W });
+  };
+  for (const i of order) {
+    const d = doors[i], w = textW(d) + size * 3.2;
+    const at = (dy: number, flip: boolean): Badge =>
+      ({ x: d.kind === 'expand' ? d.at.x : d.at.x + (flip ? -1 : 1) * (w - h) / 2, y: d.at.y + dy, w, h, labelled: true, flip });
+    // how badly it covers what it must not (text, the other doors, the world's edge), and the art
+    const cost = (b: Badge) => {
+      const r = drawn(b, d.at.x, size, hot === d.id), hits = (rs: Rect[]) => rs.reduce((s, p) => s + area(r, p), 0);
+      return { hard: hits(keep.texts) + hits(pills) + hits(marks.filter((_, j) => j !== i)) + out(boxOf(b)), soft: hits(keep.arts) };
+    };
+    let fit: { b: Badge; soft: number } | undefined, least: { b: Badge; hard: number } | undefined;
+    for (const k of [0, 1, -1, 2, -2]) {
+      const ways = (d.kind === 'expand' ? [false] : [false, true]).map((f) => { const b = at(k * (h + gap), f); return { b, ...cost(b) }; });
+      fit = ways.filter((c) => c.hard === 0).sort((p, q) => p.soft - q.soft)[0];
+      if (fit) break;
+      for (const c of ways) if (!least || c.hard < least.hard) least = c;
     }
-  });
+    const b = fit?.b ?? (hot === d.id ? least!.b : null);
+    if (!b) continue;
+    boxes[i] = b;
+    pills.push(drawn(b, d.at.x, size, hot === d.id));
+  }
   return boxes;
 }
 

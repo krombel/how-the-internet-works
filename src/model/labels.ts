@@ -74,7 +74,8 @@ export interface Placed { name: Spot; tag: TagSpot | null }
 
 /** Where a path scene's text goes: the signs and names pushed inside the world (a link's name clear of its badge
  *  first), then each tag at its first spot that fits and covers nothing (names, signs, devices, badges, the tags placed
- *  before it), whole or as its first fact, or nowhere. */
+ *  before it), whole or as its first fact, or nowhere. With them, the boxes of all that text (`texts`) and of the
+ *  devices' art (`arts`), which a lit door's label keeps off (`layoutDoors`). */
 export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boolean) {
   const signs = t.signs.map((g) => {
     const e = signReach(per(g.name, 'label') * s.sign, s.sign);
@@ -86,7 +87,11 @@ export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boo
   });
   // a device's art, round, fills about 0.84 of its size
   const arts = t.nodes.map(({ n }): Rect => ({ x: n.x - n.size * 0.42, y: n.y - n.size * 0.42, w: n.size * 0.84, h: n.size * 0.84 }));
-  const taken: Rect[] = [...signs.map((g) => boxAt(g.at, g.e)), ...names.map((k) => boxAt(k.at, k.e)), ...arts, ...t.badges];
+  // the text placed so far (what a lit door's label keeps clear of, `layoutDoors`), and with it everything a tag keeps
+  // clear of
+  const texts: Rect[] = [...signs.map((g) => boxAt(g.at, g.e)), ...names.map((k) => boxAt(k.at, k.e))];
+  const taken: Rect[] = [...texts, ...arts, ...t.badges];
+  const take = (r: Rect) => { texts.push(r); taken.push(r); };
   const free = (at: Pt, e: Reach, own?: Rect) => fits(at, e, W) && !taken.some((r) => r !== own && hits(boxAt(at, e), r));
   const linkNames = t.links.map(({ l, name, badge }) => {
     const m = badge ? { x: badge.x + badge.w / 2, y: badge.y + badge.h / 2 } : bezier(l, 0.5), w = per(name, 'label') * s.link;
@@ -95,7 +100,7 @@ export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boo
     // its authored spot; if that covers something, the spot round its badge nearest it that doesn't
     const authored: Spot = { ...settle(want, d ? { x: dx / d, y: dy / d } : { x: 0, y: 1 }, reach(a), W, badge, gap), anchor: a };
     const at = free(authored, reach(a)) ? authored : around(m, [d, d + s.link, d + 2 * s.link], reach, W, badge, gap, want, free) ?? authored;
-    taken.push(boxAt(at, reach(at.anchor)));
+    take(boxAt(at, reach(at.anchor)));
     return { m, at, w };
   });
   // failing its spots, a tag takes the free one round `c` (out of the way of `own`: its device's art, or its link's
@@ -112,7 +117,7 @@ export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boo
       const tw = per(text, 'tag') * s.tag, reach = (a: Anchor) => tagReach(tw, s.tag, a), ss = spots();
       const at = ss.find((q) => ok(q, reach(q.anchor))) ?? around(c, rs, reach, W, own, s.tag * 0.3, ss[0], (q, e) => near(q, e) && ok(q, e));
       if (!at) continue;
-      taken.push(boxAt(at, reach(at.anchor)));
+      take(boxAt(at, reach(at.anchor)));
       return { ...at, text };
     }
     return null;
@@ -125,7 +130,7 @@ export function placeTexts(t: Texts, s: Sizes, per: Per, W: World, portrait: boo
     const { m, at, w } = linkNames[i], r = (badge ? badge.w / 2 : 0) + 12;
     return { name: at, tag: tagged(tag, () => linkSpots(l, m, at, w, badge, s, portrait), m, [r, r + s.tag * 2, r + s.tag * 4], badge) };
   });
-  return { nodes, links, signs: signs.map((g) => g.at) };
+  return { nodes, links, signs: signs.map((g) => g.at), texts, arts };
 }
 
 /** `p` inside the world, moved on along `u` (a unit vector) until `gap` clear of `own` if there is one, and back in. */

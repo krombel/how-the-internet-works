@@ -6,10 +6,11 @@ import type { Level } from '../define';
 import { CELL, PACKET, cellsFor, cellsOnLine, lineBytes, overhead } from '../../content/scenes/atm-cells/atm';
 import { FRAME_S, lineCode, lineRate, modeOf, pulsePath, slotsOf, train } from '../../content/scenes/tdm-frames/tdm';
 import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from '../../content/scenes/copper-pulses/copper';
-import { WORLD_SIZE } from '../engine/geometry';
+import { WORLD_SIZE, bezier } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
 import type * as Server from '../../content/scenes/server-inside/server';
 import { sceneKeys } from './describe';
+import { pathScene, propSpots } from './layout';
 import { activityIds, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
 import { resolveRoute, stringSources, type Route } from './resolve';
@@ -221,6 +222,23 @@ describe('the 1995 trip', () => {
       const dives = scenes(r).filter((s) => s.path[1] === 'datacentre').map((s) => s.dive);
       expect(dives).toContain('server-inside');
       expect(dives).not.toContain('leaf-spine');
+    }
+  });
+
+  it('runs the phone line from the PC through the modem to the socket on the wall, then out (#137)', () => {
+    const r = trips()[0];
+    for (const o of ['landscape', 'portrait'] as const) {
+      const line = pathScene(r, null, o).links.find((l) => l.from === 'pc')!, spots = propSpots(content.places['home-dialup'], o);
+      // where along the line (0 at the PC, 1 at the internet) each one is, and how far off it
+      const on = ([x, y]: number[]) => {
+        let best = { t: 0, d: Infinity };
+        for (let i = 0; i <= 400; i++) { const p = bezier(line, i / 400), d = Math.hypot(p.x - x, p.y - y); if (d < best.d) best = { t: i / 400, d }; }
+        return best;
+      };
+      const modem = on(spots.modem), socket = on(spots.socket);
+      expect(modem.d, `${o}: the line goes through the modem`).toBeLessThan(6);
+      expect(socket.d, `${o}: the line goes into the socket`).toBeLessThan(6);
+      expect(modem.t).toBeLessThan(socket.t);
     }
   });
 

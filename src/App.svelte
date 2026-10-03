@@ -10,9 +10,8 @@
   import { caughtSpot, livePackets, packetNear, poseOn, specsFor, type LivePacket } from './engine/packets';
   import { sfx } from './engine/sound';
   import { speaker, spoken } from './engine/speech';
-  import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
-  import { badgeSize, doorCovers, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
+  import { doorCovers, doorsInView, doorsOf, type Door } from './model/doors';
   import { eraStops, eraYear, startDevice } from './model/era';
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
@@ -23,6 +22,7 @@
   import { paceOf } from './model/speed';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
+  import { drawnDoors } from './render/drawn.svelte';
   import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
@@ -531,14 +531,12 @@
     return info.ref.kind === 'path' ? { info, ps: morphScenes.get(hereKey) ?? pathScene(route, info.ref.group, view.orient) } : null;
   };
   type Hit = { packet: LivePacket } | { door: Door } | { node: SNode } | { link: SLink };
-  /** The scene's doors and their badges as drawn now (lit, hot, sized for the zoom), or null in a dive. */
+  /** The scene's doors and their badges as drawn now (lit, hot, sized for the zoom, lit labels off its text: #137), or
+   *  null in a dive. */
   function badgesNow() {
-    const at = hereScene();
-    if (!at) return null;
-    const { info, ps } = at, sk = cam.k * info.frame.s;
-    const doors = doorsOf(ps, here.path.length === 0, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW), size = badgeSize(themeState.current.labelMinPx, sk);
-    const badges = layoutDoors(doors, size, lit, hot, (d) => (textBox(tr(`door.${d.kind}`), 100, 'middle', 0.6, '--label-font').w * size) / 100);
-    return { info, ps, sk, size, doors, badges };
+    const at = hereScene(), drawn = at && drawnDoors(at.ps.key);
+    if (!at || !drawn) return null;
+    return { info: at.info, ps: at.ps, sk: cam.k * at.info.frame.s, ...drawn };
   }
   /** How far behind a moving packet a tap may land and still catch it (seconds, real time). */
   const TAP_LAG = 0.25;
@@ -887,9 +885,10 @@
         picker(open = true) { if (open) openPicker(0); else closePicker(); },
         /** A door's badge on screen (in the current scene), e.g. to point the mouse at it. */
         doorAt(id: string) {
-          const d = hereDoors.find((k) => k.id === id), info = sceneInfo(route, here.path, view.orient);
-          if (!d) return null;
-          const p = toScreen(cam, toRoot(info.frame, d.at)), r = stage.getBoundingClientRect();
+          const now = badgesNow(), i = now?.doors.findIndex((k) => k.id === id) ?? -1;
+          if (!now || i < 0) return null;
+          // its mark: a lit label may have nudged it up or down off its spot
+          const p = toScreen(cam, toRoot(now.info.frame, { x: now.doors[i].at.x, y: now.badges[i].y })), r = stage.getBoundingClientRect();
           return [p.x + r.left, p.y + r.top];
         },
       },
