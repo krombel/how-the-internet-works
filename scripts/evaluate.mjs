@@ -612,6 +612,7 @@ async function a11y(style) {
   await ctx.close();
   await speechJourney(style, fail);
   await coachJourney(style, fail);
+  await walkJourney(style, fail);
   await labelContrast(style, fail);
   console.log(`  ${fails.length ? `${fails.length} accessibility problems` : 'no accessibility problems'}`);
   if (fails.length) process.exitCode = 1;
@@ -644,6 +645,44 @@ async function speechJourney(style, fail) {
   await p.click('.caption .read');
   if ((await said()).length !== n + 1 || (await said()).at(-1) !== last) fail('journey: read again', 'it does not read the caption again');
   await ctx.close();
+}
+
+/** Walking the whole trip (#169): ▶ from the phone goes on into the internet and its data centre to the server, the
+ *  button naming each crossing (aloud and on screen), and bumps there; ◀ walks it back exactly, to the overview. On a
+ *  desktop and a portrait phone. */
+async function walkJourney(style, fail) {
+  for (const view of ['desktop', 'phone']) {
+    const { ctx, p } = await open(view, url(style, 'en', 'home/watch-video/@phone'));
+    await still(p);
+    const where = `journey: walk (${view})`;
+    const at = () => p.evaluate(() => { const l = window.__app.loc(); return `${l.path.join('/')}@${l.stop}`; });
+    const walk = async (d) => {
+      const sel = `.step.${d > 0 ? 'next' : 'prev'}`, seen = [], said = [];
+      while ((await p.getAttribute(sel, 'aria-disabled')) !== 'true' && seen.length < 80) {
+        const label = await p.getAttribute(sel, 'aria-label'), shown = await p.locator(`${sel} .step-to`).textContent().catch(() => null);
+        if (shown !== null && shown !== label) fail(where, `the button shows "${shown}" but says "${label}"`);
+        said.push(label);
+        await p.click(sel);
+        seen.push(await at());
+      }
+      const end = await at();
+      await p.click(sel);
+      if ((await at()) !== end) fail(where, `${d > 0 ? '▶' : '◀'} goes on past ${end}`);
+      return { seen, said };
+    };
+    const on = await walk(1);
+    if (on.seen.at(-1) !== 'internet/datacentre@origin') fail(where, `▶ ends at ${on.seen.at(-1)}`);
+    for (const s of ['Into: The internet', 'Into: Data centre']) if (!on.said.includes(s)) fail(where, `no "${s}" on the way (${on.said.filter((x) => x !== 'Next stop').join(', ')})`);
+    await still(p);
+    const back = await walk(-1);
+    const want = ['@phone', ...on.seen.slice(0, -1)].reverse().concat('@null');
+    if (back.seen.join(' ') !== want.join(' ')) fail(where, `◀ walks back ${back.seen.join(' ')}`);
+    if (!back.said.includes('Back out: Your home')) fail(where, `no "Back out: Your home" on the way back`);
+    await still(p);
+    const bad = await p.evaluate(focusProblem);
+    if (bad) fail(where, bad);
+    await ctx.close();
+  }
 }
 
 /** The first-run coach marks (#21): a first visit to the top gets them, and the announcer says the first. They come

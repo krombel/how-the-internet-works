@@ -3,6 +3,8 @@
   "nav.home": "Hjem",
   "nav.prev": "Forrige stop",
   "nav.next": "Næste stop",
+  "nav.in": "Ind i: {name}",
+  "nav.out": "Tilbage ud: {name}",
   "mode.kid": "Enkel",
   "mode.nerd": "Teknisk",
   "mode.kid.short": "Enkel",

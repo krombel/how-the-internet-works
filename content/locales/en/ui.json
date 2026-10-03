@@ -3,6 +3,8 @@
   "nav.home": "Home",
   "nav.prev": "Previous stop",
   "nav.next": "Next stop",
+  "nav.in": "Into: {name}",
+  "nav.out": "Back out: {name}",
   "mode.kid": "Simple",
   "mode.nerd": "Technical",
   "mode.kid.short": "Simple",
