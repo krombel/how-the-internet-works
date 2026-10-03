@@ -123,5 +123,20 @@
         }
       }
     }
+  },
+  "2010": {
+    "tag": {
+      "cgnat": "10.0.0.0/8 → public"
+    },
+    "at": {
+      "mobile-core": {
+        "kid": "Phones on the mobile network don’t get an internet address of their own. The mobile gate swaps the sender sticker of lots of phones for the same single address, and gives each its own ticket number in its notebook.",
+        "nerd": "Carrier-grade NAT at the GGSN: phones get private addresses, here from 10.0.0.0/8, and dozens to hundreds of them share one public IPv4 address, each with its own block of ports. A shared space just for this, 100.64.0.0/10, came later (RFC 6598, 2012). This is a big reason for IPv6.",
+        "describe": {
+          "kid": "The road shows several phones sharing a mobile gate on the way to the video server. The address card changes From to Mobile gate. The swap notebook is full of neighbours with ticket numbers. A parcel stops at the gate, gets its sticker changed, then walks on. Replies use the notebook to find the right phone.",
+          "nerd": "This is the NAT variant for carrier-grade NAT. The card rewrites a private source from 10.0.0.0/8 to the carrier’s public address. The table maps several inside address and port pairs to outside ports. The packet pauses for the rewrite, TTL drops, and forwarding continues."
+        }
+      }
+    }
   }
 }

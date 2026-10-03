@@ -131,7 +131,7 @@
         "about": "Optional fields; a 3G user packet usually has none, so the header is just 8 bytes (drawn here at today’s size)."
       },
       "pdu": {
-        "about": "5G’s QoS flow label; 3G had none: the PDP context itself carried the QoS."
+        "about": "5G’s QoS flow label (5G came in 2019); 3G had none: the PDP context itself carried the QoS."
       }
     }
   }

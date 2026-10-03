@@ -156,6 +156,12 @@
     },
     "dc-fibre": {
       "nerd": "Datacenteroptik i 2010: mest 10G, på korte multimode-forbindelser (10GBASE-SR) eller single-mode (10GBASE-LR); den nye 40GBASE-LR4 lægger fire 10G-baner på fire CWDM-bølgelængder (1271–1331 nm) over ét single-mode-par. De sidste meter ind til en server er ofte kobber. Hver forbindelse er ét hop i fabric’en."
+    },
+    "metro-fibre": {
+      "nerd": "Metrofiber: single-mode-forbindelser mellem gadeskabe, aggregeringspunkter og centralen. I 2010 mest 1 eller 10 Gbit/s Ethernet-optik, hvor CWDM eller DWDM lægger en håndfuld bølgelængder på ét fiberpar."
+    },
+    "cross-connect": {
+      "nerd": "En krydsforbindelse: en single-mode-patch gennem meet-me-rummet, højst et par hundrede meter. I 2010 var de fleste 10GBASE-LR, én bølgelængde omkring 1310 nm. Tegnet er 100GBASE-LR4, standardiseret i 2010 (802.3ba): fire 25G-baner på fire bølgelængder omkring 1310 nm (LAN-WDM), som deles igen i den anden ende."
     }
   }
 }

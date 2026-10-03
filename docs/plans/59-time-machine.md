@@ -864,3 +864,23 @@ Made while building PR 9 (the picker stays in the era, #146):
   picker, which used to reach DSL and dial-up through its chips, would have no way to other years. About 90 bytes gz.
 - **Loading**: `ui/time.ts` stays lazy (with the panel): the picker loads it, and the dive strings (the era's own
   lines), before it opens when a place would go to the era's trip. Importing it eagerly cost 0.35 kB more.
+
+Made while fixing 2010's leaks (#135):
+- **Already fixed by #157** (the #134 sweep): the access point's and the router's 802.11n, the era's words for the
+  separate AP, the core's 10–40G, the AS counts (kept as merged: about 35,000 in 2010, under 1,700 in 1995) and
+  `fibre-light`'s backbone.
+- **2010 blocks**: `metro-fibre` and `cross-connect` at 1–10G (10GBASE-LR; `fibre-light`'s cross-connect still draws
+  100GBASE-LR4 and says it was standardised in 2010), `copper-pulses`' extra (PoE to 802.3at, 10GBASE-T for servers),
+  `http-chunk`'s "Playlist" for DASH's MPD (2012), the GTP field that says when 5G came, and `ip-post` at the GGSN.
+- **The GGSN's NAT is a carrier's**: `carrierNat` takes 10.0.0.0/8 too (the street-2010 phone is 10.152.33.7), so
+  2010's GGSN draws neighbouring phones and says "10.0.0.0/8 → public" instead of a home's 192.168.x.x; its words say
+  the shared 100.64.0.0/10 came in 2012.
+- **Left as is** (era-neutral and true in 2010): `border-inside` and `ixp-inside` (MPLS, PHP, route servers, a CDN's
+  port), `fibre-light`'s submarine.
+- **`era-2010.test.ts`** reads every word a 2010 route can show (`routeWords` in `src/test/era-walk.ts`: the captions
+  plus every label, tag and layer field of the route's items) and fails on a later technology unless it says when.
+  Until step 8 lands, the data centre's words (`node.datacentre`, `node.spine`, `node.rack-switch`, `tech.dc-fibre`,
+  `scene.leaf-spine`, `node.cdn`) are a temporary `STEP_8` list that fails once they no longer leak; the second of
+  the two PRs to land removes it.
+- **Follow-up for 1995**: the same full walk on 1995 also finds MPLS in two layer fields (`ethernet`'s type, `ip`'s
+  TTL) and NVMe in `server-inside`'s SSD title, so `era-1995.test.ts` still reads captions only.

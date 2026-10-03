@@ -156,6 +156,12 @@
     },
     "dc-fibre": {
       "nerd": "Data-centre optics in 2010: mostly 10G, on short multimode runs (10GBASE-SR) or single-mode (10GBASE-LR); the new 40GBASE-LR4 puts four 10G lanes on four CWDM wavelengths (1271–1331 nm) over one single-mode pair. The last metres to a server are often copper. Each link is one hop of the fabric."
+    },
+    "metro-fibre": {
+      "nerd": "Metro fibre: single-mode links between street cabinets, aggregation sites and the exchange. In 2010 mostly 1 or 10 Gbit/s Ethernet optics, with CWDM or DWDM putting a handful of wavelengths on one fibre pair."
+    },
+    "cross-connect": {
+      "nerd": "A cross-connect: a single-mode patch through the meet-me room, a few hundred metres at most. In 2010 most were 10GBASE-LR, one wavelength at 1310 nm. Drawn is 100GBASE-LR4, standardised in 2010 (802.3ba): four 25G lanes on four wavelengths near 1310 nm (LAN-WDM), split again at the far end."
     }
   }
 }

@@ -433,9 +433,11 @@ place of that era, and says so.
   CANTAT-3 and an American ATM backbone; `datacentre-1995`: a server room with a router, a hub and one web server,
   drawn by the `server-room` group node); where a part is still today's drawing (DIX's switch in `ixp-inside`), its
   words say so plainly ("drawn as today") rather than describe today's technology as the era's. A dive's words for one
-  device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`, not `at.cdn`). A test
-  walks every route of the past and fails on a later technology named in its captions, names, tags and dives
-  (`era-1995.test.ts`: MPLS, DWDM, 100G, leaf–spine, a CDN…) unless the line says when it came.
+  device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`, not `at.cdn`). A test per
+  era walks every route of the past and fails on a later technology unless the line says when it came:
+  `era-1995.test.ts` reads the captions, names, tags and dives (MPLS, DWDM, 100G, leaf–spine, a CDN…);
+  `era-2010.test.ts` reads every word a 2010 route can show, labels and layer fields too (Wi‑Fi 5 and up, 4G/5G,
+  leaf–spine, 100G without "new in 2010", 100.64/10…). Both walk with `src/test/era-walk.ts`.
 - **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the
   same keys as the rest of the file, for what is different then (`"1995": { "name": "Web server", "kid": … }` in
   `nodes/cdn`, `"1995": { "sealed": { … } }` in a dive). On a route of that era every lookup tries the block first,
