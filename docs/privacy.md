@@ -11,7 +11,7 @@ sends nothing about you anywhere.
 - **No third-party requests.** The fonts (Baloo 2 and JetBrains Mono, from Fontsource) and every other asset are
   bundled and served from the same site as the page. Nothing is fetched from a CDN, font service or other site.
 - **Where you are in the app is in the address.** The language, place, activity and scene are in the URL (e.g.
-  `#/da/street/watch-video/internet`), and a few settings can be in its query (`?level=nerd`, `?mode=night`,
+  `#/da/on-the-go/watch-video/internet`), and a few settings can be in its query (`?level=nerd`, `?mode=night`,
   `?style=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
   page request, like any address.
 

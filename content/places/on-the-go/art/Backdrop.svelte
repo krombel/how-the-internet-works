@@ -20,7 +20,7 @@
       <rect width={sw} height={sh} rx="8" fill={c} stroke="var(--line)" stroke-width="7" />
       <path d={`M-10 6 H${sw + 10} L${sw - 6} -24 H6 Z`} fill={r} stroke="var(--line)" stroke-width="7" stroke-linejoin="round" />
       <path d={`M0 ${sh * 0.35} ${Array.from({ length: Math.round(sw / 30) }, (_, i) => `h15 v14 h15 v-14`).join(' ')}`} fill="none" stroke="var(--line)" stroke-width="4" opacity="0.45" />
-      <rect x={sw * 0.12} y={sh * 0.52} width={sw * 0.36} height={sh * 0.3} rx="6" fill="var(--window)" stroke="var(--line)" stroke-width="5" />
+      <rect x={sw * 0.12} y={sh * 0.52} width={sw * 0.36} height={sh * 0.3} rx="6" fill="var(--window)" stroke="var(--window-frame)" stroke-width="5" />
       <rect x={sw * 0.6} y={sh * 0.52} width={sw * 0.26} height={sh * 0.48} rx="6" fill="var(--cardboard)" stroke="var(--line)" stroke-width="5" />
     </g>
   {/each}

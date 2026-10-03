@@ -409,7 +409,7 @@ An era is a time the place looked different: the home in 1995 (dial-up on a PC),
 today (fibre, a phone). The time machine (its button in the top bar, 🕰️ in the caption, "Travel in time" in the list
 view) switches between the members of a place family by their era, so an era switch is a place switch: no new route,
 URL or dive. From a place with no member in an era, it goes to that era's own trip, the first place of that era, and
-says so. Every family has a member in each era today (on the go in 1995 is `street-1995`, a laptop on a GSM data
+says so. Every family has a member in each era today (on the go in 1995 is `on-the-go-1995`, a laptop on a GSM data
 call), so this is for a family added later.
 - `content/eras/<id>/era.ts`: `defineEra({ year: 1995 })`. The folder name is the id (`today` is the present,
   whose `year` is the current one). The panel lists eras by `year`.
@@ -419,7 +419,7 @@ call), so this is for a family added later.
   Danish. The place picker shows the time machine's line ("In 1995 you'd have done this at home.") under a place
   with no way online in the era you are in.
   Where an era has a member of the place's family, `at.<place>`, else `at.<base place>` (`kid`, `nerd`,
-  `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.street`:
+  `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.on-the-go`:
   phones on 3G; `at.desk-2010`: a cable to the DSL modem). The era texts load with the dive strings, when the panel
   opens.
 - Each base place says where it is, `where` ("at home", "on the go"), for the time machine's "In 1995 you'd have
@@ -523,7 +523,7 @@ extra effort:
   `content/themes/storybook/tokens.css`, and night overrides it in the `[data-mode='night']` block. If no
   colour fits, add a token to the day block and give it a night value.
 - **Some tokens are lights,** plain by day and lit at night. Use them where something glows after dark:
-  - `--window`: a window pane
+  - `--window`: a window pane, framed in `--window-frame` (the outline by day, dark at night)
   - `--room`: a lit room seen from outside
   - `--lamp`: a lamp head or headlights
   - `--shade`: a drop shadow. At night it is near black, not brown.

@@ -79,10 +79,10 @@ describe('the time machine chip (#59)', () => {
     expect(at('home-fttb')).toEqual({ year: null });
     expect(at('home-dsl')).toEqual({ year: 2010 });
     expect(at('home-dialup')).toEqual({ year: 1995 });
-    expect(at('street')).toEqual({ year: null });
+    expect(at('on-the-go')).toEqual({ year: null });
     expect(at('desk')).toEqual({ year: null });
     expect(at('home', ['internet'])).toBe(null);
-    expect(at('street', ['internet'])).toBe(null);
+    expect(at('on-the-go', ['internet'])).toBe(null);
   });
 });
 

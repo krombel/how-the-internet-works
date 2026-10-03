@@ -7,7 +7,7 @@
     "nerd": "En smartphone på Wi‑Fi 6 bag en hjemmerouter med fiber eller et kabel fra kælderen som forbindelse udadtil."
   },
   "at": {
-    "street": {
+    "on-the-go": {
       "kid": "Ude på gaden er telefoner på 5G: radio til en mobilmast tæt på, så en glastråd til internettet. Hurtigt nok til store videoer.",
       "nerd": "5G NR: brede bærebølger og mange antenner giver en telefon titals til hundredvis af Mbit/s. gNB’en tunnelerer pakkerne (GTP-U) over fiber til kernens UPF.",
       "describe": {

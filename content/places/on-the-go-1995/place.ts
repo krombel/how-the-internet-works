@@ -1,12 +1,12 @@
 import { definePlace } from '$core/define';
-import street from '../street/place';
+import onTheGo from '../on-the-go/place';
 
 // On the go in 1995: possible, but rare. A laptop dials the internet company through a GSM phone on a cable (circuit-
 // switched data, 9.6 kbit/s). The call goes by radio to the mast (BTS), as quarter-slots of E1 lines through the mast
 // controller (BSC) to the mobile switch (MSC), whose modems (the IWF) call on through the phone network like a
 // computer at home; from the exchange on it is the dial-up's way into the ISP's modem bank. No IP before it.
 export default definePlace({
-  variantOf: 'street',
+  variantOf: 'on-the-go',
   order: 2.6,
   era: '1995',
   hops: [
@@ -31,7 +31,7 @@ export default definePlace({
   ],
   layout: {
     // the same street, so the trip in time only swaps the device and the mast
-    overview: street.layout!.overview,
+    overview: onTheGo.layout!.overview,
     internet: {
       landscape: {
         nodes: { 'cell-tower': [70, 800, 100], bsc: [90, 490, 110], 'mobile-core': [240, 300, 120], exchange: [380, 700, 110], bng: [620, 480, 120, 'above'] },
