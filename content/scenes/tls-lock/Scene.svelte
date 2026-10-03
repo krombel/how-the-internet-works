@@ -13,7 +13,9 @@
   const S = strings('scene.tls-lock');
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.size);
-  const m = $derived(tlsMoment(view.time, view.level === 'nerd'));
+  // nerds see TLS 1.3's order: the keys first, then the (encrypted) certificate, so the paint card comes first
+  const keysFirst = $derived(subject.ctx.level === 'nerd');
+  const m = $derived(tlsMoment(view.time, keysFirst));
   const isServer = $derived(subject.open && subject.ctx.to.node.id === subject.ctx.server.node.id);
   const endpoint = $derived(subject.open ? (isServer ? 'server' : 'client') : 'middle');
   const client = $derived(subject.ctx.client);
@@ -22,13 +24,13 @@
   const focusedId = $derived(endpoint === 'client' ? client.node.id : endpoint === 'server' ? server.node.id : subject.ctx.to.node.id);
   const ends = $derived(endpoint === 'client' ? [L.ends[1]] : endpoint === 'server' ? [L.ends[0]] : L.ends);
   const endHops = $derived(endpoint === 'client' ? [server] : endpoint === 'server' ? [client] : [client, server]);
-  const cert = $derived(L.cards[0]);
-  const mix = $derived(L.cards[1]);
+  const cert = $derived(L.cards[keysFirst ? 1 : 0]);
+  const mix = $derived(L.cards[keysFirst ? 0 : 1]);
   const px = $derived(parcelX(m.u, L, endpoint));
   const titleY = (b: { y: number }) => b.y + (view.orient === 'portrait' ? 75 : L.compact ? 72 : 66);
   const clientLabel = $derived(nameOf(client));
   const serverLabel = $derived(S('label.server'));
-  const P = $derived(paintRows(L, view.orient, Math.max(clientLabel.length, serverLabel.length)));
+  const P = $derived(paintRows(L, mix, view.orient, Math.max(clientLabel.length, serverLabel.length)));
   const crow = $derived(endpoint === 'middle'
     ? L.crow
     : { x: view.orient === 'portrait' ? (endpoint === 'server' ? 340 : 560) : 800, y: view.orient === 'portrait' ? 1145 : L.compact ? 625 : 505 });
@@ -114,8 +116,8 @@
 {#if m.beat === 'locked' && (endpoint !== 'middle' || (view.orient === 'landscape' && Math.abs(px - L.hop.x) > L.hop.size / 2 + 60))}<Text x={px} y={L.walk - (view.orient === 'portrait' ? 118 : 145)} text={S('label.locked')} size={T.text} kind="big" />{/if}
 
 {#if view.orient === 'landscape' && L.tags.length >= 2}
-  <TagAt x={L.tags[0].x} y={L.tags[0].y} text={S('tag.chain')} size={T.tag} />
-  <TagAt x={L.tags[1].x} y={L.tags[1].y} text={S('tag.ecdhe')} size={T.tag} />
+  <TagAt x={L.tags[keysFirst ? 1 : 0].x} y={L.tags[0].y} text={S('tag.chain')} size={T.tag} />
+  <TagAt x={L.tags[keysFirst ? 0 : 1].x} y={L.tags[1].y} text={S('tag.ecdhe')} size={T.tag} />
 {:else if L.tags.length}
   <TagAt x={L.tags[0].x} y={L.tags[0].y} text={S('tag.ecdhe')} size={T.tag} />
 {/if}

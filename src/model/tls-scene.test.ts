@@ -14,20 +14,20 @@ const views = [
 ] as const;
 
 describe('the TLS dive (tls-lock)', () => {
-  it('lays the paint rows with three pots of one size, signs in clear gaps, inside the card (#90)', () => {
+  it('lays the paint rows with three pots of one size, signs in clear gaps, inside either card (#90, #132)', () => {
     for (const [o, vp] of views)
-      for (const { label } of [en, da]) {
-        const L = layoutFor(o, vp), card = L.cards[1];
-        const chars = longest(label.server), P = paintRows(L, o, chars);
-        const sign = 0.3 * L.size.big;
-        expect(P.label + chars * 0.6 * P.words).toBeLessThan(P.pots[0] - P.half);
-        P.signs.forEach((s, i) => {
-          expect(s - sign).toBeGreaterThan(P.pots[i] + P.half + 4);
-          expect(s + sign).toBeLessThan(P.pots[i + 1] - P.half - 4);
-        });
-        expect(P.pots[2] + P.half).toBeLessThanOrEqual(card.x + card.w - 24);
-        for (const y of P.rows) expect(y > card.y && y + 48 * P.scale < card.y + card.h).toBe(true);
-      }
+      for (const { label } of [en, da])
+        for (const card of layoutFor(o, vp).cards) {
+          const L = layoutFor(o, vp), chars = longest(label.server), P = paintRows(L, card, o, chars);
+          const sign = 0.3 * L.size.big;
+          expect(P.label + chars * 0.6 * P.words).toBeLessThan(P.pots[0] - P.half);
+          P.signs.forEach((s, i) => {
+            expect(s - sign).toBeGreaterThan(P.pots[i] + P.half + 4);
+            expect(s + sign).toBeLessThan(P.pots[i + 1] - P.half - 4);
+          });
+          expect(P.pots[2] + P.half).toBeLessThanOrEqual(card.x + card.w - 24);
+          for (const y of P.rows) expect(y > card.y && y + 48 * P.scale < card.y + card.h).toBe(true);
+        }
     expect(Object.keys(nodes)).toHaveLength(8);
   });
 

@@ -59,7 +59,7 @@ const LAYOUT: Record<Orient | 'compact', Layout> = {
     ends: [{ x: 90, y: 1310, size: 120 }, { x: 820, y: 1310, size: 120 }],
     hop: { x: 450, y: 1270, size: 210 },
     home: [{ x: 230, y: 1250, size: 250 }, { x: 670, y: 1250, size: 250 }],
-    cards: [{ x: 60, y: 170, w: 780, h: 360 }, { x: 60, y: 590, w: 780, h: 430 }],
+    cards: [{ x: 60, y: 170, w: 780, h: 395 }, { x: 60, y: 625, w: 780, h: 395 }],
     names: 1490,
     walk: 1350,
     parcel: 1.2,
@@ -80,9 +80,10 @@ export function layoutFor(orient: Orient, vp: { h: number; top: number; bottom: 
 export const POT_HALF = 52;
 
 /** The paint card's two rows, "who: pot + pot = pot": where the words, pots and signs go so the three pots are one
- *  size and the signs sit in clear gaps between them (#90), for row words up to `chars` long. */
-export function paintRows(L: Layout, o: Orient, chars: number) {
-  const c = L.cards[1], portrait = o === 'portrait';
+ *  size and the signs sit in clear gaps between them (#90), for row words up to `chars` long. The paint goes in card
+ *  `c`: the second for kids, the first for nerds, who see the keys mixed first (TLS 1.3). */
+export function paintRows(L: Layout, c: Box, o: Orient, chars: number) {
+  const portrait = o === 'portrait';
   const words = portrait ? L.size.text * 0.92 : L.compact ? L.size.text * 0.78 : L.size.text;
   const scale = portrait ? 1.1 : L.compact ? 1.02 : 0.92, half = POT_HALF * scale;
   const label = c.x + (L.compact ? 34 : 42);
