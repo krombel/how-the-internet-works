@@ -1,9 +1,10 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // Look inside a 5G link: the tower's antenna panel aims a beam at each phone, and a scheduler gives every phone its
-  // own seats in a time × frequency grid (like seats on a bus), so many phones share the air at once.
+  // own seats in a time × frequency grid (like seats on a bus), so many phones share the air at once. A 3G link (its
+  // `MODES`): one wave covers the whole sector, and the grid is spreading codes × 2 ms slots, in the era's words.
   import { Node, TagAt, Text, strings, view, type LinkSubject } from '$core/api';
-  import { COLS, LAYOUT, ROWS, USERS, beamPath, columns, owner } from './radio';
+  import { COLS, LAYOUT, MODES, ROWS, USERS, beamPath, columns, sectorPath } from './radio';
   import Beam from './art/Beam.svelte';
   import Seat from './art/Seat.svelte';
   let { subject }: { subject: LinkSubject } = $props();
@@ -12,25 +13,29 @@
   const COLOURS = ['var(--berry)', 'var(--teal)', 'var(--mustard)'];
   const device = $derived(subject.route.hops[subject.link.from].node.id);
   const tower = $derived(subject.route.hops[subject.link.to].node.id);
+  const mode = $derived(MODES[subject.link.tech.id] ?? MODES.nr);
   const L = $derived(LAYOUT[view.orient]);
-  const cols = $derived(columns(view.time));
+  const cols = $derived(columns(view.time, mode.slot));
   const nowSlot = $derived(cols.find((c) => c.now)!.slot);
   const G = $derived(L.grid);
   // a beam glows while its phone has seats in the current slot
   const strength = $derived(Array.from({ length: USERS }, (_, u) => {
     let n = 0;
-    for (let r = 0; r < ROWS; r++) if (owner(nowSlot, r) === u) n++;
+    for (let r = 0; r < ROWS; r++) if (mode.owner(nowSlot, r) === u) n++;
     return Math.min(1, n / 2);
   }));
 </script>
 
-<!-- grid frame: frequency up, time along -->
+{#if !mode.beams}
+  <Beam d={sectorPath(L.source, L.phones)} from={L.source} to={L.phones[0]} colour="var(--leaf)" strength={0.5} time={view.time} />
+{/if}
+<!-- grid frame: frequency (or codes) up, time along -->
 <rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity="0.9" />
 <clipPath id="nr-grid-{view.orient}"><rect x={G.x} y={G.y - 4} width={COLS * G.cw} height={ROWS * G.ch + 8} /></clipPath>
 <g clip-path="url(#nr-grid-{view.orient})">
   {#each cols as c (c.slot)}
     {#each { length: ROWS } as _, r}
-      {@const u = owner(c.slot, r)}
+      {@const u = mode.owner(c.slot, r)}
       <Seat x={G.x + c.dx * G.cw} y={G.y + (ROWS - 1 - r) * G.ch} w={G.cw} h={G.ch} colour={u >= 0 ? COLOURS[u] : null} now={c.now} />
     {/each}
   {/each}
@@ -41,7 +46,7 @@
   <Text x={L.labels.freq.x} y={L.labels.freq.y} text={S('frequency')} size={24} kind="small" />
 </g>
 
-{#each L.phones as p, i}
+{#each mode.beams ? L.phones : [] as p, i}
   <Beam d={beamPath(L.source, p, 40 + 10 * strength[i])} from={L.source} to={p} colour={COLOURS[i]} strength={strength[i]} time={view.time + i * 0.37} />
 {/each}
 <Node id={tower} x={L.tower.x} y={L.tower.y} size={L.tower.size} />

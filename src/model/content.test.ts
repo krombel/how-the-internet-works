@@ -200,11 +200,12 @@ describe('validation messages', () => {
   it('checks place variants: a known base, one level deep, and an access name', () => {
     expect(broken((c) => { c.places['home-dsl'].variantOf = 'hoem'; })).toContain('place.ts › variantOf: "hoem" is not a place. Did you mean "home"?');
     expect(broken((c) => { c.places.desk.variantOf = 'home-dsl'; })).toContain('desk/place.ts › variantOf: "home-dsl" is itself a variant of "home"; use "home"');
-    expect(broken((c) => { c.places.street.variantOf = 'desk'; })).toContain('missing English string "place.street.access"');
+    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', variantOf: 'desk' }; }))
+      .toContain('missing English string "place.lake.access"');
   });
 
   it('needs a base place to say where it is, in a sentence (the time machine, #59)', () => {
-    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts' }; }))
+    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', era: undefined }; }))
       .toContain('missing English string "place.lake.where"');
   });
 
@@ -212,14 +213,15 @@ describe('validation messages', () => {
     expect([basePlace('home-dsl'), basePlace('home'), basePlace('street')]).toEqual(['home', 'home', 'street']);
     expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl', 'home-dialup']);
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
-    expect(placeFamily('street')).toEqual(['street']);
+    expect(placeFamily('street-2010')).toEqual(['street', 'street-2010']);
+    expect(placeFamily('desk')).toEqual(['desk', 'desk-2010']);
   });
 
   it('checks eras (#59): known, named and described, and two of them or none in a family', () => {
     expect(broken((c) => { c.places['home-dsl'].era = '2001'; })).toContain('home-dsl/place.ts › era: "2001" is not an era. Did you mean "2010"?');
     expect(broken((c) => { delete c.places['home-fttb'].era; })).toContain('home-fttb/place.ts › era: "home" and its ways of getting online have eras, so this needs one too.');
-    expect(broken((c) => { c.places.street.era = '1995'; }))
-      .toContain('street/place.ts › era: every way of getting online from "street" is in the era "1995"; a time machine needs two eras at least');
+    expect(broken((c) => { c.places.street.era = '2010'; }))
+      .toContain('street/place.ts › era: every way of getting online from "street" is in the era "2010"; a time machine needs two eras at least');
     const msg = broken((c) => { c.eras['1985'] = { year: 1985.5, id: '1985', file: 'content/eras/1985/era.ts' }; });
     expect(msg).toContain('content/eras/1985/era.ts › year:');
     expect(msg).toContain('content/eras/1985/era.ts › strings: missing English string "era.1985.name"');

@@ -3,6 +3,7 @@ import { definePlace } from '$core/define';
 // At the desk at home: a laptop on a network cable straight into the home router, then the same fibre as at home.
 export default definePlace({
   order: 3,
+  era: 'today',
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
     { link: 'ethernet', km: 0.003 },

@@ -126,12 +126,16 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
      from a laptop plugged into a GSM phone or with a PC-card modem. Billed by the minute like a call, rare and very
      nerdy, so it gets no trip of its own." The key is generic content, `era.<era>.away.<place>` (here
      `era.1995.away.street`, nerd only, en + da), shown when it exists; no place id in `src/`.
-   - **Street → 2010: a phone on 3G, not built yet.** By 2010 phones watched video over 3G, so "you'd have done this
-     at home" would be wrong. An era may give its own line for where you are, `era.<era>.instead.<place>` (kid and
-     nerd, en + da), which takes the place of "In 2010 you'd have done this at home. You'll travel there." in the
-     panel and the arrival: "In 2010 you could watch on your phone too, over 3G. That trip isn't built yet, so here's
-     the one at home." (nerds: HSPA, HSDPA's 7.2–14.4 Mbit/s peak and far less in practice, 360p). Step 4 builds the
-     trip (#113).
+   - **Street → 2010: a phone on 3G** (#113, step 4): the street's own 2010 member, `street-2010`, so nothing to
+     explain. (Until step 4 the era said so with its own line, `era.2010.instead.street`, now gone.)
+   - **Desk → 1995: the PC at home, which sits at a desk.** "In 1995 you'd have done this at home" reads wrong from
+     a desk to a PC at a desk. An era may give its own line for where you are, `era.<era>.instead.<place>` (kid and
+     nerd, en + da), which takes the place of the generic line and says where you'll go itself:
+     `era.1995.instead.desk`, "In 1995 the computer on the desk was a big beige PC, and it went online through the
+     phone line at home. You'll travel there."
+   - **The era's words, where its stop is.** The panel's text and picture description for an era are its own
+     (`era.2010`: the DSL at home), unless it has words for the stop's place, `era.<era>.at.<base place>`
+     (`era.2010.at.street`: phones on 3G; `era.2010.at.desk`: a cable to the modem; `era.today.at.street`: 5G).
 2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
    of your activity doesn't exist sends you to that era's first activity, and says so.)
 3. **The path** is kept as deep as it can be:
@@ -163,8 +167,10 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
-| `#/en/street/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (a phone on 3G then, not built yet; said so) |
-| `#/en/desk/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (then a laptop on a cable to the DSL router) |
+| `#/en/street/watch-video` → 2010 | `#/en/street-2010/watch-video` (step 4: a phone on 3G) |
+| `#/en/street/watch-video/phone-cell-tower` → 2010 | `#/en/street-2010/watch-video/phone-cell-tower` (the 3G radio dive) |
+| `#/en/desk/watch-video` → 2010 | `#/en/desk-2010/watch-video` (step 4: a laptop on a cable to the DSL router) |
+| `#/en/desk/watch-video` → 1995 | `#/en/home-dialup/watch-video` (the PC at home; the desk's own line says so) |
 | PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes

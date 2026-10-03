@@ -1,6 +1,7 @@
 {
   "name": "På gaden",
   "where": "på gaden",
+  "access": "5G",
   "kid": "Ude på gaden er der ingen Wi-Fi, så pakkerne flyver via radio til en mobilmast og derfra langs en glastråd ud til internettet.",
   "nerd": "På 5G taler telefonen NR med en gNB, der tunnelerer pakkerne (GTP-U) over fiber til mobilkernen; dens UPF laver carrier-grade NAT mod internettet.",
   "describe": {

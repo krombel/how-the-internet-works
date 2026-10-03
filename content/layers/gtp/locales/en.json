@@ -8,6 +8,14 @@
     "nerd": "The gNB wraps the phone’s own IP packet in IP/UDP/GTP-U (port 2152) to the UPF; the TEID identifies this phone’s session."
   },
   "line": "GTP-U, {osrc} → {odst}, TEID {teid}",
+  "value": {
+    "flags": "0x34 (v1, GTP, E)",
+    "seqext": "0 · 0 · next 0x85",
+    "pdu": {
+      "up": "UL, QFI 9",
+      "down": "DL, QFI 9"
+    }
+  },
   "field": {
     "ovhl": {
       "name": "Outer version, IHL",
@@ -97,6 +105,34 @@
     "pdu": {
       "name": "PDU session container",
       "about": "Direction and QoS flow (QFI) of the packet, matching the radio side."
+    }
+  },
+  "2010": {
+    "note": {
+      "kid": "The radio controller puts your parcel inside a bigger one addressed to the mobile company’s gate, so the network can find your phone wherever you walk.",
+      "nerd": "With Direct Tunnel the RNC wraps the phone’s own IP packet in IP/UDP/GTP-U (port 2152) to the GGSN; the TEID names this phone’s PDP context."
+    },
+    "value": {
+      "flags": "0x30 (v1, GTP)",
+      "seqext": "none (no S, PN, E)",
+      "pdu": {
+        "up": "none in 3G",
+        "down": "none in 3G"
+      }
+    },
+    "field": {
+      "odst": {
+        "about": "The other end: the RNC on the way down, the GGSN on the way up."
+      },
+      "teid": {
+        "about": "Tunnel endpoint ID: which phone’s PDP context this is. Each end picks the TEID it wants to receive."
+      },
+      "seqext": {
+        "about": "Optional fields; a 3G user packet usually has none, so the header is just 8 bytes (drawn here at today’s size)."
+      },
+      "pdu": {
+        "about": "5G’s QoS flow label; 3G had none: the PDP context itself carried the QoS."
+      }
     }
   }
 }

@@ -98,6 +98,10 @@ const KNOWN_SHORT = [
   'desk × watch-video landscape /internet border-ixp',
   'desk × watch-video landscape /internet home-cabinet',
   'desk × watch-video portrait /internet border-transit',
+  'desk-2010 × watch-video landscape /internet backhaul-bng',
+  'desk-2010 × watch-video landscape /internet border-ixp',
+  'desk-2010 × watch-video landscape /internet home-cabinet',
+  'desk-2010 × watch-video portrait /internet border-transit',
   'home × watch-video landscape /internet backhaul-bng',
   'home × watch-video landscape /internet border-ixp',
   'home × watch-video landscape /internet home-cabinet',
@@ -119,6 +123,8 @@ const KNOWN_SHORT = [
   'home-fttb × watch-video portrait /internet border-transit',
   'street × watch-video landscape /internet border-ixp',
   'street × watch-video portrait /internet border-transit',
+  'street-2010 × watch-video landscape /internet border-ixp',
+  'street-2010 × watch-video portrait /internet border-transit',
 ];
 
 describe('path scenes (issues #64, #72)', () => {

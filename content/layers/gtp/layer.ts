@@ -21,17 +21,18 @@ export default defineLayer({
     { id: 'ulen', bits: 16, value: '{payload+24}' },
     { id: 'usum', bits: 16, value: '0' },
     // GTP-U: the TEID says which phone's session this is
-    { id: 'flags', bits: 8, value: '0x34 (v1, GTP, E)' },
+    // the optional words are words, so a 3G tunnel (2010) can say it has none (its era block)
+    { id: 'flags', bits: 8, value: '@flags' },
     { id: 'type', bits: 8, value: '255 (G-PDU)' },
     { id: 'length', bits: 16, value: '{payload+8}' },
     { id: 'teid', bits: 32, value: { up: '0x1f3a92c4', down: '0x0000a17e' }, use: true, kid: true },
-    { id: 'seqext', bits: 32, value: '0 · 0 · next 0x85' },
-    { id: 'pdu', bits: 32, value: { up: 'UL, QFI 9', down: 'DL, QFI 9' }, use: true },
+    { id: 'seqext', bits: 32, value: '@seqext' },
+    { id: 'pdu', bits: 32, value: { up: '@pdu.up', down: '@pdu.down' }, use: true },
   ],
   dive: 'gtp-tunnel',
   learnMore: [
-    { url: 'https://en.wikipedia.org/wiki/5G', title: '5G', level: 'kid', lang: 'en' },
-    { url: 'https://da.wikipedia.org/wiki/5G', title: '5G', level: 'kid', lang: 'da' },
+    { url: 'https://en.wikipedia.org/wiki/Cellular_network', title: 'Cellular network', level: 'kid', lang: 'en' },
+    { url: 'https://da.wikipedia.org/wiki/Mobiltelefoni', title: 'Mobiltelefoni', level: 'kid', lang: 'da' },
     { url: 'https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol', title: 'GPRS Tunnelling Protocol', level: 'nerd', lang: 'en' },
   ],
 });
