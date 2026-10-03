@@ -518,7 +518,7 @@ extra effort:
   `content/themes/storybook/tokens.css`, and night overrides it in the `[data-mode='night']` block. If no
   colour fits, add a token to the day block and give it a night value.
 - **Some tokens are lights,** plain by day and lit at night. Use them where something glows after dark:
-  - `--window`: a window pane
+  - `--window`: a window pane, framed in `--window-frame` (the outline by day, dark at night)
   - `--room`: a lit room seen from outside
   - `--lamp`: a lamp head or headlights
   - `--shade`: a drop shadow. At night it is near black, not brown.
