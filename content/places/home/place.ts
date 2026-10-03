@@ -11,9 +11,10 @@ export default definePlace({
     { link: 'ethernet', km: 0.005 },
     { at: 'router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'gpon', km: 1.2 },
+    // the splitter in the street is passive; the PON runs on to the OLT at the exchange
     { at: 'cabinet', in: 'internet', owner: 'isp' },
-    { link: 'metro-fibre', stack: ['ethernet', 'vlan'], km: 6 },
-    { at: 'backhaul', in: 'internet', owner: 'isp' },
+    { link: 'gpon', km: 6 },
+    { at: 'olt', in: 'internet', owner: 'isp' },
     { link: 'metro-fibre', stack: ['ethernet', 'vlan'], km: 18 },
     { at: 'bng', in: 'internet', owner: 'isp' },
     { link: 'backbone', km: 25 },
@@ -45,9 +46,10 @@ export default definePlace({
       },
     },
     internet: {
-      // the house a little higher than the backhaul switch, so their names (at their biggest, in short landscape) don't meet
-      landscape: { nodes: { home: [140, 620, 120], cabinet: [285, 450, 150, 'above'], backhaul: [440, 680, 150], bng: [660, 450, 150, 'above'] } },
-      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], backhaul: [240, 1180, 150], bng: [720, 1030, 150] } },
+      // the house a little higher than the OLT, so their names (at their biggest, in short landscape) don't meet; in
+      // 2010 the backhaul switch stands about where the OLT is today
+      landscape: { nodes: { home: [140, 620, 120], cabinet: [300, 440, 150, 'above'], olt: [430, 710, 150], backhaul: [440, 680, 150], bng: [660, 450, 150, 'above'] }, links: { 'bng-core': { bend: -0.2 } } },
+      portrait: { nodes: { home: [200, 1470, 130], cabinet: [640, 1330, 150], olt: [240, 1180, 150], backhaul: [240, 1180, 150], bng: [720, 1030, 150] } },
     },
   },
   learnMore: [

@@ -26,8 +26,10 @@ describe('text map', () => {
     expect(under('router').slice(1).every((s) => s.startsWith('layer:router~'))).toBe(true);
     // a stretch of links that is one dive hangs under its first link only
     const inside = m.stops.find((s) => s.spot.stop === 'internet')!.scenes[0];
-    expect(inside.stops.find((s) => s.spot.stop === 'cabinet-backhaul')!.scenes.map((c) => c.path.at(-1))).toEqual(['cabinet-backhaul']);
-    expect(inside.stops.find((s) => s.spot.stop === 'backhaul-bng')!.scenes).toEqual([]);
+    expect(inside.stops.find((s) => s.spot.stop === 'home-cabinet')!.scenes.map((c) => c.path.at(-1))).toEqual(['home-cabinet']);
+    expect(inside.stops.find((s) => s.spot.stop === 'cabinet-olt')!.scenes).toEqual([]);
+    // a passive splitter reads nothing: no layer dives under it
+    expect(inside.stops.find((s) => s.spot.stop === 'cabinet')!.scenes).toEqual([]);
     // the backbone and the undersea cable are a dive each, side by side (#39)
     expect(inside.stops.find((s) => s.spot.stop === 'bng-core')!.scenes.map((c) => `${c.via}:${c.path.join('/')}`)).toEqual(['dive:internet/bng-core']);
     expect(inside.stops.find((s) => s.spot.stop === 'core-border')!.scenes.map((c) => `${c.via}:${c.path.join('/')}`)).toEqual(['dive:internet/core-border']);

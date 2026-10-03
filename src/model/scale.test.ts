@@ -19,7 +19,7 @@ describe('owners', () => {
     for (const o of ['landscape', 'portrait'] as const) {
       const ps = pathScene(home, 'internet', o), regions = regionsOf(home, ps);
       expect(regions.map((g) => [g.owner, g.tone, g.aside])).toEqual([['isp', 0, false], ['ixp', 1, false], ['cdn', 2, false], ['transit', 3, true]]);
-      expect(regions.find((g) => g.owner === 'isp')!.nodes).toEqual(['cabinet', 'backhaul', 'bng', 'core', 'border']);
+      expect(regions.find((g) => g.owner === 'isp')!.nodes).toEqual(['cabinet', 'olt', 'bng', 'core', 'border']);
       // the layout's sign spot is where the sign goes
       expect(regions.find((g) => g.owner === 'isp')!.sign).toEqual(ps.signs.isp);
       expect(regionsOf(home, ps)).toBe(regions);

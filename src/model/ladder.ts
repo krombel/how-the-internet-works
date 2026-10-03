@@ -34,11 +34,13 @@ function rung(r: Route, path: string[], o: Orient): Rung {
 
 /** The layer dives at the hop of layer dive `path` that ride on a link carrying `carried`, top first: the inner
  *  layers, and of the link layers at that hop only those in `carried` (not the other side's: no fibre envelope on
- *  the copper). */
+ *  the copper), in the order that link nests them (the router meets Ethernet first on the copper, but on the fibre
+ *  it rides inside the PON frame). */
 function stackAt(r: Route, path: string[], carried: string[], o: Orient): Rung[] {
   const parent = parentPath(path), hop = r.hops[sceneRef(r, path, o)!.at!.hop], sides = linksAt(r, hop).flatMap((l) => l.stack);
-  return sideways(r, path, null, o).steps.map((step) => rung(r, [...parent, step], o))
-    .filter((g) => carried.includes(g.layer!) || !sides.includes(g.layer!)).reverse();
+  const rungs = sideways(r, path, null, o).steps.map((step) => rung(r, [...parent, step], o));
+  const own = rungs.filter((g) => carried.includes(g.layer!)).sort((a, b) => carried.indexOf(a.layer!) - carried.indexOf(b.layer!));
+  return [...own, ...rungs.filter((g) => !carried.includes(g.layer!) && !sides.includes(g.layer!))].reverse();
 }
 
 /** The links of the stretch (#34) a link dive stands for. */

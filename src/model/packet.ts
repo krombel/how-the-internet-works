@@ -93,11 +93,12 @@ export function ttlAt(r: Route, i: number, dir: Dir): number {
 }
 
 const isTunnel = (r: Route, id: string) => !!r.content.layers[id]?.tunnel;
-/** Where link frames end: at any hop that isn't a bridge, and at the ends of a tunnel (they are hosts on the network
- *  that carries the tunnel). A bridge (an access point, a switch) passes the frame's addresses on. */
+/** Where link frames end: at any hop that isn't a bridge or passive, and at the ends of a tunnel (they are hosts on the
+ *  network that carries the tunnel). A bridge (an access point, a switch) passes the frame's addresses on, and a
+ *  passive hop (a splitter) doesn't even see them. */
 function l2End(r: Route, h: number): boolean {
   const hop = r.chain[h];
-  if (hop.role !== 'bridge') return true;
+  if (hop.role !== 'bridge' && hop.role !== 'passive') return true;
   const a = r.links[h - 1]?.stack.filter((l) => isTunnel(r, l)) ?? [], b = r.links[h]?.stack.filter((l) => isTunnel(r, l)) ?? [];
   return a.join() !== b.join();
 }
@@ -227,11 +228,11 @@ function align(a: string[], b: string[]): { id: string; ai: number; bi: number }
 
 const usedBy = (def: WithId<LayerDef>, fid: string, role: Role) => {
   const u = def.fields.find((f) => f.id === fid)?.use;
-  return u === true || !!u?.includes(role);
+  return u === true ? role !== 'passive' : !!u?.includes(role);
 };
 
-/** Whether a hop with this role opens a layer. */
-export const opensLayer = (def: LayerDef | undefined, role: Role) => !def?.openAt || def.openAt.includes(role);
+/** Whether a hop with this role opens a layer. A passive hop opens none unless the layer names it. */
+export const opensLayer = (def: LayerDef | undefined, role: Role) => (def?.openAt ? def.openAt.includes(role) : role !== 'passive');
 
 /** The packet of `flow` going `dir`, at chain hop `h`: what arrives, what the hop uses and changes, what leaves. */
 export function hopView(r: Route, flowId: string, dir: Dir, h: number): HopView {

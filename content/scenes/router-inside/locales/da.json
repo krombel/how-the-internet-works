@@ -5,10 +5,10 @@
   },
   "title": "Inde i hjemmerouteren",
   "kid": "Hjemmerouteren er fire små rum i én kasse. Din pakke kommer ind gennem et stik, og hjernen bytter din enheds navn på den ud med dit hjems, så svaret kan finde tilbage. Så gør lysboksen bittene til lysglimt i glastråden op ad gaden.",
-  "nerd": "En hjemme-gateway er flere kasser i én: en Ethernet-switch, en Wi‑Fi-radio, en router der laver NAT (den bytter den private afsenderadresse og port ud med sin ene offentlige adresse og husker parret, så svarene kommer ind igen) og en ONT der sender rammerne som GPON-lysglimt.",
+  "nerd": "En hjemme-gateway er flere kasser i én: en Ethernet-switch, en Wi‑Fi-radio, en router der laver NAT (den bytter den private afsenderadresse og port ud med sin ene offentlige adresse og husker parret, så svarene kommer ind igen) og en ONT, der sender rammerne op som XGS-PON-lysglimt i sine tidsluker.",
   "describe": {
     "kid": "En åben routerkasse er delt i fire små rum: kabelstik, Wi‑Fi-radio, hjerne og lysboks. Ét kabelstik lyser, hvor pakken kommer ind. Pakken går gennem hjernen, afsender-mærket skifter, og den går ud som blinkende lys.",
-    "nerd": "Den åbne gateway viser switch, Wi‑Fi-radio, router med NAT og ONT-rum. Kun rummene på denne tur er tændt. Pakken kommer ind på det aktive kobberlink, passerer NAT-omskrivningen som bits og forlader ONT’en som GPON-lysglimt."
+    "nerd": "Den åbne gateway viser switch, Wi‑Fi-radio, router med NAT og ONT-rum. Kun rummene på denne tur er tændt. Pakken kommer ind på det aktive kobberlink, passerer NAT-omskrivningen som bits og forlader ONT’en som XGS-PON-lysglimt."
   },
   "from": "Fra: {who}",
   "outside": "Hjem",
@@ -57,7 +57,7 @@
     },
     "line": {
       "kid": "Bits → lys",
-      "nerd": "GPON · 1310/1490 nm"
+      "nerd": "XGS-PON · 1270/1577 nm"
     },
     "idle": {
       "kid": "Hviler",

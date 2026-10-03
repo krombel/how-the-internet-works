@@ -23,8 +23,8 @@ describe('doors', () => {
     expect(list(doorsIn(street, null, 'portrait'))).toEqual(['swap:phone', 'dive:phone-cell-tower', 'dive:cell-tower', 'dive:cell-tower-internet', 'expand:internet']);
     // a stretch of same-technology links is one dive: one badge, and it lights up all of them
     const inside = doorsIn(home, 'internet', 'landscape');
-    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:cabinet-backhaul', 'dive:bng-core', 'dive:core-border', 'dive:border', 'dive:border-ixp', 'dive:ixp', 'dive:ixp-datacentre', 'expand:datacentre']);
-    expect(inside.map((d) => d.links)).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core'], ['core-border'], [], ['border-ixp'], [], ['ixp-datacentre'], []]);
+    expect(list(inside)).toEqual(['dive:home-cabinet', 'dive:olt-bng', 'dive:bng-core', 'dive:core-border', 'dive:border', 'dive:border-ixp', 'dive:ixp', 'dive:ixp-datacentre', 'expand:datacentre']);
+    expect(inside.map((d) => d.links)).toEqual([['home-cabinet', 'cabinet-olt'], ['olt-bng'], ['bng-core'], ['core-border'], [], ['border-ixp'], [], ['ixp-datacentre'], []]);
   });
 
   it('badges a device\'s dive on its corner away from its name, and it opens the device', () => {
