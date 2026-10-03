@@ -2,6 +2,7 @@
 // (era-1995.test.ts, era-2010.test.ts).
 import type { Level } from '../define';
 import { sceneKeys } from '../model/describe';
+import { peekKeys } from '../model/packet';
 import { basePlace, content } from '../model/registry';
 import { stringSources, type Route } from '../model/resolve';
 import { role } from '../model/schema';
@@ -25,8 +26,8 @@ export function scenes(r: Route): SceneRef[] {
 const LEVELS: Level[] = ['kid', 'nerd'];
 const TEXTS = ['', '.describe', '.extra', '.title'];
 
-/** The captions' keys, each most specific first: every reachable scene's own words, and the stops' and links' names,
- *  words and tags. */
+/** The captions' keys, each most specific first: every reachable scene's own words, the stops' and links' names,
+ *  words and tags, and what the peek says each hop does, both ways. */
 function captionKeys(r: Route): string[][] {
   const src = stringSources(r), lists: string[][] = [];
   for (const ref of scenes(r)) for (const keys of sceneKeys(r, ref)) for (const s of TEXTS) lists.push(keys.map((k) => k + s));
@@ -39,6 +40,7 @@ function captionKeys(r: Route): string[][] {
     lists.push([...src.map((s) => `${s}.stop.${l.id}`), `tech.${l.tech.id}`], [`tech.${l.tech.id}.name`]);
     lists.push([...src.map((s) => `${s}.tag.${l.id}`), `tech.${l.tech.id}.tag`]);
   }
+  for (const h of r.chain.keys()) for (const dir of ['up', 'down'] as const) lists.push(peekKeys(r, h, dir));
   return lists;
 }
 

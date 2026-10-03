@@ -15,5 +15,12 @@
         "nerd": "A 1995 laptop with a GSM data card on a cable to a GSM phone, dialling the ISP at 9.6 kbit/s."
       }
     }
+  },
+  "peek": {
+    "role": {
+      "router": {
+        "nerd": "Routed: longest-prefix match on the destination, TTL − 1, and a new link frame."
+      }
+    }
   }
 }

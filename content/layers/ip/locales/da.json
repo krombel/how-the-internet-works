@@ -77,8 +77,19 @@
   "1995": {
     "server": "webserveren",
     "field": {
+      "dscp": {
+        "name": "Type of service",
+        "about": "Prioritet (3 bit) og et ønske om lav forsinkelse, høj kapacitet eller høj pålidelighed (RFC 791). 0 er almindelig, og de fleste routere ser bort fra det."
+      },
+      "ecn": {
+        "name": "Reserveret",
+        "about": "To bit gemt til senere, sat til 0 (RFC 1349 giver den ene til “lav pris”)."
+      },
       "ttl": {
         "about": "Hver router trækker én fra og smider pakken væk ved 0, så en routing-løkke ikke kan beholde den for evigt."
+      },
+      "proto": {
+        "about": "Hvad der er indeni: 6 = TCP (17 er UDP, 1 er ICMP)."
       }
     }
   }
