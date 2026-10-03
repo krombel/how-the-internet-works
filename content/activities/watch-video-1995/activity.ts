@@ -2,8 +2,8 @@ import { defineActivity } from '$core/define';
 import watchVideo from '../watch-video/activity';
 
 // "Get something big from far away", in 1995 (#59): a web page with a picture, not a video. Plain HTTP over TCP: SSL
-// had just come out for shops, and video was barely possible on a modem. The internet in the middle is today's for
-// now, so the route, groups and layout are the base's.
+// had just come out for shops, and video was barely possible on a modem. The route and layout are the base's (its
+// segments have 1995 variants); the far end is a small server room, not a data centre, so that group is drawn by it.
 const [video] = watchVideo.flows;
 // the page isn't played as it comes, so it has no play time
 const { plays: _plays, ...down } = video.packets[1];
@@ -11,6 +11,7 @@ export default defineActivity({
   ...watchVideo,
   variantOf: 'watch-video',
   era: '1995',
+  groups: ['internet', { id: 'datacentre', in: 'internet', node: 'server-room' }],
   flows: [
     {
       id: 'page',

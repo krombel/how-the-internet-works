@@ -1,10 +1,5 @@
 {
   "name": "Video-server",
   "kid": "Videoen bor her, på en computer i et af skabene. Videofirmaet gemmer kopier af populære videoer mange steder, så ingen af dem er langt væk.",
-  "nerd": "En CDN-cache-server: video-appen kører i en container og leverer segmentet fra hukommelse eller SSD; kun cache-miss går videre, tilbage til origin.",
-  "1995": {
-    "name": "Webserver",
-    "kid": "Siden og dens billede bor her, på en computer langt væk. Alle, der kigger, får dem fra denne ene computer.",
-    "nerd": "En webserver: ét program (for eksempel NCSA HTTPd) læser forespørgslen og sender filerne fra sin disk. Der var ingen CDN-cacher endnu: Akamai begyndte i 1998–99."
-  }
+  "nerd": "En CDN-cache-server: video-appen kører i en container og leverer segmentet fra hukommelse eller SSD; kun cache-miss går videre, tilbage til origin."
 }

@@ -65,32 +65,49 @@
   },
   "1995": {
     "title": "Inde i webserveren",
-    "kid": "I 1995 boede siden og dens billede på én computer, webserveren. Lys fra datacentrets forbindelse bliver til bits på netværkskortet, og programmet finder siden på sin disk og sender den tilbage. Tegningen viser, hvordan en videoserver gør det i dag, med kopier på hylder.",
-    "nerd": "I 1995 var det én webserver: ét program (for eksempel NCSA HTTPd), der læste filer fra sin disk, uden CDN foran (Akamai begyndte i 1998–99) og uden virtuelle maskiner. Tegningen viser, hvordan en cache-server gør det i dag.",
+    "kid": "Hjemmesiden er denne ene computer, en høj beige kasse på en hylde. Din forespørgsel kommer ind fra hubbens kabel til netkortet, og webprogrammet beder harddisken om siden. Disken snurrer, armen læser siden, og den går samme vej ud igen. Bagefter det samme for billedet.",
+    "nerd": "En webserver i 1995: én tårn-pc eller arbejdsstation med et 10BASE-T-netkort, én CPU og én disk, der kører ét program (NCSA HTTPd eller det nye Apache). HTTP/1.0 åbner en ny TCP-forbindelse for hver fil: GET /index.html, så GET /picture.gif, hver læst fra disken og sendt med 200 OK. Ingen cache, intet CDN (Akamai begyndte i 1998–99), ingen virtuelle maskiner.",
+    "describe": {
+      "kid": "En beige computer uden sideplade viser et netkort, computeren med ét program i og en disk, der snurrer. En pakke kommer ind fra hubben, går til programmet og videre til disken, og en side, så et billede, kommer ud til hubben igen.",
+      "nerd": "Det gennemskårne tårn viser 10BASE-T-netkortet, CPU’en, der kører httpd, og harddisken. Forespørgslen kommer ind fra hubben ad ethernetkablet til httpd, som læser filen fra disken; svaret, siden i én runde og billedet i den næste, går ud igen med 200 OK."
+    },
     "app": "Webprogram",
-    "ssd": {
+    "nic": {
+      "title": {
+        "nerd": "NIC 10BASE-T"
+      },
+      "line": {
+        "kid": "Pulser → bits",
+        "nerd": "Manchester → rammer"
+      }
+    },
+    "compute": {
+      "title": {
+        "nerd": "CPU · ét OS"
+      },
+      "line": {
+        "kid": "Ét program",
+        "nerd": "Én httpd, ingen VM’er"
+      }
+    },
+    "disk": {
       "title": {
         "kid": "Disk",
         "nerd": "Harddisk"
       },
       "line": {
-        "kid": "Hylder med sider",
+        "kid": "Sider og billeder",
         "nerd": "Filer på disk"
       }
     },
-    "nic": {
-      "title": {
-        "nerd": "NIC 10 Mbit/s"
+    "ok": {
+      "page": {
+        "kid": "Her er siden!",
+        "nerd": "GET /index.html → 200 OK"
       },
-      "line": {
-        "kid": "Pulser → bits",
-        "nerd": "10BASE-T-rammer"
-      }
-    },
-    "compute": {
-      "line": {
-        "kid": "Ét program",
-        "nerd": "Ét OS · én httpd"
+      "picture": {
+        "kid": "Og her er billedet!",
+        "nerd": "GET /picture.gif → 200 OK"
       }
     }
   }

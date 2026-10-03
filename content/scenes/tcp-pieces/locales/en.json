@@ -77,7 +77,7 @@
       "nerd": "The cards show the TCP send window and the receiver’s in-order buffer. SYN, SYN-ACK and ACK tickets start the loop. Data segments cross the road, ACK tickets travel back, and duplicate ACK 5 keeps the gap. Segment 5 is fast retransmitted, the window slides, and delivery waits for ordered bytes."
     },
     "at": {
-      "cdn": {
+      "web-server": {
         "kid": "The server lines up pieces and lets four travel at a time. When {yours} says piece 5 is missing, the server sends 5 again before the browser gets the row.",
         "describe": {
           "kid": "The server is the busy end of the road. Its Server card lines up numbered boxes, and the frame around four boxes shows how many may travel at once. Boxes walk toward the shelf. When the ticket from {yours} says 5 is missing, box 5 lights up and walks again before the shelf is complete.",

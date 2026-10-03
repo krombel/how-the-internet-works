@@ -2,10 +2,5 @@
   "name": "Load balancer",
   "kid": "En trafikbetjent. Mange computere kunne svare, så den vælger én, der ikke har travlt, og sender alle pakkerne til din video til den samme.",
   "nerd": "En L4-load balancer ejer serviceadressen (VIP). Den hasher hver forbindelses 5-tupel til en rask backend (konsistent hashing som i Maglev), så alle pakker i én TCP-forbindelse når samme server; sundhedstjek tager defekte servere ud.",
-  "tag": "L4 · VIP · konsistent hash",
-  "1995": {
-    "kid": "Tegnet som i dag. I 1995 var der kun én webcomputer, så ingen behøvede at vælge.",
-    "nerd": "Tegnet som i dag. Load balancere kom senere i 1990’erne, da travle steder voksede fra én server; i 1995 svarede dette steds ene webserver alle.",
-    "tag": "Tegnet som i dag"
-  }
+  "tag": "L4 · VIP · konsistent hash"
 }

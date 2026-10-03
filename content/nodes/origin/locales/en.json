@@ -2,10 +2,5 @@
   "name": "Origin",
   "kid": "The main copy of every video, kept in a cloud far away. A video server that doesn’t have a video yet fetches it from here.",
   "nerd": "The origin: the master copy in object storage in a cloud region, stored three times over (often in different buildings), so losing a disk or a building loses nothing. Cache misses fill from here, sometimes across an ocean.",
-  "tag": "Object storage · 3 copies",
-  "1995": {
-    "kid": "Drawn as today. In 1995 there was no main copy far away: the web server had the only copy of the page.",
-    "nerd": "Drawn as today (an origin in cloud object storage). In 1995 the web server’s own disk held the only copy, with a backup on tape if you were lucky.",
-    "tag": "Drawn as today"
-  }
+  "tag": "Object storage · 3 copies"
 }

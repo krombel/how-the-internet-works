@@ -4,6 +4,7 @@
   import Bars from './art/Bars.svelte';
   import Card from './art/Card.svelte';
   import Cloud from './art/Cloud.svelte';
+  import File from './art/File.svelte';
   import Film from './art/Film.svelte';
   import Locked from './art/Locked.svelte';
   import Note from './art/Note.svelte';
@@ -17,12 +18,17 @@
   const T = $derived(L.size);
   const portrait = $derived(view.orient === 'portrait');
   const nerd = $derived(ctx.level === 'nerd');
+  const flow = $derived(subject.route.activity.flows.find((f) => f.id === ctx.flow));
   // HTTP inside TLS is locked at every hop between the ends; plain HTTP (1995, 2010) could be read on the way
-  const lock = $derived(!!subject.route.activity.flows.find((f) => f.id === ctx.flow)?.stack.includes('tls'));
+  const lock = $derived(!!flow?.stack.includes('tls'));
+  // a web page (1995) instead of a video: the page, then the picture on it, both read from the server's disk; no
+  // quality to pick, no cache and no main copy far away
+  const page = $derived(!!flow?.packets.some((p) => p.kind === 'page'));
   const where: Where = $derived(subject.open ? (ctx.to.id === ctx.server.id ? 'server' : 'client') : 'middle');
   const clientSpot = $derived(where === 'client' ? L.home[0] : L.ends[0]);
   const serverSpot = $derived(where === 'server' ? L.home[1] : L.ends[1]);
   const m = $derived(httpMoment(view.time));
+  const file = $derived(m.chunk === 42 ? 'page' : 'picture');
   const [ask, answer] = $derived(L.cards);
   const titleY = (c: { y: number }) => c.y + (portrait ? 75 : L.compact ? 72 : 66);
   const top = (c: { y: number }) => c.y + L.head;
@@ -30,16 +36,17 @@
   const statusY = (c: { y: number; h: number }) => c.y + c.h - (portrait || L.compact ? 30 : 24);
 
   // the request slip, and beside it how fast the connection is
-  const meterW = $derived(portrait ? 180 : L.compact ? 190 : 170);
+  const meterW = $derived(page ? -20 : portrait ? 180 : L.compact ? 190 : 170);
   const slip = $derived({ x: ask.x + 30, y: top(ask), w: ask.w - 80 - meterW, h: bottom(ask) - top(ask) });
   const mono = $derived(legible(T.mono));
   const path = (n: number, q: Quality) => `/video/${q === 'med' ? '720p' : '360p'}/${n}.m4s`;
   // the whole request line if it fits the slip at a legible size, else just the chunk and its quality
-  const fullLines = $derived([`GET ${path(m.chunk, m.quality)}`, 'Host: video.example']);
+  const fileName = $derived(file === 'page' ? '/index.html' : '/picture.gif');
+  const fullLines = $derived(page ? [`GET ${fileName} HTTP/1.0`, `Accept: ${file === 'page' ? 'text/html' : 'image/gif'}`] : [`GET ${path(m.chunk, m.quality)}`, 'Host: video.example']);
   const slipLines = $derived(!L.compact && fullLines.every((l) => l.length * 0.6 * mono <= slip.w - 40)
     ? fullLines
-    : [`GET …/${m.chunk}.m4s`, m.quality === 'med' ? '720p' : '360p']);
-  const askStatus = $derived(m.beat === 'slower' ? S('status.slower') : m.beat === 'play' ? S('status.play') : '');
+    : page ? [`GET ${fileName}`, 'HTTP/1.0'] : [`GET …/${m.chunk}.m4s`, m.quality === 'med' ? '720p' : '360p']);
+  const askStatus = $derived(page ? '' : m.beat === 'slower' ? S('status.slower') : m.beat === 'play' ? S('status.play') : '');
 
   // the cache shelf at the server, the main copy far away, and the status stamp
   const shelf = $derived({ x: answer.x + 30, y: top(answer), w: answer.w * 0.56, h: bottom(answer) - top(answer) });
@@ -52,7 +59,7 @@
   const cloud = $derived({ x: side.x + side.w / 2, y: shelf.y + (portrait ? 60 : 50) });
   const stamp = $derived({ x: side.x + side.w / 2, y: bottom(answer) - (portrait ? 46 : L.compact ? 48 : 36) });
   const missing = $derived(m.beat === 'miss' && m.look > 0 && !m.stored);
-  const shelfStatus = $derived(m.beat === 'hit' && m.look > 0 ? S('shelf.hit') : m.beat === 'miss' ? (m.stored ? S('shelf.kept') : m.fetch > 0 ? S('shelf.fetch') : m.look > 0 ? S('shelf.miss') : '') : '');
+  const shelfStatus = $derived(page ? (m.look > 0 ? S('shelf.disk') : '') : m.beat === 'hit' && m.look > 0 ? S('shelf.hit') : m.beat === 'miss' ? (m.stored ? S('shelf.kept') : m.fetch > 0 ? S('shelf.fetch') : m.look > 0 ? S('shelf.miss') : '') : '');
 
   // a sealed hop: what goes by, and how big
   const seen = $derived(seenSoFar(view.time));
@@ -83,18 +90,30 @@
       <text x={slip.x + 20} y={slip.y + 22 + (slip.h - 22) * (i + 1) / (slipLines.length + 1) + mono * 0.35} font-family="var(--mono-font)" font-size={mono} font-weight={i ? 600 : 800} fill="var(--line)" opacity={m.write}>{line}</text>
     {/each}
   {:else}
-    <Text x={slip.x + slip.w / 2} y={slip.y + 22 + (slip.h - 22) * 0.4} text={S('slip.chunk').replace('{n}', `${m.chunk}`)} size={T.big} kind="big" />
-    <Text x={slip.x + slip.w / 2} y={slip.y + 22 + (slip.h - 22) * 0.78} text={S(`slip.${m.quality}`)} size={T.text} kind="node" colour={m.quality === 'low' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
+    {#if page}
+      <Text x={slip.x + slip.w / 2} y={slip.y + 22 + (slip.h - 22) * 0.55} text={S(`slip.${file}`)} size={T.big} kind="big" />
+    {:else}
+      <Text x={slip.x + slip.w / 2} y={slip.y + 22 + (slip.h - 22) * 0.4} text={S('slip.chunk').replace('{n}', `${m.chunk}`)} size={T.big} kind="big" />
+      <Text x={slip.x + slip.w / 2} y={slip.y + 22 + (slip.h - 22) * 0.78} text={S(`slip.${m.quality}`)} size={T.text} kind="node" colour={m.quality === 'low' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
+    {/if}
   {/if}
-  {@const mx = slip.x + slip.w + 20 + meterW / 2}
-  {@const barsH = slip.h * 0.5}
-  <Bars x={mx + barsH * 0.13} y={slip.y + 6} h={barsH} bars={m.bars} />
-  <Text x={mx} y={slip.y + barsH + 6 + T.text * 1.25} text={S(m.bars > 2 ? 'meter.fast' : 'meter.slow', L.compact ? 'kid' : undefined)} size={L.compact ? T.text : T.text * 0.85} kind="node" />
+  {#if !page}
+    {@const mx = slip.x + slip.w + 20 + meterW / 2}
+    {@const barsH = slip.h * 0.5}
+    <Bars x={mx + barsH * 0.13} y={slip.y + 6} h={barsH} bars={m.bars} />
+    <Text x={mx} y={slip.y + barsH + 6 + T.text * 1.25} text={S(m.bars > 2 ? 'meter.fast' : 'meter.slow', L.compact ? 'kid' : undefined)} size={L.compact ? T.text : T.text * 0.85} kind="node" />
+  {/if}
   {#if askStatus}<Text x={ask.x + ask.w / 2} y={statusY(ask)} text={askStatus} size={T.status} kind="big" colour={m.beat === 'play' ? 'var(--leaf-ink)' : 'var(--berry-ink)'} />{/if}
 
   <Card x={answer.x} y={answer.y} w={answer.w} h={answer.h} tint="var(--berry)" />
   <Text x={answer.x + 34} y={titleY(answer)} text={S('card.answer')} size={T.big} kind="big" anchor="start" />
   <path d={`M${shelf.x} ${plankY} H${shelf.x + shelf.w}`} stroke="var(--wood)" stroke-width="12" stroke-linecap="round" />
+  {#if page}
+    {#each ['page', 'picture'] as const as f, i}
+      {@const k = filmK * bulk({ kind: 'chunk', quality: 'med' })}
+      <File x={shelf.x + shelf.w * (i + 0.5) / 2} y={plankY - 48 * k - 4} file={f} scale={k} glow={m.look > 0 && f === file} />
+    {/each}
+  {:else}
   {#each slots as s, i}
     {@const p = slotAt(i, s.q)}
     {@const k = filmK * bulk({ kind: 'chunk', quality: s.q })}
@@ -112,6 +131,7 @@
     {@const to = slotAt(2, 'low')}
     <Film x={lerp(cloud.x, to.x, m.fetch)} y={lerp(cloud.y, to.y, m.fetch)} scale={filmK * bulk({ kind: 'chunk', quality: 'low' })} />
   {/if}
+  {/if}
   {#if m.ok > 0}
     {@const w = Math.min(side.w, T.big * 4.2)}
     <g transform="translate({stamp.x} {stamp.y}) rotate(-8) scale({1.35 - 0.35 * m.ok})">
@@ -119,7 +139,7 @@
       <Text x={0} y={T.big * 0.34} text="200 OK" size={T.big} kind="big" colour="var(--leaf-ink)" />
     </g>
   {/if}
-  {#if shelfStatus}<Text x={answer.x + answer.w / 2} y={statusY(answer)} text={shelfStatus} size={T.status} kind="big" colour={m.beat === 'hit' || m.stored ? 'var(--leaf-ink)' : 'var(--berry-ink)'} />{/if}
+  {#if shelfStatus}<Text x={answer.x + answer.w / 2} y={statusY(answer)} text={shelfStatus} size={T.status} kind="big" colour={page || m.beat === 'hit' || m.stored ? 'var(--leaf-ink)' : 'var(--berry-ink)'} />{/if}
 {:else}
   <Card x={ask.x} y={ask.y} w={ask.w} h={ask.h} tint="var(--kraft-dark)" />
   <Text x={ask.x + 34} y={titleY(ask)} text={S('card.seen')} size={T.big} kind="big" anchor="start" />
@@ -174,14 +194,19 @@
     {#if Math.abs(wx - L.hop.x) > L.hop.size / 2 + 72 * wk}<Text x={wx} y={L.walk - 48 * wk - 20} text={sizeWord(walker)} size={T.text} kind="big" />{/if}
   {:else if walker.kind === 'ask'}
     <Note x={wx} y={L.walk} scale={wk * 1.3} />
-    <Text x={wx} y={L.walk + 4 * wk + T.text * 0.34} text={`${m.chunk}`} size={T.text} kind="big" />
+    {#if !page}<Text x={wx} y={L.walk + 4 * wk + T.text * 0.34} text={`${m.chunk}`} size={T.text} kind="big" />{/if}
+  {:else if page}
+    <File x={wx} y={L.walk} {file} scale={wk} />
   {:else}
     <Film x={wx} y={L.walk} scale={wk} />
     <Text x={wx} y={L.walk + T.text * 0.34} text={`${m.chunk}`} size={T.text} kind="big" />
   {/if}
 {/if}
 
-{#if view.orient === 'landscape' && tags.length >= 2}
+{#if subject.open && page && tags.length}
+  {#if view.orient === 'landscape' && tags.length >= 2}<TagAt x={tags[0].x} y={tags[0].y} text={S('tag.request')} size={T.tag} />{/if}
+  <TagAt x={tags.at(-1)!.x} y={tags.at(-1)!.y} text={S(`tag.${file}`)} size={T.tag} />
+{:else if view.orient === 'landscape' && tags.length >= 2}
   <TagAt x={tags[0].x} y={tags[0].y} text={S(subject.open ? (m.beat === 'slower' ? 'tag.rate' : 'tag.mpd') : 'tag.length')} size={T.tag} />
   <TagAt x={tags[1].x} y={tags[1].y} text={S(subject.open ? (m.beat === 'hit' ? 'tag.hit' : m.beat === 'miss' ? 'tag.miss' : 'tag.range') : 'tag.guess')} size={T.tag} />
 {:else if tags.length}

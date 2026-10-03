@@ -427,8 +427,10 @@ place of that era, and says so.
   place you are at if it's of that era, else to the one of that era that starts the same way (the same first link:
   `desk`'s cable goes to `desk-2010`'s), else to the first by `order`.
 - The internet inside is an era's own where a segment variant draws it (`isp-to-cdn-1995`: a small ISP, leased lines,
-  CANTAT-3 and an American ATM backbone); where a part is still today's drawing (1995's server room, until its own
-  step), its words say so plainly ("drawn as today") rather than describe today's technology as the era's. A test
+  CANTAT-3 and an American ATM backbone; `datacentre-1995`: a server room with a router, a hub and one web server,
+  drawn by the `server-room` group node); where a part is still today's drawing (DIX's switch in `ixp-inside`), its
+  words say so plainly ("drawn as today") rather than describe today's technology as the era's. A dive's words for one
+  device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`, not `at.cdn`). A test
   walks every route of the past and fails on a later technology named in its captions, names, tags and dives
   (`era-1995.test.ts`: MPLS, DWDM, 100G, leaf–spine, a CDN…) unless the line says when it came.
 - **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the

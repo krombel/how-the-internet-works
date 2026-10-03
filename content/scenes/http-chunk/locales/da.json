@@ -124,22 +124,23 @@
   },
   "1995": {
     "title": "Bed om en side",
-    "kid": "I 1995 skriver {yours} en seddel: siden, tak. Serveren finder den, stempler 200 OK og sender den tilbage, og en seddel mere beder om billedet på siden. Ingen delte videoer op i stykker endnu: tegningen viser, hvordan en videoafspiller spørger i dag, med de samme sedler og stempler.",
-    "nerd": "Almindelig HTTP/1.0 uden TLS (SSL 2.0 kom i Netscape i 1995, til butikker): GET /index.html får 200 OK med Content-Type: text/html, og så henter en ny TCP-forbindelse GET /picture.gif (image/gif). Alle led på vejen kunne læse det hele. Der skulle ikke bruges en Host-header endnu, og ingen cacher svarede undervejs. Tegningen viser dagens video i stykker over de samme forespørgsels- og statuslinjer.",
+    "kid": "I 1995 skriver {yours} en seddel: siden, tak. Webserveren finder den på sin disk, stempler 200 OK og sender den tilbage. Så beder en seddel mere om billedet på siden, og billedet kommer tilbage samme vej.",
+    "nerd": "Almindelig HTTP/1.0 uden TLS (SSL 2.0 kom i Netscape i 1995, til butikker): GET /index.html får 200 OK med Content-Type: text/html, og så henter en ny TCP-forbindelse GET /picture.gif (image/gif). Alle led på vejen kunne læse det hele. Der skulle ikke bruges en Host-header endnu, og ingen cacher svarede undervejs.",
     "at": {
-      "cdn": {
-        "title": "Serveren svarer",
-        "kid": "Serveren læser hver seddel og sender det tilbage, den beder om: først siden og så dens billede. Hvert svar starter med et stempel: 200 OK betyder værsgo.",
-        "nerd": "I 1995 svarer serveren HTTP/1.0 200 OK med Content-Type: text/html og så image/gif for billedet, og den lukker forbindelsen efter hvert svar. Der var ingen CDN-cacher endnu (Akamai begyndte i 1998–99): hylden og hovedkopien på tegningen er dagens.",
+      "web-server": {
+        "title": "Webserveren svarer",
+        "kid": "Webserveren læser hver seddel og finder det, den beder om, på sin egen disk: først siden og så dens billede. Hvert svar starter med et stempel: 200 OK betyder værsgo.",
+        "nerd": "Serveren (for eksempel NCSA HTTPd) læser forespørgselslinjen, finder /index.html under sin dokumentrod og svarer HTTP/1.0 200 OK med Content-Type: text/html og Content-Length og så filen; det samme for /picture.gif (image/gif). Den lukker forbindelsen efter hvert svar. Ingen cache, intet CDN (Akamai begyndte i 1998–99).",
         "describe": {
-          "kid": "Tegnet som i dag. Serveren er fremhævet for enden af vejen. Sedler kommer fra {yours}. Stykke 42 ligger allerede på hylden, så et 200 OK-stempel kommer ned, og en stor filmæske går tilbage. Stykke 43 er der ikke: en æske kommer fra en hovedkopi langt væk, og så går en mindre æske tilbage.",
-          "nerd": "Tegnet som i dag: serveren er det fremhævede endepunkt. På cachekortet er segment 42 et hit, 200 OK, og et stort svar går tilbage; segment 43 er et miss, en kopi kommer fra origin, og et mindre 200 OK-svar kommer tilbage. I 1995 sendte serveren hver fil fra sin egen disk."
+          "kid": "Webserveren er fremhævet for enden af vejen. Sedler kommer fra {yours}. På serverens kort ligger siden og billedet på dens disk: siden lyser op, et 200 OK-stempel kommer ned, og siden går tilbage. Så lyser billedet op og går tilbage samme vej.",
+          "nerd": "Webserveren er det fremhævede endepunkt. Forespørgsler kommer ind: på diskkortet finder GET /index.html siden, 200 OK, og siden går tilbage; så finder GET /picture.gif billedet, 200 OK, og det kommer tilbage. Hver fil kommer fra serverens egen disk."
         }
       }
     },
     "card": {
       "answer": {
-        "kid": "Hos serveren"
+        "kid": "Hos serveren",
+        "nerd": "Disk og status"
       },
       "seen": {
         "kid": "Det, der går forbi",
@@ -170,11 +171,24 @@
       }
     },
     "tag": {
-      "length": "Ingen TLS: alt i klartekst"
+      "length": "Ingen TLS: alt i klartekst",
+      "request": "HTTP/1.0 · ingen Host-header",
+      "page": "Content-Type: text/html",
+      "picture": "Content-Type: image/gif"
     },
     "describe": {
-      "kid": "Tegnet som en videoafspiller spørger i dag. En vej forbinder {yours} og serveren. På det venstre kort beder en seddel om stykke 42, og den går til serveren. Serveren finder 42 på sin hylde, stempler 200 OK og sender en stor filmæske tilbage. Så beder den næste seddel om 43, og en mindre æske kommer tilbage.",
-      "nerd": "Tegnet som i dag: det venstre kort viser en forespørgsel, GET /video/720p/42.m4s med Host, ved siden af signalstreger. Det højre kort er en cachehylde: 42 er et hit, stemplet 200 OK, og et stort segment går tilbage; 43 er et miss og hentes først fra en origin. I 1995 var det GET /index.html og 200 OK, uden cache."
+      "kid": "En vej forbinder {yours} og webserveren. På det venstre kort beder en seddel om siden, og den går til serveren. Serveren finder siden på sin disk, stempler 200 OK og sender den tilbage. Så beder den næste seddel om billedet, og billedet kommer tilbage.",
+      "nerd": "Det venstre kort viser forespørgslen: GET /index.html HTTP/1.0 og en Accept-linje. Det højre kort er serverens disk: siden findes, stemples 200 OK og går tilbage; så GET /picture.gif, og billedet kommer tilbage samme vej. Ingen cache, ingen origin."
+    },
+    "slip": {
+      "page": "Siden, tak!",
+      "picture": "Billedet, tak!"
+    },
+    "shelf": {
+      "disk": {
+        "kid": "På disken!",
+        "nerd": "Læst fra disk"
+      }
     }
   },
   "2010": {
