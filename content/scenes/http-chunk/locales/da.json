@@ -119,7 +119,7 @@
     "range": "Range: bytes=… → 206",
     "hit": "X-Cache: HIT · Age: 31",
     "miss": "X-Cache: MISS → origin",
-    "length": "TLS viser kun navn og størrelser",
+    "length": "TLS: kun navn og størrelser",
     "guess": "størrelse ÷ 2 s ≈ bitrate"
   },
   "1995": {

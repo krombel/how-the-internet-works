@@ -204,11 +204,11 @@
 {/if}
 
 {#if subject.open && page && tags.length}
-  {#if view.orient === 'landscape' && tags.length >= 2}<TagAt x={tags[0].x} y={tags[0].y} text={S('tag.request')} size={T.tag} />{/if}
-  <TagAt x={tags.at(-1)!.x} y={tags.at(-1)!.y} text={S(`tag.${file}`)} size={T.tag} />
+  {#if view.orient === 'landscape' && tags.length >= 2}<TagAt x={tags[0].x} y={tags[0].y} text={S('tag.request')} size={T.tag} fit />{/if}
+  <TagAt x={tags.at(-1)!.x} y={tags.at(-1)!.y} text={S(`tag.${file}`)} size={T.tag} fit />
 {:else if view.orient === 'landscape' && tags.length >= 2}
-  <TagAt x={tags[0].x} y={tags[0].y} text={S(subject.open ? (m.beat === 'slower' ? 'tag.rate' : 'tag.mpd') : 'tag.length')} size={T.tag} />
-  <TagAt x={tags[1].x} y={tags[1].y} text={S(subject.open ? (m.beat === 'hit' ? 'tag.hit' : m.beat === 'miss' ? 'tag.miss' : 'tag.range') : 'tag.guess')} size={T.tag} />
+  <TagAt x={tags[0].x} y={tags[0].y} text={S(subject.open ? (m.beat === 'slower' ? 'tag.rate' : 'tag.mpd') : 'tag.length')} size={T.tag} fit />
+  <TagAt x={tags[1].x} y={tags[1].y} text={S(subject.open ? (m.beat === 'hit' ? 'tag.hit' : m.beat === 'miss' ? 'tag.miss' : 'tag.range') : 'tag.guess')} size={T.tag} fit />
 {:else if tags.length}
-  <TagAt x={tags[0].x} y={tags[0].y} text={S(subject.open ? (m.beat === 'miss' ? 'tag.miss' : m.beat === 'slower' ? 'tag.rate' : m.beat === 'hit' ? 'tag.hit' : 'tag.range') : 'tag.length')} size={T.tag} />
+  <TagAt x={tags[0].x} y={tags[0].y} text={S(subject.open ? (m.beat === 'miss' ? 'tag.miss' : m.beat === 'slower' ? 'tag.rate' : m.beat === 'hit' ? 'tag.hit' : 'tag.range') : 'tag.length')} size={T.tag} fit />
 {/if}
