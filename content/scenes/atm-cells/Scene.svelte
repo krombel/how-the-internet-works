@@ -25,7 +25,7 @@
   type Box = { x: number; y: number; w: number; h: number };
   const L = $derived.by((): { line: { x0: number; x1: number; y: number }; size: number; names: number; name: number; cell: number; cards: [Box, Box]; head: number; row: number } => {
     if (portrait) return {
-      line: { x0: 130, x1: 770, y: 250 }, size: 170, names: 390, name: 30, cell: 34,
+      line: { x0: 190, x1: 710, y: 250 }, size: 150, names: 390, name: 30, cell: 34,
       cards: [{ x: 50, y: 470, w: 800, h: 520 }, { x: 50, y: 1030, w: 800, h: 500 }], head: 36, row: 30,
     };
     if (compact) return {
@@ -39,6 +39,8 @@
   });
   const A = $derived(L.cards[0]), B = $derived(L.cards[1]);
   const t = $derived(view.still ? 1.2 : view.time);
+  /** Room for a card's footer line; a short landscape screen has none, so the footers go (like the title). */
+  const foot = $derived(compact ? 24 : 70);
 
   // the line: cells streaming through the switch in the middle
   const mid = $derived((L.line.x0 + L.line.x1) / 2);
@@ -51,7 +53,7 @@
   const cols = 8;
   const rows = Math.ceil(n / cols);
   const grid = $derived.by(() => {
-    const top = A.y + 140, h = A.h - 140 - 70, w = A.w - 80, cell = Math.min(w / cols, h / rows);
+    const top = A.y + 140, h = A.h - 140 - foot, w = A.w - 80, cell = Math.min(w / cols, h / rows);
     return { x: A.x + (A.w - cell * cols) / 2, y: top, cell };
   });
   const sweep = $derived(view.still ? -1 : Math.floor(t * 4) % n);
@@ -92,7 +94,7 @@
 <Card x={A.x} y={A.y} w={A.w} h={A.h} tint="var(--orange)" />
 <text x={A.x + A.w / 2} y={A.y + 42} text-anchor="middle" font-size={fs(L.head)} font-weight="900" stroke="var(--paper)" stroke-width="6" paint-order="stroke" font-family="var(--label-font)" fill="var(--line)">{S('cutTitle')}</text>
 <rect x={A.x + 40} y={A.y + 78} width={A.w - 80} height={40} rx="8" fill="var(--sun)" stroke="var(--line)" stroke-width="3" />
-<text x={A.x + A.w / 2} y={A.y + 98 + fs(L.row) * 0.35} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S('packet').replace('{bytes}', String(PACKET))}</text>
+<text x={A.x + A.w / 2} y={A.y + 98 + fs(L.row) * 0.35} text-anchor="middle" font-size={fs(L.row)} font-weight="900" stroke="var(--paper)" stroke-width="5" paint-order="stroke" font-family="var(--label-font)" fill="var(--line)">{S('packet').replace('{bytes}', String(PACKET))}</text>
 {#each Array.from({ length: n }, (_, i) => i) as i (i)}
   {@const c = grid.cell}
   {@const x = grid.x + (i % cols) * c}
@@ -100,7 +102,7 @@
   <rect x={x + 3} y={y + 3} width={c - 6} height={c - 6} rx="5" fill={i === n - 1 ? 'var(--berry)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === sweep ? 6 : 2} />
   <rect x={x + 3} y={y + 3} width={(c - 6) * 0.3} height={c - 6} rx="5" fill="var(--orange)" stroke="var(--line)" stroke-width="2" />
 {/each}
-<text x={A.x + A.w / 2} y={A.y + A.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{sum}</text>
+{#if !compact}<text x={A.x + A.w / 2} y={A.y + A.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{sum}</text>{/if}
 
 <!-- one cell -->
 <Card x={B.x} y={B.y} w={B.w} h={B.h} tint="var(--teal)" />
@@ -110,9 +112,9 @@
 <text x={bar.x + headW + 16} y={bar.y + bar.h / 2 + fs(L.row) * 0.35} font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S('cellBytes').replace('{head}', String(HEADER)).replace('{body}', String(PAYLOAD))}</text>
 {#each FIELDS as f, i (f)}
   {@const r = fs(L.row)}
-  {@const gap = (B.h - bar.h - 84 - 70) / FIELDS.length}
+  {@const gap = (B.h - bar.h - 84 - foot) / FIELDS.length}
   {@const y = bar.y + bar.h + 20 + gap * i + gap / 2}
   <rect x={B.x + 40} y={y - r * 0.55} width={r * 1.1} height={r * 1.1} rx="4" fill={f === 'payload' ? 'var(--paper-2)' : 'var(--orange)'} stroke="var(--line)" stroke-width="2" />
   <text x={B.x + 40 + r * 1.6} y={y + r * 0.35} font-size={r} font-weight="800" font-family="var(--label-font)" fill="var(--line)">{S(`field.${f}`)}</text>
 {/each}
-<text x={B.x + B.w / 2} y={B.y + B.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S('cellLine')}</text>
+{#if !compact}<text x={B.x + B.w / 2} y={B.y + B.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S('cellLine')}</text>{/if}

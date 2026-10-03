@@ -35,7 +35,7 @@
   type Box = { x: number; y: number; w: number; h: number };
   const L = $derived.by((): { line: { x0: number; x1: number; y: number }; size: number; names: number; name: number; slot: number; cards: [Box, Box]; head: number; row: number; grid: number } => {
     if (portrait) return {
-      line: { x0: 150, x1: 750, y: 250 }, size: 170, names: 390, name: 30, slot: 9,
+      line: { x0: 190, x1: 710, y: 250 }, size: 160, names: 390, name: 30, slot: 9,
       cards: [{ x: 50, y: 470, w: 800, h: 520 }, { x: 50, y: 1030, w: 800, h: 500 }], head: 36, row: 30, grid: 0.5,
     };
     if (compact) return {
@@ -98,7 +98,8 @@
   <rect x={legendX} y={y - r * 0.5} width={r} height={r} rx="4" fill={fillOf(l.k)} stroke="var(--line)" stroke-width="2" />
   <text x={legendX + r * 1.4} y={y + r * 0.35} font-size={r} font-weight="800" font-family="var(--label-font)" fill="var(--line)">{S(`legend.${l.key}`)}</text>
 {/each}
-<text x={A.x + A.w / 2} y={A.y + A.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S(`sum.${line}`)}</text>
+<!-- short landscape: no room for the cards' footers (the caption says it) -->
+{#if !compact}<text x={A.x + A.w / 2} y={A.y + A.h - 28} text-anchor="middle" font-size={L.row} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S(`sum.${line}`)}</text>{/if}
 
 <!-- the bits on the copper: pulses up and down -->
 <Card x={B.x} y={B.y} w={B.w} h={B.h} tint="var(--berry)" />
@@ -111,4 +112,4 @@
   <text x={P.x + (i + 0.45) * step} y={P.y + P.h + fs(L.row) * 1.3} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--tag-font)" fill="var(--line)">{c.bit}</text>
   {#if c.v && nerd}<text x={P.x + (i + 0.45) * step} y={P.y + P.h / 2 - (c.level * P.h) / 2 - 10} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--tag-font)" fill="var(--line)">V</text>{/if}
 {/each}
-<text x={B.x + B.w / 2} y={B.y + B.h - 28} text-anchor="middle" font-size={fs(L.row)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S(`code.${line}.line`)}</text>
+{#if !compact}<text x={B.x + B.w / 2} y={B.y + B.h - 28} text-anchor="middle" font-size={L.row} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S(`code.${line}.line`)}</text>{/if}

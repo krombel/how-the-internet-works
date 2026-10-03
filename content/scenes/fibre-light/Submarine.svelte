@@ -3,7 +3,7 @@
   // Under the sea (#39): the same trunk, in a cable lying on the sea floor between two landing stations. Repeaters
   // along it make the light bright again, powered through the cable's copper from the shore; a slice shows what is
   // inside, a counter follows the first colour across (#42), and for kids a shark swims by.
-  import { TagAt, Text, fill, strings, view, type LinkSubject } from '$core/api';
+  import { TagAt, Text, fill, legibleSize, strings, view, type LinkSubject } from '$core/api';
   import { boostersOf, fadeAt, kmAt, oneColour, stretchKm, wordsOf } from './light';
   import { CABLE_W, SEA, cable, cablePulses, ground, seaHaul, shark, sparks, water } from './sea';
   import Sea from './art/Sea.svelte';
@@ -30,6 +30,9 @@
   const pulses = $derived(cablePulses(view.time, route, colours.length));
   const power = $derived(sparks(view.time, route));
   const kid = $derived(view.level === 'kid');
+  const legible = legibleSize();
+  /** A long cable's boosters stand closer than their names are wide: every other name goes up a line. */
+  const crowded = $derived(repeaters.length > 1 && repeaters[1] - repeaters[0] < S(`${words}.repeater`).length * 0.55 * legible(26) + 16);
   const fish = $derived(portrait ? shark(view.time, 240, 660, 500) : shark(view.time, 310, 600, 345));
   /** The counter rides in the sand under the first colour's leading flash. */
   const lead = $derived(pulses[0].head.x);
@@ -39,7 +42,7 @@
   const L = $derived(portrait
     ? { stations: [{ x: 40, y: 300, anchor: 'start' }, { x: 860, y: 240, anchor: 'end' }] as const, repeater: sea.floor + 75, stagger: 55, counter: 1200, tag: 1290,
         title: 590, parts: { y: 890, copper: { x: 420, anchor: 'end' }, glass: { x: 480, anchor: 'start' } } as const, slice: sea.slice }
-    : { stations: [{ x: 190, y: 190, anchor: 'start' }, { x: 1410, y: 190, anchor: 'end' }] as const, repeater: sea.floor - 80, stagger: 0, counter: 800, tag: 862,
+    : { stations: [{ x: 190, y: 190, anchor: 'start' }, { x: 1410, y: 190, anchor: 'end' }] as const, repeater: sea.floor - 80, stagger: crowded ? -44 : 0, counter: 800, tag: 862,
         title: 322, parts: { y: 455, copper: { x: sea.slice.x - sea.slice.r - 20, anchor: 'end' }, glass: { x: sea.slice.x + sea.slice.r + 20, anchor: 'start' } } as const, slice: sea.slice });
 </script>
 

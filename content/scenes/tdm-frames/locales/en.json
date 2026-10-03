@@ -93,7 +93,7 @@
       },
       "line": {
         "kid": "Each 1 flips up or down; long quiet runs get a fake blip",
-        "nerd": "AMI, with 0000 sent as 000V to keep the clock"
+        "nerd": "AMI, but 0000 goes as 000V or B00V"
       }
     },
     "t1": {

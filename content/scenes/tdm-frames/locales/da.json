@@ -93,7 +93,7 @@
       },
       "line": {
         "kid": "Hvert 1 vipper op eller ned; lange stille stræk får et falsk blip",
-        "nerd": "AMI, hvor 0000 sendes som 000V for at holde uret"
+        "nerd": "AMI, men 0000 sendes som 000V eller B00V"
       }
     },
     "t1": {
