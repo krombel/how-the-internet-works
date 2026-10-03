@@ -29,7 +29,7 @@ The same mini-world is built in four swappable styles:
 | **Motion feel** | **Ease** | spring, stop-motion |
 | **Layout** | **Auto** (vertical path on portrait screens) | forced landscape / portrait |
 | **Lively packets** | **Off** (plain gliding couriers) | squash & stretch, anticipation, trails |
-| **Doors** (issue #19) | **One verb, one mark each**: *Look inside* (teal lens, magnifier), *Open up* (orange lens, a door), *Change* (berry square, arrows); *Catch* is kept for packets. Things that open breathe at rest and glow when pointed at; labels show when pointed at or with *What can I explore?* | three similar small round badges and a generic hint in the caption |
+| **Doors** (issue #19) | **One verb, one mark each**: *Look inside* (teal lens, magnifier), *Open up* (orange lens, a door), *Change* (berry square, arrows); *Catch* is kept for packets. Things that open breathe at rest and glow when pointed at; labels show when pointed at or with *What can I explore?*, and never over the scene's own words: a label that has no room waits for a zoom (#137) | three similar small round badges and a generic hint in the caption |
 
 ### What was kept
 

@@ -4,9 +4,10 @@
   // open up = an orange lens with a door swinging open, change = a berry square with arrows going
   // round, in the colours of the caption's lit door chips (--door-*, the mark and label --btn-on-ink: ≥ 4.5:1 in both
   // modes, model/contrast.test.ts). Things that open "breathe" at rest (a dashed, glowing ring round a group, a pulsing
-  // ring round a magnifier), and glow when pointed at or lit by "What can I explore?".
+  // ring round a magnifier), and glow when pointed at. Lit by "What can I explore?", they show their labels, plain (a
+  // glow there would cover the scene's labels: issue 137), and what they open glows.
   import type { HintProps } from '$core/api';
-  let { kind, part, x, y, label, labelW, labelled, size, hot, target, time }: HintProps = $props();
+  let { kind, part, x, y, flip, label, labelW, labelled, size, hot, target, time }: HintProps = $props();
   const INK = 'var(--line)', MARK = 'var(--btn-on-ink)';
   // the badge is drawn at one size, U, and scaled to `size` as a whole: a zoom then moves one transform a frame
   // rather than every radius, stroke and font size in it
@@ -17,10 +18,12 @@
   const bob = $derived(Math.sin(time * 2.1 + (kind === 'dive' ? 0 : 1)) * size * 0.18);
   const pulse = $derived((time / 1.8) % 1);
   const tw = $derived(labelled ? (labelW * U) / size : 0);
-  /** The pill is centred on (x, y) with the mark at its start and the label after it. */
+  /** The mark is at (x, y) and the label runs on from it, or back from it (`flip`); an 'expand' pill is centred there,
+   *  its mark at its start. */
   const pw = $derived(labelled ? R * 2 + tw + U * 0.9 : R * 2);
-  const x0 = $derived(kind === 'expand' ? -pw / 2 : -R);
-  const mx = $derived(x0 + R);
+  const x0 = $derived(kind === 'expand' ? -pw / 2 : flip ? R - pw : -R);
+  const mx = $derived(kind === 'expand' ? x0 + R : 0);
+  const side = $derived(flip && kind !== 'expand' ? -1 : 1);
   const node = $derived('d' in target ? null : target);
 </script>
 
@@ -37,12 +40,12 @@
   {/if}
 {:else}
   <g class="hint" transform="translate({x} {y + bob}) scale({(size / U) * (hot ? 1.12 : 1)})" pointer-events="none">
-    {#if kind === 'dive' && !hot}<circle cx={mx} r={R + R * 0.75 * pulse} fill="none" stroke="var(--glow)" stroke-width={U * 0.22} opacity={0.6 * (1 - pulse)} />{/if}
+    {#if kind === 'dive' && !labelled}<circle cx={mx} r={R + R * 0.75 * pulse} fill="none" stroke="var(--glow)" stroke-width={U * 0.22} opacity={0.6 * (1 - pulse)} />{/if}
     {#if hot}<rect class="hint-hot" x={x0 - U * 0.35} y={-R - U * 0.35} width={pw + U * 0.7} height={R * 2 + U * 0.7} rx={R + U * 0.35} fill="var(--sun)" opacity=".75" />{/if}
     {#if labelled}
       <rect x={x0} y={-R + U * 0.2} width={pw} height={R * 2} rx={R} fill={INK} opacity=".18" />
       <rect class="hint-badge" x={x0} y={-R} width={pw} height={R * 2} rx={R} {fill} stroke={INK} stroke-width={U * 0.22} />
-      <text class="hint-label" x={mx + R + U * 0.25 + tw / 2} y={U * 0.05} font-size={U} text-anchor="middle" dominant-baseline="central">{label}</text>
+      <text class="hint-label" x={mx + side * (R + U * 0.25 + tw / 2)} y={U * 0.05} font-size={U} text-anchor="middle" dominant-baseline="central">{label}</text>
     {:else if kind === 'swap'}
       <rect class="hint-badge" x={-R} y={-R} width={R * 2} height={R * 2} rx={R * 0.38} {fill} stroke={INK} stroke-width={U * 0.22} />
     {:else}

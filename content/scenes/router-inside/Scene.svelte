@@ -83,7 +83,7 @@
     {@const c = centre(b)}
     {@const top = b.y + T.head * 1.9}
     {@const mid = (top + b.y + b.h - (T.body ? T.body * 1.9 : 0)) / 2}
-    <Room box={b} tint={tints[r]} title={S(`${key(r)}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body}>
+    <Room part="room" box={b} tint={tints[r]} title={S(`${key(r)}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body}>
       {#if r === 'switch'}
         <!-- four cable sockets; the one the cable comes in (or goes out) by is lit -->
         {#each [0, 1, 2, 3] as k (k)}
@@ -123,6 +123,10 @@
   {/each}
 
   <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look as Look) : 'parcel'} colour={onLink?.tech.colour ?? ''} alpha={parcel.alpha} time={view.time} {night} />
+  <!-- the rooms' titles and lines over the parcel: it passes through them (issue 137, labels win) -->
+  {#each ROOMS as r (r)}
+    <Room part="label" box={L.rooms[r]} tint={tints[r]} title={S(`${key(r)}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body} />
+  {/each}
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />

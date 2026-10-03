@@ -17,6 +17,7 @@
   import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import { untrack } from 'svelte';
   import { getScene, getWorld, legibleSize, tagSize } from './ctx';
+  import { drawDoors } from './drawn.svelte';
   import { deviceArt, eraArt, groupBackdrop, placeBackdrop } from './lazy.svelte';
   import Arrive from './Arrive.svelte';
   import TagAt from './TagAt.svelte';
@@ -80,7 +81,10 @@
       badges,
     }, sizes, per, W, portrait);
   });
-  const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW));
+  // lit labels keep off the scene's text (#137); the hit test and the coach cards read the badges as drawn
+  const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW, { texts: texts.texts, arts: texts.arts, W }));
+  $effect(() => drawDoors(ps.key, { doors, badges: boxes, size: doorPx }));
+  $effect(() => { const key = ps.key; return () => drawDoors(key, null); });
   const doorTarget = (d: Door) => {
     if (d.links.length) return { d: d.links.map((id) => curvePath(ps.links.find((k) => k.id === id)!)).join(' ') };
     const n = ps.nodes.find((k) => k.id === d.id)!;
@@ -100,9 +104,13 @@
   {/each}
 {/snippet}
 
+{#snippet packet(p: LivePacket)}
+  <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} {mark} />
+{/snippet}
+
 {#snippet door(d: Door, i: number, part: 'glow' | 'badge')}
-  <A.Hint kind={d.kind} {part} x={d.at.x} y={boxes[i].y} label={doorLabel(d)} labelW={labelW(d)} labelled={boxes[i].labelled}
-    size={doorPx} hot={lit || hot === d.id} target={doorTarget(d)} time={doorTime} />
+  <A.Hint kind={d.kind} {part} x={d.at.x} y={boxes[i].y} flip={boxes[i].flip} label={doorLabel(d)} labelW={labelW(d)} labelled={boxes[i].labelled}
+    size={doorPx} hot={hot === d.id || (lit && part === 'glow')} target={doorTarget(d)} time={doorTime} />
 {/snippet}
 
 <g class="scene scene-{ps.key}">
@@ -143,6 +151,8 @@
     </g>
   {/each}
   {#if root}{@render flavour('front')}{/if}
+  <!-- the packets go beneath the text (#137, labels win: a parcel at rest on a link doesn't hide its name) -->
+  {#each packets as p (p.id)}{#if view.followId !== p.id}{@render packet(p)}{/if}{/each}
   <!-- beneath the node names and tags: when it gets crowded (nerd tags), the boxes stay readable -->
   {#each named as g, i (g.owner)}
     <A.Region part="sign" d={g.d} tone={g.tone} aside={g.aside} x={texts.signs[i].x} y={texts.signs[i].y} label={trl(`owner.${g.owner}.name`)} size={signPx} />
@@ -164,8 +174,7 @@
       </g>
     {/each}
   {/if}
-  {#each packets as p (p.id)}
-    <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} {mark} />
-  {/each}
+  <!-- the packet a reader follows (or caught) is on top of everything but the doors -->
+  {#each packets as p (p.id)}{#if view.followId === p.id}{@render packet(p)}{/if}{/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'badge')}{/each}
 </g>

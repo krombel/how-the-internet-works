@@ -83,8 +83,11 @@ export interface HintProps {
   kind: 'dive' | 'expand' | 'swap';
   part: 'glow' | 'badge';
   /** The mark's centre; a labelled 'expand' pill is centred here instead. (The engine may nudge a labelled badge up or
-   *  down, off its spot, so lit labels don't cover each other.) */
+   *  down, off its spot, so a label covers no other label and no text of the scene.) */
   x: number; y: number;
+  /** A labelled pill runs back from the mark, its label ending there, rather than on from it (not for 'expand'): the
+   *  engine's way round a name on the side it would run to. */
+  flip: boolean;
   /** The verb in the reader's language ("Look inside", "Open up", "Change"), and its width at `size` in --label-font. */
   label: string; labelW: number;
   /** Show the label in a pill running on from the mark (centred on the spot for 'expand'): on every door while "What
@@ -92,7 +95,10 @@ export interface HintProps {
   labelled: boolean;
   /** Label font size in scene units, clamped to a readable screen size; draw the badge in proportion to it. */
   size: number;
-  /** Pointed at (mouse over it, or its caption chip focused) or lit by "What can I explore?". */
+  /** Pointed at (mouse over it, or its caption chip focused); for the 'glow' part, also lit by "What can I explore?"
+   *  (lit badges are labelled but plain, so they glow over no text). Hot, a badge grows at most 1.12× round its mark,
+   *  its glow at most 0.35·size round it; any badge bobs at most 0.18·size: the engine keeps that much clear of text
+   *  and of other badges (model/doors.ts). */
   hot: boolean;
   /** What it opens: a node (a group, or a device to look inside; centre and size) or a link (its path). */
   target: { x: number; y: number; size: number } | { d: string };

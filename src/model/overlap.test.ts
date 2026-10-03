@@ -3,11 +3,12 @@
 // authored size (a big screen) and at the biggest the labels and badges are drawn at rest on a small screen: door
 // badges, device names, link names, owner signs and nerd tags (#72), where `placeTexts` puts them, keep apart from each
 // other and from the devices' art, and every link keeps a stretch of itself clear for its packets. The era's props
-// (#59) keep to their spots, and the spots keep off all of those.
+// (#59) keep to their spots, and the spots keep off all of those. Labels win (#137): while "What can I explore?" lights
+// every door, no door's label covers any of that text or another door's label.
 import { describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { bezier, WORLD_SIZE, type Orient, type Pt, type Rect } from '../engine/geometry';
-import { badgeBox, badgeSize, doorsOf, GROW } from './doors';
+import { badgeBox, badgeSize, doorsOf, GROW, layoutDoors } from './doors';
 import { boxAt, labelReach, placeTexts, signReach, tagReach, type Per, type Sizes } from './labels';
 import { pathScene, propSpots, type PathScene, type SNode } from './layout';
 import { regionsOf } from './regions';
@@ -39,8 +40,9 @@ function overlap(a: Shape, b: Shape): boolean {
   return dist(c.c, r.box) < c.r;
 }
 
-/** Everything drawn in a path scene that must keep apart, at `g` times the authored size. */
-function shapes(r: Route, ps: PathScene, root: boolean, o: Orient, lang: string, level: Level, g: number): { ss: Shape[]; cut: string[] } {
+/** Everything drawn in a path scene that must keep apart, at `g` times the authored size; and the doors' labelled
+ *  pills while "What can I explore?" lights them all (#137), as `layoutDoors` lays them out. */
+function shapes(r: Route, ps: PathScene, root: boolean, o: Orient, lang: string, level: Level, g: number): { ss: Shape[]; cut: string[]; lit: Shape[]; waiting: string[] } {
   const s = sizesAt(g), str = (k: string) => firstOf(lang, withEra([k], r.era === nowEra() ? undefined : r.era), level) ?? '', nerd = level === 'nerd';
   const name = (n: SNode) => str(`node.${n.node.id}.name`);
   const doors = doorsOf(ps, root, diveRuns(r, ps.group, o).byLink, o, (n) => per(name(n), 'label') * 28);
@@ -69,7 +71,11 @@ function shapes(r: Route, ps: PathScene, root: boolean, o: Orient, lang: string,
   for (const d of doors) out.push({ what: `${d.kind} badge ${d.id}`, kind: 'badge', owner: d.links.length ? d.links[0] : d.id, c: d.at, r: s.badge * 1.3 });
   if (root) for (const slot of r.slots) for (const [spot, [x, y, w, h]] of Object.entries(propSpots(r.content.places[slot.place], o)))
     out.push({ what: `${spot} prop`, kind: 'prop', owner: spot, box: { x: x - w / 2, y: y - h / 2, w, h } });
-  return { ss: out, cut };
+  const pills = layoutDoors(doors, s.badge, true, null, (d) => per(str(`door.${d.kind}`), 'label') * s.badge, { texts: p.texts, arts: p.arts, W: WORLD_SIZE[o] });
+  // a lit door whose label fits nowhere shows its mark alone, as at rest (kept off the text above)
+  const lit = pills.flatMap((b, i): Shape[] => (b.labelled ? [{ what: `${doors[i].kind} pill ${doors[i].id}`, kind: 'badge', owner: doors[i].id, box: { x: b.x - b.w / 2, y: b.y - b.h / 2, w: b.w, h: b.h } }] : []));
+  const waiting = doors.filter((_, i) => !pills[i].labelled).map((d) => `${d.kind} label ${d.id}`);
+  return { ss: out, cut, lit, waiting };
 }
 
 
@@ -123,11 +129,22 @@ const KNOWN_SHORT = [
   'street-2010 × watch-video portrait /internet border-transit',
 ];
 
-describe('path scenes (issues #64, #72)', () => {
+// Lit doors whose label finds no room on a big screen (#137): just clear of the backbone's name, in English only
+const KNOWN_WAITING = [
+  'en desk × watch-video portrait /internet: dive label core-border',
+  'en desk-2010 × watch-video portrait /internet: dive label core-border',
+  'en home × watch-video portrait /internet: dive label core-border',
+  'en home-dsl × watch-video portrait /internet: dive label core-border',
+  'en home-fttb × watch-video portrait /internet: dive label core-border',
+  'en street × watch-video portrait /internet: dive label core-border',
+  'en street-2010 × watch-video portrait /internet: dive label core-border',
+];
+
+describe('path scenes (issues #64, #72, #137)', () => {
   // generic: holds for whatever content exists, in every language and level
-  it('keep badges, names, link names, signs, tags and devices apart, and links clear for their packets', async () => {
+  it('keep badges, names, link names, signs, tags and devices apart, links clear for their packets, and text clear of lit doors', async () => {
     await loadAllPacks();
-    const overlaps = new Set<string>(), short = new Set<string>(), whole = new Set<string>();
+    const overlaps = new Set<string>(), short = new Set<string>(), whole = new Set<string>(), covered = new Set<string>(), wait = new Set<string>();
     for (const lang of Object.keys(packs)) for (const level of LEVELS) for (const activity of activityIds()) for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity, places: [place] });
       for (const o of ['landscape', 'portrait'] as const) {
@@ -136,15 +153,21 @@ describe('path scenes (issues #64, #72)', () => {
           if (ref.kind !== 'path') return;
           const ps = pathScene(r, ref.group, o);
           for (const g of [1, GROW[o]]) {
-            const { ss, cut } = shapes(r, ps, path.length === 0, o, lang, level, g);
+            const { ss, cut, lit, waiting } = shapes(r, ps, path.length === 0, o, lang, level, g);
             const at = `${place} × ${activity} ${o}${g > 1 ? ' small' : ''} /${path.join('/')}`;
             // on a big screen every tag shows whole (on a small one it may shrink to its first fact, or wait for a zoom)
             if (g === 1) for (const k of cut) whole.add(`${lang} ${at}: ${k}`);
+            // and every lit door shows its label (on a small one a label may wait for a zoom)
+            if (g === 1) for (const k of waiting) wait.add(`${lang} ${at}: ${k}`);
             ss.forEach((a, i) => ss.slice(i + 1).forEach((b) => {
               if (a.kind === b.kind && (a.kind === 'art' || a.kind === 'prop')) return;
               if (!allowed(a, b) && overlap(a, b)) overlaps.add(`${at}: ${a.what} × ${b.what}`);
             }));
             if (g > 1) for (const l of ps.links) if (clearLength(l, ss) < MIN_CLEAR) short.add(`${place} × ${activity} ${o} /${path.join('/')} ${l.id}`);
+            // labels win (#137): a lit door's pill covers no text and no other pill
+            lit.forEach((a, i) => [...ss.filter((b) => b.kind === 'label'), ...lit.slice(i + 1)].forEach((b) => {
+              if (overlap(a, b)) covered.add(`${at}: ${a.what} × ${b.what}`);
+            }));
           }
           for (const c of childrenOf(r, ref, o)) if (c.kind === 'expand') walk([...path, c.step]);
         };
@@ -156,5 +179,8 @@ describe('path scenes (issues #64, #72)', () => {
     expect([...short].filter((k) => !KNOWN_SHORT.includes(k)), 'links too hidden for their packets').toEqual([]);
     expect(KNOWN_SHORT.filter((k) => !short.has(k)), 'fixed: drop them from KNOWN_SHORT').toEqual([]);
     expect([...whole], 'tags cut short on a big screen').toEqual([]);
+    expect([...covered], 'text covered by a lit door').toEqual([]);
+    expect([...wait].filter((k) => !KNOWN_WAITING.includes(k)), 'lit labels with no room on a big screen').toEqual([]);
+    expect(KNOWN_WAITING.filter((k) => !wait.has(k)), 'fixed: drop them from KNOWN_WAITING').toEqual([]);
   });
 });

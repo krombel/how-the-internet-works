@@ -3,14 +3,16 @@
   // Doors: a round lens (look inside), a door (open up) and a rounded square (change), each with its mark,
   // coloured from the --hint / --hint-bg tokens. A group breathes an outline at rest; anything hot glows.
   import type { HintProps } from '../theme-types';
-  let { kind, part, x, y, label, labelW, labelled, size, hot, target, time }: HintProps = $props();
+  let { kind, part, x, y, flip, label, labelW, labelled, size, hot, target, time }: HintProps = $props();
   const R = $derived(size);
   const f = $derived((time / 1.6) % 1);
   const breathe = $derived(0.5 + 0.5 * Math.sin(time * 2.2));
   const tw = $derived(labelled ? labelW * 0.9 : 0);
   const pw = $derived(labelled ? R * 2 + tw + size * 0.8 : R * 2);
-  const x0 = $derived(kind === 'expand' ? -pw / 2 : -R);
-  const mx = $derived(x0 + R);
+  const x0 = $derived(kind === 'expand' ? -pw / 2 : flip ? R - pw : -R);
+  const mx = $derived(kind === 'expand' ? x0 + R : 0);
+  // the label runs on from the mark, or back from it
+  const side = $derived(flip && kind !== 'expand' ? -1 : 1);
   const node = $derived('d' in target ? null : target);
 </script>
 
@@ -27,7 +29,7 @@
     {#if !hot && !labelled}<circle r={R + R * 1.4 * f} fill="none" stroke="var(--hint, #fff)" stroke-width="3" opacity={0.8 * (1 - f)} />{/if}
     {#if labelled}
       <rect x={x0} y={-R} width={pw} height={R * 2} rx={R} fill="var(--hint-bg, rgba(0,0,0,.5))" stroke="var(--hint, #fff)" stroke-width={size * 0.18} />
-      <text x={mx + R + size * 0.2 + tw / 2} y="0" font-size={size * 0.9} text-anchor="middle" dominant-baseline="central"
+      <text x={mx + side * (R + size * 0.2 + tw / 2)} y="0" font-size={size * 0.9} text-anchor="middle" dominant-baseline="central"
         fill="var(--hint, #fff)" font-family="var(--label-font)" font-weight="700">{label}</text>
     {:else if kind === 'swap'}
       <rect x={-R} y={-R} width={R * 2} height={R * 2} rx={R * 0.35} fill="var(--hint-bg, rgba(0,0,0,.5))" stroke="var(--hint, #fff)" stroke-width={size * 0.18} />

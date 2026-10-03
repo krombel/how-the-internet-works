@@ -287,9 +287,18 @@ dive; `CaptionDoor.path` carries where they go.
 - `doorsOf(pathScene, root)` lists them (the swap first, then in route order). They are exactly the scene tree's
   dive and group children (a test checks this for every place × activity), so a door can't point nowhere.
 - `layoutDoors` places the badges: a mark at the door's spot; labelled (always for *Open up*, for every door while
-  "What can I explore?" is on, and for the one pointed at) a pill that runs on from the mark. While lit, pills that
-  would cover each other are nudged apart. The same layout is used to draw and to hit-test, so a badge is always where
-  its tap target is. A tap right on a badge beats a packet passing under it.
+  "What can I explore?" is on, and for the one pointed at) a pill that runs on from the mark. **Labels win (#137):** a
+  pill covers no text of the scene (the signs, names, link names and tags as `placeTexts` placed them), no other
+  door's mark and no other pill, the world's edge included, with room for its bob, and for the glow and 1.12× growth
+  of the one pointed at (lit pills are plain: they don't glow over text). Trying each in turn (*Open up* first), it
+  runs on from its mark or back from it (`flip`, which `HintProps` passes to the theme), at its spot or nudged up or
+  down a pill or two, preferring a way off the devices' art; where nothing fits, a lit door shows its mark alone and
+  its label waits for a zoom, like a tag (the one pointed at shows it anyway). This runs when the scene, the zoom or
+  what is lit changes, not per frame. `PathScene` publishes the badges it drew (`render/drawn.svelte.ts`), and the
+  hit test and the coach use those, so a badge is always where its tap target is. A tap right on a badge beats a
+  packet passing under it.
+- **Packets go under the labels (#137).** Packets at rest or passing are drawn over the art and links but beneath the
+  signs, names, link names and tags; only the packet being followed is drawn above them (below the door badges).
 - **Hover and focus.** With a mouse, the door under the pointer glows and shows its label (and the cursor becomes a
   pointer over anything tappable). Pointing at or focusing a caption chip lights its badge in the scene the same way.
 - **"What can I explore?"** (the ✨ button in the chrome, a toggle with `aria-pressed`; issue #122) lights every door
@@ -650,13 +659,15 @@ Vitest (`npm test`) covers:
   glides at `travelK` along the path with no dive panel showing, keeps within its timings and carries on when
   re-planned mid-glide; neighbouring stretches into the same scene have different titles in every language
 - doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
-  place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
+  place switch, which are on screen, and the badge layout (labels; a lit label flips, nudges or waits rather than cover text, a mark or another label, #137)
 - crowding (#64, #72, `model/overlap.test.ts`): in every path scene of every place × activity, orientation, language
   and level, at the authored size and at the size a small screen draws them (doors' `GROW`: 1.7× portrait, 1.9×
   landscape), door badges, device names, link names, owner signs and nerd tags, where `placeTexts` puts them, keep
   apart from each other and from the devices, every link shows at least two packets' worth of itself, and at the
-  authored size no tag is cut to its first fact. Known short links are listed in the test (there is no known overlap
-  left); a new case fails, and so does a listed one that's gone
+  authored size no tag is cut to its first fact. With "What can I explore?" on, no lit label covers text or another
+  label (#137), and on a big screen each fits somewhere: the few that wait for a zoom are listed (`KNOWN_WAITING`).
+  Known short links are listed in the test (there is no known overlap left); a new case, or a listed one that's gone,
+  fails
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - device dives (#9, #38): validation, the child and its frame on the device, its layer stack above it, the badge
   away from the name, stepping and travelling link → device → link with no dive panel showing on the glide, a device
