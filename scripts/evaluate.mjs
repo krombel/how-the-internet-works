@@ -306,12 +306,12 @@ function controlProblems() {
 // every scene's labels against what they're drawn on (#45): the path scenes, and every dive, by kids and nerds
 const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
   'home/watch-video/phone-ap', 'street/watch-video/phone-cell-tower', 'home/watch-video/router', 'street/watch-video/cell-tower',
-  'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/cabinet-backhaul',
+  'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/olt-bng',
   'home/watch-video/internet/bng-core', 'home/watch-video/internet/core-border', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
   'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
   'home/watch-video/phone~http', 'home/watch-video/router~http', 'home/watch-video/internet/datacentre/cdn~http',
   'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
-  'home/watch-video/internet/cabinet~ethernet', 'home/watch-video/internet/backhaul~vlan', 'home/watch-video/internet/core~mpls',
+  'home/watch-video/internet/olt~ethernet', 'home/watch-video/internet/olt~vlan', 'home/watch-video/internet/core~mpls',
   'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
   'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn',
   // the other ways online at home (#3): the phone line, fibre to the building and dial-up
@@ -715,7 +715,7 @@ const VISION_SHOTS = [
   { view: 'phone', where: 'street/watch-video/internet', name: 'internet-street-phone' },
   { view: 'desktop', where: 'home/watch-video', catch: 'request', at: ['phone'], name: 'peek' },
   { view: 'desktop', where: 'home/watch-video/internet/home-cabinet', name: 'gpon' },
-  { view: 'desktop', where: 'home/watch-video/internet/cabinet-backhaul', name: 'metro' },
+  { view: 'desktop', where: 'home/watch-video/internet/olt-bng', name: 'metro' },
   { view: 'phone', where: 'home/watch-video/internet/bng-core', q: '&level=nerd', name: 'backbone-nerd-phone' },
   { view: 'desktop', where: 'home/watch-video/phone~tcp', name: 'tcp' },
 ];
@@ -826,7 +826,7 @@ for (const style of STYLES) {
       r.travelToSea = await sample(p, cdp, 3500, () => p.keyboard.press('ArrowRight'));
       await settle(p);
       r.submarineIdle = await sample(p, cdp, 1500);
-      await go({ path: ['internet', 'cabinet-backhaul'] }); await settle(p);
+      await go({ path: ['internet', 'olt-bng'] }); await settle(p);
       r.metroIdle = await sample(p, cdp, 1500);
       // and on the overview: the Wi‑Fi dive to the copper dive, past the access point
       await go({ path: ['phone-ap'] }); await settle(p);
@@ -906,11 +906,11 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/bng-core', name: `backbone-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/core-border', name: `submarine-${view}` });
-      shots.push({ view, where: 'home/watch-video/internet/cabinet-backhaul', name: `metro-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/olt-bng', name: `metro-${view}` });
       shots.push({ view, where: 'home/watch-video/ap~wifi', name: `wifi-frame-${view}` });
       shots.push({ view, where: 'home/watch-video/router~ethernet', name: `ethernet-me-${view}` });
-      shots.push({ view, where: 'home/watch-video/internet/cabinet~ethernet', name: `ethernet-bridge-${view}` });
-      shots.push({ view, where: 'home/watch-video/internet/backhaul~vlan', name: `vlan-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/olt~ethernet', name: `ethernet-bridge-${view}` });
+      shots.push({ view, where: 'home/watch-video/internet/olt~vlan', name: `vlan-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/core~mpls', name: `mpls-${view}` });
       shots.push({ view, where: 'home/watch-video/router~gpon', name: `gpon-frame-${view}` });
       shots.push({ view, where: 'street/watch-video/phone~nr', name: `nr-frame-${view}` });
@@ -920,7 +920,7 @@ for (const style of STYLES) {
     }
     // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
     for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
-      ['home/watch-video/internet/cabinet-backhaul', 'metro'], ['home/watch-video/internet/bng-core', 'backbone'],
+      ['home/watch-video/internet/olt-bng', 'metro'], ['home/watch-video/internet/bng-core', 'backbone'],
       ['home/watch-video/internet/core-border', 'submarine'],
       ['home/watch-video/router', 'router'], ['street/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
@@ -938,7 +938,7 @@ for (const style of STYLES) {
     shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/datacentre/cdn~http', lang: 'da', q: '&level=nerd', name: 'http-cdn-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet/cabinet~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/olt~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=nerd', name: 'router-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'street/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
