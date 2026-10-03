@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { doorsOf, type Door } from '../model/doors';
+import { fit, toScreen } from '../engine/camera';
+import { union, type Rect } from '../engine/geometry';
+import { sceneInfo } from '../engine/zoom';
+import { doorCovers, doorsOf, type Door } from '../model/doors';
 import { pathScene } from '../model/layout';
 import { resolveRoute } from '../model/resolve';
 import { diveRuns } from '../model/tree';
@@ -71,4 +74,28 @@ describe('coach marks', () => {
     expect(placeMark({ x: 400, y: 200, w: 60, h: 30 }, wide, short)).toMatchObject({ side: 'above', y: 10 });
     expect(placeMark({ x: 400, y: 100, w: 60, h: 30 }, { w: 840, h: 300 }, short)).toMatchObject({ side: 'below', y: 390 - 10 - 300 });
   });
+
+  // #138: the first card talks about the internet; on a phone it sat right under the badge, on the cloud itself
+  it('keeps the first card clear of the cloud and the name it talks about, on a phone, a desktop and a phone on its side', () => {
+    const r = resolveRoute({ activity: 'watch-video', places: ['home'] });
+    const screens = [
+      { o: 'portrait' as const, vp: { w: 390, h: 844, top: 64, bottom: 136 } },
+      { o: 'portrait' as const, vp: { w: 360, h: 740, top: 64, bottom: 136 } },
+      { o: 'landscape' as const, vp: { w: 1280, h: 800, top: 72, bottom: 132 } },
+      { o: 'landscape' as const, vp: { w: 844, h: 390, top: 50, bottom: 60 } },
+    ];
+    const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    for (const { o, vp } of screens) {
+      const ps = pathScene(r, null, o), cam = fit(sceneInfo(r, [], o).fit, vp);
+      const d = coachMarks(doorsOf(ps, true, diveRuns(r, null, o).byLink, o, () => 170), true, true, 'all')[0].door!;
+      const screen = (s: Rect): Rect => ({ ...toScreen(cam, s), w: s.w * cam.k, h: s.h * cam.k });
+      const covers = doorCovers(d, ps, () => 170, o, Math.max(1, 14 / (28 * cam.k))).map(screen);
+      expect(covers).toHaveLength(2);
+      const badge = screen({ x: d.at.x - 30, y: d.at.y - 30, w: 60, h: 60 });
+      const card = { w: Math.min(320, vp.w - 20), h: 150 };
+      const at = placeMark(covers.reduce(union, badge), card, vp);
+      for (const c of covers) expect(overlaps({ ...at, ...card }, c), `${vp.w}×${vp.h}`).toBe(false);
+    }
+  });
 });
+

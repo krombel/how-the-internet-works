@@ -187,8 +187,10 @@ button { cursor: pointer; }
 .caption .verb-name svg { width: 15px; height: 15px; }
 .caption .door { box-shadow: inset 0 0 0 2px var(--door-ink); }
 .caption .door:hover, .caption .door:focus-visible { background: var(--door-ink); color: var(--btn-on-ink); }
-/* small screens: just the verb's icon (its name is the group's label for screen readers) */
-@media (max-width: 520px), (max-height: 500px) { .caption .verb-name span { display: none; } .caption .doors { gap: 4px 10px; } }
+/* small screens: closer together; in the pill (one row, scrolling sideways) just the verb's icon (its name is the
+   group's label for screen readers). A phone held upright keeps the names: an icon alone told a child nothing (#138). */
+@media (max-width: 520px), (max-height: 500px) { .caption .doors { gap: 4px 10px; } }
+.caption.compact .verb-name span { display: none; }
 .door-dive { --door-ink: var(--door-dive, var(--accent)); }
 .door-expand { --door-ink: var(--door-open, var(--accent)); }
 .door-catch { --door-ink: var(--door-catch, var(--accent)); }
@@ -212,7 +214,9 @@ button { cursor: pointer; }
   width: min(760px, calc(100vw - 20px)); max-height: calc(100vh - 20px); overflow: auto; padding: 2px 16px 12px; }
 /* folded card (a portrait phone): the title (a button that opens the rest) and two lines of text (exploring: the doors
    in their place, #122); open, the
-   whole caption lies over the scene, from the folded card's bottom up to the top bar at most (scrolling past that) */
+   whole caption lies over the scene, from the folded card's bottom up to the top bar at most (scrolling past that).
+   Folded, a tap anywhere on it opens it, like on the pill (#138) */
+.caption:is(.folded, .compact):not(.open, .exploring) { cursor: pointer; }
 .caption.folded .cap-toggle { width: 100%; min-height: 32px; justify-content: space-between; text-align: start; }
 .caption.folded .cap-toggle span { white-space: normal; }
 .caption.folded:not(.open) p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
