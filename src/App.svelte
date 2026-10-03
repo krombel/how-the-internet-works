@@ -723,6 +723,8 @@
   let showCaption = $state(true);
   let captionEl = $state<HTMLElement>();
   let captionH = $state(150);
+  /** The caption folded away by hand (#168): it stays so wherever you go, until it is unfolded (in memory only). */
+  let tucked = $state(false);
   const caption = $derived(captionFor(route, here.path, here.stop, view.orient));
   /** Something to explore here: doors in the scene, or the caption's (a dive's "How it travels"), or packets. */
   const canExplore = $derived(hereDoors.length + caption.doors.length + catchable.length > 0);
@@ -781,7 +783,8 @@
   function resize() {
     measuredFold = fold;
     const bar = document.querySelector('.chrome .controls')?.getBoundingClientRect();
-    view.vp = viewportFor(stage, { top: bar ? bar.bottom + 8 : 0, bottom: captionEl ? captionEl.offsetHeight + 22 : 0 });
+    // folded away by hand, the caption keeps its room, so the scene doesn't move as it folds and unfolds (#168)
+    view.vp = viewportFor(stage, { top: bar ? bar.bottom + 8 : 0, bottom: tucked ? view.vp.bottom : captionEl ? captionEl.offsetHeight + 22 : 0 });
     const o = orientFor(view.vp.w, view.vp.h);
     if (o !== view.orient) { view.orient = o; prevIds = new Map(); }
     // the scenes are laid out anew: put a caught packet back at its hop (or let it go if this scene doesn't draw it)
@@ -915,7 +918,7 @@
       captionH = el.offsetHeight;
       // the caption grew past the reserved inset (first measure, longer text), or the last refit (un)folded it: refit
       // while idle
-      if (!trans && !caught && (fold !== measuredFold || Math.abs(view.vp.bottom - (captionH + 22)) > 30)) resize();
+      if (!tucked && !trans && !caught && (fold !== measuredFold || Math.abs(view.vp.bottom - (captionH + 22)) > 30)) resize();
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -962,7 +965,7 @@
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
     <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={explore && !exploreIn} catches={catchable} oncatch={catchKind}
-      ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
+      ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:tucked bind:el={captionEl} />
     {#if !peekOpen}
       <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
         canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
