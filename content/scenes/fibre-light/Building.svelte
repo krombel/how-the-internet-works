@@ -44,4 +44,4 @@
 <Text x={L.up.x} y={L.up.y + L.gap} text={S('fttb.upColour')} size={L.size - 4} kind="big" colour={colours[0]} />
 <Text x={L.down.x} y={L.down.y} text={S('fttb.down')} size={L.size} kind="big" colour={colours[1]} />
 <Text x={L.down.x} y={L.down.y + L.gap} text={S('fttb.downColour')} size={L.size - 4} kind="big" colour={colours[1]} />
-<TagAt x={L.tag.x} y={L.tag.y} text={S('tag.fttb')} size={24} />
+<TagAt x={L.tag.x} y={L.tag.y} text={S('tag.fttb')} size={24} fit />

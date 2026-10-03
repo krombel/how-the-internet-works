@@ -53,4 +53,4 @@
 <Text x={L.up.x} y={L.up.y + L.gap} text={S('gpon.turns')} size={L.size - 4} kind="big" colour={colours[0]} />
 <Text x={L.split.x} y={L.split.y} text={S('gpon.splitter')} size={28} kind="big" />
 <Text x={L.you.x} y={L.you.y} text={S('gpon.you')} size={26} kind="big" />
-<TagAt x={L.tag.x} y={L.tag.y} text={S('tag.gpon')} size={24} />
+<TagAt x={L.tag.x} y={L.tag.y} text={S('tag.gpon')} size={24} fit />

@@ -131,9 +131,11 @@ button { cursor: pointer; }
 .pips rect.on { opacity: 1; }
 .ladder { inset-inline: 12px auto; display: grid; gap: 3px; width: max-content; min-width: 200px; max-width: min(320px, calc(100% - 24px));
   max-height: calc(100vh - 100px); overflow: auto; }
-.ladder.pinned { min-width: 0; max-width: 164px; max-height: calc(50vh - 110px); grid-template-columns: minmax(0, 1fr); }
+.ladder.pinned { min-width: 0; max-width: 164px; max-height: calc(50vh - 110px); grid-template-columns: minmax(0, 1fr); gap: 2px; padding-block: 6px; }
 /* a long name (Danish "Internetknudepunkt") breaks, rather than widening the narrow pinned list past its edge (#90) */
 .ladder.pinned h3 { hyphens: auto; overflow-wrap: anywhere; }
+/* tighter rungs, so a whole stack and its signal fit above ▼ without scrolling (#136) */
+.ladder.pinned .rung { min-height: 30px; padding-block: 3px; font-size: 13px; }
 .ladder .rung { justify-content: flex-start; text-align: start; border-radius: 12px; background: none; font-size: 14px; line-height: 1.2;
   min-height: 36px; padding: 5px 10px; }
 .ladder .rung svg { width: 18px; height: 18px; color: var(--door-ink, currentColor); }
@@ -455,6 +457,14 @@ button { cursor: pointer; }
   .ladder .rung { min-height: 32px; padding-block: 3px; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
   .menu, .about-box { max-height: calc(100dvh - 76px); }
+  /* the caught packet's panel in two columns, the hop on the left and its envelopes beside it, so the envelopes get
+     the height rather than a row under the hop's words (#136) */
+  .peek { top: 58px; max-height: calc(100% - 68px); width: min(540px, calc(100% - 24px)); display: grid; grid-template-columns: minmax(0, 12.5em) minmax(0, 1fr);
+    column-gap: 12px; align-content: start; }
+  .peek > header { grid-column: 1 / -1; }
+  .peek > :not(header, .peek-body) { grid-column: 1; }
+  .peek-body { grid-column: 2; grid-row: 2 / span 5; max-height: calc(100dvh - 136px); }
+  .peek .dive-hint { display: none; }
 }
 /* forced colours (a contrast theme, issue #53): the system's colours everywhere but the scene's picture. What a colour
    or a shadow showed shows another way: a button's edge, the on / pressed / open state in Highlight, the doors as

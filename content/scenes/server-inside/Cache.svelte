@@ -116,11 +116,11 @@
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} />{/if}
+    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} fit />{/if}
   {/if}
   {#if originAside}
     <Node id={originAside.hop.node.id} x={L.originNode.x} y={L.originNode.y} size={L.originSize} />
-    {#if !compact}<Text x={L.originLabel.x} y={L.originLabel.y} text={nameOf(originAside.hop)} size={portrait ? 29 : 24} kind="node" anchor={L.originLabel.anchor} />{/if}
+    {#if !compact}<Text x={L.originLabel.x} y={L.originLabel.y} text={nameOf(originAside.hop)} size={portrait ? 29 : 24} kind="node" anchor={L.originLabel.anchor} fit />{/if}
     <Text x={L.originNote.x} y={L.originNote.y} text={nerd ? S('origin.nerd') : S('origin.kid')} size={portrait ? 25 : compact ? 24 : 21} kind="link" colour={originAside.link.tech.colour} anchor={L.originNote.anchor} />
   {/if}
   {#if !compact && inLink}

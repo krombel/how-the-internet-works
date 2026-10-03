@@ -87,8 +87,8 @@
 {/if}
 <Node id={from.node.id} x={L.line.x0} y={L.line.y} size={L.size} focused={subject.ctx.to.id === from.id} />
 <Node id={to.node.id} x={L.line.x1} y={L.line.y} size={L.size} focused={subject.ctx.to.id === to.id} />
-<Text x={L.line.x0} y={L.names} text={nameOf(from)} size={L.name} kind="node" />
-<Text x={L.line.x1} y={L.names} text={nameOf(to)} size={L.name} kind="node" />
+<Text x={L.line.x0} y={L.names} text={nameOf(from)} size={L.name} kind="node" fit />
+<Text x={L.line.x1} y={L.names} text={nameOf(to)} size={L.name} kind="node" fit />
 
 <!-- your packet, cut into cells -->
 <Card x={A.x} y={A.y} w={A.w} h={A.h} tint="var(--orange)" />

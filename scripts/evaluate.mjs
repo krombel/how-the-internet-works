@@ -3,7 +3,7 @@
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morphs (back to 1995, and to the street), opening a layer dive from the peek and stepping up the stack) at 1× and 6×
 // CPU throttle.
-// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision] [--style=id]
+// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision|fit] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
@@ -14,6 +14,10 @@
 //                        behind them. Prints what fails, exits 1 if anything does; writes nothing.
 //   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
 //                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
+//   --only=fit           every dive fits its panel (#136): each dive on every route, on a phone upright and on its
+//                        side, in both languages, by kids and nerds: no text or nerd tag past the frame drawn round its
+//                        panel, off the window or under the chrome, and no card across the frame. Prints what's cut,
+//                        exits 1 if anything is; writes nothing.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still, taken until two in a row
 //                        match) from baseUrl against the same one from otherUrl (e.g. main, built and previewed on
 //                        another port). Prints the changed pixels per shot and writes .tmp/diff/<name>.png (changes in
@@ -748,6 +752,79 @@ async function coachJourney(style, fail) {
   await ctx.close();
 }
 
+// ------------------------------------------------------------------ every dive fits its panel (--only=fit)
+/** In the page: what a dive cuts at its panel's edge (#136): text and nerd tags past the frame line drawn round it, off
+ *  the window or under the chrome, and cards (filled shapes) that cross the frame. A text's box runs a little above
+ *  and below its letters, so a pixel of slack. Shapes clipped by something of their own (a grid's seats) and the
+ *  focus ring don't count. */
+function fitEscapes() {
+  const FRAME = 18, out = [];
+  const panel = (el) => {
+    const g = el.closest('g.scene')?.querySelector(':scope > g[clip-path]');
+    if (!g?.contains(el)) return null;
+    const c = document.getElementById(g.getAttribute('clip-path').slice(5, -1)).querySelector('rect'), m = g.getScreenCTM(), k = Math.hypot(m.a, m.b);
+    return { g, w: +c.getAttribute('width') * k, h: +c.getAttribute('height') * k, l: m.e + FRAME * k, t: m.f + FRAME * k, r: m.e + (+c.getAttribute('width') - FRAME) * k, b: m.f + (+c.getAttribute('height') - FRAME) * k };
+  };
+  const seen = (el) => {
+    if (!el.checkVisibility({ visibilityProperty: true })) return false;
+    let o = 1;
+    for (let a = el; a && a.tagName !== 'svg'; a = a.parentElement) o *= +getComputedStyle(a).opacity;
+    return o >= 0.6;
+  };
+  const past = (r, b) => Math.max(b.l - r.left, r.right - b.r, b.t - r.top, r.bottom - b.b);
+  for (const t of document.querySelectorAll('#stage svg text, #stage svg g.tag')) {
+    if (t.tagName === 'text' && t.closest('g.tag')) continue;
+    const b = t.getBoundingClientRect(), text = t.textContent.trim().slice(0, 30), box = panel(t);
+    if (!text || b.width < 2 || !box || !seen(t)) continue;
+    // a text's box runs a fifth of its size above its capitals and below its baseline
+    const m = t.getScreenCTM(), pad = t.tagName === 'text' ? parseFloat(getComputedStyle(t).fontSize) * Math.hypot(m.a, m.b) * 0.2 : 0;
+    const r = { left: b.left, right: b.right, top: b.top + pad, bottom: b.bottom - pad, width: b.width, height: b.height - 2 * pad };
+    const x = r.left + r.width / 2, y = r.top + r.height / 2, on = document.elementFromPoint(x, y);
+    if (past(r, box) > 1) out.push(`"${text}" runs ${Math.round(past(r, box))} px past its panel's frame`);
+    else if (past(r, { l: 0, t: 0, r: innerWidth, b: innerHeight }) > 1) out.push(`"${text}" runs off the window`);
+    else if (on && !on.closest('#stage')) out.push(`"${text}" is under ${on.closest('[class]')?.getAttribute('class') || on.tagName}`);
+  }
+  for (const s of document.querySelectorAll('#stage svg g.scene :is(rect, path, circle, ellipse, polygon, image)')) {
+    const box = panel(s);
+    if (!box || s.closest('defs, clipPath, mask, pattern, .focus') || s.parentElement.closest('g[clip-path]') !== box.g || !seen(s)) continue;
+    const r = s.getBoundingClientRect(), cs = getComputedStyle(s);
+    // a card, not the panel's backdrop, ground or sea
+    if (r.width < 6 || r.height < 6 || r.width > box.w * 0.6 || r.height > box.h * 0.6) continue;
+    if (s.tagName !== 'image' && (cs.fill === 'none' || +cs.fillOpacity < 0.5)) continue;
+    const ix = Math.max(0, Math.min(r.right, box.r) - Math.max(r.left, box.l)), iy = Math.max(0, Math.min(r.bottom, box.b) - Math.max(r.top, box.t));
+    if (past(r, box) > 3 && ix * iy > 0.3 * r.width * r.height) out.push(`a ${Math.round(r.width)}×${Math.round(r.height)} ${s.tagName} runs ${Math.round(past(r, box))} px past its panel's frame`);
+  }
+  return [...new Set(out)];
+}
+/** Every dive (each look once: the same dive of the same thing on another route looks the same) on a phone upright
+ *  and on its side, in both languages, for kids and for nerds, checked with `fitEscapes`. Prints what's cut, exits 1
+ *  if anything is; writes nothing. */
+async function fitCheck(style) {
+  let fails = 0, walked = 0;
+  for (const view of ['phone', 'short'])
+    for (const lang of ['en', 'da'])
+      for (const q of ['', '&level=technical']) {
+        const { ctx, p } = await open(view, url(style, lang, 'home/watch-video', q)), looks = new Set();
+        // the camera cuts instead of flying: the same places, sooner
+        await p.emulateMedia({ reducedMotion: 'reduce' });
+        for (const place of readdirSync('content/places').filter((d) => existsSync(`content/places/${d}/place.ts`))) {
+          await p.evaluate((pl) => window.__app.go({ places: [pl], path: [] }), place); await still(p);
+          for (const { path, look } of await p.evaluate(() => window.__app.dives())) {
+            if (looks.has(look)) continue;
+            looks.add(look); walked++;
+            await p.evaluate((l) => window.__app.go(l), { places: [place], path }); await still(p);
+            // the scene key takes the focus, and a scripted focus shows its ring, a mat over the panel's rim
+            await p.evaluate(() => { document.activeElement?.blur(); window.__app.setClock(5.2, true); });
+            await p.waitForTimeout(50);
+            for (const bad of await p.evaluate(fitEscapes)) { fails++; console.log(`  ✗ ${place}/${path.join('/')} ${view} ${lang}${q && ' nerd'}: ${bad}`); }
+          }
+        }
+        await ctx.close();
+      }
+  console.log(`  ${walked} dives walked, ${fails ? `${fails} things cut at a panel's edge` : 'nothing cut at a panel\'s edge'}`);
+  if (fails) process.exitCode = 1;
+}
+
 // ------------------------------------------------------------------ not by colour alone (--only=vision)
 /** The places where colour carries meaning (owner regions, request and video, the fibre colours, the doors), each as
  *  one sheet: as it is, through the four colour-vision deficiencies Chromium emulates, and in forced colours (a light
@@ -812,6 +889,7 @@ for (const style of STYLES) {
   console.log(style);
   if (ONLY === 'a11y') { await a11y(style); continue; }
   if (ONLY === 'vision') { await vision(style); continue; }
+  if (ONLY === 'fit') { await fitCheck(style); continue; }
   const key = MODE === 'night' ? `${style}-night` : style;
   const m = (metrics[key] = { ...(metrics[key] ?? {}) });
 
@@ -1045,5 +1123,5 @@ for (const style of STYLES) {
     console.log(`  ${shots.length} screenshots`);
   }
 }
-if (!DIFF && ONLY !== 'a11y' && ONLY !== 'vision') writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
+if (!DIFF && ONLY !== 'a11y' && ONLY !== 'vision' && ONLY !== 'fit') writeFileSync(metricsPath, JSON.stringify({ generated: new Date().toISOString(), gpu: !process.env.SWIFTSHADER, viewport: 'perf: 390×844 @2x (portrait phone)', metrics }, null, 2) + '\n');
 await browser.close();

@@ -121,17 +121,18 @@ export function mixes(cam: Cam, vp: Viewport, r: Route, paths: string[][], o: Or
     }
     for (const [k, v] of m) out.set(k, Math.max(out.get(k) ?? 0, v));
   }
-  // a device's dive sits between the dives of the links either side, so they crowd: of a device dive and its sibling
-  // dives, the one nearer the view centre fades the others out as it shows (nor do we pay for drawing both). Same
-  // camera, same fade, on any path.
+  // a device's dive sits between the dives of the links either side, so they crowd, as do two link dives whose panels
+  // overlap (close links on a phone, #136): of such siblings, the one nearer the view centre fades the others out as it
+  // shows (nor do we pay for drawing both). Same camera, same fade, on any path.
   const mid = areaCentre(vp), unit = Math.min(vp.w, vp.h) / 2;
   const off = (f: Rect) => Math.hypot((f.x + f.w / 2) * cam.k + cam.x - mid.x, (f.y + f.h / 2) * cam.k + cam.y - mid.y) / unit;
+  const overlap = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   for (const base of new Set(paths.flatMap((p) => p.map((_, i) => keyOf(p.slice(0, i))).concat(keyOf(p))))) {
     const kids = childrenOf(r, sceneInfo(r, base ? base.split('/') : [], o).ref, o).filter((c) => c.kind === 'dive')
-      .map((c) => { const path = [...(base ? base.split('/') : []), c.step], s = sceneInfo(r, path, o); return { key: keyOf(path), device: !!s.ref.node, d: off(s.fit) }; });
+      .map((c) => { const path = [...(base ? base.split('/') : []), c.step], s = sceneInfo(r, path, o); return { key: keyOf(path), device: !!s.ref.node, fit: s.fit, d: off(s.fit) }; });
     const shown = new Map(kids.map((c) => [c, smoothstep(...CROWD, out.get(c.key) ?? 0)]));
     for (const c of kids) {
-      const keep = kids.reduce((m, o) => (o === c || !(o.device || c.device) ? m : m * (1 - shown.get(o)! * smoothstep(0.1, 0.5, c.d - o.d))), 1);
+      const keep = kids.reduce((m, o) => (o === c || !(o.device || c.device || overlap(o.fit, c.fit)) ? m : m * (1 - shown.get(o)! * smoothstep(0.1, 0.5, c.d - o.d))), 1);
       if (keep < 1) for (const [k, v] of out) if (k === c.key || k.startsWith(`${c.key}/`)) out.set(k, v * keep);
     }
   }

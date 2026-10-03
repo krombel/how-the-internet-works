@@ -20,7 +20,7 @@
   import { eraOf } from './model/registry';
   import type { Route } from './model/resolve';
   import { paceOf } from './model/speed';
-  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, walkStep, type Chain, type Frame } from './model/tree';
+  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, walkStep, type Chain, type Frame, type SceneRef } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { drawnDoors } from './render/drawn.svelte';
   import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
@@ -891,6 +891,17 @@
           return !!b;
         },
         picker(open = true) { if (open) openPicker(0); else closePicker(); },
+        /** Every dive on the route in this orientation, with what it shows (the same dive of the same thing looks the
+         *  same on another route): the fit check walks each look once (#136). */
+        dives() {
+          const o = view.orient, out: { path: string[]; look: string }[] = [];
+          const walk = (ref: SceneRef): void => {
+            if (ref.kind !== 'path') out.push({ path: ref.path, look: `${ref.dive} ${ref.at ? `${ref.at.hop} ${ref.at.link.tech.id}` : ref.link?.link.tech.id ?? ref.node?.node.id}` });
+            for (const c of childrenOf(route, ref, o)) walk(sceneRef(route, [...ref.path, c.step], o)!);
+          };
+          walk(sceneRef(route, [], o)!);
+          return out;
+        },
         /** A door's badge on screen (in the current scene), e.g. to point the mouse at it. */
         doorAt(id: string) {
           const now = badgesNow(), i = now?.doors.findIndex((k) => k.id === id) ?? -1;
