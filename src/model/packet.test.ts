@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caughtSpot } from '../engine/packets';
+import { caughtSpot, livePackets, packetNear, specsFor } from '../engine/packets';
 import { pathScene } from './layout';
 import { entryHop, hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
 import { resolveRoute, type Route } from './resolve';
@@ -196,6 +196,19 @@ describe('catching and stepping a packet', () => {
     // the root scene draws the home router but not the street cabinet inside the internet
     const root = (h: number) => pathScene(home, null, 'landscape').nodes.some((n) => n.kind === 'hop' && n.hop.index === h);
     expect(hopAhead(at(home, 'router'), 'up', root)).toBe(at(home, 'router'));
+  });
+
+  it('catches a moving packet where it is or a moment behind it, not ahead of it (#122)', () => {
+    const ps = pathScene(home, null, 'landscape'), specs = specsFor(ps, home.activity.flows);
+    const live = livePackets(specs, ps.links, 7.3, 'test').filter((p) => p.age > 0.5);
+    const p = live[0], to = (q: { x: number; y: number }) => (r: { x: number; y: number }) => Math.hypot(r.x - q.x, r.y - q.y);
+    const [was] = livePackets(specs, ps.links, 7.3 - 0.25, 'test').filter((q) => q.id === p.id);
+    const [ahead] = livePackets(specs, ps.links, 7.3 + 0.25, 'test').filter((q) => q.id === p.id);
+    expect(Math.hypot(was.pose.x - p.pose.x, was.pose.y - p.pose.y)).toBeGreaterThan(20);
+    expect(packetNear(live, ps.links, 0.25, to(p.pose), 1)?.id).toBe(p.id);
+    expect(packetNear(live, ps.links, 0.25, to(was.pose), 1)?.id).toBe(p.id);
+    expect(packetNear(live, ps.links, 0, to(was.pose), 1)).toBeNull();
+    expect(packetNear(live, ps.links, 0.25, to(ahead.pose), 1)).toBeNull();
   });
 
   it('finds the scene that draws a hop, preferring the current one', () => {

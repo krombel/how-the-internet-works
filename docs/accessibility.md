@@ -67,7 +67,16 @@ The work comes in four slices:
   each card ("Getting started. 1 of 4. …"), and read aloud reads it when it is on. With `prefers-reduced-motion` the
   card neither fades in nor glides. Shown once (`localStorage`); a link straight into a scene or a stop gets none.
 - **Hints name keys after a key** (`view.keys`, set by the last input): "Press Enter to look inside. The arrow keys
-  walk along." instead of "Tap the magnifier…" (`hint.*.keys`).
+  walk along." instead of "Tap the magnifier…" (`hint.*.keys`). The overview has a hint only for keys ("Tab into the
+  picture…"): for a pointer, "What can I explore?" says what there is to tap.
+- **"What can I explore?"** (#122) is a toggle button (`aria-pressed`). On, the caption's story gives way to a group
+  ("What can I explore?") of groups by verb ("Look inside", "Open up", "How it travels", "What it carries", "Catch")
+  of real buttons, one per door or packet kind; focus moves to the first and the announcer says how many there are
+  ("7 things to explore"). Pointing at or focusing one (with a visible ring) lights its door in the scene. The button
+  again, Esc, a door or a catch ends it; Esc from the list puts focus back on the button, and so does letting go of
+  a packet caught from it. Off, the caption is the story alone; the arrow keys still walk the scene's stops either
+  way, and the list view still lists every door. The list keeps the caption's height (it scrolls if it must, its
+  buttons in the Tab order), so the folded card on a phone and the pill on a short landscape screen keep theirs.
 - **A folded caption** (a phone, a short landscape screen) is a disclosure: its title is a real button
   (`aria-expanded`) that opens the rest. Text cut to two lines is still read in full; the parts folded away come back
   with the button, so nothing in it is out of reach.
@@ -143,7 +152,7 @@ self-hosted lab runners, with the lab PC's GPU). It checks each state once it st
 animation or transition is running (`document.getAnimations()`), so nothing is judged mid-fade, however slow the
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
-  router and IP-layer dives, Danish nerd, a caught packet (and its details), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
+  router and IP-layer dives, "What can I explore?" on (the overview and the Wi‑Fi dive), Danish nerd, a caught packet (and its details), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
   menu and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
   view and the first-run coach marks (the first card, "What can I explore?" and the time machine's, and the one card a
   returning reader gets), a nerd's extra in a dive and the list view with it, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
@@ -158,8 +167,10 @@ machine (#70). It checks:
   the top level, the window; the path scenes are checked that way in Danish and nerd and in short landscape too (#90).
 - **Tab once round** each of those states: focus must never land on the page, on something inert, hidden or off
   screen, or on a control without a visible ring (for the scene's keys: on a stop, the theme's ring in the scene).
-- **Journeys:** a door from the caption (focus stays somewhere visible), catching a packet (focus on the peek), Tab in
-  the peek, letting go, ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button), the
+- **Journeys:** "What can I explore?" (no list before it; pressed, focus in its list, the announcer says how many
+  things; Esc brings the story back with focus on the button), a door from its list (focus stays somewhere visible,
+  and it ends), catching a packet from it (focus on the peek), Tab in the peek, letting go (focus back on "What can I
+  explore?"), ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button), the
   time machine (it opens on where you are, Tab stays in it, Esc back to the chip; ← ← and Enter go to 1995, focus on
   the caption's heading, the announcer says the arrival; and back to today; from the top bar inside the TCP dive, at
   home and on the street: Esc back to the button, ← ← and Enter go to the PC's TCP in 1995, focus on the caption's

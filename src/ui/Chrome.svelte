@@ -1,6 +1,6 @@
 <script lang="ts">
-  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (only where there is something to
-  // explore: not in dives), the time machine (#59: on every screen, showing the era you're in), pause (all motion),
+  // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (a toggle, #122: the doors light
+  // up and the caption lists them; only where there is something to explore), the time machine (#59: on every screen, showing the era you're in), pause (all motion),
   // kid/nerd, day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the
   // language, sound, read aloud (where there is a voice for the language), the style (only when more than one theme is
   // installed), the list view (TextMap.svelte, opened by the app) and About. The controls keep to the end of the row,
@@ -25,7 +25,7 @@
     short: boolean;
     /** Room for the long "What can I explore?" label. */
     wide: boolean;
-    /** "What can I explore?" is on / there's anything to explore in this scene (else it isn't shown). */
+    /** "What can I explore?" is on / there's anything to explore here (doors or packets; else it isn't shown). */
     explore: boolean; canExplore: boolean; ontoggle: () => void;
     /** The time machine's button: the year you're in (null: today), or no button (nowhere else in time to go). It
      *  opens the time machine (loaded when pointed at), and says whether it is open. */

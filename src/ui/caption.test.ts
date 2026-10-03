@@ -103,6 +103,9 @@ describe('caption hints', () => {
     const hints = (keys: boolean) => { state.view.keys = keys; return at.map(([p, s]) => caption.captionFor(home, p, s, 'landscape').hint!); };
     const taps = hints(false), keys = hints(true);
     state.view.keys = false;
+    // the overview has no gesture hint: "What can I explore?" says what there is to tap (#122)
+    expect(taps[0]).toBe('');
+    expect(keys[0]).toMatch(/^Tab into the picture/);
     expect(new Set(taps).size).toBe(at.length);
     keys.forEach((k, i) => {
       expect(k).not.toMatch(/^hint\.|Tap|Swipe|Pinch/);
