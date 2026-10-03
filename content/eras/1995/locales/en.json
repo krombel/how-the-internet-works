@@ -7,7 +7,7 @@
     "nerd": "A desktop PC: its external modem dials the ISP on the phone line, with no router in between."
   },
   "at": {
-    "street": {
+    "on-the-go": {
       "kid": "Out and about, hardly anyone went online, but you could: a laptop with a cable to a mobile phone rang the internet company. Three times slower than at home, and every minute cost money.",
       "nerd": "GSM circuit-switched data: 9.6 kbit/s in one radio time slot, billed per minute like a call. The mobile switch’s modems (the IWF) call the ISP like a home modem; GPRS’s always-on packets came in 2000.",
       "describe": {

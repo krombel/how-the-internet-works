@@ -5,7 +5,7 @@ import { resolveRoute, type Route } from './resolve';
 import { childrenOf, diveRuns, layersAt, linkDivePath, parentPath, sceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 const desk = resolveRoute({ activity: 'watch-video', places: ['desk'] });
 /** A stack as "step" lines, top first: `*` the one you're on, `!` sealed, `~` the signal. */
 const stack = (b: Below | null) => {

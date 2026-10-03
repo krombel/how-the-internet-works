@@ -7,7 +7,7 @@
     "nerd": "A smartphone on Wi‑Fi 6 behind a home router, with fibre, or a cable from the basement, as its uplink."
   },
   "at": {
-    "street": {
+    "on-the-go": {
       "kid": "Out on the street, phones are on 5G: radio to a cell tower nearby, then a glass thread to the internet. Fast enough for big videos.",
       "nerd": "5G NR: wide carriers and many antennas give a phone tens to hundreds of Mbit/s. The gNB tunnels the packets (GTP-U) over fibre to the core’s UPF.",
       "describe": {

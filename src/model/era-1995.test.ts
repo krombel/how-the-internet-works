@@ -233,7 +233,7 @@ describe('the 1995 trip', () => {
   /** How each 1995 place reaches the ISP's modem bank. */
   const CALL: Record<string, string[]> = {
     'home-dialup': ['dialup/ppp', 'pri/ppp'],
-    'street-1995': ['gsm/ppp', 'abis/ppp', 'abis/ppp', 'trunk/ppp', 'pri/ppp'],
+    'on-the-go-1995': ['gsm/ppp', 'abis/ppp', 'abis/ppp', 'trunk/ppp', 'pri/ppp'],
   };
 
   it('dials, then rides timeslots, a sea cable and ATM to the server room', () => {
@@ -279,7 +279,7 @@ describe('the 1995 trip', () => {
       }
       expect(r.links.slice(0, upTo).every((l) => l.stack.join('+') === 'ppp')).toBe(true);
     }
-    const gsm = resolveRoute({ activity: 'watch-video', places: ['street-1995'] });
+    const gsm = resolveRoute({ activity: 'watch-video', places: ['on-the-go-1995'] });
     expect(gsm.chain.slice(0, 6).map((h) => `${h.id}:${h.node.id}`)).toEqual(['phone:laptop-gsm', 'cell-tower:bts', 'bsc:bsc', 'mobile-core:msc', 'exchange:exchange', 'bng:modem-bank']);
     // 9.6 kbit/s each way on the air: a third of the PC's modem at home
     expect(gsm.links[0].rate).toEqual({ down: 9600, up: 9600 });

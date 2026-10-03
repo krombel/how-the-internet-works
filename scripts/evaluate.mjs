@@ -221,7 +221,7 @@ const A11Y_STATES = [
   // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, a laptop on a GSM
   // call (#147; `timeTo`: how many eras back); from its chip on the 2010 overview
   { name: 'time', where: 'home/watch-video', time: true, views: ['desktop', 'phone', 'short', 'zoom'] },
-  { name: 'time-street', where: 'street/watch-video/phone~tcp', q: '&level=nerd', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'time-on-the-go', where: 'on-the-go/watch-video/phone~tcp', q: '&level=nerd', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'time-chip', where: 'home-dsl/watch-video', lang: 'da', time: 'chip', views: ['desktop', 'phone'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
@@ -304,15 +304,15 @@ function controlProblems() {
   return out;
 }
 // every scene's labels against what they're drawn on (#45): the path scenes, and every dive, by kids and nerds
-const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
-  'home/watch-video/phone-ap', 'street/watch-video/phone-cell-tower', 'home/watch-video/router', 'street/watch-video/cell-tower',
+const LABEL_SCENES = ['home/watch-video', 'on-the-go/watch-video', 'home/watch-video/internet', 'on-the-go/watch-video/internet',
+  'home/watch-video/phone-ap', 'on-the-go/watch-video/phone-cell-tower', 'home/watch-video/router', 'on-the-go/watch-video/cell-tower',
   'home/watch-video/ap-router', 'home/watch-video/internet/home-cabinet', 'home/watch-video/internet/olt-bng',
   'home/watch-video/internet/bng-core', 'home/watch-video/internet/core-border', 'home/watch-video/router~ip', 'home/watch-video/internet/core~ip', 'home/watch-video/ap~ip',
-  'street/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
+  'on-the-go/watch-video/internet/mobile-core~ip', 'home/watch-video/phone~tcp', 'home/watch-video/router~tcp', 'home/watch-video/phone~tls',
   'home/watch-video/phone~http', 'home/watch-video/router~http', 'home/watch-video/internet/datacentre/cdn~http',
-  'street/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
+  'on-the-go/watch-video/cell-tower~gtp', 'home/watch-video/ap~wifi', 'home/watch-video/router~ethernet',
   'home/watch-video/internet/olt~ethernet', 'home/watch-video/internet/olt~vlan', 'home/watch-video/internet/core~mpls',
-  'home/watch-video/router~gpon', 'street/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
+  'home/watch-video/router~gpon', 'on-the-go/watch-video/phone~nr', 'home/watch-video/internet/datacentre',
   'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn',
   // the other ways online at home (#3): the phone line, fibre to the building and dial-up
   'home-dsl/watch-video', 'home-dsl/watch-video/router', 'home-dsl/watch-video/internet/home-cabinet',
@@ -324,8 +324,8 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home-dialup/watch-video', 'home-dialup/watch-video/pc-internet', 'home-dialup/watch-video/internet',
   'home-dialup/watch-video/pc~ppp', 'home-dialup/watch-video/internet/bng~ppp',
   // and on the go in 1995 (#147): GSM's slots on the air, the Abis quarters and the trunk between the switches
-  'street-1995/watch-video', 'street-1995/watch-video/phone-cell-tower', 'street-1995/watch-video/internet',
-  'street-1995/watch-video/internet/cell-tower-bsc', 'street-1995/watch-video/internet/mobile-core-exchange'];
+  'on-the-go-1995/watch-video', 'on-the-go-1995/watch-video/phone-cell-tower', 'on-the-go-1995/watch-video/internet',
+  'on-the-go-1995/watch-video/internet/cell-tower-bsc', 'on-the-go-1995/watch-video/internet/mobile-core-exchange'];
 /** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
  *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
  *  when large: 24 px, or 18.7 px bold). */
@@ -407,9 +407,9 @@ function textEscapes() {
   return out;
 }
 // the path scenes, where labels grow the most on small screens and the nerd tags are long, in both languages (#90)
-const PATH_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
+const PATH_SCENES = ['home/watch-video', 'on-the-go/watch-video', 'home/watch-video/internet', 'on-the-go/watch-video/internet',
   'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-dsl/watch-video/internet/datacentre', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
-  'home-dialup/watch-video', 'home-dialup/watch-video/internet', 'street-1995/watch-video', 'street-1995/watch-video/internet'];
+  'home-dialup/watch-video', 'home-dialup/watch-video/internet', 'on-the-go-1995/watch-video', 'on-the-go-1995/watch-video/internet'];
 const PATH_VIEWS = [['phone', 'en', '&level=nerd'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=nerd'], ['desktop', 'da', '&level=nerd']];
 async function labelContrast(style, fail) {
   for (const where of LABEL_SCENES)
@@ -566,7 +566,7 @@ async function a11y(style) {
   // from the top bar, inside a dive: the PC's TCP in 1995, focus on the caption's title, and the announcer names the
   // era first; from the street, the street's own 1995 (#147). Esc gives focus back to the button.
   const told1st = () => p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 3000 }).then((h) => h.jsonValue(), () => '');
-  for (const [from, says, to] of [['home', 'It’s 1995. ', 'home-dialup/pc~tcp'], ['street', 'It’s 1995. ', 'street-1995/phone~tcp']]) {
+  for (const [from, says, to] of [['home', 'It’s 1995. ', 'home-dialup/pc~tcp'], ['on-the-go', 'It’s 1995. ', 'on-the-go-1995/phone~tcp']]) {
     await p.evaluate((f) => window.__app.go({ places: [f], path: ['phone~tcp'] }), from); await still(p);
     await p.focus('.time-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
     if (!(await p.evaluate(() => document.querySelector('.time-btn')?.getAttribute('aria-expanded') === 'true'))) fail('journey: time machine', 'its top-bar button is not expanded');
@@ -717,7 +717,7 @@ const VISION = ['none', 'protanopia', 'deuteranopia', 'tritanopia', 'achromatops
 const VISION_SHOTS = [
   { view: 'desktop', where: 'home/watch-video', name: 'home' },
   { view: 'desktop', where: 'home/watch-video/internet', name: 'internet' },
-  { view: 'phone', where: 'street/watch-video/internet', name: 'internet-street-phone' },
+  { view: 'phone', where: 'on-the-go/watch-video/internet', name: 'internet-on-the-go-phone' },
   { view: 'desktop', where: 'home/watch-video', catch: 'request', at: ['phone'], name: 'peek' },
   { view: 'desktop', where: 'home/watch-video/internet/home-cabinet', name: 'gpon' },
   { view: 'desktop', where: 'home/watch-video/internet/olt-bng', name: 'metro' },
@@ -862,7 +862,7 @@ for (const style of STYLES) {
       r.dialupIdle = await sample(p, cdp, 1500);
       await go({ places: ['home'] }); await settle(p);
       // the place morph: the house slides away, the street slides in
-      r.morphToStreet = await sample(p, cdp, 1200, () => go({ places: ['street'] }));
+      r.morphToStreet = await sample(p, cdp, 1200, () => go({ places: ['on-the-go'] }));
       await settle(p);
       r.streetIdle = await sample(p, cdp, 1500);
       r.flyTo5G = await sample(p, cdp, 1600, () => go({ path: ['phone-cell-tower'] }));
@@ -890,23 +890,23 @@ for (const style of STYLES) {
     const shots = [];
     for (const view of ['desktop', 'phone']) {
       shots.push({ view, where: 'home/watch-video', name: `home-${view}` });
-      shots.push({ view, where: 'street/watch-video', name: `street-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video', name: `on-the-go-${view}` });
       shots.push({ view, where: 'home/watch-video/phone-ap', name: `wifi-${view}` });
-      shots.push({ view, where: 'street/watch-video/phone-cell-tower', name: `5g-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/phone-cell-tower', name: `5g-${view}` });
       shots.push({ view, where: 'home/watch-video/internet', name: `internet-${view}` });
-      shots.push({ view, where: 'street/watch-video/internet', name: `internet-street-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/internet', name: `internet-on-the-go-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/home-cabinet', name: `gpon-${view}` });
       // layer dives: one scene per layer, varied by where it's opened
       shots.push({ view, where: 'home/watch-video/router~ip', name: `ip-nat-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/core~ip', name: `ip-router-${view}` });
-      shots.push({ view, where: 'street/watch-video/internet/mobile-core~ip', name: `ip-cgnat-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/internet/mobile-core~ip', name: `ip-cgnat-${view}` });
       shots.push({ view, where: 'home/watch-video/ap~ip', name: `ip-bridge-${view}` });
       shots.push({ view, where: 'home/watch-video/phone~tcp', name: `tcp-${view}` });
       shots.push({ view, where: 'home/watch-video/router~tcp', name: `tcp-sealed-${view}` });
       shots.push({ view, where: 'home/watch-video/phone~tls', name: `tls-${view}` });
       shots.push({ view, where: 'home/watch-video/phone~http', name: `http-${view}` });
       shots.push({ view, where: 'home/watch-video/router~http', name: `http-sealed-${view}` });
-      shots.push({ view, where: 'street/watch-video/cell-tower~gtp', name: `gtp-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/cell-tower~gtp', name: `gtp-${view}` });
       // all the way down (issues #13, #18): the link envelopes and the signals under them
       shots.push({ view, where: 'home/watch-video/ap-router', name: `copper-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/bng-core', name: `backbone-${view}` });
@@ -918,16 +918,16 @@ for (const style of STYLES) {
       shots.push({ view, where: 'home/watch-video/internet/olt~vlan', name: `vlan-${view}` });
       shots.push({ view, where: 'home/watch-video/internet/core~mpls', name: `mpls-${view}` });
       shots.push({ view, where: 'home/watch-video/router~gpon', name: `gpon-frame-${view}` });
-      shots.push({ view, where: 'street/watch-video/phone~nr', name: `nr-frame-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/phone~nr', name: `nr-frame-${view}` });
       // device dives (#9): inside the home router and the cell tower
       shots.push({ view, where: 'home/watch-video/router', name: `router-${view}` });
-      shots.push({ view, where: 'street/watch-video/cell-tower', name: `tower-${view}` });
+      shots.push({ view, where: 'on-the-go/watch-video/cell-tower', name: `tower-${view}` });
     }
     // short landscape (a phone on its side): the caption is a pill, the fibre stretches have compact layouts
     for (const [where, name] of [['home/watch-video', 'home'], ['home/watch-video/internet', 'internet'], ['home/watch-video/internet/home-cabinet', 'gpon'],
       ['home/watch-video/internet/olt-bng', 'metro'], ['home/watch-video/internet/bng-core', 'backbone'],
       ['home/watch-video/internet/core-border', 'submarine'],
-      ['home/watch-video/router', 'router'], ['street/watch-video/cell-tower', 'tower']])
+      ['home/watch-video/router', 'router'], ['on-the-go/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
     // nerd extras (#31) in the physical dives
     shots.push({ view: 'desktop', where: 'home/watch-video/phone-ap', q: '&level=nerd', name: 'wifi-nerd-desktop' });
@@ -939,18 +939,18 @@ for (const style of STYLES) {
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', name: 'home-nerd-desktop' });
-    shots.push({ view: 'phone', where: 'street/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-street-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'on-the-go/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-on-the-go-nerd-da-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/datacentre/cdn~http', lang: 'da', q: '&level=nerd', name: 'http-cdn-nerd-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video/internet/olt~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'street/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
+    shots.push({ view: 'desktop', where: 'on-the-go/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=nerd', name: 'router-nerd-da-desktop' });
-    shots.push({ view: 'phone', where: 'street/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'on-the-go/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
     // `at`: the hop the packet is caught at, then one per step on
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], grow: 'ip', name: 'grow-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], name: 'peek-desktop' });
-    shots.push({ view: 'phone', where: 'street/watch-video', catch: 'video', at: ['cell-tower'], name: 'peek-street-phone' });
+    shots.push({ view: 'phone', where: 'on-the-go/watch-video', catch: 'video', at: ['cell-tower'], name: 'peek-on-the-go-phone' });
     // the caught request one hop on from the phone, in nerd mode, and its detail tree
     shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', catch: 'request', at: ['phone', 'ap'], name: 'peek-nerd-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=nerd', lang: 'da', catch: 'request', at: ['phone'], detail: true, name: 'peek-tree-da-phone' });
@@ -977,7 +977,7 @@ for (const style of STYLES) {
         await p.waitForTimeout(500);
       } else if (s.morph) {
         // mid-morph: the house on its way out, the street on its way in
-        await p.evaluate(() => window.__app.go({ places: ['street'] }));
+        await p.evaluate(() => window.__app.go({ places: ['on-the-go'] }));
         await p.waitForTimeout(330);
       } else await p.waitForTimeout(700);
       const shot = DIFF ? await stableShot(p, s.name) : await p.screenshot({ path: `docs/img/app-${style}${MODE === 'night' ? '-night' : ''}-${s.name}.jpg`, type: 'jpeg', quality: s.view === 'phone' ? 68 : 74 });

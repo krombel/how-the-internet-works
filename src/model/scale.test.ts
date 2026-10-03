@@ -6,7 +6,7 @@ import { hull, regionsOf, roundPath } from './regions';
 import { FIBRE_KM_PER_MS, formatKm, formatLight, groupKm, kmTo, lightMs, ownersOf, tripKm } from './trip';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 
 describe('owners', () => {
   it('lists the networks on the way in route order, side branches last', () => {
@@ -51,7 +51,7 @@ describe('region outlines', () => {
 
 describe('trip scale', () => {
   it('measures every link on every route', () => {
-    for (const place of ['home', 'desk', 'street']) {
+    for (const place of ['home', 'desk', 'on-the-go']) {
       const r = resolveRoute({ activity: 'watch-video', places: [place] });
       expect(r.links.filter((l) => !(l.km! > 0)).map((l) => l.id)).toEqual([]);
     }

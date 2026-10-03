@@ -6,7 +6,7 @@ import { firstOf, loadPack, lookupLevel, packs } from './strings';
 import type { SceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 const link = (r: typeof home, id: string) => r.links.find((l) => l.id === id)!;
 
 describe('addresses', () => {
@@ -86,7 +86,7 @@ describe('strings', () => {
     expect(lookupLevel('da', 'node.cabinet.kid', 'kid', untranslated)).toBe(lookupLevel('en', 'node.cabinet.kid', 'kid'));
   });
   it('prefers the most specific source', () => {
-    expect(firstOf('en', ['place.street.stop.phone', 'activity.watch-video.stop.phone'], 'kid')).toContain('even out here');
+    expect(firstOf('en', ['place.on-the-go.stop.phone', 'activity.watch-video.stop.phone'], 'kid')).toContain('even out here');
     expect(firstOf('en', ['place.home.stop.phone', 'activity.watch-video.stop.phone'], 'kid')).toContain('cat video');
   });
 });

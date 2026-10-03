@@ -5,17 +5,17 @@ import { resolveRoute } from './resolve';
 import { bottleneck, formatBytes, formatDuration, formatRate, formatTimes, howLong, paceOf, PACE, slowFor, transferSecs } from './speed';
 
 const at = (place: string) => resolveRoute({ activity: 'watch-video', places: [place] });
-const PLACES = ['home', 'street', 'desk', 'home-dsl', 'street-2010', 'desk-2010', 'home-dialup'];
+const PLACES = ['home', 'on-the-go', 'desk', 'home-dsl', 'on-the-go-2010', 'desk-2010', 'home-dialup'];
 
 describe('how long it takes (#59)', () => {
   it('finds each route’s slowest link, each way', () => {
     const slowest = (place: string) => { const r = at(place), d = bottleneck(r, 'down'), u = bottleneck(r, 'up'); return [d.tech.id, d.rate.down, u.tech.id, u.rate.up]; };
     expect(slowest('home')).toEqual(['wifi', 500e6, 'wifi', 500e6]);
-    expect(slowest('street')).toEqual(['nr', 300e6, 'nr', 50e6]);
+    expect(slowest('on-the-go')).toEqual(['nr', 300e6, 'nr', 50e6]);
     // a 2010 home: the copper line, not its own Wi‑Fi (a link's rate overrides its technology's)
     expect(slowest('home-dsl')).toEqual(['vdsl', 20e6, 'vdsl', 2e6]);
     expect(at('home-dsl').links.find((l) => l.tech.id === 'wifi')!.rate).toEqual({ down: 50e6, up: 50e6 });
-    expect(slowest('street-2010')).toEqual(['hspa', 2e6, 'hspa', 1e6]);
+    expect(slowest('on-the-go-2010')).toEqual(['hspa', 2e6, 'hspa', 1e6]);
     expect(slowest('home-dialup')).toEqual(['dialup', 28_800, 'dialup', 28_800]);
   });
 
