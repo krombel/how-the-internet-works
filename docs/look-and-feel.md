@@ -385,7 +385,8 @@ always muted again on reload.
   below per orientation.
 - **Chrome** fits on two tight rows (breadcrumb, then the controls at the end of the row), and the caption sits at
   the bottom where thumbs are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px
-  phone; *Explore* is only there when there is something to explore (doors, a dive's envelopes, packets), and the others keep their place
+  phone; below 400 px day/night does too, so *Explore* keeps its word (its ✷ alone, next to the ☀, was taken for the
+  sun; issue #138); *Explore* is only there when there is something to explore (doors, a dive's envelopes, packets), and the others keep their place
   when it goes. One row doesn't fit: the controls take about 230 of 360–390 px and would cut every breadcrumb short.
   The scene fades out under the bar (`--bar-fade`, the paper by default), so labels that slide under it don't show
   between the buttons. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies
@@ -395,7 +396,8 @@ always muted again on reload.
 - **Caption** (issue #54). Folded to its title and two lines of the text (exploring: two rows of chips in their
   place, the title then only for screen readers; issue #122), so the scene keeps most of the
   screen. The title is a button (with `aria-expanded`): it opens the whole caption over the scene, up to the top bar
-  and scrolling beyond that, with the scale line, the place, the gesture hint and *Want to know more?*. The title
+  and scrolling beyond that, with the scale line, the place, the gesture hint and *Want to know more?*. A tap anywhere on the folded caption opens it too (issue
+  #138; it never opens by itself, which would cover the scene, and on a first visit the coach cards). The title
   again, or Esc, folds it, and so does going somewhere else. The scene doesn't move while it is open. The folded text
   is only cut short on screen: a screen reader reads it all, and the rest is one tap away. On a bigger screen the
   caption is never cut. The ▲ ▼ buttons sit on its top corners.

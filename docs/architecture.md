@@ -302,8 +302,9 @@ dive; `CaptionDoor.path` carries where they go.
   the doors by verb ("Look inside: Wi‑Fi · Fibre   Open up: The internet"; at a stop, only that stop's own) and the
   packets to catch. Links of the same technology share one chip (the first) at scene level; walking to a stop gives
   each its own. They are real buttons, so they are the keyboard and screen-reader way in (the scene SVG is
-  `aria-hidden`; the list view lists every door too). On small screens only the verb's icon is shown; the group keeps
-  the verb as its label. On a portrait phone the folded card's title is then only for screen readers, so two rows of
+  `aria-hidden`; the list view lists every door too). In the short landscape pill only the verb's icon is shown (a
+  phone held upright keeps the names: an icon alone told a child nothing, #138); the group keeps the verb as its
+  label. On a portrait phone the folded card's title is then only for screen readers, so two rows of
   chips fit; on a short landscape screen the pill holds one row, scrolling sideways.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 - **First-run coach marks** (issue #21). A visit that starts at the top (`coachRun` in `ui/coach.ts`: the overview, no
@@ -316,7 +317,8 @@ dive; `CaptionDoor.path` carries where they go.
   doors are lit as by "What can I explore?" (`lit`), the door pointed at is `hot`, and the scene holds still on the
   pause's clock (`paused`; ⏸ shows only the reader's own pause, `held`). `placeMark` puts each card below its target,
   else above, else beside it, in the room the top bar and the caption leave, with its tail on the target; a door's
-  badge is found with the same `layoutDoors` as the hit test (`badgesNow`). A tap anywhere but the card's buttons
+  target is its badge, found with the same `layoutDoors` as the hit test (`badgesNow`), and what the door is on with
+  its name as drawn (`doorCovers`), so the card about the internet doesn't cover its cloud (#138). A tap anywhere but the card's buttons
   ends them on `pointerup`, after the stage has taken the tap, so it still opens what it hit; so do Esc and any
   navigation. `coached` in `localStorage` is set as soon as they show. A link straight into a scene or a stop gets
   none and leaves them for a later visit at the top. The card's CSS is in its component (so it comes with the chunk),

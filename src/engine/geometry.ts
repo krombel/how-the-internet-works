@@ -43,6 +43,12 @@ export function curveBounds(l: Curve, pad = 0): Rect {
   return { x: x0 - pad, y: y0 - pad, w: x1 - x0 + pad * 2, h: y1 - y0 + pad * 2 };
 }
 
+/** The smallest rect holding both. */
+export const union = (a: Rect, b: Rect): Rect => {
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
+};
+
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /** How far along a polyline each of its points is: 0 at the first, its whole length at the last. */

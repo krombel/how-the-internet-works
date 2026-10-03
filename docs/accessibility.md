@@ -46,7 +46,8 @@ The work comes in four slices:
   clock and the era you're in, "Today" or the year; its name "Travel in time: 1995", `aria-haspopup="dialog"` and
   `aria-expanded`), the 🕰️ chip in the caption on every overview and the same button in the list view open a dialog
   like the picker (the page behind it `inert`, Esc, × or a click outside closes it and gives focus back to its
-  opener). Below 400 px "What can I explore?" shows only its icon (its name stays), so the row still fits. The eras are a native
+  opener). Below 400 px day/night moves into ⋯ (a toggle, "Night: off"), so the row still fits and "Explore" keeps its
+  word (#138: its icon alone, by the ☀, read as the sun). The eras are a native
   radio group in a `fieldset` ("When?"), so the arrow keys choose and a screen reader says "1995 Dial-up (the old
   days), radio button, 1 of 3"; it opens with focus on where you are ("You are here"), and each era's text and what
   its picture shows are the radio's description (`aria-describedby`). Choosing only chooses (and shows the text); the
@@ -79,7 +80,9 @@ The work comes in four slices:
   buttons in the Tab order), so the folded card on a phone and the pill on a short landscape screen keep theirs.
 - **A folded caption** (a phone, a short landscape screen) is a disclosure: its title is a real button
   (`aria-expanded`) that opens the rest. Text cut to two lines is still read in full; the parts folded away come back
-  with the button, so nothing in it is out of reach.
+  with the button, so nothing in it is out of reach. A tap anywhere on the folded caption opens it too (#138: a parent
+  reading aloud didn't find the ⌃); that is a pointer shortcut only, the title stays the way in for the keyboard and
+  screen readers. It never opens by itself: open, it covers the scene, and on a first visit the coach cards.
 - **Focus is never lost.** After a door, a ladder rung or a step, focus goes to where you are in the scene (its
   key), else the new caption's heading, if the control you used has gone (it never falls to the page or to something hidden). Catching a packet moves focus to the
   peek's heading, and letting go brings it back. The picker makes the page behind it `inert` and gives focus back to

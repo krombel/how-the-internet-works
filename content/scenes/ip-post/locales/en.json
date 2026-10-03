@@ -78,7 +78,7 @@
   "elsewhere": "Everywhere else",
   "notebook": "Swap notebook",
   "table": "NAT table · {addr}",
-  "you": "You",
+  "you": "{name} (you)",
   "neighbour": "Neighbour",
   "ticket": "No. {n}",
   "swap": "New envelope",

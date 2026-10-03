@@ -4,7 +4,7 @@
   // this computes.
   import { onMount, tick, untrack } from 'svelte';
   import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, followStep, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
-  import { WORLD_SIZE, bezier, lerp, type Curve, type Orient, type Pt } from './engine/geometry';
+  import { WORLD_SIZE, bezier, lerp, union, type Curve, type Orient, type Pt, type Rect } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
   import { caughtSpot, livePackets, packetNear, poseOn, specsFor, type LivePacket } from './engine/packets';
@@ -12,7 +12,7 @@
   import { speaker, spoken } from './engine/speech';
   import { textBox } from './engine/svg';
   import { camFor, decide, keyOf, kLimits, mixes, sceneInfo, travelK } from './engine/zoom';
-  import { badgeSize, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
+  import { badgeSize, doorCovers, doorsInView, doorsOf, layoutDoors, type Door } from './model/doors';
   import { eraStops, eraYear, startDevice } from './model/era';
   import { belowOf, rungStep } from './model/ladder';
   import { morphScene, pathScene, type PathScene, type SLink, type SNode } from './model/layout';
@@ -661,12 +661,17 @@
     coachHot = null;
     if (had) void tick().then(() => keepFocus());
   }
-  /** A door's badge on screen. */
-  function badgeRect(d: Door) {
+  /** What a coach card points at, on screen: a door's badge, and the device or group it is on with its name as drawn
+   *  now (`doorCovers`), so the card that talks about the internet doesn't cover its cloud (#138). */
+  function coachRect(d: Door) {
     const now = badgesNow(), b = now?.badges[now.doors.findIndex((k) => k.id === d.id)];
     if (!now || !b) return null;
-    const p = toScreen(cam, toRoot(now.info.frame, { x: b.x - b.w / 2, y: b.y - b.h / 2 }));
-    return { x: p.x, y: p.y, w: b.w * now.sk, h: b.h * now.sk };
+    const screen = (r: Rect): Rect => {
+      const p = toScreen(cam, toRoot(now.info.frame, r));
+      return { x: p.x, y: p.y, w: r.w * now.sk, h: r.h * now.sk };
+    };
+    const grow = Math.max(1, themeState.current.labelMinPx / (28 * now.sk));
+    return doorCovers(d, now.ps, nameW, view.orient, grow).map(screen).reduce(union, screen({ x: b.x - b.w / 2, y: b.y - b.h / 2, w: b.w, h: b.h }));
   }
   // Into a layer from the peek panel: the tapped envelope grows into the dive's panel while the camera flies there (not
   // with prefers-reduced-motion: the camera cuts there, so there is no flight).
@@ -926,7 +931,7 @@
   <button class="skip btn card" onclick={() => openMap()}>{tr('map.skip')}</button>
   {#if Coach}
     <Coach run={coaching ?? 'all'} doors={hereDoors} {canExplore} wide={view.vp.w >= 1100} {eras} era={hereEra}
-      rectOf={badgeRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
+      rectOf={coachRect} onhot={(id) => (coachHot = id)} onend={endCoach} />
   {/if}
   <Chrome {crumbs} {below} {roomy} onhot={(id) => (chipHot = id)} small={small || short} {short} wide={view.vp.w >= 1100} {explore} {canExplore} ontoggle={toggleExplore}
     time={eras.length > 1 ? { year: eraYear(route) } : null} timeOpen={!!TimeMachine} ontime={() => openTime()} onpretime={loadTime}
