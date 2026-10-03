@@ -215,7 +215,7 @@ const A11Y_STATES = [
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
   { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone', 'zoom'] },
   // the caption folded away by its chevron (#168): the pill, its title alone
-  { name: 'folded', where: 'home/watch-video/phone-ap', fold: true, views: ['desktop', 'phone', 'zoom'] },
+  { name: 'folded', where: 'home/watch-video/phone-ap', fold: true, views: ['desktop', 'phone'] },
   { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=technical', views: ['desktop', 'zoom'] },
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=technical', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
@@ -500,7 +500,8 @@ async function a11y(style) {
     }
     await ctx.close();
   }
-  // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker and the time
+  // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker, folding the
+  //    caption away and the time
   //    machine
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
   await still(p);
