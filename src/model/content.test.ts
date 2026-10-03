@@ -219,7 +219,7 @@ describe('validation messages', () => {
   it('checks place variants: a known base, one level deep, and an access name', () => {
     expect(broken((c) => { c.places['home-dsl'].variantOf = 'hoem'; })).toContain('place.ts › variantOf: "hoem" is not a place. Did you mean "home"?');
     expect(broken((c) => { c.places.desk.variantOf = 'home-dsl'; })).toContain('desk/place.ts › variantOf: "home-dsl" is itself a variant of "home"; use "home"');
-    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', variantOf: 'desk' }; }))
+    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', variantOf: 'street', picture: undefined }; }))
       .toContain('missing English string "place.lake.access"');
   });
 
@@ -228,12 +228,20 @@ describe('validation messages', () => {
       .toContain('missing English string "place.lake.where"');
   });
 
+  it('needs a base place’s picture for “Where are you?”: a node that stands for a place, shown by its variants too (#151)', () => {
+    expect(broken((c) => { delete c.places.street.picture; })).toContain('street/place.ts › picture: a place needs a picture for "Where are you?"');
+    expect(broken((c) => { c.places.street.picture = 'on-the-og'; })).toContain('street/place.ts › picture: "on-the-og" is not a node. Did you mean "on-the-go"?');
+    expect(broken((c) => { c.places.street.picture = 'phone'; })).toContain('street/place.ts › picture: "phone" is a device; the picture is a node of kind "place"');
+    expect(broken((c) => { c.places.desk.picture = 'home'; })).toContain('desk/place.ts › picture: a variant shows the picture of "home"; give it there');
+  });
+
   it('groups a place with its variants, base first, in order (the picker shows one place and its ways online)', () => {
-    expect([basePlace('home-dsl'), basePlace('home'), basePlace('street')]).toEqual(['home', 'home', 'street']);
-    expect(placeFamily('home-dsl')).toEqual(['home', 'home-fttb', 'home-dsl', 'home-dialup']);
+    expect([basePlace('home-dsl'), basePlace('desk'), basePlace('street')]).toEqual(['home', 'home', 'street']);
+    // the desk is a way online from home (#151): a laptop on a cable, today and in 2010
+    expect(placeFamily('home-dsl')).toEqual(['home', 'desk', 'home-fttb', 'home-dsl', 'desk-2010', 'home-dialup']);
+    expect(placeFamily('desk-2010')).toEqual(placeFamily('home'));
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
     expect(placeFamily('street-2010')).toEqual(['street', 'street-2010']);
-    expect(placeFamily('desk')).toEqual(['desk', 'desk-2010']);
   });
 
   it('checks eras (#59): known, named and described, and two of them or none in a family', () => {

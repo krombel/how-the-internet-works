@@ -1,7 +1,7 @@
 import { definePlace } from '$core/define';
 import street from '../street/place';
 
-// Out on the street around 2010: a smartphone on 3G (HSPA). The NodeB on the mast sends the radio pieces back to its
+// On the go around 2010: a smartphone on 3G (HSPA). The NodeB on the mast sends the radio pieces back to its
 // radio network controller (RNC), which ends the radio layers and, with Direct Tunnel (3GPP Rel-7, common by 2010),
 // tunnels the packets (GTP-U) straight to the GGSN, the mobile network's gate to the internet. The SGSN signs the
 // phone in and sets the tunnel up, beside the path.

@@ -35,7 +35,8 @@ the pieces fit together.
 
 ## Worked example: a laptop on a cable at the desk
 
-This was added in one content-only commit ("Content only: a laptop on a cable at the desk"). It is two folders.
+This was added in one content-only commit ("Content only: a laptop on a cable at the desk"), and later became one
+of the ways online from home (#151). It is two folders.
 
 **1. The node:** `content/nodes/laptop/`
 
@@ -74,7 +75,9 @@ export default defineNode({
 // place.ts: hops and links alternate, from the reader's device to where it joins the shared segment
 import { definePlace } from '$core/define';
 export default definePlace({
-  order: 3,                                                  // position in "Where are you?"
+  variantOf: 'home',                                         // another way online from home (below)
+  order: 1.1,                                                // its position in "How do you get online?"
+  era: 'today',                                              // home's ways online have eras (the time machine)
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
     { link: 'ethernet', km: 0.003 },                         // an existing technology: its stack, look, colour and dive (copper); `km`: roughly how long
@@ -109,14 +112,15 @@ export default definePlace({
 ```json
 // locales/en.json: the place's name, its overview text, and what it says about stops in its own context
 {
-  "name": "At the desk",
+  "name": "At home, at the desk",
+  "access": "Laptop on a cable",                             // its chip in "How do you get online?"
   "kid": "No radio this time: …", "nerd": "Wired: Ethernet frames go straight …",
   "tag":  { "laptop": "Ethernet · 192.168.1.40" },
   "stop": { "laptop": { "kid": "The laptop wants a video too. …", "nerd": "…" } }
 }
 ```
 
-That is all. The picker now offers "At the desk" in every activity. Catching a packet shows an Ethernet frame on
+That is all. At home, the picker now offers "Laptop on a cable" in every activity. Catching a packet shows an Ethernet frame on
 the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/home-cabinet` flies three levels down.
 
 ## Add a node
@@ -357,6 +361,9 @@ documentation AS numbers 64496–64511).
 - `place.ts` (`definePlace`) starts with the reader's device and ends with the link into the activity's next segment.
 - `art/Backdrop.svelte` is optional.
 - Strings: `name` (required), `kid`/`nerd`, `tag.<instance>`, `stop.<instance or link id>`, and `inside.<group>`.
+- A place of its own (not a variant, below) says where it is, `where` ("at home", "on the go"), and has a `picture`
+  in "Where are you?": a node of kind `place` whose art stands for it (`home`: the house; `on-the-go`: a phone on the
+  move). Its variants show the same picture. Validation fails without them.
 - A link's `label: [dx, dy]` is the offset of its name from its door badge (the link's midpoint, unless the badge
   slid along the link to keep off a device's name). A third entry, `'end'` or `'start'`, puts that end of the name
   there instead of its middle, so a long translation grows away from the link (the street's fibre in portrait:
@@ -373,18 +380,20 @@ use `only: [...]` on its place slot.
 ### Another way online: a place variant (issue #3)
 
 The same place reached another way (the house on the phone line rather than fibre, a block of flats with fibre to
-the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
-- Its hops swap the access link and the devices around it (`home-dsl`: a `dsl-router` with a modem, `vdsl` to a
-  `dslam` in the street cabinet; `home-fttb`: an Ethernet riser to a `building-switch`, then `fttb` fibre;
-  `home-dialup`: no router at all, the `laptop` dials over `dialup` to the telephone `exchange` and on to the ISP's
-  modems at the `bng`, and PPP hands the laptop a public address).
+the building, a laptop on a cable at the desk) is a place of its own with `variantOf: '<base>'` in `place.ts`:
+- Its hops swap the start device, the access link and the devices around it (`desk`: a `laptop` on an `ethernet`
+  cable to the router; `home-dsl`: a `dsl-router` with a modem, `vdsl` to a `dslam` in the street cabinet;
+  `home-fttb`: an Ethernet riser to a `building-switch`, then `fttb` fibre; `home-dialup`: no router at all, the
+  `laptop` dials over `dialup` to the telephone `exchange` and on to the ISP's modems at the `bng`, and PPP hands the
+  laptop a public address).
 - `layout: home.layout` (or `...home.layout` plus its own groups) keeps the base's spots, so its backdrop can redraw
   the same room (`home-dsl` puts a telephone in the house; `home-fttb` turns it into a flat in a block). A variant
   with other devices gives its own `layout` (`home-dialup`: the desk's computer, the line past the telephone).
   Reuse the base's backdrop pieces and existing device art where they fit: backdrops and device art load up front.
-- Strings: the base and every variant need `access`, the short name of their way online ("Fibre to the house", "Phone
-  line (DSL)"). The picker lists the base once, and under it a row of `access` chips, one per family member of the
-  era you are in, in `order` (the other eras' members are the time machine's).
+- Strings: the base and every variant need `access`, the short name of their way online, which mixes the device
+  or the link in the house with the line where that tells them apart ("Wi‑Fi · fibre", "Laptop on a cable", "In a
+  flat"). The picker lists the base once, and under it a row of `access` chips, one per family member of the era you
+  are in, in `order` (the other eras' members are the time machine's). The time machine shows it under each era.
 - Variants are one level deep: a variant of a variant fails validation, as does a missing `access`.
 - URLs name the variant (`#/en/home-dsl/watch-video`), so every link, dive and list view works as for any place.
 
@@ -395,7 +404,7 @@ the building) is a place of its own with `variantOf: '<base>'` in `place.ts`:
 An era is a time the place looked different: the home in 1995 (dial-up on a PC), 2010 (DSL, a laptop on Wi‑Fi) and
 today (fibre, a phone). The time machine (its button in the top bar, 🕰️ in the caption, "Travel in time" in the list
 view) switches between the members of a place family by their era, so an era switch is a place switch: no new route,
-URL or dive. From a place with no member in an era (the street in 1995), it goes to that era's own trip, the first
+URL or dive. From a place with no member in an era (on the go in 1995), it goes to that era's own trip, the first
 place of that era, and says so.
 - `content/eras/<id>/era.ts`: `defineEra({ year: 1995 })`. The folder name is the id (`today` is the present,
   whose `year` is the current one). The panel lists eras by `year`.
@@ -403,20 +412,20 @@ place of that era, and says so.
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
   start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
   Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
-  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where the
-  generic line reads wrong, `instead.<place>` (kid and nerd) replaces "In 1995 you'd have done this at home. You'll
-  travel there." and must say where you'd have been instead (1995's `instead.desk`: the PC at home sits at a desk
-  too); "You'll travel there." follows it when you go. The place picker shows the same line under a place with no
-  way online in the era you are in.
-  Where an era has a member of the place's family, `at.<base place>` (`kid`, `nerd`, `describe.kid`/`.nerd`) takes the
-  place of the era's own words in the panel and the arrival (2010's `at.street`: phones on 3G; `at.desk`: a cable to
-  the DSL modem). The era texts load with the dive strings, when the panel opens.
-- Each base place says where it is, `where` ("at home", "on the street"), for the time machine's "In 1995 you'd have
+  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). The place
+  picker shows the time machine's line ("In 1995 you'd have done this at home.") under a place with no way online
+  in the era you are in.
+  Where an era has a member of the place's family, `at.<place>`, else `at.<base place>` (`kid`, `nerd`,
+  `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.street`:
+  phones on 3G; `at.desk-2010`: a cable to the DSL modem). The era texts load with the dive strings, when the panel
+  opens.
+- Each base place says where it is, `where` ("at home", "on the go"), for the time machine's "In 1995 you'd have
   done this at home." Validation fails on a base place without it.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
   where only some members have an era, and on a family whose members all share one era (a time machine needs two).
-  Two members of one era are fine (`home` and `home-fttb` are both `today`): the time machine goes to the place you
-  are at if it's of that era, else to the first by `order`.
+  Two members of one era are fine (`home`, `desk` and `home-fttb` are all `today`): the time machine goes to the
+  place you are at if it's of that era, else to the one of that era that starts the same way (the same first link:
+  `desk`'s cable goes to `desk-2010`'s), else to the first by `order`.
 - The internet inside is an era's own where a segment variant draws it (`isp-to-cdn-1995`: a small ISP, leased lines,
   CANTAT-3 and an American ATM backbone); where a part is still today's drawing (1995's server room, until its own
   step), its words say so plainly ("drawn as today") rather than describe today's technology as the era's. A test

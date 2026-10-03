@@ -1,7 +1,6 @@
 {
-  "name": "At the desk",
-  "where": "at the desk",
-  "access": "Fibre to the house",
+  "name": "At home, at the desk",
+  "access": "Laptop on a cable",
   "kid": "No radio this time: the parcels run along a cable straight into the router, then out along a glass thread to the internet.",
   "nerd": "Wired: Ethernet frames go straight from the laptop's port to the home router, which NATs the packets and forwards them over the fibre uplink (XGS-PON) to the ISP.",
   "describe": {

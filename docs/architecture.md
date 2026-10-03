@@ -11,7 +11,7 @@ and [look-and-feel.md](look-and-feel.md) (Storybook, fly zoom, ease).
 
 ## The model
 
-A reader is **somewhere** (a *place*: at home, on the street, at the desk…) **doing something** (an *activity*:
+A reader is **somewhere** (a *place*: at home, on the go…) **doing something** (an *activity*:
 watching a video…). Choosing both gives a **route**: a chain of hops (node instances) joined by links (each of one
 technology). Every place works with every activity.
 
@@ -36,7 +36,7 @@ graph LR
 | **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. Its **header schema** (`fields`: id, bits, value template, which roles use it) drives the packet model and the peek (below). `openAt` lists the roles that read it (TCP: only endpoints), `seals` makes it encrypt what's inside, and `dive` names the layer dive scene behind its magnifier. Issues #5, #8, #17. |
 | **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`, the border router's `border-inside` with its route book choosing the exchange over transit, the exchange's `ixp-inside` with its shared switch and route server, the data centre's `leaf-spine` and `server-inside`), a **circuit** (`tdm-frames`: the timeslots of 1995's E1s, T1s and the PRI, sharing its slot row with `modem-call`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `http-chunk`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`, and 1995's `atm-cells`, with `ppp-hello`'s HDLC keepalives for a leased line). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared PON thread with its splitter on the access fibre, DWDM colours on metro fibre, the exchange's short cross-connects and the data centre's CWDM links, boosters every 80 km on the backbone and repeaters on the sea floor under the `submarine` cable, both spaced from the stretch's real `km`), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → border router → IXP → CDN, with transit as a dashed side branch off the border router). Hops, links, side branches, per-hop overrides and layout. A segment with `variantOf` and an `era` stands in for its base in that era (#59). |
-| **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. A place with `variantOf` is another way online from the same place (`home-dsl`, `home-fttb`, `home-dialup`): the picker shows the base once with a row of `access` chips, of the era you are in. A place may have an `era`. |
+| **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street), an `order` in the picker and, on a base place, a `picture` there (a node of kind `place`: the house, a phone on the move). A place with `variantOf` is another way online from the same place (`desk`, `home-fttb`, `home-dsl`, `home-dialup` from home): the picker shows the base once, with its picture, and a row of `access` chips, of the era you are in. A place may have an `era`. |
 | **Era** | `content/eras/<id>/` | A time the internet at home looked different (`1995`, `2010`, `today`; issue #59): a `year`, a `name`, the `kid`/`nerd` text the time machine shows, and a `describe` of its picture (the era's start device). Every place gets the time machine: an era switch is a place switch to the family member of that era, else to the era's own trip (`eraStops`). |
 | **Activity** | `content/activities/<id>/` | What happens: the **flows** (upper stack `ip › tcp › tls › http`, and packet kinds with direction, pace and colour) and the **route** (`[{ place: 'me' }, { segment: 'isp-to-cdn' }]`), plus which network nodes expand (a group may be drawn by another network node: `{ id, node }`). An activity with `variantOf` and an `era` stands in for its base in that era (#59: `watch-video-1995` opens a web page over plain HTTP); the URL names the base. |
 | **Owner** | `content/owners/<id>/` | Who runs a hop: your ISP, the exchange, the video company, a transit carrier (issue #20). Hops say `owner`; inside a group, each owner's hops become a tinted region with a sign, so the internet reads as a network of networks. |
@@ -59,7 +59,7 @@ Bigger ones get a plan first, in [plans/](plans/README.md).
 | Idea | What to add |
 |---|---|
 | Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/XGS-PON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
-| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); 2010 on the street (a phone on 3G: NodeB, RNC, a Direct Tunnel to the GGSN, the SGSN aside; `nr-radio` and `nr-grant` have a 3G mode) and at the desk (a laptop on a cable to the DSL router); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no way online in an era (the street and the desk in 1995), the era's own trip; 1995's internet (`isp-to-cdn-1995`, step 6): a PRI into the ISP's modem bank, 10BASE-T in its rack, a leased E1 to its upstream (DIX as the aside), CANTAT-3, an American ATM backbone and a T1, with the `tdm-frames` and `atm-cells` dives; its server room is still today's drawing, said so in its words, and 2010's internet is today's with 2010's numbers. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
+| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); 2010 on the go (a phone on 3G: NodeB, RNC, a Direct Tunnel to the GGSN, the SGSN aside; `nr-radio` and `nr-grant` have a 3G mode) and at home on a cable (`desk-2010`: a laptop on a cable to the DSL router); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no way online in an era (on the go in 1995), the era's own trip; 1995's internet (`isp-to-cdn-1995`, step 6): a PRI into the ISP's modem bank, 10BASE-T in its rack, a leased E1 to its upstream (DIX as the aside), CANTAT-3, an American ATM backbone and a T1, with the `tdm-frames` and `atm-cells` dives; its server room is still today's drawing, said so in its words, and 2010's internet is today's with 2010's numbers. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
 | Issue #2: IoT, LoRaWAN | A **node** (`sensor`, `lora-gateway`, `network-server`), a **technology** `lorawan` (look `radio`) with a `lorawan` **layer** and a `chirp` dive **scene**, a **place** (`garden`, `field`), and an **activity** such as `send-reading` with a small upward flow. `only` keeps it to places that make sense. Plan: [plans/2-iot-lorawan.md](plans/2-iot-lorawan.md). |
 | Messaging | An activity with two place slots (`me`, `friend`) around a `messaging-server` segment, and an `e2ee` layer that the server can't open (`openAt: ['endpoint']`). |
 | Video call (P2P, WebRTC) | A second flow on a direct path, with the NAT traversal shown on the routers (`role: 'nat'`). |
@@ -376,28 +376,30 @@ Picking another place in the picker (the swap badge on the start device, or "Cha
 Packets restart on the new route, and the caption waits for the morph to finish.
 
 **The time machine (issue #59)** is the same morph. `eraStops(place, options)` (`model/era.ts`) lists every era,
-oldest first, each with the place to go to: the place itself for its own era, else the first of its family of that era
-by `order`, else the era's own trip (the first place of that era, `instead`: the street and the desk have no way
-online in 1995). A place's era is `eraOf` (`model/registry.ts`; none is today's). With two or more stops, the top bar
-shows the time machine's button on every screen (`.time-btn`, `ui/Chrome.svelte`: a clock and "Today" or the year,
-`eraYear`), the caption a 🕰️ chip on every overview (`timeChip`, `ui/caption.ts`) and the list view a "Travel in
-time" button. They open `ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking): a native
-radio group of the eras, each with a picture of its start device (the place's first hop: a PC, a laptop, a phone), its
-year and way online. Choosing one shows its text, and for the era's own trip a line saying so ("In 1995 you'd have
-done this at home. You'll travel there.", or the era's own line for where you are, `era.<era>.instead.<place>`: the
-desk in 1995, whose PC was at home; for nerds, what there was where you are, `era.<era>.away.<place>`); its
-button (or Enter) goes there with `eraTrip` (`model/era-trip.ts`, loaded with the panel): slot 0 becomes the stop's
-place, the steps naming the old start device (`phone~tcp`, `phone-ap`) name the new one (`pc~tcp`, `pc-internet`), and
-the path is kept as far as it still exists. When the morph lands, focus goes to the caption's heading and the
-announcer says the era first ("It's 1995.", "Back to today.", and why you are somewhere else), then the arrival. The
-panel's words are `ui/time.ts`, in its chunk too. There is no era in the URL: the place says it.
+oldest first, each with the place to go to: the place itself for its own era, else its family's member of that era
+that starts the same way (the same first link: the laptop on a cable at home, `desk`, goes to `desk-2010`), else the
+first of its family of that era by `order`, else the era's own trip (the first place of that era, `instead`: on the go
+has no way online in 1995). A place's era is `eraOf` (`model/registry.ts`; none is today's). With two or more stops,
+the top bar shows the time machine's button on every screen (`.time-btn`, `ui/Chrome.svelte`: a clock and "Today" or
+the year, `eraYear`), the caption a 🕰️ chip on every overview (`timeChip`, `ui/caption.ts`) and the list view a
+"Travel in time" button. They open `ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking):
+a native radio group of the eras, each with a picture of its start device (the place's first hop: a PC, a laptop, a
+phone), its year and way online. Choosing one shows its text, and for the era's own trip a line saying so ("In 1995
+you'd have done this at home. You'll travel there."; for nerds, what there was where you are,
+`era.<era>.away.<place>`); its button (or Enter) goes there with `eraTrip` (`model/era-trip.ts`, loaded with the
+panel): slot 0 becomes the stop's place, the steps naming the old start device (`phone~tcp`, `phone-ap`) name the new
+one (`pc~tcp`, `pc-internet`), and the path is kept as far as it still exists. When the morph lands, focus goes to the
+caption's heading and the announcer says the era first ("It's 1995.", "Back to today.", and why you are somewhere
+else), then the arrival. The panel's words are `ui/time.ts`, in its chunk too. There is no era in the URL: the place
+says it.
 
 **The picker stays in the era** (#59, step 9). Only the time machine changes the era. `placeOptions` (`ui/picker.ts`)
-offers each place as its stop of the route's era, by the same `eraStops`: its member of that era (`desk-2010` in
+offers each place as its stop of the route's era, by the same `eraStops`: its member of that era (`street-2010` in
 2010), or, with none, the era's own trip, under the time machine's line (`elsewhere`, without "You'll travel there"
-where you are already). `ui/time.ts` loads with the picker then, and the era's words with the dive strings, before it
-opens; picking such a place lands like a trip in time (focus on the caption's heading, the line said first).
-"How do you get online?" lists the era's ways online only (`waysOnline`), and "Other years" opens the time machine.
+where you are already), with the base place's `picture` (the house, a phone on the move). `ui/time.ts` loads with the
+picker then, and the era's words with the dive strings, before it opens; picking such a place lands like a trip in
+time (focus on the caption's heading, the line said first). "How do you get online?" lists the era's ways online only
+(`waysOnline`), and "Other years" opens the time machine.
 
 **Era variants (#59).** A route's era (`Route.era`) is its first place's that has one, else today. It picks the
 activity and each segment of that era (`inEra`, `model/registry.ts`): a variant (`variantOf` and `era`) if there is

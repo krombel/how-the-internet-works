@@ -172,11 +172,11 @@ and the top bar shows it.
 | `#/en/home-dialup/watch-video/internet/datacentre` | the 1995 server room (same steps as today's data centre) |
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
-| `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
+| `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (on the go, no trip then; said so) |
 | `#/en/street/watch-video` → 2010 | `#/en/street-2010/watch-video` (step 4: a phone on 3G) |
 | `#/en/street/watch-video/phone-cell-tower` → 2010 | `#/en/street-2010/watch-video/phone-cell-tower` (the 3G radio dive) |
-| `#/en/desk/watch-video` → 2010 | `#/en/desk-2010/watch-video` (step 4: a laptop on a cable to the DSL router) |
-| `#/en/desk/watch-video` → 1995 | `#/en/home-dialup/watch-video` (the PC at home; the desk's own line says so) |
+| `#/en/desk/watch-video` → 2010 | `#/en/desk-2010/watch-video` (step 4: a laptop on a cable to the DSL router; home's member that starts on a cable, #151) |
+| `#/en/desk/watch-video` → 1995 | `#/en/home-dialup/watch-video` (the PC at home: the desk is a way online from home since #151, so nothing to explain) |
 | PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
@@ -248,8 +248,8 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 | Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
 | Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
 | How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". Built (PR 5): 17 MB (360p at ~0.75 Mbit/s) at the 20 Mbit/s DSL plan, about 7 s, ~26× faster than it plays; on the street's 3G at ~2 Mbit/s, about 70 s, ~3×. |
-| The street (step 4) | **`street-2010`**: a 2010 smartphone (`phone-3g`) on 3G (`hspa`: WCDMA with HSPA) → a NodeB on the mast (`nodeb`, at the `cell-tower` hop) → Iub to the RNC (`rnc`) → GTP-U over a Direct Tunnel to the GGSN (`mobile-core`, "Mobile gate" in 2010, with NAT) → the ISP; the SGSN (`sgsn`, "Sign-in desk") as an aside; the 2010 activity (360p) | Direct Tunnel (3GPP Rel-7, TR 23.919) was common by 2010; without it the SGSN sat in the user plane with two tunnels, which the model can't draw (one tunnel per layer), so the nerd text says it. HSDPA peaked at 7.2 Mbit/s (category 8, most 2010 phones) or 14 Mbit/s (category 10; "14.4" is the usual rounding up), shared by the cell, with a few Mbit/s in practice. Backhaul (Iub) was often E1 lines over ATM or microwave (#108): drawn as today's metro fibre with a nerd note. |
-| The desk (step 4) | **`desk-2010`**: the same laptop on a cable → a DSL modem-router (`dsl-router`) → VDSL2 to the DSLAM in the cabinet, as `home-dsl`'s; the desk's layout | |
+| On the go (step 4; "the street" until #151) | **`street-2010`**: a 2010 smartphone (`phone-3g`) on 3G (`hspa`: WCDMA with HSPA) → a NodeB on the mast (`nodeb`, at the `cell-tower` hop) → Iub to the RNC (`rnc`) → GTP-U over a Direct Tunnel to the GGSN (`mobile-core`, "Mobile gate" in 2010, with NAT) → the ISP; the SGSN (`sgsn`, "Sign-in desk") as an aside; the 2010 activity (360p) | Direct Tunnel (3GPP Rel-7, TR 23.919) was common by 2010; without it the SGSN sat in the user plane with two tunnels, which the model can't draw (one tunnel per layer), so the nerd text says it. HSDPA peaked at 7.2 Mbit/s (category 8, most 2010 phones) or 14 Mbit/s (category 10; "14.4" is the usual rounding up), shared by the cell, with a few Mbit/s in practice. Backhaul (Iub) was often E1 lines over ATM or microwave (#108): drawn as today's metro fibre with a nerd note. |
+| At home on a cable (step 4; "the desk" until #151) | **`desk-2010`**: the same laptop on a cable → a DSL modem-router (`dsl-router`) → VDSL2 to the DSLAM in the cabinet, as `home-dsl`'s; the desk's layout | Since #151 a member of the home family ("Laptop on a cable" beside `home-dsl`'s "Laptop on Wi‑Fi"). |
 
 ### Today: a phone, fibre (or 5G), a cache nearby
 

@@ -1,6 +1,6 @@
 {
-  "name": "Ved skrivebordet, via telefonlinjen",
-  "access": "Telefonlinje (DSL)",
+  "name": "Hjemme, ved skrivebordet",
+  "access": "Bærbar med kabel",
   "2010": {
     "kid": "Den bærbare sender sine pakker gennem et kabel til routeren. Routerens modem synger dem ud ad den gamle kobbertelefonlinje som små toner, til et skab på din gade.",
     "nerd": "Med kabel, omkring 2010: Ethernet fra den bærbare til en DSL-modemrouter, som NAT-oversætter pakkerne og sender dem som VDSL2-toner på kobbertelefonparret til en DSLAM i gadeskabet og derefter med fiber til udbyderen.",

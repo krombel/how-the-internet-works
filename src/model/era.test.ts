@@ -17,21 +17,24 @@ describe('the time machine (#59)', () => {
     expect(places.map(year)).toEqual([null, 2010, 1995, null, 2010, null, 2010]);
   });
 
-  it('stops in every era, oldest first: the family’s place of that era, else the era’s own trip (instead)', () => {
+  it('stops in every era, oldest first: the family’s place of that era that starts the same way, else its first, else the era’s own trip (instead)', () => {
     const home = [
       { era: '1995', year: 1995, place: 'home-dialup', instead: false },
       { era: '2010', year: 2010, place: 'home-dsl', instead: false },
       { era: 'today', year: now, place: 'home', instead: false },
     ];
     expect(eraStops('home')).toEqual(home);
+    // from dial-up, which no other era starts on: each era's first way online
     expect(eraStops('home-dialup')).toEqual(home);
     expect(eraStops('home-fttb')).toEqual([...home.slice(0, 2), { ...home[2], place: 'home-fttb' }]);
-    // the street and the desk have their own 2010 (#113); in 1995 there was only the PC at home
-    const away = (place: string) => [{ ...home[0], instead: true }, { ...home[1], place: `${place}-2010` }, { ...home[2], place }];
-    expect(eraStops('street')).toEqual(away('street'));
-    expect(eraStops('street-2010')).toEqual(away('street'));
-    expect(eraStops('desk')).toEqual(away('desk'));
-    expect(eraStops('desk-2010')).toEqual(away('desk'));
+    // on the go has its own 2010 (#113); in 1995 there was only the PC at home
+    const away = [{ ...home[0], instead: true }, { ...home[1], place: 'street-2010' }, { ...home[2], place: 'street' }];
+    expect(eraStops('street')).toEqual(away);
+    expect(eraStops('street-2010')).toEqual(away);
+    // the desk is a way online from home (#151): its laptop stays on a cable in 2010, and its 1995 is the PC at home
+    const desk = [home[0], { ...home[1], place: 'desk-2010' }, { ...home[2], place: 'desk' }];
+    expect(eraStops('desk')).toEqual(desk);
+    expect(eraStops('desk-2010')).toEqual(desk);
     // each stop's picture: the device you start on then
     expect(eraStops('home').map((s) => startDevice(s.place))).toEqual(['pc', 'laptop', 'phone']);
     expect(eraStops('street').map((s) => startDevice(s.place))).toEqual(['pc', 'phone-3g', 'phone']);
@@ -39,7 +42,8 @@ describe('the time machine (#59)', () => {
     // only where the activity allows
     expect(eraStops('home', ['street', 'home-dsl', 'home'])).toEqual(home.slice(1));
     expect(eraStops('street', ['street', 'desk'])).toEqual([{ era: 'today', year: now, place: 'street', instead: false }]);
-    expect(eraStops('street', ['street', 'street-2010'])).toEqual(away('street').slice(1));
+    expect(eraStops('street', ['street', 'street-2010'])).toEqual(away.slice(1));
+    expect(eraStops('desk', ['desk', 'home-dsl', 'home-dialup']).map((s) => s.place)).toEqual(['home-dialup', 'home-dsl', 'desk']);
   });
 
   it('travels with the start device: its steps become the new one’s, and the path is kept as far as it exists', () => {
