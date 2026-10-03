@@ -31,7 +31,8 @@ describe('the time machine (#59)', () => {
     const away = [{ ...home[0], instead: true }, { ...home[1], place: 'street-2010' }, { ...home[2], place: 'street' }];
     expect(eraStops('street')).toEqual(away);
     expect(eraStops('street-2010')).toEqual(away);
-    // the desk is a way online from home (#151): its laptop stays on a cable in 2010, and its 1995 is the PC at home
+    // the desk is a way online from home (#151): its laptop stays on a cable in 2010 (Fast Ethernet then, gigabit
+    // today), and its 1995 is the PC at home
     const desk = [home[0], { ...home[1], place: 'desk-2010' }, { ...home[2], place: 'desk' }];
     expect(eraStops('desk')).toEqual(desk);
     expect(eraStops('desk-2010')).toEqual(desk);

@@ -5,6 +5,7 @@ import { sceneKeys } from '../model/describe';
 import { basePlace, content } from '../model/registry';
 import { stringSources, type Route } from '../model/resolve';
 import { role } from '../model/schema';
+import { formatRate, howLong } from '../model/speed';
 import { lookupLevel, packs, withEra } from '../model/strings';
 import { childrenOf, sceneRef, type SceneRef } from '../model/tree';
 
@@ -26,7 +27,7 @@ const TEXTS = ['', '.describe', '.extra', '.title'];
 
 /** The captions' keys, each most specific first: every reachable scene's own words, and the stops' and links' names,
  *  words and tags. */
-export function captionKeys(r: Route): string[][] {
+function captionKeys(r: Route): string[][] {
   const src = stringSources(r), lists: string[][] = [];
   for (const ref of scenes(r)) for (const keys of sceneKeys(r, ref)) for (const s of TEXTS) lists.push(keys.map((k) => k + s));
   for (const h of Object.values(r.hops)) {
@@ -45,7 +46,7 @@ export function captionKeys(r: Route): string[][] {
  *  era's words): every key of every item on the route (its places, segments, activity, devices, owners, links, layers,
  *  the dives it reaches and its era) that is not a caption's and names no item the route lacks
  *  (`scene.fibre-light.gpon.…` on a route without GPON). */
-export function labelKeys(r: Route): string[][] {
+function labelKeys(r: Route): string[][] {
   const dives = new Set(scenes(r).flatMap((s) => s.dive ?? []));
   const hops = Object.values(r.hops), links = [...r.links, ...r.asides.map((a) => a.link)];
   const layers = new Set([...links.flatMap((l) => l.stack), ...r.activity.flows.flatMap((f) => f.stack)]);
@@ -85,16 +86,19 @@ export function labelKeys(r: Route): string[][] {
 }
 
 /** What a route says, as its era says it, in every language and level: `<lang> <level> <key>` → the words, by the
- *  key that says them. */
-export function routeWords(r: Route, lists: string[][] = [...captionKeys(r), ...labelKeys(r)]): Map<string, string> {
-  const out = new Map<string, string>();
-  for (const keys of lists) for (const lang of Object.keys(packs)) for (const level of LEVELS) {
-    for (const k of withEra(keys, r.era)) {
+ *  key that says them; and `<lang> <level> {rate}` → the one link rate it shows, its slowest link's in the overview's
+ *  line on how long it takes (`howLong`). No other rate is shown, so the 100G of today's backbone, sea cable and
+ *  cross-connects, on 2010's routes too, is only ever said where it is the slowest link. */
+export function routeWords(r: Route): Map<string, string> {
+  const lists = [...captionKeys(r), ...labelKeys(r)], out = new Map<string, string>(), h = howLong(r);
+  for (const lang of Object.keys(packs)) for (const level of LEVELS) {
+    for (const keys of lists) for (const k of withEra(keys, r.era)) {
       const s = lookupLevel(lang, k, level);
       if (s === undefined) continue;
       out.set(`${lang} ${level} ${k}`, s);
       break;
     }
+    if (h) out.set(`${lang} ${level} {rate}`, formatRate(h.bps, lang));
   }
   return out;
 }

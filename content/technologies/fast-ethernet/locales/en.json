@@ -1,0 +1,8 @@
+{
+  "name": "Cable",
+  "2010": {
+    "kid": "A copper cable carries the parcel as tiny electrical signals.",
+    "nerd": "Fast Ethernet over two twisted pairs (100BASE-TX, MLT-3): the router’s ports were 100 Mbit/s.",
+    "tag": "100BASE-TX · Cat 5"
+  }
+}

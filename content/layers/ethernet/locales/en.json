@@ -31,5 +31,12 @@
       "name": "Frame check sequence",
       "about": "A CRC over the whole frame: a damaged frame is dropped."
     }
+  },
+  "1995": {
+    "field": {
+      "type": {
+        "about": "What is inside: 0x0800 IPv4, 0x0806 ARP."
+      }
+    }
   }
 }
