@@ -34,7 +34,10 @@ const used = (v: HopView) => v.layers.flatMap((l) => l.fields.filter((f) => f.us
 describe('the packet on each link', () => {
   it('stacks the link technology under the flow', () => {
     expect(onLink(home, 'phone-ap').map((l) => l.id)).toEqual(['wifi', 'ip', 'tcp', 'tls', 'http']);
-    expect(onLink(home, 'cabinet-backhaul').map((l) => l.id)).toEqual(['ethernet', 'vlan', 'ip', 'tcp', 'tls', 'http']);
+    // the PON frame carries the Ethernet frame, all the way through the splitter to the OLT
+    expect(onLink(home, 'router-cabinet').map((l) => l.id)).toEqual(['gpon', 'ethernet', 'ip', 'tcp', 'tls', 'http']);
+    expect(onLink(home, 'cabinet-olt').map((l) => l.id)).toEqual(['gpon', 'ethernet', 'ip', 'tcp', 'tls', 'http']);
+    expect(onLink(home, 'olt-bng').map((l) => l.id)).toEqual(['ethernet', 'vlan', 'ip', 'tcp', 'tls', 'http']);
     expect(onLink(street, 'cell-tower-mobile-core').map((l) => l.id)).toEqual(['ethernet', 'gtp', 'ip', 'tcp', 'tls', 'http']);
   });
 
@@ -70,9 +73,11 @@ describe('the packet on each link', () => {
     // the AP bridges: the Ethernet frame keeps the phone → router addresses
     expect([f(eth, 'src').who?.id, f(eth, 'dst').who?.id]).toEqual(['phone', 'router']);
     expect(f(eth, 'src').text).toBe(f(ra, 'addr2').text);
-    // through the cabinet and the backhaul switch the frame runs from the home router to the BNG
-    const vlan = onLink(home, 'backhaul-bng')[0].fields;
-    expect([f(vlan, 'src').who?.id, f(vlan, 'dst').who?.id]).toEqual(['router', 'bng']);
+    // through the splitter and the OLT the frame runs from the home router to the BNG
+    for (const id of ['router-cabinet', 'cabinet-olt', 'olt-bng']) {
+      const e = onLink(home, id).find((l) => l.id === 'ethernet')!.fields;
+      expect([f(e, 'src').who?.id, f(e, 'dst').who?.id], id).toEqual(['router', 'bng']);
+    }
     const core = onLink(home, 'bng-core')[0].fields;
     expect([f(core, 'src').who?.id, f(core, 'dst').who?.id]).toEqual(['bng', 'core']);
   });
@@ -91,11 +96,14 @@ describe('the packet on each link', () => {
 
   it('derives lengths and next-protocol codes from the layers inside', () => {
     expect(val(home, 'ap-router', 'ethernet.type')).toBe('0x0800 (IPv4)');
-    expect(val(home, 'cabinet-backhaul', 'ethernet.type')).toBe('0x88A8 (802.1ad)');
+    expect(val(home, 'router-cabinet', 'ethernet.type')).toBe('0x0800 (IPv4)');
+    expect(val(home, 'olt-bng', 'ethernet.type')).toBe('0x88A8 (802.1ad)');
     expect(val(home, 'bng-core', 'ethernet.type')).toBe('0x8847 (MPLS)');
     expect(val(home, 'ap-router', 'ip.proto')).toBe('6 (TCP)');
     // IP 20 + TCP 20 + TLS 5+16 + HTTP 360 going up
     expect(val(home, 'ap-router', 'ip.length')).toBe('421');
+    // the XGEM payload is the whole Ethernet frame: its 14-byte header, the packet and the 4-byte FCS
+    expect(val(home, 'router-cabinet', 'gpon.pli')).toBe(String(14 + 421 + 4));
     expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.olen'))).toBe(421 + 44);
     expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.length'))).toBe(421 + 8);
   });
@@ -111,11 +119,27 @@ describe('one hop: received → used / changed → sent', () => {
 
   it('home router (NAT): new frame, source address + port rewritten, TTL − 1, checksums fixed', () => {
     const v = view(home, 'router');
-    expect(shape(v)).toBe('-ethernet +gpon ip (tcp) (tls) [http]');
-    expect(changed(v)).toEqual(['ip.ttl', 'ip.checksum', 'ip.src', 'tcp.sport', 'tcp.checksum']);
+    expect(shape(v)).toBe('+gpon ethernet ip (tcp) (tls) [http]');
+    expect(changed(v)).toEqual(['ethernet.dst', 'ethernet.src', 'ethernet.fcs', 'ip.ttl', 'ip.checksum', 'ip.src', 'tcp.sport', 'tcp.checksum']);
     expect(field(v, 'ip.src').before?.text).toBe('192.168.1.23');
     expect(field(v, 'ip.src').value.who?.id).toBe('router');
     expect(used(v)).toEqual(expect.arrayContaining(['ip.dst', 'ip.ttl', 'tcp.sport', 'tcp.dport']));
+  });
+
+  it('street splitter (passive): opens nothing, uses nothing, changes nothing', () => {
+    for (const dir of ['up', 'down'] as const) {
+      const v = view(home, 'cabinet', dir);
+      expect(shape(v), dir).toBe('(gpon) (ethernet) (ip) (tcp) (tls) [http]');
+      expect([used(v), changed(v)], dir).toEqual([[], []]);
+    }
+  });
+
+  it('OLT: ends the PON, bridges the Ethernet frame on and tags it for the BNG', () => {
+    const v = view(home, 'olt');
+    expect(shape(v)).toBe('-gpon ethernet +vlan ip (tcp) (tls) [http]');
+    expect(changed(v)).toEqual(['ethernet.type', 'ethernet.fcs']);
+    expect(used(v)).toEqual(expect.arrayContaining(['gpon.port', 'ethernet.dst']));
+    expect(shape(view(home, 'olt', 'down'))).toBe('+gpon ethernet -vlan ip (tcp) (tls) [http]');
   });
 
   it('ISP core router: swaps the MPLS label for the one the next router asked for, TTL − 1', () => {

@@ -94,17 +94,15 @@ const MIN_CLEAR = 120;
 // Known crowding, still to be laid out better: an entry here that no longer happens fails too, so the lists only shrink.
 const KNOWN_OVERLAPS: string[] = [];
 const KNOWN_SHORT = [
-  'desk × watch-video landscape /internet backhaul-bng',
   'desk × watch-video landscape /internet border-ixp',
-  'desk × watch-video landscape /internet home-cabinet',
+  'desk × watch-video landscape /internet cabinet-olt',
   'desk × watch-video portrait /internet border-transit',
   'desk-2010 × watch-video landscape /internet backhaul-bng',
   'desk-2010 × watch-video landscape /internet border-ixp',
   'desk-2010 × watch-video landscape /internet home-cabinet',
   'desk-2010 × watch-video portrait /internet border-transit',
-  'home × watch-video landscape /internet backhaul-bng',
   'home × watch-video landscape /internet border-ixp',
-  'home × watch-video landscape /internet home-cabinet',
+  'home × watch-video landscape /internet cabinet-olt',
   'home × watch-video portrait / ap-router',
   'home × watch-video portrait /internet border-transit',
   'home-dialup × watch-video landscape /internet border-ixp',

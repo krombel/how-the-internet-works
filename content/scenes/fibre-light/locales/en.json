@@ -72,7 +72,7 @@
   "fttb": {
     "title": "A glass thread to your building",
     "kid": "With fibre to the building, the glass thread stops in the basement of your block of flats, and ordinary cables run up the stairs to every flat. The thread is the building’s own, and it carries light both ways at once: one colour going up and another colour coming down, so they never bump.",
-    "nerd": "FTTB: a point-to-point single-mode fibre from the ISP’s aggregation switch to a switch in the basement, often a BiDi optic at each end (1310 nm up, 1490 nm down on one strand, 1–10 Gbit/s). Inside, Cat 5e/6 copper or G.fast over the old phone wiring reaches each flat.",
+    "nerd": "FTTB: a point-to-point single-mode fibre from the ISP’s aggregation switch to a switch in the basement, often a BiDi optic at each end (1 Gbit/s: 1310 nm up, 1490 nm down on one strand; 10G BiDi uses 1270/1330 nm). Inside, Cat 5e/6 copper or G.fast over the old phone wiring reaches each flat.",
     "describe": {
       "kid": "One glass thread runs from the basement of a block of flats to the internet company. Red flashes going up and blue flashes coming down bounce along the core in opposite directions, each from its own lamp to its own catcher.",
       "nerd": "The building view shows one single-mode fibre carrying two wavelengths in opposite directions: upstream from the basement switch at 1310 nm and downstream from the aggregation switch at 1490 nm, each entering through a WDM filter. The label notes a BiDi optic on one strand."

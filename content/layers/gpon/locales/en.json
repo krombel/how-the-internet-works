@@ -1,32 +1,40 @@
 {
   "name": {
     "kid": "Light envelope",
-    "nerd": "GPON frame (GEM)"
+    "nerd": "XGS-PON frame (XGEM)"
   },
   "note": {
     "kid": "Everyone on your street shares the same fibre, so each house only opens envelopes with its own number.",
-    "nerd": "Downstream is broadcast to every ONT on the splitter and AES-encrypted per GEM port; upstream uses time slots."
+    "nerd": "Downstream is broadcast to every ONT on the splitter and AES-encrypted per XGEM port; upstream uses time slots."
   },
-  "line": "GPON Encapsulation Method, Port-ID {port}, length {pli}",
+  "line": "XGEM (XG-PON Encapsulation Method), Port-ID {port}, length {pli}",
   "field": {
     "pli": {
       "name": "Payload length",
-      "about": "Bytes of payload in this GEM frame."
+      "about": "Bytes of payload in this XGEM frame: the whole Ethernet frame inside."
+    },
+    "keyidx": {
+      "name": "Key index",
+      "about": "Which of the ONT's AES keys encrypted the payload."
     },
     "port": {
       "name": {
         "kid": "House no.",
-        "nerd": "GEM Port-ID"
+        "nerd": "XGEM Port-ID"
       },
       "about": "Everyone on the splitter hears every frame going down; each ONT only keeps its own Port-IDs."
     },
-    "pti": {
-      "name": "Payload type",
-      "about": "User data, and whether this is the last fragment."
+    "options": {
+      "name": "Options",
+      "about": "Spare bits, unused today."
+    },
+    "lf": {
+      "name": "Last fragment",
+      "about": "1 when this is the last (here: the only) piece of the Ethernet frame."
     },
     "hec": {
       "name": "Header error control",
-      "about": "Protects the GEM header itself."
+      "about": "Protects the XGEM header itself."
     }
   }
 }

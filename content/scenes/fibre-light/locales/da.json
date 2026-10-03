@@ -72,7 +72,7 @@
   "fttb": {
     "title": "En glastråd til din bygning",
     "kid": "Med fiber til bygningen stopper glastråden i kælderen under din boligblok, og almindelige kabler løber op ad trappen til hver lejlighed. Tråden er bygningens egen, og den bærer lys begge veje på én gang: én farve op og en anden farve ned, så de aldrig støder sammen.",
-    "nerd": "FTTB: en punkt-til-punkt single-mode-fiber fra udbyderens aggregeringsswitch til en switch i kælderen, tit med en BiDi-optik i hver ende (1310 nm op, 1490 nm ned på én tråd, 1–10 Gbit/s). Indenfor når Cat 5e/6-kobber eller G.fast over de gamle telefonledninger ud til hver lejlighed.",
+    "nerd": "FTTB: en punkt-til-punkt single-mode-fiber fra udbyderens aggregeringsswitch til en switch i kælderen, tit med en BiDi-optik i hver ende (1 Gbit/s: 1310 nm op, 1490 nm ned på én tråd; 10G-BiDi bruger 1270/1330 nm). Indenfor når Cat 5e/6-kobber eller G.fast over de gamle telefonledninger ud til hver lejlighed.",
     "describe": {
       "kid": "Én glastråd går fra kælderen under en boligblok til internetfirmaet. Røde glimt på vej op og blå glimt på vej ned hopper gennem kernen hver sin vej, hver fra sin egen lampe til sin egen fanger.",
       "nerd": "Bygningsvisningen viser én single-mode-fiber med to bølgelængder i hver sin retning: op fra kælderswitchen på 1310 nm og ned fra aggregeringsswitchen på 1490 nm, hver ind gennem et WDM-filter. Mærkaten nævner en BiDi-optik på én tråd."

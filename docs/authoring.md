@@ -293,7 +293,7 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   - `subject.route`: the whole route (`chain`, `links`, `asides`, `activity`), to build what the hop knows from it
     (the IP dive derives a router's signposts from the next and previous hops).
 - Vary by context, most general first: `subject.open` (open vs sealed), `ctx.to.role` (`endpoint`, `nat`, `router`,
-  `bridge`), then facts (`ctx.nat`, the link's `stack`). Avoid naming node ids.
+  `bridge`; a `passive` hop has no layer dives), then facts (`ctx.nat`, the link's `stack`). Avoid naming node ids.
 - Draw it like the other layer dives so they read as a family: a road along the bottom with the client, the server
   and this hop (`Node`, focused) and names under them (`nameOf`); paper cards above it for the close-up; big
   walking parcels. Keep the flap at the top centre of the panel empty (the envelope panel is drawn there).

@@ -17,7 +17,8 @@ export const learnMore = z.strictObject({
 });
 const learnMoreList = z.array(learnMore).optional();
 
-export const role = z.enum(['endpoint', 'bridge', 'router', 'nat']);
+/** passive: passes the signal on without reading any of it (a splitter): it opens no layer and ends no link frame. */
+export const role = z.enum(['endpoint', 'bridge', 'router', 'nat', 'passive']);
 
 export const node = z.strictObject({
   /** device = a thing you can hold or point at; network = a group that expands into a sub-path; place = a building/area. */
