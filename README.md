@@ -17,10 +17,10 @@ You pick **where you are** (at home on Wi‑Fi or a cable, on the go on 5G) and 
 to a CDN server:
 - **Zoom into** the internet to unfold its hops. The home route passes the fibre cabinet, the backhaul and the BNG; the street route passes the mobile core.
 - **Look inside** the links: Wi‑Fi waves, light in a glass thread (shared by your street on the access fibre, colours sharing one thread on metro fibre, boosters every 80 km on the backbone), and 5G beams with their time × frequency seats. This goes up to three levels deep. Stepping sideways between dives zooms out, travels along the path and zooms back in.
-- **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field for nerds and a protocol tree for details.
+- **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field at the technical level and a protocol tree for details.
 - **Switch place**: the scene morphs and the packets re-route.
 
-It comes in kid and nerd levels, in English and Danish, by day and by night. Learn-more links point onwards.
+It comes in two levels, Simple and Technical, in English and Danish, by day and by night. Learn-more links point onwards.
 
 | At home | Inside the internet, at night |
 |---|---|

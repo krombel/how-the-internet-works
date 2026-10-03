@@ -22,7 +22,7 @@ are never sent anywhere, and you can delete them by clearing the site's data in 
 
 | Key | Value | What it is |
 | --- | --- | --- |
-| `level` | `kid` or `nerd` | The level you picked |
+| `level` | `simple` or `technical` | The level you picked |
 | `style` | a theme id, e.g. `storybook` | The art style |
 | `mode` | `day` or `night` | Day or night, only when you picked the one your system doesn't prefer |
 | `paused` | `1` | The packets are paused (removed when you play them again) |

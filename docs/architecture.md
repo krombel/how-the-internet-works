@@ -540,7 +540,7 @@ in the scene's own folder, so a new dive needs no theme change.
 - **Headings.** The chrome's headings use `--heading` (by default `--accent`), so a theme can keep a bright accent
   for buttons and use a darker colour for text.
 
-**The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, kid/nerd,
+**The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, the level (Simple / Technical),
 ☀️/🌙). Settings you set once go in the ⋯ menu (`ui/Menu.svelte`): language, sound, the style (only with more than one
 theme) and About.
 - **Entries are data.** `Chrome.svelte` builds a list of `MenuEntry` (`ui/menu.ts`): a `choice` (a label and its
@@ -607,6 +607,9 @@ engine:
 
 - **Namespacing.** Each folder's `locales/<lang>.json` is namespaced by kind and id (`nodes/phone` → `node.phone.*`).
 - **Levels.** Any key may be a string or `{ "kid": …, "nerd": … }`. A level-aware lookup falls back from `key.<level>` to `key`.
+  Readers see the levels as "Simple" and "Technical" (`mode.kid`, `mode.nerd`; da "Enkel", "Teknisk"; #141), and the URL
+  and `localStorage` name them `simple` and `technical` (`LEVEL_NAME` in `state.svelte.ts`); `kid` and `nerd` are only
+  the keys in content and code. A test keeps "for kids" / "for nerds" out of every string (`src/levels.test.ts`).
 - **Lookup order.** Captions look up text from the most specific source to the least:
   1. the places and segments on the route (`place.home.stop.router`)
   2. the activity
