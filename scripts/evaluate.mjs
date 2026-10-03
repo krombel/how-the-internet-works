@@ -214,18 +214,18 @@ const A11Y_STATES = [
   { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
   { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone', 'zoom'] },
-  { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=nerd', views: ['desktop', 'zoom'] },
+  { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=technical', views: ['desktop', 'zoom'] },
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
-  { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
+  { name: 'caught-detail', where: 'home/watch-video', q: '&level=technical', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
   // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose "On the go" is a laptop on GSM (#147)
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
-  { name: 'picker-1995', where: 'home-dialup/watch-video', q: '&level=nerd', picker: true, views: ['phone', 'short'] },
+  { name: 'picker-1995', where: 'home-dialup/watch-video', q: '&level=technical', picker: true, views: ['phone', 'short'] },
   { name: 'dialup', where: 'home-dialup/watch-video/pc-internet', views: ['desktop', 'phone', 'short'] },
   // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, a laptop on a GSM
   // call (#147; `timeTo`: how many eras back); from its chip on the 2010 overview
   { name: 'time', where: 'home/watch-video', time: true, views: ['desktop', 'phone', 'short', 'zoom'] },
-  { name: 'time-on-the-go', where: 'on-the-go/watch-video/phone~tcp', q: '&level=nerd', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
+  { name: 'time-on-the-go', where: 'on-the-go/watch-video/phone~tcp', q: '&level=technical', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'time-chip', where: 'home-dsl/watch-video', lang: 'da', time: 'chip', views: ['desktop', 'phone'] },
   { name: 'ladder', where: 'home/watch-video', ladder: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'menu', where: 'home/watch-video/router', menu: true, views: ['desktop', 'phone', 'short', 'zoom'] },
@@ -239,8 +239,8 @@ const A11Y_STATES = [
   { name: 'speech', where: 'home/watch-video/phone-ap', speech: true, views: ['desktop', 'phone', 'short'] },
   { name: 'speech-menu', where: 'home/watch-video', speech: true, menu: true, views: ['desktop', 'phone'] },
   // a nerd's extra in a dive (#31), and in the list view
-  { name: 'extra', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=nerd', views: ['desktop', 'phone', 'short'] },
-  { name: 'extra-map', where: 'home/watch-video', q: '&level=nerd', map: true, views: ['desktop', 'phone'] },
+  { name: 'extra', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=technical', views: ['desktop', 'phone', 'short'] },
+  { name: 'extra-map', where: 'home/watch-video', q: '&level=technical', map: true, views: ['desktop', 'phone'] },
   // a first visit's coach marks (#21): the first, on "Open up", "What can I explore?" and the last, on the time machine
   // (`coach`: how many times Next was pressed); and the one card a reader who had them before the time machine gets
   { name: 'coach', where: 'home/watch-video', coach: 0, views: ['desktop', 'phone', 'short', 'zoom'] },
@@ -414,10 +414,10 @@ function textEscapes() {
 const PATH_SCENES = ['home/watch-video', 'on-the-go/watch-video', 'home/watch-video/internet', 'on-the-go/watch-video/internet',
   'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-dsl/watch-video/internet/datacentre', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
   'home-dialup/watch-video', 'home-dialup/watch-video/internet', 'on-the-go-1995/watch-video', 'on-the-go-1995/watch-video/internet'];
-const PATH_VIEWS = [['phone', 'en', '&level=nerd'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=nerd'], ['desktop', 'da', '&level=nerd']];
+const PATH_VIEWS = [['phone', 'en', '&level=technical'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=technical'], ['desktop', 'da', '&level=technical']];
 async function labelContrast(style, fail) {
   for (const where of LABEL_SCENES)
-    for (const [view, q] of [['desktop', ''], ['desktop', '&level=nerd'], ['phone', '']]) {
+    for (const [view, q] of [['desktop', ''], ['desktop', '&level=technical'], ['phone', '']]) {
       const { ctx, p } = await open(view, url(style, 'en', where, q));
       await still(p);
       await p.evaluate(() => window.__app.setClock(5.2, true));
@@ -798,7 +798,7 @@ const VISION_SHOTS = [
   { view: 'desktop', where: 'home/watch-video', catch: 'request', at: ['phone'], name: 'peek' },
   { view: 'desktop', where: 'home/watch-video/internet/home-cabinet', name: 'gpon' },
   { view: 'desktop', where: 'home/watch-video/internet/olt-bng', name: 'metro' },
-  { view: 'phone', where: 'home/watch-video/internet/bng-core', q: '&level=nerd', name: 'backbone-nerd-phone' },
+  { view: 'phone', where: 'home/watch-video/internet/bng-core', q: '&level=technical', name: 'backbone-nerd-phone' },
   { view: 'desktop', where: 'home/watch-video/phone~tcp', name: 'tcp' },
 ];
 async function vision(style) {
@@ -1008,30 +1008,30 @@ for (const style of STYLES) {
       ['home/watch-video/router', 'router'], ['on-the-go/watch-video/cell-tower', 'tower']])
       shots.push({ view: 'short', where, name: `${name}-short` });
     // nerd extras (#31) in the physical dives
-    shots.push({ view: 'desktop', where: 'home/watch-video/phone-ap', q: '&level=nerd', name: 'wifi-nerd-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video/ap~wifi', q: '&level=nerd', name: 'wifi-frame-nerd-phone' });
-    shots.push({ view: 'phone', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=nerd', name: 'fibre-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=nerd', name: 'backbone-nerd-da-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet/core-border', lang: 'da', q: '&level=nerd', name: 'submarine-nerd-da-phone' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=nerd', name: 'gpon-nerd-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/phone-ap', q: '&level=technical', name: 'wifi-nerd-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/ap~wifi', q: '&level=technical', name: 'wifi-frame-nerd-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/router-internet', lang: 'da', q: '&level=technical', name: 'fibre-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/internet/bng-core', lang: 'da', q: '&level=technical', name: 'backbone-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/core-border', lang: 'da', q: '&level=technical', name: 'submarine-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/home-cabinet', q: '&level=technical', name: 'gpon-nerd-phone' });
     shots.push({ view: 'desktop', where: 'desk/watch-video', name: 'desk-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video/router-internet', name: 'fibre-desktop' });
-    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', name: 'home-nerd-desktop' });
-    shots.push({ view: 'phone', where: 'on-the-go/watch-video/internet', lang: 'da', q: '&level=nerd', name: 'internet-on-the-go-nerd-da-phone' });
-    shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=nerd', name: 'tcp-nerd-da-phone' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet/datacentre/cdn~http', lang: 'da', q: '&level=nerd', name: 'http-cdn-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=nerd', name: 'copper-nerd-da-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video/internet/olt~gpon', lang: 'da', q: '&level=nerd', name: 'gpon-frame-nerd-da-phone' });
-    shots.push({ view: 'desktop', where: 'on-the-go/watch-video/cell-tower~nr', q: '&level=nerd', name: 'nr-frame-nerd-desktop' });
-    shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=nerd', name: 'router-nerd-da-desktop' });
-    shots.push({ view: 'phone', where: 'on-the-go/watch-video/cell-tower', lang: 'da', q: '&level=nerd', name: 'tower-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=technical', name: 'home-nerd-desktop' });
+    shots.push({ view: 'phone', where: 'on-the-go/watch-video/internet', lang: 'da', q: '&level=technical', name: 'internet-on-the-go-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/phone~tcp', lang: 'da', q: '&level=technical', name: 'tcp-nerd-da-phone' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/datacentre/cdn~http', lang: 'da', q: '&level=technical', name: 'http-cdn-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/ap-router', lang: 'da', q: '&level=technical', name: 'copper-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video/internet/olt~gpon', lang: 'da', q: '&level=technical', name: 'gpon-frame-nerd-da-phone' });
+    shots.push({ view: 'desktop', where: 'on-the-go/watch-video/cell-tower~nr', q: '&level=technical', name: 'nr-frame-nerd-desktop' });
+    shots.push({ view: 'desktop', where: 'home/watch-video/router', lang: 'da', q: '&level=technical', name: 'router-nerd-da-desktop' });
+    shots.push({ view: 'phone', where: 'on-the-go/watch-video/cell-tower', lang: 'da', q: '&level=technical', name: 'tower-nerd-da-phone' });
     // `at`: the hop the packet is caught at, then one per step on
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], grow: 'ip', name: 'grow-desktop' });
     shots.push({ view: 'desktop', where: 'home/watch-video', catch: 'video', at: ['router'], name: 'peek-desktop' });
     shots.push({ view: 'phone', where: 'on-the-go/watch-video', catch: 'video', at: ['cell-tower'], name: 'peek-on-the-go-phone' });
     // the caught request one hop on from the phone, in nerd mode, and its detail tree
-    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=nerd', catch: 'request', at: ['phone', 'ap'], name: 'peek-nerd-desktop' });
-    shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=nerd', lang: 'da', catch: 'request', at: ['phone'], detail: true, name: 'peek-tree-da-phone' });
+    shots.push({ view: 'desktop', where: 'home/watch-video', q: '&level=technical', catch: 'request', at: ['phone', 'ap'], name: 'peek-nerd-desktop' });
+    shots.push({ view: 'phone', where: 'home/watch-video', q: '&level=technical', lang: 'da', catch: 'request', at: ['phone'], detail: true, name: 'peek-tree-da-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', picker: true, name: 'picker-desktop' });
     shots.push({ view: 'phone', where: 'home/watch-video', picker: true, name: 'picker-phone' });
     shots.push({ view: 'desktop', where: 'home/watch-video', morph: true, name: 'morph-desktop' });

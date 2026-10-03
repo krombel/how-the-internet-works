@@ -15,8 +15,11 @@ import { defineTheme } from './render/art-base';
 import type { Theme } from './render/theme-types';
 
 // ------------------------------------------------------------------ language + level
-const storedLevel = localStorage.getItem('level');
-export const loc = $state<{ lang: string; level: Level }>({ lang: 'en', level: storedLevel === 'nerd' ? 'nerd' : 'kid' });
+/** A level's name in the URL (`?level=technical`) and in storage. The readers' words are "Simple" and "Technical"
+ *  (#141); `kid` and `nerd` stay the content's keys (`"kid": …, "nerd": …`). */
+const LEVEL_NAME: Record<Level, string> = { kid: 'simple', nerd: 'technical' };
+const levelNamed = (name: string | null) => (Object.keys(LEVEL_NAME) as Level[]).find((l) => LEVEL_NAME[l] === name);
+export const loc = $state<{ lang: string; level: Level }>({ lang: 'en', level: levelNamed(localStorage.getItem('level')) ?? 'kid' });
 
 export function setLang(lang: string) {
   if (lang === loc.lang && document.documentElement.lang === lang) return;
@@ -27,10 +30,11 @@ export function setLang(lang: string) {
 }
 export function setLevel(l: Level) {
   loc.level = l;
-  localStorage.setItem('level', l);
+  localStorage.setItem('level', LEVEL_NAME[l]);
 }
 const q = new URLSearchParams(location.search);
-if (q.get('level') === 'nerd' || q.get('level') === 'kid') setLevel(q.get('level') as Level);
+const asked = levelNamed(q.get('level'));
+if (asked) setLevel(asked);
 
 /** Bumped when more strings arrive (the English dive strings), so text that asked for them too early updates. */
 const more = $state({ n: 0 });
