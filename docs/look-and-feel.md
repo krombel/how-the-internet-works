@@ -401,6 +401,11 @@ always muted again on reload.
   again, or Esc, folds it, and so does going somewhere else. The scene doesn't move while it is open. The folded text
   is only cut short on screen: a screen reader reads it all, and the rest is one tap away. On a bigger screen the
   caption is never cut. The ▲ ▼ buttons sit on its top corners.
+- **Folding the caption away** (issue #168). A chevron in the caption's corner, on every screen (a phone's card has it
+  beside its ⌃), folds it to the short landscape screen's pill: the title alone, bottom centre, so the scene can be
+  seen. It stays folded through dives, travel and the time machine until a tap on the pill or C unfolds it (in memory
+  only; a phone still starts with its own fold). The scene keeps its place: it doesn't refit as the caption folds or
+  unfolds. Exploring while it's folded, the pill is the row of chips.
 - **Phone on its side** (landscape, under 500 px tall; issue #15). The chrome is one slim row: the breadcrumb keeps
   its last two steps, with the rest behind "…". The caption is a one-line pill with the title, and tapping it opens
   the whole caption over the scene; exploring, the pill is one row of chips instead (as wide as the screen allows,

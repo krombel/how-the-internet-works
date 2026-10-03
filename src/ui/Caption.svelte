@@ -15,13 +15,17 @@
   // - `card` (a portrait phone): the title and the text cut to two lines (exploring: the chips, its title then only
   //   for screen readers); where you are and learn-more links show once it's open. The text is all there for screen
   //   readers either way.
+  // Its own button (a chevron in its corner) or C, while focus is in it or in the picture, folds it away by hand
+  // (`tucked`, #168): the title alone in the pill, on every screen, until it is unfolded again (a tap on the pill, its
+  // chevron or C), wherever you go meanwhile. App keeps the scene where it was, so nothing in the scene moves.
   // Hidden (during a flight, while a packet is caught), it is inert: nothing in it can be focused or read. Its title
   // takes focus when a navigation took it away (App.svelte); open over the scene and taller than the screen, it can be
   // focused to scroll it.
+  import { tick } from 'svelte';
   import { loc, tr } from '../state.svelte';
   import type { CaptionDoor, CaptionFold, CaptionText } from './caption';
   import Icon from './Icon.svelte';
-  let { text, place, onplace, time, ontime, onpretime, ondoor, onhot, explore, catches, oncatch, onread, hidden, fold, el = $bindable() }: {
+  let { text, place, onplace, time, ontime, onpretime, ondoor, onhot, explore, catches, oncatch, onread, hidden, fold, tucked = $bindable(false), el = $bindable() }: {
     text: CaptionText; place: string; onplace: () => void;
     /** The time machine's chip: none here (null), or the year of an older era (null in the newest), and opening it
      *  (`onpretime` as it is pointed at or focused, to load it). */
@@ -33,34 +37,59 @@
     /** Open a door / point at it (its badge in the scene glows) or stop pointing (null). */
     ondoor: (d: CaptionDoor) => void; onhot: (id: string | null) => void;
     /** "What can I explore?" is on: the doors instead of the story (#122). */
-    explore: boolean; hidden: boolean; fold: CaptionFold; el?: HTMLElement;
+    /** `fold` is the screen's (`captionFold`); `tucked`, folded away by hand (#168). */
+    explore: boolean; hidden: boolean; fold: CaptionFold; tucked?: boolean; el?: HTMLElement;
   } = $props();
   let openFor = $state<string | null>(null);
   /** The folded caption's height while it is open over the scene, so the scene doesn't move. */
   let foldH = $state(0);
-  let toggleEl = $state<HTMLButtonElement>();
-  const open = $derived(!!fold && openFor === text.title);
-  $effect.pre(() => { void fold; void explore; openFor = null; });
+  let toggleEl = $state<HTMLButtonElement>(), foldEl = $state<HTMLButtonElement>();
+  /** How it folds now: tucked away, it is the pill. */
+  const shown = $derived(tucked ? 'pill' : fold);
+  const open = $derived(!!shown && openFor === text.title);
+  $effect.pre(() => { void shown; void explore; openFor = null; });
   /** The story's height (and fold), kept while it shows: the doors take its place, not more. A new fold (the screen
    *  turned) lets them take what they need. */
   let story = $state<{ h: number; fold: CaptionFold } | null>(null);
   $effect(() => {
     const c = el;
     if (!c || explore) return;
-    const ro = new ResizeObserver(() => { if (!explore) story = { h: c.offsetHeight, fold }; });
+    const ro = new ResizeObserver(() => { if (!explore) story = { h: c.offsetHeight, fold: shown }; });
     ro.observe(c);
     return () => ro.disconnect();
   });
-  const lockH = $derived(explore && story && story.fold === fold ? story.h : 0);
+  const lockH = $derived(explore && story && story.fold === shown ? story.h : 0);
+  /** The chevron in its corner: where it isn't a pill already, and not over the scene. */
+  const foldable = $derived(!tucked && fold !== 'pill' && !open && !explore);
   function toggle() {
+    if (tucked) return tuck(false);
     if (!open) foldH = el?.offsetHeight ?? 0;
     openFor = open ? null : text.title;
   }
+  /** Fold it away or back; focus that was in it goes to the button that undoes it. */
+  function tuck(on: boolean) {
+    const had = !!el?.contains(document.activeElement);
+    tucked = on;
+    if (had) void tick().then(() => (on ? toggleEl : (foldEl ?? toggleEl))?.focus());
+  }
+  /** C: what its chevron does (the pill a short landscape screen folds it to opens over the scene, as a tap does). */
+  function flip() {
+    if (tucked || (fold !== 'pill' && !open)) tuck(!tucked);
+    else toggle();
+  }
   function onclick(e: MouseEvent) {
-    if (fold && !open && !explore && !(e.target as Element).closest('button, a')) toggle();
+    if (shown && !open && !explore && !(e.target as Element).closest('button, a')) toggle();
   }
   function onkeydown(e: KeyboardEvent) {
-    if (e.key !== 'Escape' || !open || e.defaultPrevented) return;
+    if (e.defaultPrevented) return;
+    if (e.key.toLowerCase() === 'c' && !e.altKey && !e.ctrlKey && !e.metaKey && !hidden && el) {
+      // only while focus is in the caption or the picture (a character key, WCAG 2.1.4)
+      const at = document.activeElement;
+      if (!at || !(el.contains(at) || at.closest('.scene-keys')) || at.closest('[inert]')) return;
+      e.preventDefault();
+      return flip();
+    }
+    if (e.key !== 'Escape' || !open) return;
     e.preventDefault();
     if (el?.contains(document.activeElement)) toggleEl?.focus();
     openFor = null;
@@ -80,13 +109,13 @@
 <svelte:window {onkeydown} />
 <!-- a tap on the folded caption opens it; its title is the button for the keyboard and screen readers -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-<section class="caption card" class:hide={hidden} class:compact={fold === 'pill'} class:folded={fold === 'card'} class:open class:exploring={explore}
-  data-ui bind:this={el} {onclick} style:height={lockH ? `${lockH}px` : fold === 'card' && open ? `${foldH}px` : undefined} inert={hidden}>
+<section class="caption card" class:hide={hidden} class:compact={shown === 'pill'} class:folded={shown === 'card'} class:open class:exploring={explore} class:foldable
+  data-ui bind:this={el} {onclick} style:height={lockH ? `${lockH}px` : shown === 'card' && open ? `${foldH}px` : undefined} inert={hidden}>
   <!-- open and taller than the screen, it is a Tab stop, so it can be scrolled from the keyboard -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div class="cap-in" class:card={open} bind:this={inner} tabindex={scrolls ? 0 : undefined} data-scroll={scrolls || undefined}>
     {#if explore}
-      <h2 dir="auto" tabindex="-1" class:sr={!!fold}>{text.title}</h2>
+      <h2 dir="auto" tabindex="-1" class:sr={!!shown}>{text.title}</h2>
       <div class="doors" role="group" aria-label={tr('explore.title')}>
         {#each verbs as v (v.kind)}
           <span class="verb door-{v.kind}" role="group" aria-label={tr(`door.${v.kind}`)}>
@@ -105,14 +134,19 @@
         {/if}
       </div>
     {:else}
-      {#if fold}
+      {#if shown}
         <h2 dir="auto" tabindex="-1">
-          <button class="cap-toggle" bind:this={toggleEl} aria-expanded={open} title={tr(open ? 'caption.close' : 'caption.open')} onclick={toggle}>
+          <button class="cap-toggle" bind:this={toggleEl} aria-expanded={open} aria-keyshortcuts={tucked ? 'C' : undefined}
+            title={tr(tucked ? 'caption.unfold' : open ? 'caption.close' : 'caption.open')} onclick={toggle}>
             <span>{text.title}</span><Icon name="down" rotate={open ? 0 : 180} />
           </button>
         </h2>
       {:else}
         <h2 dir="auto" tabindex="-1">{text.title}</h2>
+      {/if}
+      {#if foldable}
+        <button class="btn cap-fold" bind:this={foldEl} aria-expanded="true" aria-label={tr('caption.fold')} title={tr('caption.fold')} aria-keyshortcuts="C"
+          onclick={() => tuck(true)}><Icon name="down" /></button>
       {/if}
       {#if text.tag}<div class="tag" dir="auto">{text.tag}</div>{/if}
       <p dir="auto">{text.body}</p>

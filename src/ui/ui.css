@@ -218,7 +218,7 @@ button { cursor: pointer; }
    in their place, #122); open, the
    whole caption lies over the scene, from the folded card's bottom up to the top bar at most (scrolling past that).
    Folded, a tap anywhere on it opens it, like on the pill (#138) */
-.caption:is(.folded, .compact):not(.open, .exploring) { cursor: pointer; }
+.caption:is(.folded, .compact):not(.open, .exploring, .hide) { cursor: pointer; pointer-events: auto; }
 .caption.folded .cap-toggle { width: 100%; min-height: 32px; justify-content: space-between; text-align: start; }
 .caption.folded .cap-toggle span { white-space: normal; }
 .caption.folded:not(.open) p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
@@ -227,6 +227,10 @@ button { cursor: pointer; }
 .caption.folded.open .cap-in { position: absolute; inset-inline: calc(-1 * var(--card-edge-w)); bottom: calc(-1 * var(--card-edge-w));
   max-height: calc(100dvh - var(--top-h, 110px) - max(10px, env(safe-area-inset-bottom))); overflow: auto; overscroll-behavior: contain;
   scrollbar-width: thin; padding: 10px 14px; }
+/* its chevron, in the top corner (#168): it folds the caption away to the pill, on any screen, until it's unfolded */
+.caption.foldable h2 { padding-inline-end: 34px; }
+.cap-fold { position: absolute; top: 8px; inset-inline-end: 8px; min-width: 32px; min-height: 32px; padding: 4px; display: grid; place-items: center; }
+.cap-fold svg { width: 20px; height: 20px; }
 .more { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
 .more > span { color: var(--muted); font-weight: 700; }
 .more a { color: var(--link); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }

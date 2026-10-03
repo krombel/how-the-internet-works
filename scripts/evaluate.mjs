@@ -214,6 +214,8 @@ const A11Y_STATES = [
   { name: 'wifi', where: 'home/watch-video/phone-ap', views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'router', where: 'home/watch-video/router', views: ['desktop'] },
   { name: 'ip', where: 'home/watch-video/router~ip', views: ['desktop', 'phone', 'zoom'] },
+  // the caption folded away by its chevron (#168): the pill, its title alone
+  { name: 'folded', where: 'home/watch-video/phone-ap', fold: true, views: ['desktop', 'phone'] },
   { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=technical', views: ['desktop', 'zoom'] },
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=technical', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
@@ -451,6 +453,7 @@ async function a11y(style) {
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
     if (s.explore) { await p.click('.explore-btn'); await still(p); }
+    if (s.fold) await p.click('.cap-fold');
     if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForSelector('.picker'); }
     if (s.time === 'chip') { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); }
     else if (s.time) await p.click('.time-btn');
@@ -497,8 +500,8 @@ async function a11y(style) {
     }
     await ctx.close();
   }
-  // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker and the time
-  //    machine
+  // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker, folding the
+  //    caption away and the time machine
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
   await still(p);
   const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
@@ -538,6 +541,17 @@ async function a11y(style) {
   }
   await p.keyboard.press('Escape'); await still(p);
   if (!(await p.evaluate(() => document.activeElement?.matches('.caption .foot > .chip')))) fail('journey: picker', 'focus is not back on its button');
+  // folding the caption away (#168): C in the picture folds it and focus stays there; it stays folded through a dive
+  // and back up; Enter on the pill unfolds it, with focus on its chevron
+  const tucked = () => p.evaluate(() => !!document.querySelector('.caption.compact .cap-toggle[aria-expanded="false"]'));
+  await p.focus('.scene-key[tabindex="0"]'); await p.keyboard.press('c'); await still(p);
+  if (!(await tucked())) fail('journey: fold', 'C in the picture does not fold the caption away');
+  if (!(await p.evaluate(() => !!document.activeElement?.closest('.scene-keys')))) fail('journey: fold', 'focus is not in the picture after C');
+  await p.evaluate(() => window.__app.go({ path: ['phone-ap'] })); await still(p);
+  await p.keyboard.press('Escape'); await still(p);
+  if (!(await tucked())) fail('journey: fold', 'it unfolds by itself on the way');
+  await p.focus('.cap-toggle'); await p.keyboard.press('Enter'); await still(p);
+  if ((await tucked()) || !(await p.evaluate(() => document.activeElement?.matches('.cap-fold')))) fail('journey: fold', 'Enter on the pill does not unfold it, with focus on its chevron');
   // the time machine (#59): it opens on where you are, Tab stays in it and Esc comes back; the arrows choose 1995 and
   // Enter goes there: focus on the caption's title, and the announcer says what the picture shows
   const timeIn = () => p.evaluate(() => (document.activeElement === document.body ? 'browser' : document.activeElement?.closest('.picker.time') ? 'dialog' : 'page'));
