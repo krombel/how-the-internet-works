@@ -152,10 +152,16 @@
       }
     },
     "tag": {
-      "backbone": "40–80 λ · EDFA / 80 km"
+      "backbone": "40–80 λ · EDFA / 80 km",
+      "dc-fibre": "10GBASE-SR · 850 nm · OM3"
     },
     "dc-fibre": {
-      "nerd": "Data-centre optics in 2010: mostly 10G, on short multimode runs (10GBASE-SR) or single-mode (10GBASE-LR); the new 40GBASE-LR4 puts four 10G lanes on four CWDM wavelengths (1271–1331 nm) over one single-mode pair. The last metres to a server are often copper. Each link is one hop of the fabric."
+      "nerd": "Data-centre optics in 2010: 10GBASE-SR, one 850 nm laser (a VCSEL) per direction over a pair of multimode fibres (OM3), up to 300 m. One colour per fibre, nothing to combine or split. The servers hang off the access switches on copper (1000BASE-T). Each link is one hop of the three-tier tree.",
+      "kid": "Inside the data centre, short glass cables join the big switches. They are only a few metres long, so the light crosses them in a blink. Each thread carries one colour, just past red: too deep a red for our eyes to see.",
+      "describe": {
+        "kid": "A short glass thread between two switches in the data centre is shown close up. One light, at one end, bounces along the core to the other end. The flashes cross in a blink.",
+        "nerd": "The data-centre link view shows a short multimode run with one 850 nm lane: a laser at one end, the light zig-zagging through the core, a detector at the other. The label says 10GBASE-SR at 850 nm over OM3."
+      }
     },
     "metro-fibre": {
       "nerd": "Metro fibre: single-mode links between street cabinets, aggregation sites and the exchange. In 2010 mostly 1 or 10 Gbit/s Ethernet optics, with CWDM or DWDM putting a handful of wavelengths on one fibre pair."
