@@ -7,7 +7,10 @@
   // carries) and the packets to catch, the keyboard and screen-reader way in. Pointing at or focusing a chip lights its
   // door in the scene (`onhot`).
   // It may fold (`fold`, from `captionFold`) so the scene keeps the screen; its title is then a button that opens the
-  // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes:
+  // whole caption over the scene (Esc or the title folds it again), and it folds up again when the caption changes. A
+  // tap anywhere on the folded caption opens it too (#138: a child read the two lines and never found the rest; the
+  // title stays the way in for the keyboard and screen readers). It doesn't open by itself: open, it covers the scene.
+  // How it folds:
   // - `pill` (a short landscape screen): a one-line pill with the title (exploring: a row of chips);
   // - `card` (a portrait phone): the title and the text cut to two lines (exploring: the chips, its title then only
   //   for screen readers); where you are and learn-more links show once it's open. The text is all there for screen
@@ -53,6 +56,9 @@
     if (!open) foldH = el?.offsetHeight ?? 0;
     openFor = open ? null : text.title;
   }
+  function onclick(e: MouseEvent) {
+    if (fold && !open && !explore && !(e.target as Element).closest('button, a')) toggle();
+  }
   function onkeydown(e: KeyboardEvent) {
     if (e.key !== 'Escape' || !open || e.defaultPrevented) return;
     e.preventDefault();
@@ -72,8 +78,10 @@
 </script>
 
 <svelte:window {onkeydown} />
+<!-- a tap on the folded caption opens it; its title is the button for the keyboard and screen readers -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <section class="caption card" class:hide={hidden} class:compact={fold === 'pill'} class:folded={fold === 'card'} class:open class:exploring={explore}
-  data-ui bind:this={el} style:height={lockH ? `${lockH}px` : fold === 'card' && open ? `${foldH}px` : undefined} inert={hidden}>
+  data-ui bind:this={el} {onclick} style:height={lockH ? `${lockH}px` : fold === 'card' && open ? `${foldH}px` : undefined} inert={hidden}>
   <!-- open and taller than the screen, it is a Tab stop, so it can be scrolled from the keyboard -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div class="cap-in" class:card={open} bind:this={inner} tabindex={scrolls ? 0 : undefined} data-scroll={scrolls || undefined}>
@@ -113,7 +121,7 @@
       {/each}
       <div class="foot">
         {#if onread}<button class="btn chip read" onclick={onread}><Icon name="speak" />{tr('caption.read')}</button>{/if}
-        <button class="btn chip place" onclick={onplace}>{place} · <u>{tr('ui.change')}</u></button>
+        <button class="btn chip place" onclick={onplace}>{place} · <u>{tr('ui.changePlace')}</u></button>
         {#if time}
           <button class="btn chip time" aria-haspopup="dialog" onclick={ontime} onpointerenter={onpretime} onfocus={onpretime}>
             <Icon name="time" /><span class:sr={time.year}>{tr('time.title')}{time.year ? ':' : ''}</span>{time.year}

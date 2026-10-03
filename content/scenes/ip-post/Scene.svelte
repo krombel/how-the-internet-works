@@ -84,7 +84,7 @@
       ? [[near(a, 0), PORT, OUT + 1], [near(a, 1), 49152, OUT + 2], [near(a, 2), 60311, OUT + 3]] as const
       : [[near(a, 0), PORT, OUT + 1]] as const;
     return [
-      { you: true, name: S('you'), inside: `${a}:${PORT}`, port: OUT },
+      { you: true, name: fill(S('you'), { name: nameOf(ctx.client) }), inside: `${a}:${PORT}`, port: OUT },
       ...others.map(([ip, p, o]) => ({ you: false, name: cgnat ? S('neighbour') : nameOf(other), inside: `${ip}:${p}`, port: o })),
     ];
   });

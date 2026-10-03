@@ -50,7 +50,7 @@
   "elsewhere": "Alle andre steder",
   "notebook": "Byttebog",
   "table": "NAT-tabel · {addr}",
-  "you": "Dig",
+  "you": "{name} (dig)",
   "neighbour": "Nabo",
   "ticket": "Nr. {n}",
   "swap": "Ny kuvert",

@@ -6,7 +6,7 @@
   import Pothole from './art/Pothole.svelte';
   import RoadBox from './art/RoadBox.svelte';
   import Ticket from './art/Ticket.svelte';
-  import { ackTicket, ackX, cardGap, handshakeTicket, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
+  import { ackTicket, ackX, cardGap, cardLabels, handshakeTicket, helloSpot, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.tcp-pieces');
@@ -27,7 +27,8 @@
   const natSticker = $derived(ctx.nat ? `${ctx.nat.insidePort}↔${ctx.nat.outsidePort}` : '');
   const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? S('tag.dupAck') : beat === 'resend' ? S('tag.fast') : S('tag.order'));
   const tagB = $derived(ctx.nat ? (nerd ? S('tag.nat').replace('{nat}', natSticker) : S('label.port')) : S('tag.seal'));
-  const shelfStatus = $derived(beat === 'ready' ? S('label.ready') : shelfFilled(view.time, 6) && !shelfFilled(view.time, 5) ? S('label.gap') : '');
+  const labels = $derived(cardLabels(view.time));
+  const hello = $derived(helloSpot(L, portrait, clientSpot, hopSpot ?? serverSpot));
   const gap = $derived(cardGap(L.cards[0], portrait));
 
   function roadBoxX(): number | null {
@@ -57,7 +58,9 @@
     <Box x={p.x} y={p.y} n={n} size={L.box} opacity={n < win ? 0.42 : 1} glow={n === 5 && (beat === 'loss' || beat === 'resend')} />
   {/each}
   <rect x={serverBox(L.cards[0], win, portrait).x - L.box * 0.68} y={serverBox(L.cards[0], win, portrait).y - L.box * 0.72} width={gap * 3 + L.box * 1.36} height={L.box * 1.45} rx="18" fill="none" stroke="var(--teal)" stroke-width="8" />
-  <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(compact && beat === 'handshake' ? 'label.hello' : beat === 'handshake' ? 'label.handshake' : beat === 'send' ? 'label.window' : beat === 'loss' ? 'label.lost' : beat === 'resend' ? 'label.resend' : 'label.done')} size={L.text.label} kind="big" colour={beat === 'loss' || beat === 'resend' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
+  {#if labels.server}
+    <Text x={L.cards[0].x + L.cards[0].w / 2} y={L.cards[0].y + L.cards[0].h - (portrait ? 52 : 36)} text={S(`label.${labels.server}`)} size={L.text.label} kind="big" colour={labels.server === 'resend' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
+  {/if}
 </g>
 
 <Card x={L.cards[1].x} y={L.cards[1].y} w={L.cards[1].w} h={L.cards[1].h} tint="var(--leaf)" />
@@ -68,10 +71,14 @@
     <rect x={p.x - L.box / 2} y={p.y - L.box / 2} width={L.box} height={L.box} rx="12" fill="var(--paper)" stroke={n === 5 && !shelfFilled(view.time, 5) ? 'var(--berry)' : 'var(--kraft-dark)'} stroke-width={n === 5 && !shelfFilled(view.time, 5) ? 7 : 4} stroke-dasharray={n === 5 && !shelfFilled(view.time, 5) ? '10 8' : undefined} opacity="0.85" />
     {#if shelfFilled(view.time, n)}<Box x={p.x} y={p.y} n={n} size={L.box} />{/if}
   {/each}
-  {#if shelfStatus}
-    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={shelfStatus} size={L.text.label} kind="big" colour={beat === 'ready' ? 'var(--leaf-ink)' : 'var(--line)'} />
+  {#if labels.shelf}
+    <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={S(`label.${labels.shelf}`)} size={L.text.label} kind="big" colour={labels.shelf === 'ready' ? 'var(--leaf-ink)' : labels.shelf === 'lost' ? 'var(--berry-ink)' : 'var(--line)'} />
   {/if}
 </g>
+
+{#if beat === 'handshake'}
+  <Text x={hello.x} y={hello.y} text={S(compact ? 'label.hello' : 'label.handshake')} size={L.text.label} kind="big" colour="var(--teal-ink)" />
+{/if}
 
 <Pothole x={L.pothole.x} y={L.pothole.y} w={L.pothole.w} h={L.pothole.h} splash={moving.lost ? 1 : 0} />
 

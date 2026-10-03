@@ -1,6 +1,6 @@
 // Semantic zoom over the scene tree: which scenes are visible (and how much) for a camera, which scene a gesture
 // ended in, and where the camera goes for a location. Works at any depth: each level cross-fades into its children.
-import { DETAIL_SCALE, type Orient, type Rect } from './geometry';
+import { DETAIL_SCALE, union, type Orient, type Rect } from './geometry';
 import { TRAVEL, areaCentre, fit, isPhone, isShort, progress, smoothstep, type Cam, type Viewport } from './camera';
 import { childrenOf, fitRectLocal, frameOf, rectToRoot, sceneRef, stopRectLocal, type Frame, type SceneRef } from '../model/tree';
 import { pathScene } from '../model/layout';
@@ -85,11 +85,6 @@ export function travelK(r: Route, parent: string[], child: string[], vp: Viewpor
   const k0 = fit(sceneInfo(r, parent, o).fit, vp).k, kd = fit(sceneInfo(r, child, o).fit, vp).k;
   return k0 * (kd / k0) ** TRAVEL.u;
 }
-
-const union = (a: Rect, b: Rect): Rect => {
-  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
-  return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
-};
 
 /** Where a scene on the way to `path` counts as "near": its own fit, widened to the deepest scene on the path (a hop's
  *  layer stack can reach past the edge of the scene that draws it). */
