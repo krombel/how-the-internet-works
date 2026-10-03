@@ -316,6 +316,8 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home/watch-video/internet/datacentre/spine', 'home/watch-video/internet/datacentre/cdn',
   // the other ways online at home (#3): the phone line, fibre to the building and dial-up
   'home-dsl/watch-video', 'home-dsl/watch-video/router', 'home-dsl/watch-video/internet/home-cabinet',
+  // and 2010's data centre (#59 step 8): the colocation hall and its three-tier tree
+  'home-dsl/watch-video/internet/datacentre', 'home-dsl/watch-video/internet/datacentre/spine',
   'home-fttb/watch-video', 'home-fttb/watch-video/router', 'home-fttb/watch-video/internet',
   'home-fttb/watch-video/internet/basement-backhaul',
   // and dial-up: the call, its PPP envelope at both ends, and the telephone exchange on the way
@@ -403,7 +405,7 @@ function textEscapes() {
 }
 // the path scenes, where labels grow the most on small screens and the nerd tags are long, in both languages (#90)
 const PATH_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
-  'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
+  'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-dsl/watch-video/internet/datacentre', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
   'home-dialup/watch-video', 'home-dialup/watch-video/internet'];
 const PATH_VIEWS = [['phone', 'en', '&level=nerd'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=nerd'], ['desktop', 'da', '&level=nerd']];
 async function labelContrast(style, fail) {

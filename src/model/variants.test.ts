@@ -64,7 +64,7 @@ describe('era variants (#59)', () => {
     const [today] = Object.values(now), [then] = Object.values(past);
     expect(today.name).toBeTruthy();
     expect(Object.keys(today).filter((k) => /^\d+$/.test(k))).toEqual([]);
-    expect(Object.keys(then)).toEqual(['1995']);
+    expect(Object.keys(then)).toEqual(['1995', '2010']);
     // and the lazy chunk brings them in
     const { folders } = await import('virtual:past-strings');
     expect(Object.values(folders).flatMap(Object.keys).every((k) => /^\d+$/.test(k))).toBe(true);

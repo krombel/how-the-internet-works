@@ -8,5 +8,9 @@
     "kid": "The server room’s front door. The rented line from the big network ends here, and the page goes back out the same way.",
     "nerd": "The hosting site’s router: the T1 from the backbone’s PoP ends on a serial port (Cisco HDLC), with a static default route back up it. A site this small has no BGP of its own.",
     "tag": "T1 · static route"
+  },
+  "2010": {
+    "name": "Core router",
+    "nerd": "The core router of the video company’s cage: it peers over BGP at the exchange, announcing the company’s addresses, and routes down over 10G to the load balancer and the aggregation switches."
   }
 }
