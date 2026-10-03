@@ -27,13 +27,5 @@
     "kid": "Same road every time",
     "nerd": "hash(5-tuple)",
     "mod": "mod 4 = {n}"
-  },
-  "1995": {
-    "kid": "This is today’s data centre, drawn as it is now. In 1995 there was one web computer and one small hub, so there were no crossroads to choose between.",
-    "nerd": "Drawn as today: ECMP over a leaf–spine (Clos) fabric became the data-centre norm in the 2010s. In 1995 the web server hung off a 10 Mbit/s hub behind the site’s one router.",
-    "describe": {
-      "kid": "Drawn as today. At the top are four crossroads; the third is bright and named. Below are the load balancer, two other racks and the rack switch. Thin roads connect every bottom box to every crossroad. Your larger parcel keeps using the bright one.",
-      "nerd": "Drawn as today: four spines above four leaves, every leaf linked to every spine. Background flows cross all four spines; the highlighted flow hashes to spine 2 and travels load balancer to spine to rack switch."
-    }
   }
 }

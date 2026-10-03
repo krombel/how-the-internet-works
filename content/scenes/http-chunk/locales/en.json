@@ -124,22 +124,23 @@
   },
   "1995": {
     "title": "Asking for a page",
-    "kid": "In 1995 {yours} writes a slip: the page, please. The server finds it, stamps it 200 OK and sends it back, and a second slip asks for the picture on the page. Nobody cut videos into chunks yet: the drawing shows how a video player asks today, with the same slips and stamps.",
-    "nerd": "Plain HTTP/1.0, no TLS (SSL 2.0 shipped in Netscape in 1995, for shops): GET /index.html gets 200 OK with Content-Type: text/html, then a new TCP connection fetches GET /picture.gif (image/gif). Every hop on the way could read it all. No Host header was needed yet, and no caches answered in the middle. The drawing shows today's chunked video over the same request and status lines.",
+    "kid": "In 1995 {yours} writes a slip: the page, please. The web server finds it on its disk, stamps it 200 OK and sends it back. Then a second slip asks for the picture on the page, and the picture comes back the same way.",
+    "nerd": "Plain HTTP/1.0, no TLS (SSL 2.0 shipped in Netscape in 1995, for shops): GET /index.html gets 200 OK with Content-Type: text/html, then a new TCP connection fetches GET /picture.gif (image/gif). Every hop on the way could read it all. No Host header was needed yet, and no caches answered in the middle.",
     "at": {
-      "cdn": {
-        "title": "The server answers",
-        "kid": "The server reads each slip and sends back what it asks for: first the page, then its picture. Every answer starts with a stamp: 200 OK means here it is.",
-        "nerd": "In 1995 the server answers HTTP/1.0 200 OK with Content-Type: text/html, then image/gif for the picture, and closes the connection after each answer. There were no CDN caches yet (Akamai began in 1998–99): the shelf and the main copy in the drawing are today's.",
+      "web-server": {
+        "title": "The web server answers",
+        "kid": "The web server reads each slip and finds what it asks for on its own disk: first the page, then its picture. Every answer starts with a stamp: 200 OK means here it is.",
+        "nerd": "The server (NCSA HTTPd, say) reads the request line, finds /index.html under its document root and answers HTTP/1.0 200 OK with Content-Type: text/html and Content-Length, then the file; the same for /picture.gif (image/gif). It closes the connection after each answer. No cache, no CDN (Akamai began in 1998–99).",
         "describe": {
-          "kid": "Drawn as today. The server is highlighted at the end of the road. Slips arrive from {yours}. Chunk 42 is already on the shelf, so a 200 OK stamp comes down and a big film box walks back. Chunk 43 isn’t there: a box comes from a main copy far away, then a smaller box walks back.",
-          "nerd": "Drawn as today: the server is the focused endpoint. On the cache card segment 42 is a hit, 200 OK, and a large response walks back; segment 43 misses, a copy comes from the origin, and a smaller 200 OK response returns. In 1995 the server sent every file from its own disk."
+          "kid": "The web server is highlighted at the end of the road. Slips arrive from {yours}. On the server's card the page and the picture sit on its disk: the page lights up, a 200 OK stamp comes down and the page walks back. Then the picture lights up and walks back the same way.",
+          "nerd": "The web server is the focused endpoint. Requests arrive: on its disk card GET /index.html finds the page, 200 OK, and the page walks back; then GET /picture.gif finds the picture, 200 OK, and it returns. Every file comes from the server's own disk."
         }
       }
     },
     "card": {
       "answer": {
-        "kid": "At the server"
+        "kid": "At the server",
+        "nerd": "Disk and status"
       },
       "seen": {
         "kid": "What goes by",
@@ -170,11 +171,24 @@
       }
     },
     "tag": {
-      "length": "No TLS: all in the clear"
+      "length": "No TLS: all in the clear",
+      "request": "HTTP/1.0 · no Host header",
+      "page": "Content-Type: text/html",
+      "picture": "Content-Type: image/gif"
     },
     "describe": {
-      "kid": "Drawn as a video player asks today. A road links {yours} and the server. On the left card a slip asks for chunk 42, and it walks to the server. The server finds 42 on its shelf, stamps 200 OK and sends a big film box back. Then the next slip asks for 43, and a smaller box comes back.",
-      "nerd": "Drawn as today: the left card shows a request, GET /video/720p/42.m4s with Host, beside signal bars. The right card is a cache shelf: 42 is a hit, stamped 200 OK, and a large segment walks back; 43 misses and is fetched from an origin first. In 1995 it was GET /index.html and 200 OK, with no cache."
+      "kid": "A road links {yours} and the web server. On the left card a slip asks for the page, and it walks to the server. The server finds the page on its disk, stamps it 200 OK and sends it back. Then the next slip asks for the picture, and the picture comes back.",
+      "nerd": "The left card shows the request: GET /index.html HTTP/1.0 and an Accept line. The right card is the server's disk: the page is found, stamped 200 OK, and walks back; then GET /picture.gif, and the picture returns the same way. No cache, no origin."
+    },
+    "slip": {
+      "page": "The page, please!",
+      "picture": "The picture, please!"
+    },
+    "shelf": {
+      "disk": {
+        "kid": "On the disk!",
+        "nerd": "Read from disk"
+      }
     }
   },
   "2010": {

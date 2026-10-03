@@ -77,7 +77,7 @@
       "nerd": "Kortene viser TCP’s send-vindue og modtagerens buffer i rækkefølge. SYN, SYN-ACK og ACK-sedler starter løkken. Datasegmenter går over vejen, ACK-sedler går tilbage, og gentaget ACK 5 holder hullet åbent. Segment 5 sendes hurtigt igen med fast retransmit, vinduet flyttes, og bytes leveres først i orden."
     },
     "at": {
-      "cdn": {
+      "web-server": {
         "kid": "Serveren stiller stykkerne op og lader fire være på vej ad gangen. Når {yours} siger, at stykke 5 mangler, sender serveren 5 igen, før browseren får rækken.",
         "describe": {
           "kid": "Serveren er den travle ende af vejen. Dens Server-kort stiller nummererede kasser op, og rammen om fire kasser viser, hvor mange der må være af sted. Kasser går mod hylden. Når sedlen fra {yours} siger, at 5 mangler, lyser kasse 5 og går igen, før hylden er fuld.",
