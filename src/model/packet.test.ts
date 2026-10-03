@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { caughtSpot, livePackets, packetNear, specsFor } from '../engine/packets';
 import { pathScene } from './layout';
-import { entryHop, hopAhead, hopStepFor, hopView, nextHop, packetOn, stepHop, type HopView } from './packet';
+import { entryHop, hopAhead, hopStepFor, hopView, nextHop, packetOn, peekKeys, stepHop, type HopView } from './packet';
 import { resolveRoute, type Route } from './resolve';
 import { activityIds, content } from './registry';
 import { bezier } from '../engine/geometry';
@@ -221,6 +221,15 @@ describe('one hop: received → used / changed → sent', () => {
     expect(shape(view(home, 'phone', 'down'))).toBe('wifi ip tcp tls http');
   });
 
+  it('the peek says what a hop does: the device’s words, then its role’s, the era’s first in the past (#174)', () => {
+    const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    const last = dialup.chain.length - 1, core = dialup.chain.findIndex((h) => h.node.id === 'core');
+    expect(peekKeys(dialup, 0, 'up').at(-1)).toBe('peek.role.start');
+    expect(peekKeys(dialup, 0, 'down').at(-1)).toBe('peek.role.end');
+    expect(peekKeys(dialup, last, 'down').at(-1)).toBe('peek.role.start');
+    expect(peekKeys(dialup, core, 'up')).toEqual(['node.core.peek.up', 'node.core.peek', 'era.1995.peek.role.router', 'peek.role.router']);
+    expect(peekKeys(home, home.chain.findIndex((h) => h.node.id === 'core'), 'up').slice(2)).toEqual(['peek.role.switched']);
+  });
 });
 
 describe('catching and stepping a packet', () => {

@@ -77,8 +77,19 @@
   "1995": {
     "server": "the web server",
     "field": {
+      "dscp": {
+        "name": "Type of service",
+        "about": "Precedence (3 bits) and a wish for low delay, high throughput or high reliability (RFC 791). 0 is routine, and most routers ignore it."
+      },
+      "ecn": {
+        "name": "Reserved",
+        "about": "Two bits kept for later, left at 0 (RFC 1349 gives one of them to “low cost”)."
+      },
       "ttl": {
         "about": "Every router takes one off and drops the packet at 0, so a routing loop can’t keep it forever."
+      },
+      "proto": {
+        "about": "What is inside: 6 = TCP (17 is UDP, 1 is ICMP)."
       }
     }
   }

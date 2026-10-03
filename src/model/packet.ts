@@ -6,7 +6,7 @@
 // hopView() compares the packet as a hop receives it with the packet as it sends it on, and marks what the hop uses
 // and what changed.
 import type { FlowDef, LayerDef, Role } from '../define';
-import type { WithId } from './registry';
+import { nowEra, type WithId } from './registry';
 import type { Hop, Link, Route } from './resolve';
 
 export type Dir = 'up' | 'down';
@@ -92,6 +92,13 @@ const switchedOn = (r: Route, l: Link | undefined) => l?.stack.filter((id) => r.
 export function labelSwitched(r: Route, h: number): boolean {
   const a = switchedOn(r, r.links[h - 1]), b = switchedOn(r, r.links[h]);
   return a.some((id) => b.includes(id)) && forwards(r.chain[h]);
+}
+/** What the peek says chain hop `h` does (#17), its keys most specific first: the device's own words (this way, then
+ *  both), then its role's, in an era of the past the era's first (`era.1995.peek.role.router`: no ECMP in 1995). */
+export function peekKeys(r: Route, h: number, dir: Dir): string[] {
+  const at = r.chain[h], last = r.chain.length - 1;
+  const role = h === (dir === 'up' ? 0 : last) ? 'start' : h === (dir === 'up' ? last : 0) ? 'end' : at.natTo ? `nat.${dir}` : labelSwitched(r, h) ? 'switched' : at.role;
+  return [`node.${at.node.id}.peek.${dir}`, `node.${at.node.id}.peek`, ...(r.era === nowEra() ? [] : [`era.${r.era}.peek.role.${role}`]), `peek.role.${role}`];
 }
 /** TTL on chain link `i`: 64 at the sender, minus one per router passed. That is a label-switched layer's own TTL
  *  (`label`); the packet's own skips the routers that only switched its label on the run of labelled links it is
