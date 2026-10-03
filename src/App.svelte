@@ -36,11 +36,12 @@
   import type CoachMarksT from './ui/CoachMarks.svelte';
   import type PeekPanelT from './ui/PeekPanel.svelte';
   import PlacePicker from './ui/PlacePicker.svelte';
-  import { pictures } from './ui/picker';
+  import { allowedPlaces, pictures, placeOptions } from './ui/picker';
   import SceneKeys from './ui/SceneKeys.svelte';
   import StepButtons from './ui/StepButtons.svelte';
   import type TextMapT from './ui/TextMap.svelte';
   import type TimeMachineT from './ui/TimeMachine.svelte';
+  import type { elsewhere as Elsewhere } from './ui/time';
 
   startRouter();
   let stage: HTMLDivElement;
@@ -458,12 +459,16 @@
     for (let i = 0; i <= 24; i++) { const b = bezier(l, i / 24); best = Math.min(best, Math.hypot(b.x - p.x, b.y - p.y)); }
     return best;
   };
-  let picker = $state<{ slot: number } | null>(null), pickFrom: Element | null = null;
+  /** The open picker's slot, and the time machine's words for a place with no way online in this era (#59). */
+  let picker = $state<{ slot: number; elsewhere?: typeof Elsewhere } | null>(null), pickFrom: Element | null = null;
   /** The picker is a modal dialog: the rest of the page is inert while it's open, and focus goes back after. It opens
    *  once its pictures are here (#91), at once after the first time. */
   function openPicker(slot: number) {
     pickFrom = document.activeElement;
-    void loadDevices(pictures()).then(() => (picker = { slot }));
+    // a place with no way online in this era says so with the time machine's words, in the era's (the dive strings, #59)
+    const instead = placeOptions(here.places[slot], route.era, allowedPlaces(here.activity, slot)).some((o) => o.instead);
+    void Promise.all([instead && import('./ui/time'), instead && loadDiveStrings(), loadDevices(pictures())])
+      .then(([time]) => (picker = { slot, elsewhere: time ? time.elsewhere : undefined }));
   }
   function closePicker() {
     picker = null;
@@ -500,6 +505,10 @@
   function closeTime() {
     TimeMachine = null;
     void tick().then(() => keepFocus(timeFrom));
+  }
+  function timeFromPicker() {
+    picker = null;
+    openTime(pickFrom);
   }
   function timeFromMap() {
     mapOpen = false;
@@ -686,10 +695,18 @@
     el.style.opacity = String(1 - smoothstep(0.6, 0.95, t));
   }
 
-  function pick(p: { places?: string[]; activity?: string }) {
-    closePicker();
-    if (p.activity && p.activity !== here.activity) go({ activity: p.activity, path: [] });
-    else if (p.places) go({ places: p.places });
+  /** `said`: a place took you to the era's own trip (#59). Going there lands like a trip in time (focus on the
+   *  caption's title, the line said first); already there, the line is just said. */
+  function pick({ places, activity, said }: { places?: string[]; activity?: string; said?: string }) {
+    if (said && places?.join() !== here.places.join()) {
+      picker = null;
+      timeLanded = said;
+    } else {
+      closePicker();
+      if (said) void tick().then(() => announce(said));
+    }
+    if (activity && activity !== here.activity) go({ activity, path: [] });
+    else if (places) go({ places });
   }
 
   function onFlick(dx: number, dy: number) {
@@ -947,7 +964,8 @@
 </div>
 <Announcer />
 {#if picker}
-  <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} onpick={pick} onclose={closePicker} />
+  <PlacePicker places={here.places} activity={here.activity} slot={picker.slot} elsewhere={picker.elsewhere} onpick={pick} onclose={closePicker}
+    ontime={picker.slot === 0 && eras.length > 1 ? timeFromPicker : undefined} />
 {/if}
 {#if mapOpen && TextMap}
   <TextMap {route} {here} caught={caught && route.chain[caught.hop].id} onclose={closeMap} ongo={mapGo} onswap={() => { mapOpen = false; openPicker(0); }}
