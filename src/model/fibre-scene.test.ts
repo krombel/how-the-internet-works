@@ -97,6 +97,24 @@ describe('undersea cable (#39)', () => {
     }
   });
 
+  it('keeps the landing stations inside the panel frame, and on a phone fills the panel down to the floor (#136)', () => {
+    // a station is 144 × 132 at size 1; the panel's frame is drawn over the outer 20 units
+    for (const o of ['landscape', 'portrait'] as const) {
+      const s = SEA[o];
+      for (const st of s.stations) {
+        expect(st.x - 72 * s.stationSize, o).toBeGreaterThanOrEqual(20);
+        expect(st.x + 72 * s.stationSize, o).toBeLessThanOrEqual(s.w - 20);
+        expect(st.y - 132 * s.stationSize, o).toBeGreaterThanOrEqual(20);
+      }
+      // each station stands on dry land, clear of its shore
+      expect(s.stations[0].x + 72 * s.stationSize).toBeLessThan(s.shore[0]);
+      expect(s.stations[1].x - 72 * s.stationSize).toBeGreaterThan(s.shore[1]);
+      expect(s.slice.y + s.slice.r).toBeLessThan(s.floor - CABLE_W);
+    }
+    // a tall panel's sea reaches past two thirds of it, not leaving its lower half bare soil
+    expect(SEA.portrait.floor).toBeGreaterThan(SEA.portrait.h * 0.7);
+  });
+
   it('sends each colour across twice, and the shark keeps to its lane, facing the way it swims', () => {
     const c = cable(SEA.landscape), ps = cablePulses(1.5, c, 4);
     expect(ps).toHaveLength(8);

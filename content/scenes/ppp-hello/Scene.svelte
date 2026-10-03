@@ -79,8 +79,8 @@
 <path d={`M${L.line.x0 + 90} ${L.line.y} H${L.line.x1 - 90}`} stroke={run.colour} stroke-width="7" stroke-linecap="round" />
 <Node id={run.you.node.id} x={L.line.x0} y={L.line.y} size={L.size} focused={subject.ctx.to.id === run.you.id} />
 <Node id={run.isp.node.id} x={L.line.x1} y={L.line.y} size={L.size} focused={subject.ctx.to.id === run.isp.id} />
-<Text x={L.line.x0} y={L.names} text={nameOf(run.you)} size={L.name} kind="node" />
-<Text x={L.line.x1} y={L.names} text={nameOf(run.isp)} size={L.name} kind="node" />
+<Text x={L.line.x0} y={L.names} text={nameOf(run.you)} size={L.name} kind="node" fit />
+<Text x={L.line.x1} y={L.names} text={nameOf(run.isp)} size={L.name} kind="node" fit />
 {#if m.at !== null}
   {@const x = L.line.x0 + 130 + (L.line.x1 - L.line.x0 - 260) * m.at}
   <g transform={`translate(${x} ${L.line.y - 4})`} stroke="var(--line)" stroke-width="4" stroke-linejoin="round">

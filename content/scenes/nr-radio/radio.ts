@@ -28,8 +28,8 @@ export const LAYOUT: Record<Orient, Layout> = {
     source: { x: 300, y: 450 },
     phones: [{ x: 1390, y: 560, size: 170 }, { x: 1250, y: 300, size: 140 }, { x: 1240, y: 780, size: 140 }],
     grid: { x: 520, y: 80, cw: 56, ch: 36 },
-    labels: { beams: { x: 760, y: 700 }, grid: { x: 828, y: 300 }, time: { x: 1136, y: 300 }, freq: { x: 488, y: 170, rotate: -90 }, you: { x: 1390, y: 690 } },
-    tags: { tower: { x: 250, y: 790 }, grid: { x: 828, y: 350 } },
+    labels: { beams: { x: 760, y: 700 }, grid: { x: 828, y: 342 }, time: { x: 1136, y: 300 }, freq: { x: 488, y: 170, rotate: -90 }, you: { x: 1390, y: 690 } },
+    tags: { tower: { x: 250, y: 790 }, grid: { x: 828, y: 392 } },
   },
   portrait: {
     tower: { x: 450, y: 1210, size: 400 },

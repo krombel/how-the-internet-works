@@ -31,17 +31,22 @@
   const power = $derived(sparks(view.time, route));
   const kid = $derived(view.level === 'kid');
   const legible = legibleSize();
-  /** A long cable's boosters stand closer than their names are wide: every other name goes up a line. */
-  const crowded = $derived(repeaters.length > 1 && repeaters[1] - repeaters[0] < S(`${words}.repeater`).length * 0.55 * legible(26) + 16);
-  const fish = $derived(portrait ? shark(view.time, 240, 660, 500) : shark(view.time, 310, 600, 345));
+  /** A long cable's boosters stand closer than their names are wide: every other name goes up a line (down on a phone,
+   *  where they always take turns), and where even that is too close only the middle one is named. Their pills narrow
+   *  to fit between them (#136: 1995's five on a phone). */
+  const gap = $derived(repeaters.length > 1 ? repeaters[1] - repeaters[0] : Infinity);
+  const nameW = $derived(S(`${words}.repeater`).length * 0.55 * legible(26) + 16);
+  const crowded = $derived(gap < nameW);
+  const named = $derived(2 * gap < nameW ? [Math.floor(repeaters.length / 2)] : repeaters.map((_, i) => i));
+  const fish = $derived(portrait ? shark(view.time, 240, 660, 570) : shark(view.time, 310, 600, 345));
   /** The counter rides in the sand under the first colour's leading flash. */
   const lead = $derived(pulses[0].head.x);
   const counter = $derived({ x: Math.min(haul.b, Math.max(haul.a, lead)), km: Math.round(kmAt(haul, lead)) });
   // label spots (all upright): stations' names by the stations, the boosters' by them (in turn lower on a phone,
   // where they stand close), the slice's title over it and its parts either side
   const L = $derived(portrait
-    ? { stations: [{ x: 40, y: 300, anchor: 'start' }, { x: 860, y: 240, anchor: 'end' }] as const, repeater: sea.floor + 75, stagger: 55, counter: 1200, tag: 1290,
-        title: 590, parts: { y: 890, copper: { x: 420, anchor: 'end' }, glass: { x: 480, anchor: 'start' } } as const, slice: sea.slice }
+    ? { stations: [{ x: 40, y: 360, anchor: 'start' }, { x: 860, y: 300, anchor: 'end' }] as const, repeater: sea.floor + 75, stagger: 55, counter: 1400, tag: 1480,
+        title: 710, parts: { y: 1040, copper: { x: 420, anchor: 'end' }, glass: { x: 480, anchor: 'start' } } as const, slice: sea.slice }
     : { stations: [{ x: 190, y: 190, anchor: 'start' }, { x: 1410, y: 190, anchor: 'end' }] as const, repeater: sea.floor - 80, stagger: crowded ? -44 : 0, counter: 800, tag: 862,
         title: 322, parts: { y: 455, copper: { x: sea.slice.x - sea.slice.r - 20, anchor: 'end' }, glass: { x: sea.slice.x + sea.slice.r + 20, anchor: 'start' } } as const, slice: sea.slice });
 </script>
@@ -56,15 +61,15 @@
 {#each pulses as p}
   <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={view.time} fade={fadeAt(haul, p.head.x)} size={0.55} />
 {/each}
-{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} time={view.time} />{/each}
+{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} w={Math.min(124, gap - 10)} time={view.time} />{/each}
 {#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} time={view.time} />{/each}
 
-{#each L.stations as s}<Text x={s.x} y={s.y} text={S(`${words}.landing`)} size={28} kind="big" anchor={s.anchor} />{/each}
-{#each repeaters as x, i}<Text {x} y={L.repeater + (i % 2) * L.stagger} text={S(`${words}.repeater`)} size={26} kind="big" />{/each}
+{#each L.stations as s}<Text x={s.x} y={s.y} text={S(`${words}.landing`)} size={28} kind="big" anchor={s.anchor} fit />{/each}
+{#each named as i}<Text x={repeaters[i]} y={L.repeater + (named.length > 1 ? i % 2 : 0) * L.stagger} text={S(`${words}.repeater`)} size={26} kind="big" />{/each}
 {#if !compact}
   <Text x={L.slice.x} y={L.title} text={S(`${words}.inside`)} size={28} kind="big" />
   <Text x={L.parts.copper.x} y={L.parts.y} text={S(`${words}.copper`)} size={24} kind="small" anchor={L.parts.copper.anchor} />
   <Text x={L.parts.glass.x} y={L.parts.y} text={S(`${words}.glass`)} size={24} kind="small" anchor={L.parts.glass.anchor} />
 {/if}
 {#if haul.km}<Text x={counter.x} y={L.counter} text={`${counter.km} km`} size={30} kind="big" colour={colours[0]} />{/if}
-<TagAt x={sea.w / 2} y={L.tag} text={fill(S(`tag.${words}`), { span: Math.round(haul.km / (repeaters.length + 1)) })} size={24} />
+<TagAt x={sea.w / 2} y={L.tag} text={fill(S(`tag.${words}`), { span: Math.round(haul.km / (repeaters.length + 1)) })} size={24} fit />

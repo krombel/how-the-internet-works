@@ -109,15 +109,15 @@
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />
-    {#if T.label}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={T.label} kind="node" anchor={L.inLabel.anchor} />{/if}
+    {#if T.label}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={T.label} kind="node" anchor={L.inLabel.anchor} fit />{/if}
   {/if}
   {#if exchange}
     <Node id={exchange.node.id} x={L.exchangeNode.x} y={L.exchangeNode.y} size={L.nodeSize} />
-    {#if T.label}<Text x={L.exchangeLabel.x} y={L.exchangeLabel.y} text={nameOf(exchange)} size={T.label} kind="node" anchor={L.exchangeLabel.anchor} />{/if}
+    {#if T.label}<Text x={L.exchangeLabel.x} y={L.exchangeLabel.y} text={nameOf(exchange)} size={T.label} kind="node" anchor={L.exchangeLabel.anchor} fit />{/if}
   {/if}
   {#if transitAside}
     <Node id={transitAside.hop.node.id} x={L.transitNode.x} y={L.transitNode.y} size={L.transitSize} />
-    {#if T.label}<Text x={L.transitLabel.x} y={L.transitLabel.y} text={nameOf(transitAside.hop)} size={T.label} kind="node" anchor={L.transitLabel.anchor} />{/if}
+    {#if T.label}<Text x={L.transitLabel.x} y={L.transitLabel.y} text={nameOf(transitAside.hop)} size={T.label} kind="node" anchor={L.transitLabel.anchor} fit />{/if}
   {/if}
 
   {#if T.link && inLink}<Text x={L.inTag.x} y={L.inTag.y} text={linkName(inLink.tech.id)} size={T.link} kind="link" colour={inLink.tech.colour} anchor={L.inTag.anchor} />{/if}
