@@ -16,7 +16,7 @@
     },
     "inside": {
       "internet": {
-        "kid": "In 1995 the internet is much smaller: a few thousand networks. Your call goes through the telephone exchange to your internet company’s modems. From there a rented line runs to a bigger network in Copenhagen, under the Atlantic in one glass cable, across America, and into the room where the web site lives.",
+        "kid": "In 1995 the internet is much smaller: fewer than two thousand networks. Your call goes through the telephone exchange to your internet company’s modems. From there a rented line runs to a bigger network in Copenhagen, under the Atlantic in one glass cable, across America, and into the room where the web site lives.",
         "nerd": "The telephone network (a circuit through the exchange, then a PRI) to the ISP’s modem bank and its one router. A leased E1 to the upstream in Copenhagen, CANTAT-3 to North America, an ATM backbone across the US and a T1 into the hosting site. Each shaded area is one operator’s network; Danish traffic goes to DIX instead.",
         "describe": {
           "kid": "Inside the cloud, the path starts at your home. It runs through the telephone exchange and the modem bank to the internet company’s router, with a dashed side road to the Danish exchange. Then it goes to a bigger network, under the sea to two American routers, and into the server room, a box you can open.",

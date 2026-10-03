@@ -16,7 +16,7 @@
     },
     "inside": {
       "internet": {
-        "kid": "I 1995 er internettet meget mindre: et par tusind net. Dit opkald går gennem telefoncentralen til dit internetfirmas modemer. Derfra løber en lejet linje til et større net i København, under Atlanten i ét glaskabel, tværs over Amerika og ind i rummet, hvor hjemmesiden bor.",
+        "kid": "I 1995 er internettet meget mindre: færre end to tusind net. Dit opkald går gennem telefoncentralen til dit internetfirmas modemer. Derfra løber en lejet linje til et større net i København, under Atlanten i ét glaskabel, tværs over Amerika og ind i rummet, hvor hjemmesiden bor.",
         "nerd": "Telefonnettet (et kredsløb gennem centralen, så et PRI) til udbyderens modembank og dens ene router. En lejet E1 til leverandøren i København, CANTAT-3 til Nordamerika, en ATM-backbone tværs over USA og en T1 ind til hostingstedet. Hvert farvet felt er én operatørs net; dansk trafik går til DIX i stedet.",
         "describe": {
           "kid": "Inde i skyen starter vejen hjemme hos dig. Den går gennem telefoncentralen og modembanken til internetfirmaets router, med en stiplet sidevej til den danske udveksling. Så går den til et større net, under havet til to amerikanske routere og ind i serverrummet, en kasse du kan åbne.",
