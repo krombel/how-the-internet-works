@@ -387,7 +387,7 @@ always muted again on reload.
   the bottom where thumbs are. Language, sound, the style and About live in the ⋯ menu, so the controls fit a 360 px
   phone; below 400 px day/night does too, so *Explore* keeps its word (its ✷ alone, next to the ☀, was taken for the
   sun; issue #138); *Explore* is only there when there is something to explore (doors, a dive's envelopes, packets), and the others keep their place
-  when it goes. One row doesn't fit: the controls take about 230 of 360–390 px and would cut every breadcrumb short.
+  when it goes. The level's buttons say *Simple* / *Tech* there (da *Enkel* / *Teknisk*; #141). One row doesn't fit: the controls take about 230 of 360–390 px and would cut every breadcrumb short.
   The scene fades out under the bar (`--bar-fade`, the paper by default), so labels that slide under it don't show
   between the buttons. The breadcrumb is the depth ladder (#22, #14): its last rung carries a small mark of what lies
   below (a ladder and the count of doors, or a pip per envelope in a layer dive) and opens the list as a menu; on a
@@ -411,9 +411,10 @@ always muted again on reload.
 - **Overrides.** The layout is picked from the aspect ratio. At the tag, the lab (Layout → Landscape/Portrait,
   or `?orient=portrait`) forces either one. The slimmed prototype only picks from the aspect ratio.
 
-### Kid vs nerd, per style
+### Simple vs Technical, per style
 
-Kid mode uses fewer, bigger labels and plain-language captions. Nerd mode keeps them and adds in-scene technical
+The two levels are "Simple" and "Technical" to readers (`kid` and `nerd` in content; #141). Simple uses fewer, bigger
+labels and plain-language captions. Technical keeps them and adds in-scene technical
 tags (802.11ax · 5 GHz · 1024-QAM, 1000BASE-T, XGS-PON, NAT → 203.0.113.7, AS64500 · BGP, …) plus nerdier
 captions and peek fields. Each style draws the tags its own way: luggage tags, HUD callouts, margin notes or
 sticky labels. Technical tags are kept left-to-right even in a right-to-left language, so `192.168.1.23` doesn't
