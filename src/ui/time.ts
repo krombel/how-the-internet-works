@@ -23,10 +23,11 @@ export const eraText = (stop: EraStop, key = '') =>
   trFirst([`era.${stop.era}.at.${basePlace(stop.place)}${key}`, `era.${stop.era}${key}`], loc.level);
 
 /** The line for a stop somewhere else: why, that you'll travel there (unless `there` is false: you are there
- *  already, or have just arrived), and the nerds' note; '' if it isn't somewhere else. */
-export function elsewhere(stop: EraStop, from: string, there = true) {
+ *  already, or have just arrived), and the nerds' note (unless `away` is false: the picker's short line); '' if it
+ *  isn't somewhere else. */
+export function elsewhere(stop: EraStop, from: string, there = true, away = true) {
   const i = insteadOf(stop, from);
-  return i ? [i.why, there ? tr('time.there') : '', i.away].filter(Boolean).join(' ') : '';
+  return i ? [i.why, there ? tr('time.there') : '', away ? i.away : ''].filter(Boolean).join(' ') : '';
 }
 
 /** What the announcer says first on arriving in another era: the era ("It's 1995.", "Back to today."), and why you

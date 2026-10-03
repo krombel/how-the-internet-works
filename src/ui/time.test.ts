@@ -42,6 +42,7 @@ describe('the time machine’s words', () => {
     expect(time.elsewhere(stop('desk', '1995'), 'desk', false)).toBe('In 1995 the computer on the desk was a big beige PC, and it went online through the phone line at home.');
     state.setLevel('nerd');
     expect(time.elsewhere(stop('street', '1995'), 'street', false)).toMatch(/^In 1995 you’d have done this at home\. Out and about .*GSM/);
+    expect(time.elsewhere(stop('street', '1995'), 'street', false, false)).toBe('In 1995 you’d have done this at home.');
     state.setLevel('kid');
   });
 

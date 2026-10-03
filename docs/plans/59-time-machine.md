@@ -802,3 +802,20 @@ Made while building PR 6 (1995: the internet):
   and two layers' definitions with their read-more links, the two devices' and the owner's names, the segment and its
   layouts, the two dives' loader entries. The words of the past grew from about 4.5 to 8.2 kB gz (lazy), the dive
   strings from 37.1 to 42.5 kB gz (lazy).
+
+Made while building PR 9 (the picker stays in the era, #146):
+- **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,
+  the time machine's own; your own family stays where you are. The option shows the member's name ("On the street,
+  on 3G" in 2010) and picture; a place with no member shows its own name and the picture of where it goes.
+- **The line under such a place** is the time machine's `elsewhere`, short: why, and "You'll travel there." only
+  where it does go somewhere (in 1995 every place is the one home trip, so there it doesn't); the nerds' note (GSM on
+  the street) is left for the arrival, which says it as the time machine's does, so the cards stay short in short
+  landscape. An era's own `instead.<place>` line no longer ends in "You'll travel there.": `elsewhere` adds it, so the
+  two can't disagree.
+- **Arrival**: going there lands like a trip in time (focus on the caption's heading, the line said first); picking
+  it where you are already says the line and gives focus back to the picker's opener.
+- **"Other years ⏲"** (decided: yes): a small button under the places (and the access chips) that opens the time
+  machine, from slot 0 when there is another era; Esc there gives focus back to the picker's opener. Without it the
+  picker, which used to reach DSL and dial-up through its chips, would have no way to other years. About 90 bytes gz.
+- **Loading**: `ui/time.ts` stays lazy (with the panel): the picker loads it, and the dive strings (the era's own
+  lines), before it opens when a place would go to the era's trip. Importing it eagerly cost 0.35 kB more.

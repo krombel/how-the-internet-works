@@ -4,7 +4,7 @@
   // the chosen place has some of its era, "How do you get online?" offers them. The picker stays in the era you are
   // in (#59): each place goes to its member of that era, or, with none, to the era's own trip, with the time
   // machine's line under it ("In 1995 you'd have done this at home"), part of the option's description and said on
-  // arrival. Other years are the time machine's ("Other years" opens it). A card on wide screens, a bottom sheet on
+  // arrival (with the nerds' note, as the time machine's arrival). Other years are the time machine's ("Other years" opens it). A card on wide screens, a bottom sheet on
   // phones.
   import { onMount } from 'svelte';
   import { activityIds, basePlace, content, inEra } from '../model/registry';
@@ -47,7 +47,7 @@
     {#each options as o (o.id)}
       {@const icon = iconOf(o.to)}
       {@const art = deviceArt(icon)}
-      {@const line = o.instead && elsewhere?.(o.instead, o.id, o.to !== here)}
+      {@const line = o.instead && elsewhere?.(o.instead, o.id, o.to !== here, false)}
       <button class="btn option" class:on={o.on} aria-pressed={o.on} aria-describedby={line ? `pick-i-${o.id}` : undefined}
         onclick={() => onpick({ places: placesWith(o.to), said: o.instead ? elsewhere?.(o.instead, o.id, false) : undefined })}
         onpointerenter={() => ahead(o.to)} onfocus={() => ahead(o.to)}>
