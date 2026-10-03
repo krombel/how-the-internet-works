@@ -103,5 +103,17 @@
       "kid": "Kabel ud",
       "nerd": "1000BASE-T · ydersiden"
     }
+  },
+  "2010": {
+    "switch": {
+      "line": {
+        "nerd": "4 × 100 Mbit/s porte"
+      }
+    },
+    "wifi": {
+      "line": {
+        "nerd": "802.11n-radio"
+      }
+    }
   }
 }

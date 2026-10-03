@@ -10,7 +10,8 @@ export default definePlace({
   era: '2010',
   hops: [
     { at: 'laptop', addr: '192.168.1.23' },
-    { link: 'wifi', km: 0.005 },
+    // Wi‑Fi 4 (802.11n) in practice
+    { link: 'wifi', km: 0.005, rate: { down: 50e6, up: 50e6 } },
     { at: 'ap' },
     { link: 'ethernet', km: 0.005 },
     { at: 'router', node: 'dsl-router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },

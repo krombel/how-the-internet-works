@@ -37,6 +37,8 @@ export interface Link {
   dive: string | null;
   /** Roughly how long it is, in km. */
   km?: number;
+  /** How fast it carries bits each way, in bit/s: the link's own, else its technology's. */
+  rate: { down: number; up: number };
   source: Source;
   slot: number | null;
   /** Joins chain[index] → chain[index + 1]; -1 for side branches. */
@@ -116,7 +118,7 @@ export function resolveRoute(choice: Choice, c: Content = defaultContent): Route
   const mkLink = (l: LinkDef, from: string, to: string, source: Source, slot: number | null, index: number, aside = false): Link => {
     const tech = c.technologies[l.link];
     const dive = l.dive === false ? null : l.dive ?? tech.dive ?? null;
-    return { id: `${from}-${to}`, from, to, tech, stack: l.stack ?? tech.stack, dive, km: l.km, source, slot, index, aside };
+    return { id: `${from}-${to}`, from, to, tech, stack: l.stack ?? tech.stack, dive, km: l.km, rate: l.rate ?? tech.rate, source, slot, index, aside };
   };
 
   let pending: { def: LinkDef; source: Source; slot: number | null } | null = null;

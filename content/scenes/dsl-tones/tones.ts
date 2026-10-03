@@ -95,8 +95,9 @@ export function toneBars(spans: Span[], km: number, t: number, still: boolean, s
   return out;
 }
 
-/** Rough VDSL2 17a download speed with vectoring against line length, in Mbit/s. */
-const RATE: [number, number][] = [[0, 150], [0.3, 110], [0.5, 85], [1, 50], [1.5, 25], [2, 12], [2.5, 6]];
+/** Rough VDSL2 17a download speed against line length in a full cable in 2010 (crosstalk, no vectoring yet), in Mbit/s:
+ *  what the line could carry; this home's plan is less (its technology's rate). */
+const RATE: [number, number][] = [[0, 100], [0.3, 65], [0.5, 48], [1, 25], [1.5, 13], [2, 7], [2.5, 4]];
 export const MAX_KM = RATE[RATE.length - 1][0];
 export const MAX_MBIT = RATE[0][1];
 export function speedAt(km: number): number {

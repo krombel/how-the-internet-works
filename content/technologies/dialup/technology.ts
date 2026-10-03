@@ -7,6 +7,8 @@ export default defineTechnology({
   colour: '#c25b4a',
   stack: ['ppp'],
   dive: 'modem-call',
+  // V.34 (1994): 28.8 kbit/s each way, at best
+  rate: { down: 28_800, up: 28_800 },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Dial-up_Internet_access', title: 'Dial-up internet access', level: 'both', lang: 'en' },
     { url: 'https://da.wikipedia.org/wiki/Modem', title: 'Modem', level: 'both', lang: 'da' },

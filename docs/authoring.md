@@ -140,8 +140,13 @@ the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/hom
 `content/technologies/<id>/technology.ts`:
 
 ```ts
-defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb', stack: ['<layer>', …], dive?: '<scene>', learnMore })
+defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb', stack: ['<layer>', …], rate: { down, up }, dive?: '<scene>', learnMore })
 ```
+
+- `rate` (required, bit/s each way): what a reader really got on it in the era it stands for, not the standard's peak
+  (`hspa`: 2 Mbit/s, not HSDPA's 14), with a comment saying so. The route's slowest link sets the caption's "how long
+  it takes" and how fast the parcels go (#59). A link can override it, as it can the stack (`home-dsl`'s Wi‑Fi is
+  802.11n: `{ link: 'wifi', rate: { down: 50e6, up: 50e6 } }`).
 
 - `stack` holds the **lower** layers, outermost first; the activity's flow adds IP and above. A link can override it (`{ link: 'metro-fibre', stack: ['ethernet', 'gtp'] }`).
 - `look` picks how every theme draws the link, so a new technology needs no theme change.
@@ -457,6 +462,14 @@ defineActivity({
 })
 ```
 
+- **How long it takes (#59).** Give the one kind going down that the reader waits for a `size` in bytes (the whole
+  page, clip or video), and `plays` in seconds if it's watched as it comes (`{ kind: 'video', …, size: 100_000_000,
+  plays: 180 }`). Then a `takes` string (kid and nerd) is required, and the overview's caption shows it under the
+  text, filled in: `{time}` (how long at the route's slowest link), `{size}`, `{rate}`, `{link}` (that link's name),
+  `{plays}` and `{faster}` (how many times faster than it plays), and `{now}`/`{nowSize}` (today's thing, the base
+  activity's, at this route's rate). An era variant's own words go in the base's era block
+  (`"1995": { "takes": { … } }`); it's the bits alone, so say in the nerd text what adds to it.
+
 Strings:
 - `title` and `kid`/`nerd`: keep them device-neutral ("You ask for a video"), since any place can start it
 - `peek.<kind>` ("Caught: a piece of video")
@@ -538,7 +551,8 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes), with
   nothing overlapping at the size things grow to on a small phone, in any language (`model/overlap.test.ts` and
   `model/doors.test.ts` check).
-- [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
+- [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down), and a `rate`
+  true to its era.
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).

@@ -20,6 +20,7 @@
   import { entryHop, hopAhead, hopStepFor, stepHop, type Dir } from './model/packet';
   import { eraOf } from './model/registry';
   import type { Route } from './model/resolve';
+  import { paceOf } from './model/speed';
   import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
@@ -45,6 +46,8 @@
   let stage: HTMLDivElement;
   const A = $derived(themeState.current.art);
   const route = $derived(nav.route);
+  /** How much slower the parcels go on this route (#59: slow in older eras). */
+  const pace = $derived(paceOf(route));
   const here = $derived(nav.loc);
   const hereKey = $derived(keyOf(here.path));
 
@@ -370,7 +373,7 @@
   function catchKind(kind: string) {
     const ref = sceneRef(route, here.path, view.orient);
     if (ref?.kind !== 'path') return false;
-    const spec = specsFor(pathScene(route, ref.group, view.orient), route.activity.flows).find((s) => s.kind === kind);
+    const spec = specsFor(pathScene(route, ref.group, view.orient), route.activity.flows, pace).find((s) => s.kind === kind);
     if (!spec) return false;
     const hop = entryHop(route, spec.dir, drawnIn(here.path));
     const spot = hop === null ? null : spotAt(here.path, hop, spec.dir);
@@ -436,7 +439,7 @@
       const ref = sceneInfo(route, m.path, o).ref;
       if (ref.kind !== 'path') continue;
       const own = pathScene(route, ref.group, o), shown = morphScenes.get(m.key) ?? own;
-      let list = livePackets(specsFor(own, route.activity.flows), shown.links, view.time, m.key);
+      let list = livePackets(specsFor(own, route.activity.flows, pace), shown.links, view.time, m.key);
       const ids = new Map(list.map((p) => [p.id, p]));
       for (const [id, p] of prevIds.get(m.key) ?? []) if (!ids.has(id) && m.key === hereKey && p.age > p.spec.duration * 0.85 && !speaker.speaking) sfx.blip(false, p.dir);
       prevIds.set(m.key, ids);

@@ -253,6 +253,18 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       need(a.file, `node.${g.node ?? g.id}.inside.title`);
     });
     a.flows?.forEach((f, i) => f.stack?.forEach((l, k) => ref(a.file, `flows[${i}].stack[${k}]`, 'layers', l, 'a layer')));
+    // how long it takes (#59): the one thing the reader waits for has a size, and words say how long it takes
+    const kinds = (a.flows ?? []).flatMap((f, i) => f.packets.map((p, k) => ({ p, at: `flows[${i}].packets[${k}]` })));
+    for (const { p, at } of kinds) {
+      if (p.size !== undefined && p.dir !== 'down') add(a.file, `${at}.size`, 'only a kind going down has a size: the thing the reader waits for');
+      if (p.plays !== undefined && p.size === undefined) add(a.file, `${at}.plays`, 'a kind that plays needs a size, to say how long it takes to come');
+    }
+    const sized = kinds.filter(({ p }) => p.size !== undefined);
+    if (sized.length > 1) add(a.file, `${sized[1].at}.size`, `one kind at most has a size (the thing the reader waits for); ${sized[0].at} has one`);
+    if (sized.length) {
+      const key = `activity.${a.variantOf ?? a.id}`, keys = a.era !== undefined && a.variantOf !== undefined ? [`${key}.${a.era}.takes`, `${key}.takes`] : [`${key}.takes`];
+      if (!keys.some((k) => k in en || `${k}.kid` in en)) add(a.file, 'strings', `it has a size, so it needs words for how long it takes: "${keys[0]}" or "${keys[0]}.kid" (in content/activities/${a.variantOf ?? a.id}/locales/en.json)`);
+    }
 
     // every combination of places must make a well-formed chain: each part starts with a hop, and every part but the
     // last ends with the link that joins it to the next; the chain ends at the server

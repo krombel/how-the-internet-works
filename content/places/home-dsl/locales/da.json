@@ -9,6 +9,7 @@
   },
   "tag": {
     "laptop": "Wi-Fi 4 · 192.168.1.23",
+    "ap": "802.11n · L2 bridge",
     "router": "VDSL2-modem · NAT → 203.0.113.7"
   },
   "stop": {

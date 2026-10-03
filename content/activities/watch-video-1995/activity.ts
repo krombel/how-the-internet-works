@@ -5,6 +5,8 @@ import watchVideo from '../watch-video/activity';
 // had just come out for shops, and video was barely possible on a modem. The internet in the middle is today's for
 // now, so the route, groups and layout are the base's.
 const [video] = watchVideo.flows;
+// the page isn't played as it comes, so it has no play time
+const { plays: _plays, ...down } = video.packets[1];
 export default defineActivity({
   ...watchVideo,
   variantOf: 'watch-video',
@@ -15,7 +17,8 @@ export default defineActivity({
       stack: ['ip', 'tcp', 'http'],
       // Windows 95 picked its client ports from 1025 to 5000; the web server listens on port 80
       ports: { client: 1031, server: 80 },
-      packets: [video.packets[0], { ...video.packets[1], kind: 'page' }],
+      // the page and its picture: 40 kB
+      packets: [video.packets[0], { ...down, kind: 'page', size: 40_000 }],
     },
   ],
   learnMore: [

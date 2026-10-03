@@ -35,6 +35,9 @@ export const owner = z.strictObject({
   learnMore: learnMoreList,
 });
 
+/** How fast a link carries bits, each way, in bit/s (#59, how long it takes): for an access link what one home or
+ *  phone gets (its line or plan), for a trunk the whole link. The slowest link on a route is its bottleneck. */
+const rate = z.strictObject({ down: z.number().positive(), up: z.number().positive() });
 export const technology = z.strictObject({
   /** How the theme draws the link. */
   look: z.enum(['radio', 'cable', 'fibre', 'trunk']),
@@ -43,6 +46,8 @@ export const technology = z.strictObject({
   stack: z.array(id).min(1),
   /** The "look inside" scene for links of this technology. */
   dive: id.optional(),
+  /** How fast it carries bits, in its era (a link may say otherwise). */
+  rate,
   learnMore: learnMoreList,
 });
 
@@ -136,6 +141,8 @@ export const link = z.strictObject({
   dive: z.union([id, z.literal(false)]).optional(),
   /** Roughly how long it is, in km (the trip's scale in the captions). */
   km: z.number().positive().optional(),
+  /** Override the technology's rate here (2010's Wi‑Fi on a link of today's Wi‑Fi). */
+  rate: rate.optional(),
 });
 export const aside = hop.extend({
   /** The hop it branches off from (an alternative path, drawn dashed; packets don't take it). */
@@ -171,6 +178,11 @@ export const packet = z.strictObject({
   every: z.number().positive().optional(),
   offset: z.number().min(0).optional(),
   colour,
+  /** Bytes of the whole thing the reader waits for, carried by this kind (the page, the video): the caption's "how
+   *  long it takes" line (#59). On one kind going down, at most. */
+  size: z.number().int().positive().optional(),
+  /** Seconds it plays for, if it is watched as it arrives (a video): the line says how much faster it comes. */
+  plays: z.number().positive().optional(),
 });
 export const flow = z.strictObject({
   id,

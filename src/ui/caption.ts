@@ -10,6 +10,7 @@ import { eraStops, eraYear } from '../model/era';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Route } from '../model/resolve';
+import { formatBytes, formatDuration, formatRate, formatTimes, howLong } from '../model/speed';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trActivity, trFirst, trl, view, yours } from '../state.svelte';
@@ -18,7 +19,7 @@ import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trActivity, trFirst, 
  *  scene, by id), or in a dive go down from an envelope to the signal that carries it and up again (by path). */
 export interface CaptionDoor { kind: 'dive' | 'expand' | 'down' | 'up'; id: string; name: string; path?: string[] }
 /** A note under the caption's text: a nerd's extra (#31: a scene's `extra`, at nerd level only). */
-export interface CaptionNote { kind: 'extra'; text: string }
+export interface CaptionNote { kind: 'extra' | 'takes'; text: string }
 /** `tag`: a line under the title, e.g. that a dive stands for a stretch of links ("3 stretches · via …"). `describe`:
  *  what the picture shows, to be heard (#53: the announcer and read aloud say it; empty at a stop along the way). */
 export interface CaptionText { title: string; tag?: string; body: string; describe: string; hint: string; doors: CaptionDoor[]; links: LearnMore[]; notes: CaptionNote[] }
@@ -69,6 +70,19 @@ function describeOf(r: Route, ref: SceneRef, level: Level) {
 function extraOf(keys: string[], lv: Level, vars: Record<string, string> = {}): CaptionNote[] {
   const text = lv === 'nerd' ? trFirst(keys.map((k) => `${k}.extra`), lv) : '';
   return text ? [{ kind: 'extra', text: fill(text, vars) }] : [];
+}
+
+/** The overview's line on how long it takes (#59): the activity's words (its era's), filled in with this route's numbers
+ *  (rounder for kids); none if the activity has nothing sized or no words for it. */
+function takesOf(r: Route, lv: Level): CaptionNote[] {
+  const h = howLong(r), text = h ? trActivity(r.activity, 'takes', lv) : '';
+  if (!h || !text) return [];
+  const lang = loc.lang, digits = lv === 'kid' ? 1 : 2, time = (secs: number) => formatDuration(secs, lang, digits);
+  return [{ kind: 'takes', text: fill(text, {
+    time: time(h.secs), size: formatBytes(h.bytes, lang), rate: formatRate(h.bps, lang), link: tr(`tech.${h.link.tech.id}.name`),
+    plays: h.plays ? time(h.plays) : '', faster: h.plays ? formatTimes(h.plays / h.secs, lang, digits) : '',
+    now: time(h.now.secs), nowSize: formatBytes(h.now.bytes, lang),
+  }) }];
 }
 
 /** A hint, naming the keys when the last input was a key (#53), else the gestures; a scene may have none for them
@@ -185,7 +199,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     hint: hint('hint.overview'),
     doors,
     links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
-    notes: [],
+    notes: takesOf(r, lv),
   };
 }
 
