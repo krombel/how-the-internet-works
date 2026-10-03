@@ -764,7 +764,7 @@ async function fitCheck(style) {
   let fails = 0, walked = 0;
   for (const view of ['phone', 'short'])
     for (const lang of ['en', 'da'])
-      for (const q of ['', '&level=nerd']) {
+      for (const q of ['', '&level=technical']) {
         const { ctx, p } = await open(view, url(style, lang, 'home/watch-video', q)), looks = new Set();
         // the camera cuts instead of flying: the same places, sooner
         await p.emulateMedia({ reducedMotion: 'reduce' });
