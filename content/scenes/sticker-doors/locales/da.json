@@ -9,17 +9,17 @@
     "role": {
       "bridge": {
         "title": "Boksen lærer dørene",
-        "kid": "Rammen kommer ind ad dør 1 fra {yours}. Boksen skriver “{yours} → dør 1”. Den kender ikke Til-mærkaten endnu, så den kopierer rammen ud ad de andre døre. Svaret lærer den dør 2. Nedenunder rejser den som et signal i kabel eller fiber.",
-        "nerd": "En bridge lærer source-MAC'er i en MAC-tabel, lader poster ældes efter cirka 300 s, flooder ukendte unicast-rammer undtagen på indgangsporten og sender kendte destinationer til én port. Store-and-forward-switche verificerer FCS/CRC-32 først.",
+        "kid": "Rammen kommer ind ad dør 1 fra {sender}. Boksen skriver “{sender} → dør 1”. Den kender ikke Til-mærkaten endnu, så den kopierer rammen ud ad de andre døre. Svaret lærer den dør 2. Nedenunder rejser den som et signal i kabel eller fiber.",
+        "nerd": "En bridge lærer source-MAC'er i en MAC-tabel, lader poster ældes efter cirka 300 s, flooder ukendte unicast-rammer undtagen på indgangsporten og sender kendte destinationer til én port. Den skriver aldrig rammen om: source- og destinations-MAC forbliver enhedernes i hver ende af lag 2-strækningen (her {sender} og {next}). Store-and-forward-switche verificerer FCS/CRC-32 først.",
         "describe": {
           "kid": "En vej forbinder to små enheder og en boks med fire nummererede døre. En gående kuvert kommer til dør 1. To kort viser små kopier og en opslagsbog med døre. Prikkede spor lyser mod de andre døre. Senere går kuverten direkte til dør 2.",
-          "nerd": "Ethernet-rammen er tegnet som en kuvert ved en fireports bridge og en MAC-opslagsbog. Afsender-rækken udfyldes med port 1, og destinationen står med spørgsmålstegn. Flood-stier animeres til de andre porte. Når svaret kommer, lærer tabellen port 2, og rammen går direkte videre."
+          "nerd": "Ethernet-rammen er tegnet som en kuvert ved en fireports bridge og en MAC-opslagsbog. Afsender-rækken udfyldes med den sendende routers MAC på port 1, og destinationen står med spørgsmålstegn. Flood-stier animeres til de andre porte. Når svaret kommer, lærer tabellen port 2, og rammen går direkte videre med uændrede MAC'er."
         }
       },
       "nat": {
         "title": "Mærkaten er til mig",
-        "kid": "Til-mærkaten er routerens eget navn, så den tjekker rammen, tager kabel-kuverten af og råber “Hvem har 192.168.1.23?” En boks svarer “Mig!”, og en frisk mærkat kommer på. Nedenunder rejser den som elektriske skub eller lysglimt.",
-        "nerd": "Modtager-MAC'en matcher routerens interface. Efter FCS/CRC-32-validering fjernes Ethernet-headeren; ARP finder næste hops MAC-adresse (IPv6 bruger NDP), og en ny Ethernet-ramme sendes ud.",
+        "kid": "Til-mærkaten er routerens eget navn, så den tjekker rammen, tager kabel-kuverten af og råber til alle på vejen ud: “Hvem har adressen til {next}?” En boks svarer “Mig!”, og en frisk mærkat kommer på. Nedenunder rejser den som elektriske skub eller lysglimt.",
+        "nerd": "Modtager-MAC'en matcher routerens interface. Efter FCS/CRC-32-validering fjernes Ethernet-headeren; ARP finder MAC-adressen på næste hop på det udgående link ({next}) (IPv6 bruger NDP), og en ny Ethernet-ramme sendes ud.",
         "describe": {
           "kid": "Vejen går forbi en boks med fire døre, og routeren du er ved, er markeret med en cirkel. En gående kuvert med MIG stopper ved boksen. Til-mærkaten løsner sig, mens “Hvem har?” dukker op. Bølgede spørgsmål når dørene, ét svar får flueben, og kuverten går videre.",
           "nerd": "Ethernet-rammen står ved routerens portboks med Til- og FCS-flueben, en ARP-forespørgsel og en ARP-bog. Under opslaget holder rammen stille. Under fanout bliver MIG-mærkaten smudset, og ARP-bølger går ud til portene. En lært MAC erstatter broadcast, før en ny ramme går videre."
@@ -151,7 +151,9 @@
     "readNext": "læs næste",
     "door": "dør",
     "in": "ind",
-    "out": "ud"
+    "out": "ud",
+    "nextHop": "næste hop",
+    "gateway": "gateway"
   },
   "sticker": {
     "meShort": "MIG"

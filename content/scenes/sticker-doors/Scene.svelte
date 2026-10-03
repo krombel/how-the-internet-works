@@ -31,11 +31,14 @@
   });
   const actionTint = $derived(layer === 'vlan' ? 'var(--teal)' : layer === 'mpls' ? 'var(--berry)' : role === 'bridge' ? 'var(--sun)' : 'var(--orange)');
   const bookTint = $derived(layer === 'vlan' ? 'var(--leaf)' : layer === 'mpls' ? 'var(--wood)' : 'var(--teal)');
-  const fromMac = $derived(fakeMac(ctx.client.id));
-  const boxMac = $derived(fakeMac(ctx.to.id));
-  const nextMac = $derived(fakeMac(ctx.from.id));
-  const arpTarget = $derived(ctx.from.addr ?? ctx.client.addr ?? ctx.dst);
-  const arpMac = $derived(fakeMac(arpTarget || ctx.from.id));
+  // the frame's own MACs, as the packet model has them (a bridge passes them on: they are the routers' either side)
+  const srcMac = $derived(fakeMac(ctx.frame.src.id));
+  const dstMac = $derived(fakeMac(ctx.frame.dst.id));
+  const who = (h: LayerSubject['ctx']['to']) => (h.id === ctx.client.id ? yours(h) : nameOf(h));
+  // ARP asks for the next hop on the outgoing link; an endpoint answers through its gateway, the frame's sender
+  const arpHop = $derived(ctx.next ?? ctx.frame.src);
+  const arpTarget = $derived(nerd ? arpHop.addr ?? S(ctx.next ? 'book.nextHop' : 'book.gateway') : who(arpHop));
+  const arpMac = $derived(fakeMac(arpHop.id));
   const laneRows = $derived(ctx.to.id === 'bng'
     ? [['S-VID', '101'], ['C-VID', '2042'], [S('book.owner'), nerd ? S('book.subscriber') : S('book.you')]]
     : [[S('book.street'), '101'], [S('book.house'), '2042'], [S('book.otherStreet'), '102']]);
@@ -48,12 +51,12 @@
     if (layer === 'vlan') return laneRows;
     if (layer === 'mpls') return mplsRows;
     if (role === 'bridge') return [
-      [nerd ? fromMac : yours(ctx.client), '1'],
-      [m.learned ? (nerd ? nextMac : S('label.reply')) : S('label.unknown'), m.learned ? '2' : '?'],
+      [nerd ? srcMac : who(ctx.frame.src), '1'],
+      [m.learned ? (nerd ? dstMac : S('label.reply')) : S('label.unknown'), m.learned ? '2' : '?'],
       ...(nerd ? [[S('book.age'), '~300 s']] : []),
     ];
     return [
-      [arpTarget || '192.168.1.23', short(m.learned ? arpMac : 'ff:ff:ff:ff:ff:ff')],
+      [arpTarget, short(m.learned ? arpMac : 'ff:ff:ff:ff:ff:ff')],
       [nerd ? S('book.fcs') : S('book.check'), m.phase === 'fanout' ? S('book.drop') : 'OK'],
       ...(nerd ? [['IPv6', 'NDP']] : []),
     ];
@@ -75,9 +78,7 @@
     ? '0x88a8 S101 · 0x8100 C2042'
     : layer === 'mpls'
       ? `${mplsLeft} → ${mplsRight} · TC 0 · S 1 · TTL ${ctx.ttl}`
-      : role === 'bridge'
-        ? `dst …${nextMac.slice(-5)} · src …${fromMac.slice(-5)} · 0x0800`
-        : `dst …${boxMac.slice(-5)} · src …${nextMac.slice(-5)} · 0x0800`);
+      : `dst …${dstMac.slice(-5)} · src …${srcMac.slice(-5)} · 0x0800`);
   const mplsLeft = $derived(action === 'mpls.push' ? 'IP' : inLabel);
   const mplsRight = $derived(action === 'mpls.pop' ? 'IP' : outLabel);
   const mplsMid = $derived(action === 'mpls.pop' ? 'pop' : '');

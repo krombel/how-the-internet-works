@@ -114,7 +114,18 @@ function tunnelEnds(r: Route, i: number, layer: string): [Hop, Hop] {
   return [r.chain[lo], r.chain[hi + 1]];
 }
 
+/** The link frame on chain link `i` going `dir`: the hops whose MAC addresses it carries, where it was written (src)
+ *  and where it ends (dst). Bridges pass frames on, so these can lie beyond the link's own two hops. */
+export function frameEnds(r: Route, i: number, dir: Dir): { src: Hop; dst: Hop } {
+  const tx = r.chain[dir === 'up' ? i : i + 1], rx = r.chain[dir === 'up' ? i + 1 : i];
+  const back = dir === 'up' ? -1 : 1;
+  return { src: walkTo(r, tx.index, back, (h) => l2End(r, h)), dst: walkTo(r, rx.index, -back, (h) => l2End(r, h)) };
+}
+
 const pick = (v: string | { up: string; down: string }, dir: Dir) => (typeof v === 'string' ? v : v[dir]);
+/** Whether a link's frames carry MAC addresses (a layer on it has a mac.* field; a phone line's PPP has none). */
+export const carriesMac = (r: Route, l: Link) =>
+  l.stack.some((id) => r.content.layers[id]?.fields.some((f) => (['up', 'down'] as const).some((d) => pick(f.value, d).includes('{mac.'))));
 const macOf = (h: Hop): Val => ({ text: fakeMac(h.id), who: h });
 
 /** The layers on chain link `i` (outermost first), as a packet of `flow` travelling `dir` has them. */
@@ -126,13 +137,12 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
   const srv = { addr: { text: server.addr ?? '', who: server } as Val, port: flow.ports?.server };
   const [me, them] = dir === 'up' ? [client, srv] : [srv, client];
   const tx = r.chain[dir === 'up' ? i : i + 1], rx = r.chain[dir === 'up' ? i + 1 : i];
-  const back = dir === 'up' ? -1 : 1;
+  const frame = frameEnds(r, i, dir);
   const port = (p?: number): Val => ({ text: p === undefined ? '' : String(p) });
   const base: Record<string, Val> = {
     src: me.addr, dst: them.addr, sport: port(me.port), dport: port(them.port), ttl: { text: String(ttlAt(r, i, dir)) },
     'mac.tx': macOf(tx), 'mac.rx': macOf(rx), label: { text: fakeLabel(rx.id, dir) },
-    'mac.src': macOf(walkTo(r, tx.index, back, (h) => l2End(r, h))),
-    'mac.dst': macOf(walkTo(r, rx.index, -back, (h) => l2End(r, h))),
+    'mac.src': macOf(frame.src), 'mac.dst': macOf(frame.dst),
   };
 
   // inside out: lengths and checksums cover what is inside

@@ -28,7 +28,7 @@ the pieces fit together.
   technology, device, hop or role is the same key with `.describe`:
   - a link or device dive: `describe`, or `<tech or node id>.describe`
   - a layer dive: `describe`, `<layer>.describe`, `role.<role>.describe`, `at.<node>.describe`, `sealed.describe`
-    (most specific first, as for `kid`/`nerd`; `{hop}`, `{yours}` and `{layer}` are filled in)
+    (most specific first, as for `kid`/`nerd`; `{hop}`, `{yours}`, `{layer}`, `{sender}` and `{next}` are filled in)
   - the overview: the place's own `describe` (one per place on the route, said in turn)
   - inside a group: the node's `inside.describe`, or a place's `inside.<group>.describe`
 - **Addresses.** Use the documentation ranges: 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24 for public addresses; 192.168.x, 10.x and 100.64/10 (CGNAT) for private ones.
@@ -315,7 +315,9 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   `<layer>`), so **one scene can serve several layers** by switching on `subject.layer` (`sticker-doors` is
   Ethernet, VLAN and MPLS: the same box of doors with a different book).
   `{hop}` (this hop's name), `{yours}` ("your phone", "your PC") and `{layer}` are filled in: write `{yours}`, not
-  "your phone", since the device depends on the place and the era. Scene labels are your own keys,
+  "your phone", since the device depends on the place and the era. From the link frame, `{sender}` (the hop that
+  wrote it: bridges pass frames on) and `{next}` (the next hop the packet goes to, the one a router ARPs for) are too:
+  write those rather than an address or a device, which differ by hop and direction. Scene labels are your own keys,
   read with `strings('scene.<id>')`; nerd callouts conventionally live under `tag.*`.
 - A link layer (one in a technology's `stack`: Wi‑Fi, Ethernet, GPON…) is the envelope for one stretch; its dive
   gets a **How it travels** chip down to that link's signal by itself. End kid texts with a line bridging down

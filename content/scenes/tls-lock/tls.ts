@@ -83,9 +83,9 @@ export const POT_HALF = 52;
  *  size and the signs sit in clear gaps between them (#90), for row words up to `chars` long. */
 export function paintRows(L: Layout, o: Orient, chars: number) {
   const c = L.cards[1], portrait = o === 'portrait';
-  const words = portrait ? L.size.text : L.compact ? L.size.text * 0.82 : L.size.text;
+  const words = portrait ? L.size.text * 0.92 : L.compact ? L.size.text * 0.78 : L.size.text;
   const scale = portrait ? 1.1 : L.compact ? 1.02 : 0.92, half = POT_HALF * scale;
-  const label = c.x + (portrait ? 54 : 42);
+  const label = c.x + (L.compact ? 34 : 42);
   const first = label + chars * 0.6 * words + 24 + half;
   const step = Math.min(portrait ? 175 : L.compact ? 165 : 150, (c.x + c.w - 30 - half - first) / 2);
   return {
@@ -104,19 +104,14 @@ const ease = (n: number) => n * n * (3 - 2 * n);
 export const ramp = (t: number, a: number, b: number) => clamp01((t - a) / (b - a));
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * ease(t);
 
-export function tlsMoment(t: number) {
+/** The loop's beats. Kids see the ID checked first; TLS 1.3 really mixes the keys first and only then sends the
+ *  certificate, already encrypted (RFC 8446 §2), so `keysFirst` (nerds) plays the paint before the ID. Both lock at
+ *  10.8 s. `idT` is the time into the ID beat (negative before it). */
+export function tlsMoment(t: number, keysFirst = false) {
   const u = ((t % LOOP) + LOOP) % LOOP;
-  const beat: Beat = u < 3.2 ? 'id' : u < 7 ? 'mix' : u < 10 ? 'swap' : u < 10.8 ? 'brown' : 'locked';
-  return {
-    u,
-    beat,
-    id: 1 - ramp(u, 3.0, 4.0),
-    mix: ramp(u, 3.2, 6.4),
-    swap: ramp(u, 7.0, 9.7),
-    brown: ramp(u, 9.4, 10.7),
-    lock: ramp(u, 10.8, 11.4),
-    parcel: u < 10.8 ? ramp(u, 0.4, 2.8) : ramp(u, 10.8, 15.4),
-  };
+  const id = keysFirst ? 7.6 : 0, paint = keysFirst ? 0 : 3.2, k = u - paint;
+  const beat: Beat = u >= 10.8 ? 'locked' : u >= id && u < id + 3.2 ? 'id' : k < 3.8 ? 'mix' : k < 6.8 ? 'swap' : 'brown';
+  return { u, beat, idT: u - id, swap: ramp(k, 3.8, 6.5), brown: ramp(k, 6.2, 7.5) };
 }
 
 /** Where the parcel stands: on a doorstep beside a node, never on it. Sealed hops receive it on their left in portrait. */

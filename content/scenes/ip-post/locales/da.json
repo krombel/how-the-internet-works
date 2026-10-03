@@ -19,10 +19,10 @@
     "bridge": {
       "title": "Bare på gennemrejse",
       "kid": "Den her boks læser slet ikke adressemærket! Den tager kuverten af, som pakken kom i, og giver den en ny på til næste stykke vej.",
-      "nerd": "En lag 2-enhed (eller en, der tunnellerer): den fjerner den indgående link-ramme og skriver en ny til det udgående link med nye MAC-adresser. IP-headeren, også TTL, røres aldrig.",
+      "nerd": "En lag 2-enhed: den sender rammen videre efter modtager-MAC'en (eller pakker den om til næste links rammetype), men læser aldrig IP-headeren. MAC-adresserne forbliver dem på enhederne i hver ende af lag 2-strækningen, som regel to routere; IP-headeren, også TTL, røres aldrig. (Et tunnelendepunkt, som en mobilmast, er anderledes: rammen ender der, og pakken sendes videre inde i en ny ydre header med tunnelendepunktets egne adresser og MAC.)",
       "describe": {
         "kid": "En vej forbinder din enhed, dette gennemgangsstop og videoserveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
-        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker nævner ny MAC-adresse og urørt IP-header. Under pausen løftes den gamle lag 2-ramme af, den nye lander, og pakken fortsætter med samme IP-mærke og TTL."
+        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at MAC-adresserne sendes uændret videre (et tunnelendepunkt sætter sin egen på), og at IP-headeren er urørt. Under pausen løftes den gamle kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
       }
     },
     "endpoint": {
@@ -43,6 +43,34 @@
       "describe": {
         "kid": "Vejen viser flere telefoner, der deler en mobilkerne på turen til videoserveren. Adressekortet ændrer Fra til mobilkernen. Byttebogen er fuld af naboer med numre. En pakke stopper i kernen, får skiftet mærkatet og går videre. Svarene bruger bogen til at finde den rigtige telefon.",
         "nerd": "Det er NAT-varianten for carrier-grade NAT. Kortet omskriver en kilde fra 100.64.0.0/10 til operatørens offentlige adresse. Tabellen kobler flere indvendige adresser og porte til udvendige porte. Pakken holder pause for omskrivningen, TTL falder, og videresendelsen fortsætter."
+      }
+    },
+    "exchange": {
+      "nerd": "Telefoncentralen stiller modemmets opkald igennem til internetudbyderens modembank. PPP-rammerne kører inde i opkaldet som lyd; intet her læser IP-headeren, og der er ingen MAC-adresser på en telefonlinje. IP-headeren, også TTL, røres aldrig.",
+      "describe": {
+        "kid": "En vej forbinder din enhed, dette gennemgangsstop og serveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at der ingen MAC-adresser er her, og at IP-headeren er urørt. Under pausen løftes én kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
+      }
+    },
+    "cell-tower": {
+      "nerd": "Et tunnelendepunkt, ikke en almindelig bridge: basestationen (gNB) flytter pakken mellem 5G-radiolinket og en GTP-U-tunnel (i UDP/IP) til mobilkernen uden at læse IP-headeren. Mod kernen rejser tunnelpakken i en Ethernet-ramme, der starter eller ender her, med gNB'ens egen MAC-adresse. Den indre IP-header, også TTL, røres aldrig.",
+      "describe": {
+        "kid": "En vej forbinder din enhed, dette gennemgangsstop og videoserveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser én kuvert, der løftes af, og en tunnelkuvert, der tager dens plads. Tekniske mærker viser tunnelendepunktets egen MAC-adresse og siger, at IP-headeren er urørt. Pakken fortsætter inde i tunnelen med samme IP-mærke og TTL."
+      }
+    },
+    "rnc": {
+      "nerd": "Et tunnelendepunkt, ikke en almindelig bridge: RNC'en afslutter 3G-radiolinket og flytter pakken ind i en GTP-U-tunnel (i UDP/IP) til pakkekernen uden at læse IP-headeren. Mod kernen rejser tunnelpakken i en Ethernet-ramme, der starter eller ender her, med RNC'ens egen MAC-adresse. Den indre IP-header, også TTL, røres aldrig.",
+      "describe": {
+        "kid": "En vej forbinder din enhed, dette gennemgangsstop og videoserveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser én kuvert, der løftes af, og en tunnelkuvert, der tager dens plads. Tekniske mærker viser tunnelendepunktets egen MAC-adresse og siger, at IP-headeren er urørt. Pakken fortsætter inde i tunnelen med samme IP-mærke og TTL."
+      }
+    },
+    "nodeb": {
+      "nerd": "NodeB'en sender pakken videre mellem 3G-radioen og sin linje til RNC'en, som afslutter radiolinket og tunnelen. Ingen Ethernet-ramme og ingen MAC-adresser på denne strækning; IP-headeren, også TTL, bliver aldrig læst eller rørt.",
+      "describe": {
+        "kid": "En vej forbinder din enhed, dette gennemgangsstop og videoserveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+        "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at der ingen MAC-adresser er her, og at IP-headeren er urørt. Under pausen løftes én kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
       }
     }
   },
@@ -65,7 +93,9 @@
     "nat": "192.168.x.x → offentlig",
     "cgnat": "100.64.0.0/10 → offentlig",
     "ports": "optaget? ny port",
-    "mac": "ny MAC {mac}",
+    "mac": "egen MAC {mac}",
+    "macPassed": "MAC'er sendes videre",
+    "noMac": "ingen MAC-adresser her",
     "untouched": "IP-hoved urørt",
     "proto": "protokol 6 → TCP",
     "ttl64": "nye pakker: TTL 64"
@@ -79,7 +109,7 @@
       "bridge": {
         "describe": {
           "kid": "En vej forbinder din enhed, dette gennemgangsstop og serveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
-          "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker nævner ny MAC-adresse og urørt IP-header. Under pausen løftes den gamle lag 2-ramme af, den nye lander, og pakken fortsætter med samme IP-mærke og TTL."
+          "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at MAC-adresserne sendes uændret videre (et tunnelendepunkt sætter sin egen på), og at IP-headeren er urørt. Under pausen løftes den gamle kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
         }
       }
     }

@@ -9,17 +9,17 @@
     "role": {
       "bridge": {
         "title": "Learning the doors",
-        "kid": "The frame comes in door 1 from {yours}. The box writes “{yours} → door 1”. It does not know the For sticker yet, so it copies the frame out of the other doors. The reply teaches door 2. Underneath, it travels as a signal down the cable or fibre.",
-        "nerd": "A bridge learns source MACs into a MAC table, ages entries after about 300 s, floods unknown unicast frames except the ingress port, then forwards known destinations to one port. Store-and-forward switches verify FCS/CRC-32 first.",
+        "kid": "The frame comes in door 1 from {sender}. The box writes “{sender} → door 1”. It does not know the For sticker yet, so it copies the frame out of the other doors. The reply teaches door 2. Underneath, it travels as a signal down the cable or fibre.",
+        "nerd": "A bridge learns source MACs into a MAC table, ages entries after about 300 s, floods unknown unicast frames except the ingress port, then forwards known destinations to one port. It never rewrites the frame: source and destination MAC stay those of the devices at either end of the layer-2 stretch (here {sender} and {next}). Store-and-forward switches verify FCS/CRC-32 first.",
         "describe": {
           "kid": "A road connects two friendly devices and a box with four numbered doors. A walking envelope arrives at door 1. Two cards show tiny copies and a door book. Dotted paths light up toward the other doors. Later, the envelope walks straight to door 2.",
-          "nerd": "The Ethernet frame character carries a sticker beside a four-port bridge and MAC lookup book. The source row fills with port 1, and the destination row shows a question mark. Flood paths animate to the other ports. On the reply, the table learns port 2 and the frame moves directly."
+          "nerd": "The Ethernet frame character carries a sticker beside a four-port bridge and MAC lookup book. The source row fills with the sending router’s MAC on port 1, and the destination row shows a question mark. Flood paths animate to the other ports. On the reply, the table learns port 2, and the frame moves directly with its MACs unchanged."
         }
       },
       "nat": {
         "title": "This sticker is for me",
-        "kid": "The For sticker is the router’s own name, so it checks the frame, peels the cable envelope off, and asks everyone “Who has 192.168.1.23?” One box answers “Me!”, and a fresh sticker goes on. Underneath, it travels as pushes of electricity or flashes of light.",
-        "nerd": "The destination MAC matches the router interface. After FCS/CRC-32 validation the Ethernet header is stripped; ARP resolves the next-hop IP to a MAC address (IPv6 uses NDP), then a new Ethernet frame is emitted.",
+        "kid": "The For sticker is the router’s own name, so it checks the frame, peels the cable envelope off, and asks everyone on the way out “Who has {next}’s address?” One box answers “Me!”, and a fresh sticker goes on. Underneath, it travels as pushes of electricity or flashes of light.",
+        "nerd": "The destination MAC matches the router interface. After FCS/CRC-32 validation the Ethernet header is stripped; ARP resolves the next hop on the outgoing link ({next}) to a MAC address (IPv6 uses NDP), then a new Ethernet frame is emitted.",
         "describe": {
           "kid": "The road passes a four-door box, and the router you are at is circled. A walking envelope marked ME stops beside it. The For label peels away while “Who has?” appears. Wavy questions reach the doors, one answer gets a tick, and the envelope walks on.",
           "nerd": "The Ethernet frame sits beside the router’s port box with For and FCS check marks, an ARP prompt and an ARP book. During lookup, the frame pauses. During fanout, the ME label is smudged and ARP waves fan across the ports. A learned MAC replaces broadcast before a new frame leaves."
@@ -151,7 +151,9 @@
     "readNext": "read next",
     "door": "door",
     "in": "in",
-    "out": "out"
+    "out": "out",
+    "nextHop": "next hop",
+    "gateway": "gateway"
   },
   "sticker": {
     "meShort": "ME"

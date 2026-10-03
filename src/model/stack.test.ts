@@ -36,6 +36,30 @@ describe('addresses', () => {
   });
 });
 
+describe('link frames (#132)', () => {
+  const ids = (c: ReturnType<typeof layerCtx>) => [c.frame.src.id, c.frame.dst.id, c.next?.id ?? null];
+  const ctx = (r: typeof home, l: string, dir: 'up' | 'down') => layerCtx(r, link(r, l), 'video', 'request', dir, 'nerd');
+
+  it('passes a frame through bridges with the MACs of the hops at either end', () => {
+    expect(ids(ctx(home, 'phone-ap', 'up'))).toEqual(['phone', 'router', 'router']);
+    expect(ids(ctx(home, 'border-ixp', 'up'))).toEqual(['border', 'dc-router', 'dc-router']);
+    expect(ids(ctx(home, 'cabinet-backhaul', 'up'))).toEqual(['router', 'bng', 'bng']);
+  });
+
+  it('names the next hop on the outgoing link, the way the packet goes (what a router ARPs for)', () => {
+    expect(ids(ctx(home, 'ap-router', 'up'))).toEqual(['phone', 'router', 'bng']);
+    expect(ids(ctx(home, 'router-cabinet', 'down'))).toEqual(['bng', 'router', 'phone']);
+    expect(ctx(home, 'rack-switch-cdn', 'up').next).toBeNull();
+  });
+
+  it('ends a frame at a tunnel end, and has no MACs on a phone line', () => {
+    expect(ctx(street, 'phone-cell-tower', 'up').frame.dst.id).toBe('cell-tower');
+    expect(ctx(home, 'phone-ap', 'up').macs).toBe(true);
+    const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    expect(ctx(dialup, 'pc-exchange', 'up').macs).toBe(false);
+  });
+});
+
 describe('strings', () => {
   beforeAll(() => loadPack('da'));
   it('loads languages other than English on demand', async () => {
