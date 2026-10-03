@@ -34,5 +34,36 @@
         "nerd": "The UPF and mobile-core end is the highlighted tunnel mouth, tagged with UDP 2152, TEID 0x7 and the UE IP anchor. The GTP-U envelope opens at the core to reveal packet 100.64.12.7. The handover card shows the N3 or S1-U endpoint moving without changing the UE address."
       }
     }
+  },
+  "2010": {
+    "kid": "The mobile network makes a private tunnel between the radio controller and the mobile company’s gate (the GGSN). Your parcel keeps the same phone address while the big tunnel envelope changes around it.",
+    "nerd": "With Direct Tunnel (3GPP Rel-7), GTP-U carries the phone’s IP packet from the RNC straight to the GGSN: outer IP plus UDP/2152 with a TEID (3GPP TS 29.060). Without it, the SGSN sat in the middle and there were two tunnels.",
+    "label": {
+      "toCore": "To the GGSN",
+      "fromCore": "Back to the RNC"
+    },
+    "tag": {
+      "anchor": "Phone IP anchored at the GGSN"
+    },
+    "at": {
+      "rnc": {
+        "title": "The radio controller opens the tunnel",
+        "kid": "At the radio controller, the big tunnel envelope comes off. Your parcel still says 10.152.33.7, so the controller can cut it into radio pieces and send it through the mast to your phone.",
+        "nerd": "On the downlink the RNC ends the GTP-U tunnel from the GGSN: outer IP 10.30.0.1 → 10.30.4.9, UDP/2152, TEID 0x7. It ciphers and segments the packet for 10.152.33.7 in RLC and sends it over Iub to the NodeB. Walking between masts of one RNC doesn’t move the tunnel; to another RNC, an SRNS relocation moves its end while the phone’s address stays.",
+        "describe": {
+          "kid": "On the road, the phone, two radio controllers and the mobile company’s gate sit beside a thick tunnel. The controller’s tunnel mouth is highlighted. A big tunnel envelope moves between controller and gate. It opens at the controller to show the small parcel and address 10.152.33.7. The handover card bends the tunnel to the next controller.",
+          "nerd": "The RNC end of the GTP-U tunnel is highlighted on the road, with UDP 2152 and TEID 0x7. The envelope moves between RNC and GGSN. It opens at the RNC side to expose the phone’s packet for 10.152.33.7. The handover card shows an SRNS relocation moving the tunnel endpoint while the phone’s IP stays anchored."
+        }
+      },
+      "mobile-core": {
+        "title": "The gate opens the tunnel",
+        "kid": "At the mobile company’s gate, the tunnel envelope opens and your parcel can go on to the internet. Even if you walk far, your phone keeps the same address.",
+        "nerd": "On the uplink the GGSN receives GTP-U from the RNC: outer IP 10.30.4.9 → 10.30.0.1, UDP/2152, TEID 0x7. It decapsulates the phone’s packet (10.152.33.7), applies policy and NAT, and forwards it. The phone’s address is anchored here for as long as its PDP context lasts.",
+        "describe": {
+          "kid": "On the road, the phone, the radio controllers and the mobile company’s gate sit beside a thick tunnel. The gate’s tunnel mouth is highlighted. A tunnel envelope moves to the gate, opens to reveal address 10.152.33.7, then travels back. The handover card keeps the address while the tunnel bends to the next controller.",
+          "nerd": "The GGSN end is the highlighted tunnel mouth, tagged with UDP 2152, TEID 0x7 and the phone’s IP anchor. The GTP-U envelope opens at the GGSN to reveal packet 10.152.33.7. The handover card shows the Gn/Iu-PS endpoint moving without changing the phone’s address."
+        }
+      }
+    }
   }
 }

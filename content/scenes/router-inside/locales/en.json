@@ -103,5 +103,17 @@
       "kid": "Cable out",
       "nerd": "1000BASE-T · outside"
     }
+  },
+  "2010": {
+    "switch": {
+      "line": {
+        "nerd": "4 × 100 Mbit/s ports"
+      }
+    },
+    "wifi": {
+      "line": {
+        "nerd": "802.11n radio"
+      }
+    }
   }
 }

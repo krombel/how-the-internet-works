@@ -18,22 +18,23 @@ export interface LivePacket { id: string; kind: string; flow: string; dir: 'up' 
 /** Inside an expanded group the hops are closer together: packets hop a little faster and a little less often. */
 const GROUP_PACE = 0.85, GROUP_EVERY = 1.23;
 
-const memo = new WeakMap<PathScene, PacketSpec[]>();
-/** The packets a path scene sends. */
-export function specsFor(ps: PathScene, flows: FlowDef[]): PacketSpec[] {
-  let s = memo.get(ps);
-  if (s) return s;
+const memo = new WeakMap<PathScene, { slow: number; specs: PacketSpec[] }>();
+/** The packets a path scene sends, `slow` times slower than their pace on a slow route (#59). Their spacing stretches
+ *  too, so as many are on their way at once. */
+export function specsFor(ps: PathScene, flows: FlowDef[], slow = 1): PacketSpec[] {
+  const m = memo.get(ps);
+  if (m?.slow === slow) return m.specs;
   const g = ps.group !== null;
-  s = flows.flatMap((f) => f.packets.map((p) => {
+  const s = flows.flatMap((f) => f.packets.map((p) => {
     const route = p.dir === 'up' ? ps.route : [...ps.route].reverse();
-    const duration = p.pace * route.length * (g ? GROUP_PACE : 1);
-    const every = p.every ? p.every * (g ? GROUP_EVERY : 1) : duration;
+    const duration = p.pace * route.length * (g ? GROUP_PACE : 1) * slow;
+    const every = p.every ? p.every * (g ? GROUP_EVERY : 1) * slow : duration;
     return {
       flow: f.id, kind: p.kind, dir: p.dir, colour: p.colour, route, duration,
-      every, offset: (p.offset ?? 0) * (g ? 2 : 1),
+      every, offset: (p.offset ?? 0) * (g ? 2 : 1) * slow,
     };
   }));
-  memo.set(ps, s);
+  memo.set(ps, { slow, specs: s });
   return s;
 }
 

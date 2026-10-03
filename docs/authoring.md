@@ -140,8 +140,13 @@ the first hop and the NAT at the router, and `#/en/desk/watch-video/internet/hom
 `content/technologies/<id>/technology.ts`:
 
 ```ts
-defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb', stack: ['<layer>', …], dive?: '<scene>', learnMore })
+defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb', stack: ['<layer>', …], rate: { down, up }, dive?: '<scene>', learnMore })
 ```
+
+- `rate` (required, bit/s each way): what a reader really got on it in the era it stands for, not the standard's peak
+  (`hspa`: 2 Mbit/s, not HSDPA's 14), with a comment saying so. The route's slowest link sets the caption's "how long
+  it takes" and how fast the parcels go (#59). A link can override it, as it can the stack (`home-dsl`'s Wi‑Fi is
+  802.11n: `{ link: 'wifi', rate: { down: 50e6, up: 50e6 } }`).
 
 - `stack` holds the **lower** layers, outermost first; the activity's flow adds IP and above. A link can override it (`{ link: 'metro-fibre', stack: ['ethernet', 'gtp'] }`).
 - `look` picks how every theme draws the link, so a new technology needs no theme change.
@@ -389,11 +394,12 @@ place of that era, and says so.
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
   start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
   Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
-  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where people
-  really did this somewhere else in that era but the trip isn't built yet, `instead.<place>` (kid and nerd) replaces
-  "In 2010 you'd have done this at home. You'll travel there." and must say where you'll go itself (2010's
-  `instead.street`: a phone on 3G, "so here's the one at home"). The era texts load with the dive strings, when the
-  panel opens.
+  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where the
+  generic line reads wrong, `instead.<place>` (kid and nerd) replaces "In 1995 you'd have done this at home. You'll
+  travel there." and must say where you'll go itself (1995's `instead.desk`: the PC at home sits at a desk too).
+  Where an era has a member of the place's family, `at.<base place>` (`kid`, `nerd`, `describe.kid`/`.nerd`) takes the
+  place of the era's own words in the panel and the arrival (2010's `at.street`: phones on 3G; `at.desk`: a cable to
+  the DSL modem). The era texts load with the dive strings, when the panel opens.
 - Each base place says where it is, `where` ("at home", "on the street"), for the time machine's "In 1995 you'd have
   done this at home." Validation fails on a base place without it.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
@@ -410,6 +416,14 @@ place of that era, and says so.
   same depth (`"1995": { "sealed": … }`). A `describe` in a block needs both `kid` and `nerd`. Blocks load lazily
   (dives' with the dive strings, the rest as the small chunk of the words of the past), so they cost the first load
   nothing; write them in English and Danish.
+- **An item that only exists in the past** (a place of 2010, a 3G mast, the RNC) keeps only its required, eager
+  keys at the top (`name`, a place's `access`, a device's `yours`) and puts everything else in its era's block
+  (`"2010": { "kid": …, "nerd": …, "stop": { … } }`): it is only ever shown on that era's routes, so its words load
+  with the words of the past and cost the first load nothing.
+- **A dive that serves an older technology too** (`nr-radio` for 5G and 3G): pick the drawing by the technology
+  (or layer) id inside the scene, as `fibre-light` and `tdm-frames` do (a `MODES` table keyed by id), and the words
+  by the scene's era block; take devices and field values from the route (`subject.ctx`, `subject.route`), not from
+  ids. Keep links that name one technology on that technology or layer, not on the shared scene.
 - **An activity or a segment of an era** (#59): `variantOf: '<base>'` and `era: '<id>'` in its definition make it
   stand in for the base on that era's routes (`watch-video-1995`: a web page over plain HTTP, no TLS). It has the
   same place slots as its base and names base segments (the era picks their variants too). It has no locale files:
@@ -447,6 +461,14 @@ defineActivity({
   layout: { overview: { landscape: { nodes: { internet: [1380, 360, 250] } } } },
 })
 ```
+
+- **How long it takes (#59).** Give the one kind going down that the reader waits for a `size` in bytes (the whole
+  page, clip or video), and `plays` in seconds if it's watched as it comes (`{ kind: 'video', …, size: 100_000_000,
+  plays: 180 }`). Then a `takes` string (kid and nerd) is required, and the overview's caption shows it under the
+  text, filled in: `{time}` (how long at the route's slowest link), `{size}`, `{rate}`, `{link}` (that link's name),
+  `{plays}` and `{faster}` (how many times faster than it plays), and `{now}`/`{nowSize}` (today's thing, the base
+  activity's, at this route's rate). An era variant's own words go in the base's era block
+  (`"1995": { "takes": { … } }`); it's the bits alone, so say in the nerd text what adds to it.
 
 Strings:
 - `title` and `kid`/`nerd`: keep them device-neutral ("You ask for a video"), since any place can start it
@@ -529,7 +551,8 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - [ ] Layout for both `landscape` and `portrait` on every path scene the item appears in (and in dive scenes), with
   nothing overlapping at the size things grow to on a small phone, in any language (`model/overlap.test.ts` and
   `model/doors.test.ts` check).
-- [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down).
+- [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down), and a `rate`
+  true to its era.
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).

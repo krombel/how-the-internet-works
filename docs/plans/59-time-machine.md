@@ -126,12 +126,16 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
      from a laptop plugged into a GSM phone or with a PC-card modem. Billed by the minute like a call, rare and very
      nerdy, so it gets no trip of its own." The key is generic content, `era.<era>.away.<place>` (here
      `era.1995.away.street`, nerd only, en + da), shown when it exists; no place id in `src/`.
-   - **Street → 2010: a phone on 3G, not built yet.** By 2010 phones watched video over 3G, so "you'd have done this
-     at home" would be wrong. An era may give its own line for where you are, `era.<era>.instead.<place>` (kid and
-     nerd, en + da), which takes the place of "In 2010 you'd have done this at home. You'll travel there." in the
-     panel and the arrival: "In 2010 you could watch on your phone too, over 3G. That trip isn't built yet, so here's
-     the one at home." (nerds: HSPA, HSDPA's 7.2–14.4 Mbit/s peak and far less in practice, 360p). Step 4 builds the
-     trip (#113).
+   - **Street → 2010: a phone on 3G** (#113, step 4): the street's own 2010 member, `street-2010`, so nothing to
+     explain. (Until step 4 the era said so with its own line, `era.2010.instead.street`, now gone.)
+   - **Desk → 1995: the PC at home, which sits at a desk.** "In 1995 you'd have done this at home" reads wrong from
+     a desk to a PC at a desk. An era may give its own line for where you are, `era.<era>.instead.<place>` (kid and
+     nerd, en + da), which takes the place of the generic line and says where you'll go itself:
+     `era.1995.instead.desk`, "In 1995 the computer on the desk was a big beige PC, and it went online through the
+     phone line at home. You'll travel there."
+   - **The era's words, where its stop is.** The panel's text and picture description for an era are its own
+     (`era.2010`: the DSL at home), unless it has words for the stop's place, `era.<era>.at.<base place>`
+     (`era.2010.at.street`: phones on 3G; `era.2010.at.desk`: a cable to the modem; `era.today.at.street`: 5G).
 2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
    of your activity doesn't exist sends you to that era's first activity, and says so.)
 3. **The path** is kept as deep as it can be:
@@ -163,8 +167,10 @@ place's 1995 member; a place with none (the street) takes you back to today, and
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
-| `#/en/street/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (a phone on 3G then, not built yet; said so) |
-| `#/en/desk/watch-video` → 2010 | `#/en/home-dsl/watch-video` until step 4 (then a laptop on a cable to the DSL router) |
+| `#/en/street/watch-video` → 2010 | `#/en/street-2010/watch-video` (step 4: a phone on 3G) |
+| `#/en/street/watch-video/phone-cell-tower` → 2010 | `#/en/street-2010/watch-video/phone-cell-tower` (the 3G radio dive) |
+| `#/en/desk/watch-video` → 2010 | `#/en/desk-2010/watch-video` (step 4: a laptop on a cable to the DSL router) |
+| `#/en/desk/watch-video` → 1995 | `#/en/home-dialup/watch-video` (the PC at home; the desk's own line says so) |
 | PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
 
 ### Content model changes
@@ -176,10 +182,10 @@ place's 1995 member; a place with none (the street) takes you back to today, and
    `activity.watch-video.title`, built in PR 3: the variant's words are the base's block for its era, which loads
    lazily); the caption, peek and picker ask through one helper (`trActivity`) instead of building
    `activity.<id>.…` themselves (four call sites). A variant segment speaks through its base's namespace the same way.
-4. **`rate` on technologies** (`{ down, up }` in bit/s), overridable per link (`{ link: 'dialup', rate: … }`, since the
-   1995 modem is a 28.8k), and **`size` on a packet kind** (bytes of the whole thing the reader waits for: the page,
-   the clip, the video). The caption's "how long it takes" line uses the bottleneck of the route and the era's own
-   `size`, so it compares like with like.
+4. **`rate` on technologies** (`{ down, up }` in bit/s), overridable per link (built in PR 5: `dialup` itself is
+   1995's V.34 28.8k, so the override is used for `home-dsl`'s 802.11n Wi‑Fi instead), and **`size` on a packet
+   kind** (bytes of the whole thing the reader waits for: the page, the clip, the video). The caption's "how long it
+   takes" line uses the bottleneck of the route and the era's own `size`, so it compares like with like.
 5. **Era strings** (`era.<id>.name/kid/nerd/describe`) stay as they are; `describe` is rewritten for the new pictures
    (the start devices). New `ui.json` strings: `time.now` (the top bar's "Today"), `time.instead` ("In {era} you'd
    have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`; and the
@@ -223,7 +229,7 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
   route's era's block first (built in PR 3: the dive's subject already carries the route, so no new field).
 - `dsl-tones`' ADSL mode is not needed for 2010 (#115's ~2002 era will want it).
 | Activity | `watch-video-1995`: "Open a web page with a picture", flow `ip › tcp › http` (no TLS), a 40 kB page + picture | SSL 2.0 shipped in Netscape in 1995 for shops, but pages and pictures were plain HTTP. Video was barely possible: stamp-sized clips (160 × 120, a few frames a second) that you mostly downloaded first; the nerd text says so in one sentence. |
-| How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | |
+| How long | about 15 s for the page at 28.8k ("a whole video like today's: about 4 hours") | Built (PR 5): 40 kB at 28.8 kbit/s, about 11 s for the bits alone; today's 100 MB video at that rate, about 8 hours. |
 
 ### 2010: a laptop on Wi‑Fi, DSL, a small video from a CDN
 
@@ -235,7 +241,9 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 | Links | today's: IP/MPLS over 10G Ethernet (or SDH/OTN) on DWDM, `backbone`'s stack as on main | POS was fading by 2010. ATM still carried most ADSL (PVCs to the BRAS), but VDSL2 uses PTM (Ethernet), so this trip has none; one nerd sentence in the 2010 era text. |
 | Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
 | Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
-| How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". |
+| How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". Built (PR 5): 17 MB (360p at ~0.75 Mbit/s) at the 20 Mbit/s DSL plan, about 7 s, ~26× faster than it plays; on the street's 3G at ~2 Mbit/s, about 70 s, ~3×. |
+| The street (step 4) | **`street-2010`**: a 2010 smartphone (`phone-3g`) on 3G (`hspa`: WCDMA with HSPA) → a NodeB on the mast (`nodeb`, at the `cell-tower` hop) → Iub to the RNC (`rnc`) → GTP-U over a Direct Tunnel to the GGSN (`mobile-core`, "Mobile gate" in 2010, with NAT) → the ISP; the SGSN (`sgsn`, "Sign-in desk") as an aside; the 2010 activity (360p) | Direct Tunnel (3GPP Rel-7, TR 23.919) was common by 2010; without it the SGSN sat in the user plane with two tunnels, which the model can't draw (one tunnel per layer), so the nerd text says it. HSDPA peaked at 7.2 Mbit/s (category 8, most 2010 phones) or 14 Mbit/s (category 10; "14.4" is the usual rounding up), shared by the cell, with a few Mbit/s in practice. Backhaul (Iub) was often E1 lines over ATM or microwave (#108): drawn as today's metro fibre with a nerd note. |
+| The desk (step 4) | **`desk-2010`**: the same laptop on a cable → a DSL modem-router (`dsl-router`) → VDSL2 to the DSLAM in the cabinet, as `home-dsl`'s; the desk's layout | |
 
 ### Today: a phone, fibre (or 5G), a cache nearby
 
@@ -256,6 +264,20 @@ watch it"). The base activity `watch-video` is today's.
   Internet network" (1997, OC-12 POS); Wikipedia, *Ascend Communications* (PRI-fed modem racks); DIX: dix.dk and
   i2.dk, *DIX* (founded May 1994 by UNI•C at DTU, Lyngby).
 - Danish DSL: Wikipedia, *Internet in Denmark*; Ericsson/TDC VDSL2 announcement (2007–08).
+- How long it takes (PR 5, checked 2026-10-04): modems: Wikipedia, *V.34* (28.8 kbit/s, 1994; 33.6 in 1996) and
+  *V.90* (56k down, 33.6 up, ratified 1998), *Modem*. Page weight in 1995: HTTP Archive, "Page weight" and KeyCDN,
+  "Web page size growth" (about 14 kB average page around 1995; 40 kB for a page and its picture). DSL in Denmark
+  around 2010: Ingeniøren, "TDC: Vi er først med 50 Mbit/s på din telefonledning" (2008: VDSL2 from the cabinet,
+  25–50 Mbit/s best effort within ~500 m); Version2, "Kritik: TDC sælger 20 Mbit-bredbånd …" (20 Mbit/s plans that
+  many lines couldn't reach); Broadband Forum, MR-257 and ITU-T G.993.5 (vectoring approved 2010, in homes from about
+  2012). Video bitrates: adterrasperaspera.com, "Approximate YouTube bitrates" (360p about 0.77 Mbit/s, 720p about
+  2–4.5). Wi‑Fi: Wikipedia, *IEEE 802.11n-2009* (about 50 Mbit/s real throughput in a home).
+- 3G in 2010 (step 4, checked 2026-10-03): 3GPP TS 25.308 (HSDPA overall description: the NodeB's MAC-hs scheduler,
+  the 2 ms TTI, HARQ), TS 25.321 (MAC-hs's TSN and queue id, the H-RNTI), TS 25.306 (UE categories: 7.2 and 14.0
+  Mbit/s), TR 23.919 (Direct Tunnel, Rel-7), TS 29.060 (GTPv1-U on UDP 2152, the TEID); Wikipedia, *High Speed Packet
+  Access* (Cat 10 is 13.976 Mbit/s, "not 14.4 as often claimed"; HSDPA modems "up to 7.2 Mbit/s" from 2007), *UMTS*,
+  *Node B*, *Radio Network Controller* (RLC and ciphering end in the RNC; SRNS relocation), *GPRS core network* (SGSN
+  and GGSN, the PDP context). Backhaul: #108.
 - Data centres: Al-Fares et al., "A scalable, commodity data center network architecture" (SIGCOMM 2008); Facebook
   Engineering, "Introducing data center fabric" (2014); Wikipedia, *Clos network*.
 - Wi‑Fi: Wikipedia, *IEEE 802.11n-2009*. YouTube: Wikipedia, *YouTube* (HD 2008); Google Transparency Report, *HTTPS
@@ -388,8 +410,8 @@ eager in all**.
 | 1. Prominence, a device per era | ~0.6 kB (button + wiring ~0.25, global stops + counterpart rule ~0.15, `pc` art ~0.3, or ~0.05 after #91) | coach card (coach chunk), panel changes |
 | 2. Era flavour | ~0.15 kB (lazy glob, mount point, prop spots in the layouts) | each era's `Props.svelte` and `Packet.svelte` (~1–2 kB each) |
 | 3. Era variants (engine) + honest flows | ~0.5 kB (schema, resolver, strings fallback, cross-fade; two activity variants' data and English strings) | |
-| 4. The street in 2010 (#113) | ~0.4 kB (a 2010 street place and segment with layouts, a 3G technology, English strings) | |
-| 5. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units) | |
+| 4. The street and the desk in 2010 (#113) | ~0.4 kB (a 2010 street place and segment with layouts, a 3G technology, English strings); built: +0.8 kB (two places, four nodes, a technology and a layer, their names, and the art loader's entries) | the places' and new nodes' words (their era blocks, in `virtual:past-strings`); the 3G modes of `nr-radio` and `nr-grant` (their chunks) |
+| 5. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units); built: +1.0 kB (`speed.ts` and the caption's line ~0.58, the rates and the English `takes` words ~0.33, the icon and the pace's wiring ~0.11) | the past's `takes` words (their era blocks, in `virtual:past-strings`) |
 | 6. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
 | 7. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `server-inside`'s 1995 mode (its chunk) |
 | 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
@@ -446,11 +468,11 @@ Each is small, leaves main working and says "Part of #59".
    variant string fallback, the cross-fade for a changed node, the route's era on a dive's subject (for `<key>.<era>`
    strings), validation and tests. First callers: the 1995 and 2010
    activity variants with honest flows (no TLS) and wording ("Open a web page with a picture", "Watch a small video").
-4. **The street and the desk in 2010** (#113). 2010 members of both families: on the street, the phone on 3G (HSPA)
-   to a NodeB and the mobile core; at the desk, a laptop on a cable to the DSL router; era-true words (en + da, kid +
-   nerd). The time machine then goes there in 2010, and `era.2010.instead.street` (added in PR 2) goes. The 1995
-   desk wording is fixed in the same step. The eras should show what was really available
-   at the time (the user's principle): where people really did this in an era, that era gets a trip there.
+4. **The street and the desk in 2010** (#113, built). 2010 members of both families: on the street, the phone on 3G
+   (HSPA) to a NodeB, the RNC and the GGSN (the SGSN aside); at the desk, a laptop on a cable to the DSL router;
+   era-true words (en + da, kid + nerd). The time machine then goes there in 2010, and `era.2010.instead.street`
+   (added in PR 2) goes. The 1995 desk wording is fixed in the same step. The eras should show what was really
+   available at the time (the user's principle): where people really did this in an era, that era gets a trip there.
 5. **How long it takes.** `rate` (with the 28.8k override), `size` on each era's packet kinds, the caption line (kid
    and nerd), like with like.
    - **Era packet speed.** In older eras the parcels move visibly slower along the route: a gentle, bounded scale
@@ -516,7 +538,8 @@ Decided by the user (2026-10-02), the five questions of the first draft of this 
    arrival adds the nerd-only GSM data note (CSD, 9.6 kbit/s; see *What the time machine does*).
 3. **1995's activity** is "open a web page with a picture" (about 15 s), with stamp-sized clips as a nerd note.
 4. **2010's DSL** stays `home-dsl`'s VDSL2 from the street cabinet, with the nerd remark that most homes still had
-   ADSL2+. (No separate ADSL or 2002 era, at first; reversed on 2 Oct: #115.)
+   ADSL2+. (No separate ADSL or 2002 era, at first; reversed on 2 Oct: #115.) PR 5 made it 2010's: a 20/2 Mbit/s
+   plan, no vectoring (in homes from about 2012), and the DSL dive's line speed about 55 Mbit/s near the cabinet.
 5. **1985's BBS** is wanted: PR 10, the step after the three trips, no longer optional. The communication line stays
    later and optional.
 6. **The eras brainstorm** (user, 2 Oct, in a #59 comment): each era shows what was really available at the time.
@@ -635,3 +658,77 @@ Made while building PR 3 (era variants as content):
 - **`since` on content was not added**: nothing needs it yet.
 - **The cross-fade** is drawn by the root `PathScene` only (the old device and its name at `1 - t`), for a stop
   whose node changes (today's router → 2010's DSL router); everything else in the morph is as before.
+
+Made while building PR 4 (the street and the desk in 2010):
+- **Direct Tunnel.** GTP-U runs from the RNC straight to the GGSN (3GPP Rel-7, common by 2010), and the SGSN, which
+  signs the phone in and sets the tunnel up, is an aside off the RNC. Without Direct Tunnel there were two tunnels
+  (RNC–SGSN, SGSN–GGSN); one layer can't be two tunnels on one route, so the nerd text says so instead.
+- **The hops keep today's ids** where the job is the same (`phone`, `cell-tower` with the `nodeb` node,
+  `mobile-core` for the GGSN, with a 2010 block: "Mobile gate", tag GGSN · Gi · NAT), so a jump keeps its path:
+  `street/…/phone-cell-tower` lands on the 3G radio dive, `internet/mobile-core~ip` survives, and back to today
+  `internet/rnc~gtp` (no RNC today) falls back to `internet`. The NodeB has no device dive (the mast's dive is
+  5G's); its words say what it does.
+- **The links**: the radio is a new technology, `hspa` (look `radio`, layer `hspa`: H-RNTI, queue id, TSN, RLC
+  sequence number). Iub is metro fibre carrying `hspa` unopened (the RNC ends RLC and ciphering), with the nerd note
+  that 2010's backhaul was often E1/ATM or microwave (#108). RNC → GGSN is `backbone` (RNCs regional, GGSNs central,
+  120 km), so no two runs of the same link merge; GGSN → core is metro fibre.
+- **The 3G radio dive is `nr-radio`'s second mode**, not a new scene: its look is keyed by the technology id
+  (`MODES` in `radio.ts`: 5G's beams and slots; 3G's one sector wave, codes × 2 ms TTIs, one phone per TTI and
+  sometimes two codes to a second), its words by the scene's `2010` block ("One wave, shared codes", HSDPA's 7.2–14
+  Mbit/s peak per cell and a few Mbit/s in practice). `nr-grant` serves the `hspa` layer the same way: its devices and
+  field values come from the route (the hops either side, the layer's fields), and at the RNC it focuses the RNC,
+  saying that the scheduling shown runs in the NodeB. `gtp-tunnel` takes its ends from the route too, and its
+  handover card in 2010 is an SRNS relocation. GTP's byte counts stay today's (the same header; said in a string).
+- **Peak rates are 7.2–14 Mbit/s**, not "7.2–14.4" (category 10 decodes 27,952 bits per 2 ms, 13.98 Mbit/s).
+- **Learn more per technology**: the shared dives' tech-specific links (5G NR, beamforming, OFDMA, RNTI) moved from
+  the scenes to the `nr` technology and layer, so a 3G dive doesn't link to 5G pages; the GTP links became
+  "Cellular network" for kids.
+- **The era's words are per place**: `era.<era>.at.<base place>` (kid, nerd, describe) over `era.<era>.*` in the
+  panel and the arrival (`eraText` in `ui/time.ts`), so 2010 says "3G" at the street and "a cable" at the desk, and
+  today says 5G at the street. The desk in 1995 lands at home, whose PC sits at a desk: `era.1995.instead.desk` says
+  so ("…the computer on the desk was a big beige PC, and it went online through the phone line at home"), no trip.
+- **Past-only items speak in their era block**: `street-2010`, `desk-2010`, `phone-3g`, `nodeb`, `rnc`, `sgsn` and
+  `hspa` keep only their name (and `access`, `yours`) eager; their other words are their `"2010"` block, so they load
+  with `virtual:past-strings` (`withEra` finds them on a 2010 route). That took the eager growth from +2.4 kB to
+  +0.8 kB. `home-dsl` and `home-dialup` could do the same later (about 1.5 kB).
+- **Eager JS: +0.8 kB gz** (94.37 against 93.58 on main, index.html's static imports gzipped; the plan said ~0.4,
+  for one place): the two places' hops and layouts, four nodes, a technology and a layer with their names, ~0.64;
+  the art loader's six entries (four devices, two backdrops), ~0.15.
+
+Made while building PR 5 (how long it takes):
+- **`rate` is required on every technology** (`{down, up}` in bit/s, a real, typical rate for the era the technology
+  stands for, with a comment saying why), optional on a link to override it. `dialup` is V.34's 28.8k both ways
+  (1995's modem), so the plan's 28.8k override wasn't needed; the one override is `home-dsl`'s Wi‑Fi (802.11n, ~50
+  Mbit/s in a home, over the `wifi` technology's 500 Mbit/s of Wi‑Fi 6). VDSL2 is the 2010 plan, 20/2 Mbit/s; 3G
+  (`hspa`) is 2/1 Mbit/s (what a phone got in practice from a 7.2–14 peak shared by the cell); 5G 300/50; Wi‑Fi 500; Ethernet, GPON and FTTB 1 Gbit/s; metro
+  10 Gbit/s; backbones, submarine and the data centre 100 Gbit/s.
+- **`size` (and `plays`) on the one kind the reader waits for**, going down: today's HD video is 100 MB playing 3
+  minutes (about 4.5 Mbit/s); 2010's 360p is 17 MB (~0.75 Mbit/s, the same 3 minutes); 1995's page and picture are
+  40 kB and don't play. Validation: `size` only on a down kind, `plays` only with `size`, at most one sized kind an
+  activity, and a sized activity needs `takes` words (kid and nerd, its era's or the base's).
+- **The line** is a note under the overview's text (`kind: 'takes'`, a stopwatch), the activity's `takes` string
+  filled with `{time}`, `{size}`, `{rate}`, `{link}` (the bottleneck's technology), `{plays}`, `{faster}` (how many
+  times faster it arrives than it plays), and like with like across eras: `{now}` and `{nowSize}`, today's thing (the
+  base activity's) at this route's rate. Kids get one significant digit ("about 2 seconds: 100 times faster"), nerds
+  two. Times are seconds up to 99, then minutes, then hours (`Intl.NumberFormat` units, long, en + da). It's the bits
+  alone at the bottleneck: the nerd text says handshakes, headers and resends add to it, and that a streaming player
+  fetches only a little ahead. 1995's nerd line names no link: the bottleneck is the modem, said in words.
+- **Era packet speed** (`paceOf` in `model/speed.ts`): one factor per route from the down bottleneck, in three tiers:
+  100 Mbit/s and up ×1 (today everywhere), 1 Mbit/s and up ×1.6 (2010's DSL and 3G), below ×2.5 (1995's modem).
+  Per-direction factors were tried on paper and dropped: today's 5G uplink (50 Mbit/s) would have looked slow. Every
+  parcel's trip, spacing and offset stretch alike (`specsFor(ps, flows, slow)`), so as many are on screen at once and
+  the frame cost doesn't change; they run on the scene clock, so pause and reduced motion behave as before.
+- **The modem-call dive is V.34**: "CONNECT 28800", "28.8k, at best", the 30 kB photo in about 8 s; `modem.ts`'s
+  rate is checked against the `dialup` technology's in `modem-scene.test.ts`.
+- **2010's DSL**: `dsl-tones` lost vectoring (G.993.5, in homes from about 2012): its card is now "Crosstalk" (the
+  neighbours' pairs leak in), its speed curve is unvectored (about 55 Mbit/s near the cabinet, 25 at 1 km), the
+  DSLAM's nerd text drops "vectored", and the VDSL nerd text and tag say the plan is 20/2 and that most DSL homes had
+  ADSL2+. `router-inside` got a 2010 block (100 Mbit/s ports, an 802.11n radio), and `home-dsl`'s AP tag says
+  802.11n.
+- **Left as a follow-up**: 2010's LAN is "a 100 Mbit/s cable" in the era text, but the `ethernet` link tag and the
+  `copper-pulses` dive say 1000BASE-T; neither is the bottleneck, so the numbers don't change. A 2010
+  `copper-pulses` block (100BASE-TX, MLT-3) would settle it. The DSL dive shows the line's capacity (~55), the plan
+  is 20: the VDSL nerd text says why.
+- **Eager JS: +1.0 kB gz** (95.49 against 94.47 on main, index.html's static imports gzipped; the plan said ~0.3):
+  `speed.ts` and `takesOf` in the caption's chunk ~0.58, the rates and today's English `takes` words ~0.33, the
+  stopwatch icon and the wiring ~0.11. The 1995 and 2010 words are era blocks, so they're lazy.

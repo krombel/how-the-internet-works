@@ -1,7 +1,7 @@
 import type { Orient, Pt } from '$core/api';
 
 export const LOOP = 16;
-export type Focus = 'cell-tower' | 'mobile-core';
+export type Focus = 'start' | 'end';
 export type Phase = 'up' | 'unwrap-core' | 'down' | 'unwrap-tower' | 'handover' | 'new-up';
 
 type Spot = Pt & { size: number };
@@ -36,9 +36,9 @@ export function layoutFor(orient: Orient, focus: Focus, vp?: { h: number; top: n
       road: { y: 1380, x0: 30, x1: 870 },
       phoneA: { x: 80, y: 1310, size: 110 },
       phoneB: { x: 190, y: 1310, size: 110 },
-      tower: { x: 255, y: 1305, size: focus === 'cell-tower' ? 210 : 140 },
-      nextTower: { x: 505, y: 1305, size: focus === 'cell-tower' ? 150 : 120 },
-      core: { x: 800, y: 1305, size: focus === 'mobile-core' ? 210 : 140 },
+      tower: { x: 255, y: 1305, size: focus === 'start' ? 210 : 140 },
+      nextTower: { x: 505, y: 1305, size: focus === 'start' ? 150 : 120 },
+      core: { x: 800, y: 1305, size: focus === 'end' ? 210 : 140 },
       cards: [{ x: 60, y: 170, w: 780, h: 390 }, { x: 60, y: 600, w: 780, h: 420 }],
       names: 1490,
       walk: 1350,
@@ -52,9 +52,9 @@ export function layoutFor(orient: Orient, focus: Focus, vp?: { h: number; top: n
       road: { y: 770, x0: 70, x1: 1530 },
       phoneA: { x: 200, y: 690, size: 135 },
       phoneB: { x: 410, y: 690, size: 135 },
-      tower: { x: 620, y: 650, size: focus === 'cell-tower' ? 225 : 150 },
-      nextTower: { x: 835, y: 650, size: focus === 'cell-tower' ? 225 : 150 },
-      core: { x: 1270, y: 650, size: focus === 'mobile-core' ? 225 : 150 },
+      tower: { x: 620, y: 650, size: focus === 'start' ? 225 : 150 },
+      nextTower: { x: 835, y: 650, size: focus === 'start' ? 225 : 150 },
+      core: { x: 1270, y: 650, size: focus === 'end' ? 225 : 150 },
       cards: [{ x: 60, y: 130, w: 710, h: 410 }, { x: 830, y: 130, w: 710, h: 410 }],
       names: 860,
       walk: 740,
@@ -66,9 +66,9 @@ export function layoutFor(orient: Orient, focus: Focus, vp?: { h: number; top: n
     road: { y: 730, x0: 70, x1: 1530 },
     phoneA: { x: 215, y: 640, size: 150 },
     phoneB: { x: 470, y: 640, size: 150 },
-    tower: { x: 620, y: 590, size: focus === 'cell-tower' ? 250 : 165 },
-    nextTower: { x: 840, y: 590, size: focus === 'cell-tower' ? 250 : 165 },
-    core: { x: 1270, y: 590, size: focus === 'mobile-core' ? 250 : 165 },
+    tower: { x: 620, y: 590, size: focus === 'start' ? 250 : 165 },
+    nextTower: { x: 840, y: 590, size: focus === 'start' ? 250 : 165 },
+    core: { x: 1270, y: 590, size: focus === 'end' ? 250 : 165 },
     cards: [{ x: 150, y: 150, w: 580, h: 300 }, { x: 870, y: 150, w: 580, h: 300 }],
     names: 835,
     walk: 700,

@@ -5,5 +5,21 @@
   "describe": {
     "kid": "En telefon i din hånd. Den er på Wi‑Fi til routeren, og routeren har en glastråd ud til internettet.",
     "nerd": "En smartphone på Wi‑Fi 6 bag en hjemmerouter med fiber eller et kabel fra kælderen som forbindelse udadtil."
+  },
+  "at": {
+    "street": {
+      "kid": "Ude på gaden er telefoner på 5G: radio til en mobilmast tæt på, så en glastråd til internettet. Hurtigt nok til store videoer.",
+      "nerd": "5G NR: brede bærebølger og mange antenner giver en telefon titals til hundredvis af Mbit/s. gNB’en tunnelerer pakkerne (GTP-U) over fiber til kernens UPF.",
+      "describe": {
+        "kid": "En telefon i din hånd, ude på gaden, på 5G til en mobilmast.",
+        "nerd": "En smartphone på 5G NR til en gNB, med fiber-backhaul til mobilkernen."
+      }
+    },
+    "desk": {
+      "describe": {
+        "kid": "En bærbar på skrivebordet, med et kabel til routeren, og routeren har en glastråd til internettet.",
+        "nerd": "En bærbar på Ethernet til hjemmerouteren, med fiber (GPON) som forbindelse ud."
+      }
+    }
   }
 }

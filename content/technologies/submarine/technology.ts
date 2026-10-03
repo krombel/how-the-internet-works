@@ -7,6 +7,8 @@ export default defineTechnology({
   colour: '#2a7f9e',
   stack: ['ethernet', 'mpls'],
   dive: 'fibre-light',
+  // the ISP's 100 Gbit/s wavelength (the cable carries hundreds of Tbit/s)
+  rate: { down: 100e9, up: 100e9 },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Submarine_communications_cable', title: 'Submarine communications cable', level: 'both', lang: 'en' },
     { url: 'https://da.wikipedia.org/wiki/S%C3%B8kabel', title: 'Søkabel', level: 'both', lang: 'da' },

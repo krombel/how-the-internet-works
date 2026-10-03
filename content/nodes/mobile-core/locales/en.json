@@ -12,5 +12,21 @@
       "kid": "The mobile core looks up which phone asked, changes the address back and puts the parcel in the tunnel to the right tower.",
       "nerd": "CGNAT reverse (address and port from the mapping table), then the UPF tunnels it in GTP-U to the phone’s gNB (TEID)."
     }
+  },
+  "2010": {
+    "name": "Mobile gate",
+    "kid": "The mobile company’s gate to the internet. It unpacks your parcels from the radio controller’s tunnel and gives them an internet address, shared with lots of phones.",
+    "nerd": "The GGSN of the 3G packet core: it ends the GTP-U tunnel (one PDP context per phone), gives the phone its address, applies policy and does NAT towards the internet (Gi).",
+    "tag": "GGSN · Gi · NAT",
+    "peek": {
+      "up": {
+        "kid": "The gate opens the tunnel envelope, then swaps your phone’s address and door number for its own, shared with lots of phones.",
+        "nerd": "The GGSN ends the GTP-U tunnel (by TEID), then NAT rewrites source address and port, fixes the checksums and routes on (TTL − 1)."
+      },
+      "down": {
+        "kid": "The gate looks up which phone asked, changes the address back and puts the parcel in the tunnel to the right radio controller.",
+        "nerd": "NAT reverse (address and port from the mapping table), then the GGSN tunnels it in GTP-U to the phone’s RNC (TEID)."
+      }
+    }
   }
 }

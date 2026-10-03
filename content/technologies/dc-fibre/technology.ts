@@ -7,6 +7,8 @@ export default defineTechnology({
   colour: '#5a8fc8',
   stack: ['ethernet'],
   dive: 'fibre-light',
+  // 100 Gbit/s between the fabric's switches
+  rate: { down: 100e9, up: 100e9 },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Data_center', title: 'Data center', level: 'both', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/Terabit_Ethernet', title: '200G and 400G Ethernet', level: 'nerd', lang: 'en' },

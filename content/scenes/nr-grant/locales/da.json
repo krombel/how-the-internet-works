@@ -34,7 +34,7 @@
   "label": {
     "ticketKid": "Telefon nr. {n}",
     "ticketPortrait": "Nr. {n} · slot 6",
-    "ticketNerd": "C-RNTI 0x4601",
+    "ticketNerd": "C-RNTI {n}",
     "grantKid": "slot 6",
     "grantNerd": "slot 6 · RB 20–31",
     "ask": "✋ må jeg sende?",
@@ -50,10 +50,14 @@
     "ack": "ACK: tydelig bid",
     "dci": "DCI: C-RNTI · HARQ 7",
     "harqNerd": "HARQ 7 · NDI 1 · RV 2",
-    "sn": "LCID 4 · RLC SN {rlc} · PDCP SN {pdcp} · QFI 9",
-    "snShort": "L4 · R{rlc} · P{pdcp} · Q9",
-    "snA": "LCID 4 · RLC SN {rlc}",
-    "snB": "PDCP SN {pdcp} · QFI 9"
+    "sn": "LCID 4 · RLC SN {rlcsn} · PDCP SN {pdcpsn} · QFI 9",
+    "snShort": "L4 · R{rlcsn} · P{pdcpsn} · Q9",
+    "snA": "LCID 4 · RLC SN {rlcsn}",
+    "snB": "PDCP SN {pdcpsn} · QFI 9",
+    "before": "0x31af",
+    "after": "0x77c2",
+    "beforeSeat": "slot 5 · RB 2–9",
+    "afterSeat": "slot 6 · RB 44–51"
   },
   "tag": {
     "bridgeKid": "masten planlægger",
@@ -61,5 +65,53 @@
     "bridgeNerd": "SR → DCI-grant",
     "endpointNerd": "C-RNTI-lytning",
     "harq": "16 HARQ · soft combining · ~1 ms"
+  },
+  "2010": {
+    "title": "3G-turbilletter",
+    "kid": "Din telefon deler mastens radiobølge med alle telefoner i nærheden. Masten giver hver telefon et nummer og en tur, 2 ms ad gangen, og tjekker hver bid. Hvis en er udtværet, siger den “igen!”",
+    "nerd": "HSDPA-planlægning og HARQ omkring én UE: NodeB’ens MAC-hs vælger, hvem der får hver 2 ms TTI, melder det på HS-SCCH maskeret med UE’ens H-RNTI 0x2317 og sender så på op til 15 delte HS-PDSCH-koder.",
+    "role": {
+      "bridge": {
+        "title": "Masten deler 2 ms-ture ud",
+        "kid": "Masten er klassens hjælper. Telefonerne rækker hånden op, masten giver telefon nr. 2317 en tur på 2 ms og tjekker så hver bid. Nedenunder rejser kuverten på den radiobølge, alle deler.",
+        "nerd": "I NodeB’en planlægger MAC-hs hver 2 ms TTI ud fra UE’ernes CQI-rapporter: en HS-SCCH til H-RNTI 0x2317 giver TTI 6, 5 koder (SF16, 16-QAM). UE’en svarer ACK/NACK på HS-DPCCH omkring 5 ms senere; op til 8 HARQ-processer holder røret fyldt.",
+        "describe": {
+          "kid": "Vejen viser telefon, mast og radiostyring, med masten tegnet størst. På det første kort beder telefonen om en tur. Mastens liste lyser telefon nummer 2317 op i tur 6. På det andet kort bevæger radiobidder sig, én bliver udtværet, “Igen!” dukker op, og en ren bid får et flueben.",
+          "nerd": "NodeB-kortet fremhæver HS-SCCH for H-RNTI 0x2317, TTI 6 og 5 koder. HARQ-kortet animerer en dårlig transportblok, NACK, genudsendelse med en ny redundansversion, soft combining og ACK. Mærker viser prioritetskøen, TSN og RLC-sekvensnummeret."
+        }
+      },
+      "endpoint": {
+        "title": "Telefonen leder efter sit nummer",
+        "kid": "Din telefon lytter til mastens liste og samler kun bidder op, der er mærket telefon nr. 2317. Hvis en er udtværet, siger den “igen!” og beholder den tydelige kopi.",
+        "nerd": "UE’en holder øje med op til fire HS-SCCH’er efter sin H-RNTI 0x2317 og afkoder så sine HS-PDSCH-koder to slots senere. Den sender ACK/NACK og CQI på HS-DPCCH; soft combining redder blokken, før MAC-hs sorterer efter TSN, og RLC ser den.",
+        "describe": {
+          "kid": "Telefonen er det største stop på vejen og holder øje med mastens liste. En cirkel scanner, indtil telefon nummer 2317 lyser op. Så rejser en kuvert mærket 2317 over radiobølgen. En udtværet bid beder om “Igen!”, og to kopier bliver til én tydelig bid.",
+          "nerd": "UE-visningen scanner HS-SCCH-rækker efter H-RNTI 0x2317 og viser så sin tildeling til TTI 6 og 5 koder. HARQ-kortet viser NACK-boblen, den genudsendte redundansversion, soft combining til en tjekket blok og mærker for kø, TSN og RLC."
+        }
+      }
+    },
+    "at": {
+      "rnc": {
+        "title": "Styringen tjekker rækkefølgen",
+        "kid": "Styringen bag masten deler ikke ture ud: det gør masten selv, hurtigt. Styringen nummererer bidderne, låser dem, så ingen kan lytte med, og spørger igen efter enhver bid, masten ikke kunne redde.",
+        "nerd": "RLC (acknowledged mode) ender her, i RNC’en: den krypterer (KASUMI), opdeler og nummererer PDU’erne og genudsender med ARQ, hvad HARQ missede, titals ms senere. Planlægningen og HARQ på 2 ms, vist her, kører i NodeB’en.",
+        "describe": {
+          "kid": "Vejen viser telefon, mast og radiostyring. Kortene viser, hvordan masten deler ture ud og tjekker bidder; denne styring nummererer dem og spørger igen efter tabte.",
+          "nerd": "Scenen viser NodeB’ens HS-SCCH-tildeling til H-RNTI 0x2317 og dens HARQ-løkke. RNC’en afslutter RLC: mærkerne viser RLC-sekvensnummeret, den genudsender efter."
+        }
+      }
+    },
+    "label": {
+      "ticketPortrait": "Nr. {n} · tur 6",
+      "ticketNerd": "H-RNTI {n}",
+      "grantKid": "tur 6",
+      "grantNerd": "TTI 6 · 5 koder",
+      "sn": "Kø 1 · TSN {tsn} · RLC SN {rlcsn}",
+      "snShort": "K1 · T{tsn} · R{rlcsn}",
+      "before": "0x1c40",
+      "after": "0x6b02",
+      "beforeSeat": "TTI 5 · 10 koder",
+      "afterSeat": "TTI 7 · 15 koder"
+    }
   }
 }

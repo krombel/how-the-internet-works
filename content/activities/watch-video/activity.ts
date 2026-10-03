@@ -14,7 +14,8 @@ export default defineActivity({
       ports: { client: 51034, server: 443 },
       packets: [
         { kind: 'request', dir: 'up', pace: 1.2, colour: '#ffcf5d' },
-        { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, offset: 0.4, colour: '#bf6f8f' },
+        // a 3-minute HD video (1080p at about 4.5 Mbit/s)
+        { kind: 'video', dir: 'down', pace: 1.3, every: 1.3, offset: 0.4, colour: '#bf6f8f', size: 100_000_000, plays: 180 },
       ],
     },
   ],

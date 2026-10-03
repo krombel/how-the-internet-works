@@ -1,18 +1,24 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // THESIS: the NR frame is a little radio conversation: ask the tower for seats, read the C-RNTI ticket, then prove
-  // each piece arrived with HARQ before upper radio layers have to recover anything.
+  // each piece arrived with HARQ before upper radio layers have to recover anything. 3G's HSPA frame tells the same
+  // story (2 ms turns, an H-RNTI, HARQ in the NodeB): its devices are the route's first three, its numbers the layer's
+  // fields, and its words the era's (`scene.nr-grant.2010`).
   import { Node, Text, fill, legibleSize, nameOf, strings, textBox, view, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import Piece from './art/Piece.svelte';
-  import { combineAmount, layoutFor, mix, pieceOffset, sceneState } from './grant';
+  import { combineAmount, layoutFor, mix, pieceOffset, sceneState, type Focus } from './grant';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.nr-grant');
   const legible = legibleSize();
   const ctx = $derived(subject.ctx);
   const nerd = $derived(ctx.level === 'nerd');
-  const focus = $derived(ctx.role === 'endpoint' ? 'phone' : 'tower');
+  // the phone, the tower and what's behind it (the mobile core; in 3G the radio controller)
+  const phoneHop = $derived(ctx.client);
+  const towerHop = $derived(subject.route.chain[1]);
+  const coreHop = $derived(subject.route.chain[2]);
+  const focus: Focus = $derived(ctx.role === 'endpoint' ? 'phone' : ctx.to.id === towerHop.id ? 'tower' : 'core');
   const L = $derived(layoutFor(view.orient, focus, view.vp));
   const T = $derived(L.size);
   const portrait = $derived(view.orient === 'portrait');
@@ -34,23 +40,21 @@
   const bubbleY = $derived(c1.y + (portrait ? 68 : compact ? 152 : 160));
   const resendK = $derived(st.phase === 'combine' ? st.p : st.phase === 'ack' ? 1 : 0);
   const clearK = $derived(st.phase === 'combine' ? Math.max(0, (st.p - 0.55) / 0.45) : st.phase === 'ack' ? 1 : 0);
-  const phoneHop = $derived(subject.route.hops['phone'] ?? ctx.client);
-  const towerHop = $derived(subject.route.hops['cell-tower'] ?? ctx.to);
-  const coreHop = $derived(subject.route.hops['mobile-core'] ?? ctx.server);
   const phoneName = $derived(nameOf(phoneHop));
   const towerName = $derived(nameOf(towerHop));
   const coreName = $derived(nameOf(coreHop));
-  const rnti = '0x4601';
-  const kidRnti = '4601';
-  const rlc = $derived(ctx.dir === 'up' ? '217' : '1043');
-  const pdcp = $derived(ctx.dir === 'up' ? '1851' : '3702');
-  const ticketText = $derived(nerd ? S('label.ticketNerd') : fill(S('label.ticketKid'), { n: kidRnti }));
+  // the layer's fields as they are in this direction; the phone's number is the one kids see
+  const fields = $derived(subject.route.content.layers[subject.layer].fields);
+  const vals = $derived(Object.fromEntries(fields.map((f) => [f.id, typeof f.value === 'string' ? f.value : f.value[ctx.dir]])));
+  const rnti = $derived(vals[fields.find((f) => f.kid)!.id]);
+  const kidRnti = $derived(rnti.replace(/^0x/, ''));
+  const ticketText = $derived(nerd ? fill(S('label.ticketNerd'), { n: rnti }) : fill(S('label.ticketKid'), { n: kidRnti }));
   const grantLine = $derived(nerd ? S('label.grantNerd') : S('label.grantKid'));
   const scheduleRows = $derived(nerd
     ? [
-        { n: '0x31af', seat: 'slot 5 · RB 2–9', on: false },
-        { n: rnti, seat: 'slot 6 · RB 20–31', on: true },
-        { n: '0x77c2', seat: 'slot 6 · RB 44–51', on: false },
+        { n: S('label.before'), seat: S('label.beforeSeat'), on: false },
+        { n: rnti, seat: S('label.grantNerd'), on: true },
+        { n: S('label.after'), seat: S('label.afterSeat'), on: false },
       ]
     : [
         { n: fill(S('label.phoneNo'), { n: '1288' }), seat: S('label.otherTurn'), on: false },
@@ -120,7 +124,7 @@
 <Text x={c1.x + 34} y={c1.y + (portrait || compact ? 82 : 70)} text={S('card.harq')} size={T.title} kind="big" anchor="start" />
 <g>
   {#if !nerd}<g opacity="0.88">
-    <Node id={focus === 'phone' ? 'phone' : 'cell-tower'} x={rxX} y={c1.y + c1.h - (portrait ? 92 : compact ? 150 : 66)} size={portrait || compact ? 62 : 68} />
+    <Node id={(focus === 'phone' ? phoneHop : focus === 'tower' ? towerHop : coreHop).node.id} x={rxX} y={c1.y + c1.h - (portrait ? 92 : compact ? 150 : 66)} size={portrait || compact ? 62 : 68} />
   </g>{/if}
   {#if st.phase === 'combine'}
     <Piece x={harqMid - L.harq.gap * 0.45 + resendK * L.harq.gap * 0.35} y={harqY - resendK * T.piece * 0.05} size={T.piece} colour="var(--berry)" smudge={1 - clearK * 0.7} />
@@ -161,19 +165,19 @@
   <g opacity="0.94">
     <rect x={c1.x + 34} y={c1.y + c1.h - (portrait ? 88 : 82)} width={c1.w - 68} height={portrait ? 72 : 42} rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="3" opacity="0.86" />
     {#if portrait}
-      <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - 42} text={fill(S('label.snShort'), { rlc, pdcp })} size={18} kind="small" colour="var(--line)" />
+      <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - 42} text={fill(S('label.snShort'), vals)} size={18} kind="small" colour="var(--line)" />
     {:else}
-      <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - 53} text={fill(S('label.sn'), { rlc, pdcp })} size={24} kind="small" colour="var(--line)" />
+      <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - 53} text={fill(S('label.sn'), vals)} size={24} kind="small" colour="var(--line)" />
     {/if}
   </g>
 {/if}
 
-<Node id="phone" x={L.phone.x} y={L.phone.y} size={L.phone.size} focused={focus === 'phone'} />
-<Node id="cell-tower" x={L.tower.x} y={L.tower.y} size={L.tower.size} focused={focus === 'tower'} />
-<Node id="mobile-core" x={L.core.x} y={L.core.y} size={L.core.size} />
+<Node id={phoneHop.node.id} x={L.phone.x} y={L.phone.y} size={L.phone.size} focused={focus === 'phone'} />
+<Node id={towerHop.node.id} x={L.tower.x} y={L.tower.y} size={L.tower.size} focused={focus === 'tower'} />
+<Node id={coreHop.node.id} x={L.core.x} y={L.core.y} size={L.core.size} focused={focus === 'core'} />
 {#if (!compact && !portrait) || focus === 'phone'}<Text x={nameX(L.phone.x, phoneName, focus === 'phone' ? T.text : nameSize)} y={L.names} text={phoneName} size={focus === 'phone' ? T.text : nameSize} kind={focus === 'phone' ? 'big' : 'node'} />{/if}
 {#if (!compact && !portrait) || focus === 'tower'}<Text x={nameX(L.tower.x, towerName, focus === 'tower' ? T.text : nameSize)} y={L.names} text={towerName} size={focus === 'tower' ? T.text : nameSize} kind={focus === 'tower' ? 'big' : 'node'} />{/if}
-{#if !compact && !portrait}<Text x={nameX(L.core.x, coreName, nameSize)} y={L.names} text={coreName} size={nameSize} kind="node" />{/if}
+{#if (!compact && !portrait) || focus === 'core'}<Text x={nameX(L.core.x, coreName, focus === 'core' ? T.text : nameSize)} y={L.names} text={coreName} size={focus === 'core' ? T.text : nameSize} kind={focus === 'core' ? 'big' : 'node'} />{/if}
 
 {#if st.phase === 'send'}
   <g transform="translate({tx(focus === 'tower' ? L.phone.x + 105 : L.tower.x - 95, focus === 'tower' ? L.tower.x - 112 : L.phone.x + 115, st.p)} {L.walk - 92 - Math.sin(time * 8) * 7}) scale({envScale})">
