@@ -225,7 +225,7 @@
     },
     "tag": {
       "length": "Ingen TLS: alt i klartekst",
-      "mpd": "Playliste: 1080p · 720p · 360p"
+      "mpd": "M3U8: 1080p · 720p · 360p"
     }
   }
 }

@@ -10,7 +10,7 @@ import { WORLD_SIZE, type Pt } from '../engine/geometry';
 import { routeWords, scenes } from '../test/era-walk';
 import { stubBrowser } from '../test/stub-browser';
 import { carrierNat } from '../../content/scenes/ip-post/post';
-import { metroTag, oneColour } from '../../content/scenes/fibre-light/light';
+import { metroTag, modeOf, oneColour } from '../../content/scenes/fibre-light/light';
 import type * as Tier from '../../content/scenes/three-tier/tier';
 import type { TierLayout } from '../../content/scenes/three-tier/types';
 import { sceneKeys } from './describe';
@@ -24,7 +24,7 @@ import { diveSubject } from './tree';
  *  VXLAN/EVPN, segment routing, DASH's MPD and the CGNAT space of 2012. */
 const LATER = new RegExp([
   /802\.11(?:ac|ax|be)|Wi.Fi [5-7]\b|\b[45]G\b|\bLTE\b|\bNR\b|\bgNB\b|\bUPF\b|XGS|G\.fast|[Vv]ector(?:ing|isering)/,
-  /\b[2-8]00\s?G|400GBASE|802\.3b[tz]|\b(?:2\.5|5)GBASE/,
+  /\b[2-8]00\s?G|400GBASE|\bFR4\b|CWDM4|802\.3b[tz]|\b(?:2\.5|5)GBASE/,
   /[Ll]eaf|\b(?:in a|i en) container|containers\b|containere|k8s|[Kk]ubernetes|Docker|NVMe|75 000|80 000/,
   /TLS 1\.3|HTTP\/[23]|QUIC|\bECH\b|WPA3|VXLAN|EVPN|SRv6|[Ss]egment [Rr]outing|\bMPD\b|100\.64\.0\.0|RFC 6598/,
 ].map((r) => r.source).join('|'));
@@ -214,6 +214,18 @@ describe('the 2010 trips', () => {
     expect([...leaks].filter(([k]) => !excused.has(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
     // each excuse still holds: drop an entry once it no longer leaks
     expect([...excused].filter((k) => !leaked.has(k)), 'no longer leaks: take it off UNSHOWN').toEqual([]);
+  });
+
+  it('draw a few colours on one fibre only where 2010 did: metro DWDM, long haul and the sea (#135)', () => {
+    const many = new Set<string>();
+    for (const r of trips()) for (const s of scenes(r)) {
+      const tech = s.dive === 'fibre-light' ? s.link?.link.tech.id : undefined;
+      if (tech && !oneColour(tech, r.era)) many.add(`${modeOf(tech)}:${tech}`);
+    }
+    expect([...many].sort()).toEqual(['long-haul:backbone', 'metro:metro-fibre', 'submarine:submarine']);
+    // the exchange's cross-connects: one 1310 nm colour, not today's four-lane 100GBASE-LR4
+    expect(metroTag('cross-connect', oneColour('cross-connect', '2010'))).toBe('tag.cross-connect');
+    for (const lang of Object.keys(packs)) expect(firstOf(lang, withEra(['scene.fibre-light.tag.cross-connect'], '2010'))).toMatch(/^10GBASE-LR · 1310 nm/);
   });
 
   it('draw the GGSN’s NAT as a carrier’s: phones had private 10/8 addresses before the shared space of 2012', () => {
