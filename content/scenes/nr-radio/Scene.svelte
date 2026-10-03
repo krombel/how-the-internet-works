@@ -3,7 +3,7 @@
   // Look inside a 5G link: the tower's antenna panel aims a beam at each phone, and a scheduler gives every phone its
   // own seats in a time × frequency grid (like seats on a bus), so many phones share the air at once.
   import { Node, TagAt, Text, strings, view, type LinkSubject } from '$core/api';
-  import { COLS, LAYOUT, ROWS, USERS, beamPath, columns, owner } from './radio';
+  import { COLS, LAYOUT, ROWS, SLOT, USERS, beamPath, columns, owner } from './radio';
   import Beam from './art/Beam.svelte';
   import Seat from './art/Seat.svelte';
   let { subject }: { subject: LinkSubject } = $props();
@@ -13,7 +13,10 @@
   const device = $derived(subject.route.hops[subject.link.from].node.id);
   const tower = $derived(subject.route.hops[subject.link.to].node.id);
   const L = $derived(LAYOUT[view.orient]);
-  const cols = $derived(columns(view.time));
+  // the grid slides left every frame by one translate; its seats change only when a new slot comes in
+  const at = $derived(Math.floor(view.time / SLOT));
+  const slide = $derived(view.time / SLOT - at);
+  const cols = $derived(columns(at));
   const nowSlot = $derived(cols.find((c) => c.now)!.slot);
   const G = $derived(L.grid);
   // a beam glows while its phone has seats in the current slot
@@ -28,12 +31,14 @@
 <rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity="0.9" />
 <clipPath id="nr-grid-{view.orient}"><rect x={G.x} y={G.y - 4} width={COLS * G.cw} height={ROWS * G.ch + 8} /></clipPath>
 <g clip-path="url(#nr-grid-{view.orient})">
-  {#each cols as c (c.slot)}
-    {#each { length: ROWS } as _, r}
-      {@const u = owner(c.slot, r)}
-      <Seat x={G.x + c.dx * G.cw} y={G.y + (ROWS - 1 - r) * G.ch} w={G.cw} h={G.ch} colour={u >= 0 ? COLOURS[u] : null} now={c.now} />
+  <g transform="translate({-slide * G.cw} 0)">
+    {#each cols as c (c.slot)}
+      {#each { length: ROWS } as _, r}
+        {@const u = owner(c.slot, r)}
+        <Seat x={G.x + c.col * G.cw} y={G.y + (ROWS - 1 - r) * G.ch} w={G.cw} h={G.ch} colour={u >= 0 ? COLOURS[u] : null} now={c.now} />
+      {/each}
     {/each}
-  {/each}
+  </g>
 </g>
 <Text x={L.labels.grid.x} y={L.labels.grid.y} text={S('grid')} size={30} kind="big" />
 <Text x={L.labels.time.x} y={L.labels.time.y} text={S('time')} size={24} kind="small" anchor="end" />

@@ -7,7 +7,7 @@ export const USERS = 3;
 export const ROWS = 5;
 export const COLS = 11;
 /** Seconds per grid column (one slot). */
-const SLOT = 0.55;
+export const SLOT = 0.55;
 
 export interface Layout {
   tower: Pt & { size: number };
@@ -46,11 +46,11 @@ export function owner(slot: number, row: number): number {
   return f < 0.45 ? 0 : f < 0.65 ? 1 : f < 0.85 ? 2 : -1;
 }
 
-/** Grid columns at time t: slot number and x offset in columns (they slide left; the grid clips them). The newest
- *  column slides in on the right; the one before it is "now" (being sent). */
-export function columns(t: number) {
-  const s = t / SLOT, now = Math.floor(s), frac = s - now;
-  return Array.from({ length: COLS + 1 }, (_, c) => ({ slot: now - COLS + c, dx: c - frac, now: c === COLS - 1 }));
+/** Grid columns while slot `at` (time / SLOT, floored) slides in on the right: slot number and column from the left.
+ *  The one before the newest is "now" (being sent). They all slide left by the share of slot `at` gone by, and the
+ *  grid clips them. */
+export function columns(at: number) {
+  return Array.from({ length: COLS + 1 }, (_, c) => ({ slot: at - COLS + c, col: c, now: c === COLS - 1 }));
 }
 
 /** A narrow lobe from the antenna to a phone (a beam), as an SVG path. */
