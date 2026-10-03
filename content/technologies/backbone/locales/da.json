@@ -1,5 +1,11 @@
 {
   "name": "Hovednet",
   "kid": "Superhurtige forbindelser mellem store netværksbokse.",
-  "nerd": "100–400G-forbindelser mellem routere, ofte med MPLS."
+  "nerd": "100–400G-forbindelser mellem routere, ofte med MPLS.",
+  "1995": {
+    "nerd": "Tegnet som i dag (100–400G, MPLS). I 1995 var backbone-forbindelser T3 på 45 Mbit/s og OC-3 på 155 Mbit/s, ofte med ATM."
+  },
+  "2010": {
+    "nerd": "10–40G-forbindelser mellem routere, ofte med MPLS; de første 100G-forbindelser kom i 2010."
+  }
 }

@@ -11,5 +11,18 @@
       "kid": "Inside a big hall stand rows of tall cupboards. The path comes from the exchange to the edge router, the load balancer, a spine switch, a rack switch and the video server. A dashed road leads far away to the main copy. Parcels go in and video comes back out.",
       "nerd": "The PoP view starts at the IXP and zigzags through the edge router, L4 load balancer, spine, top-of-rack leaf and the cache server, over short fibre. A dashed branch from the cache leads to the origin in a cloud region. Request and video packets move in opposite directions."
     }
+  },
+  "1995": {
+    "kid": "Drawn as today’s data centre. In 1995 the web site lived in a small server room: one computer on a shelf, a router and a few thin copper cables. Tap it to look inside!",
+    "nerd": "Drawn as today (a CDN PoP and a leaf–spine fabric, from the 2010s). In 1995 the page came from a hosting site’s server room: a router on the T1, a 10 Mbit/s Ethernet hub and the web server.",
+    "tag": "Server room · drawn as today",
+    "inside": {
+      "kid": "Drawn as today’s data centre, with a warden, crossroads and cupboards. In 1995 your parcel came in on a rented line to one router, then along a thin copper cable to the one computer with the web site.",
+      "nerd": "Drawn as today: a load balancer and a leaf–spine fabric came years later. In 1995 the T1 ended on the site’s router, which sent the packet over a shared 10BASE-T hub to the web server. There was no cache and no origin: the server had the only copy.",
+      "describe": {
+        "kid": "Drawn as today’s data centre: inside a big hall stand rows of tall cupboards. The path comes in to the front-door router, the load balancer, a spine switch, a rack switch and the web server. A dashed road leads far away to a main copy. Parcels go in and the page comes back out.",
+        "nerd": "Drawn as today: the path zigzags through the site’s router, an L4 load balancer, a spine, a top-of-rack leaf and the server, over short fibre, with a dashed branch to an origin in a cloud region. In 1995 only the router, a hub and the web server stood here."
+      }
+    }
   }
 }

@@ -44,5 +44,24 @@
   "eyeLine": "Open eye = clean.",
   "hundredShort": "About 100 m, then too faint",
   "hundredA": "About 100 m,",
-  "hundredB": "then too faint"
+  "hundredB": "then too faint",
+  "manchester": {
+    "title": "Manchester code",
+    "line": "A flip in the middle of every bit.",
+    "speed": "10BASE-T · 10 Mbit/s",
+    "duplex": "one pair each way",
+    "cat": "100 m",
+    "pairs": "Two of the four pairs carry the signal",
+    "pairsShort": "Two pairs in use",
+    "bothWays": "One pair each way, taking turns"
+  },
+  "1995": {
+    "kid": "Ethernet sends tiny voltage pushes down twisted copper pairs. In 1995 it uses just two of them: one pair to send, one to listen, taking turns. The twists help noise cancel out, and after about 100 m the pushes get too faint.",
+    "nerd": "10BASE-T (1990) uses two pairs of a Cat 3 cable: one to send, one to receive, as differential signals at 10 Mbit/s in Manchester code, which flips the line in the middle of every bit so the receiver finds its clock in the data. On a hub only one end talks at a time (half duplex); the other two pairs stay unused.",
+    "extra": "Before 10BASE-T, Ethernet ran on coaxial cable shared by every computer on it: thick “yellow cable” (10BASE5, 1983) and then thin coax (10BASE2). Twisted pair and a hub in a cupboard made it cheap and easy to wire. Fast Ethernet (100BASE-TX, 1995) was just arriving; gigabit over copper came in 1999.",
+    "describe": {
+      "kid": "Two network boxes sit at the ends of a thick cable. Inside are four twisted pairs, but only two glow. A pulse runs along one pair, then another comes back along the other: they take turns. The cards zoom into the twists, the pulses and the fading after about 100 metres.",
+      "nerd": "The cable cutaway shows four pairs, two of them live: one carries pulses forward, the other back, in turns. Cards show opposite voltages on a twisted pair, a Manchester-coded bit pattern with a flip in every bit, and a two-level eye diagram."
+    }
+  }
 }

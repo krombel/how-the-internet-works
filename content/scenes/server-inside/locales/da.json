@@ -69,8 +69,28 @@
     "nerd": "I 1995 var det én webserver: ét program (for eksempel NCSA HTTPd), der læste filer fra sin disk, uden CDN foran (Akamai begyndte i 1998–99) og uden virtuelle maskiner. Tegningen viser, hvordan en cache-server gør det i dag.",
     "app": "Webprogram",
     "ssd": {
+      "title": {
+        "kid": "Disk",
+        "nerd": "Harddisk"
+      },
       "line": {
-        "kid": "Hylder med sider"
+        "kid": "Hylder med sider",
+        "nerd": "Filer på disk"
+      }
+    },
+    "nic": {
+      "title": {
+        "nerd": "NIC 10 Mbit/s"
+      },
+      "line": {
+        "kid": "Pulser → bits",
+        "nerd": "10BASE-T-rammer"
+      }
+    },
+    "compute": {
+      "line": {
+        "kid": "Ét program",
+        "nerd": "Ét OS · én httpd"
       }
     }
   }

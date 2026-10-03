@@ -6,9 +6,15 @@
 import type { Orient, Pt } from '$core/api';
 
 type Mode = 'access' | 'building' | 'metro' | 'long-haul' | 'submarine';
-const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone: 'long-haul', submarine: 'submarine' };
+const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone: 'long-haul', submarine: 'submarine', atm: 'long-haul', 'submarine-sdh': 'submarine' };
 /** How this stretch of fibre is told, from its technology (any other fibre is metro). */
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'metro';
+/** Before DWDM (1996) a long thread carried one colour: 1995's American backbone (SONET under ATM) and CANTAT-3 (SDH).
+ *  They have their own words, under their technology's id; today's long haul and sea cable use `backbone` and
+ *  `submarine`. */
+const ONE_COLOUR = new Set(['atm', 'submarine-sdh']);
+export const oneColour = (tech: string) => ONE_COLOUR.has(tech);
+export const wordsOf = (tech: string, today: string) => (ONE_COLOUR.has(tech) ? tech : today);
 /** The nerd tag of a metro-told thread: a cross-connect's optic puts its few colours close together (LAN-WDM), a
  *  data centre's spreads them a little wider (CWDM, 400GBASE-FR4). */
 const METRO_TAGS: Record<string, string> = { 'cross-connect': 'tag.lan-wdm', 'dc-fibre': 'tag.cwdm4' };
@@ -135,9 +141,10 @@ export function accessPulses(t: number, routes: { up: Pt[][]; down: Pt[][] }): L
 export const BUILDING: Channel[] = [{ y: 330, reverse: false }, { y: 570, reverse: true }];
 
 // ---------------------------------------------------------------- long haul: many colours, far
-/** Eight thinner colours on a thread as long as the stretch really is (`haulOf`). */
+/** Eight thinner colours on a thread as long as the stretch really is (`haulOf`); one, in the middle, before DWDM. */
 export const LONG_HAUL = {
   lanes: Array.from({ length: 8 }, (_, i): Channel => ({ y: 205 + i * 70, reverse: false })),
+  lane: [{ y: FIBRE.y, reverse: false }] as Channel[],
   /** A booster about every 80 km. */
   spanKm: 80,
 };

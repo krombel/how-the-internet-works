@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import { Node, Text, labelInk, legibleSize, nameOf, strings, view, type LinkSubject } from '$core/api';
-  import { COPPER, EYE_PATHS, PAM_LABELS, WIRE_PATHS, copperSparks, pamPath, squareWavePath, toScene, trackMatrix } from './copper';
+  import { CODES, COPPER, WIRE_PATHS, codeOf, copperSparks, litPairs, manchesterPath, pamPath, squareWavePath, toScene, trackMatrix } from './copper';
   import Cable from './art/Cable.svelte';
   import Card from './art/Card.svelte';
 
@@ -14,7 +14,12 @@
   const compact = $derived(o === 'landscape' && view.vp.h < 470);
   // on a phone on its side the words never get smaller than the theme's label minimum (issue #33)
   const fs = (size: number) => (compact ? legible(size) : size);
-  const sparks = $derived(copperSparks(view.time, view.still, nerd));
+  // 10 Mbit/s is 1995's 10BASE-T: Manchester code on two pairs; anything faster is drawn as gigabit's PAM-5
+  const code = $derived(codeOf(subject.link.rate.down));
+  const C = $derived(CODES[code]);
+  const M = $derived(code === 'manchester' ? 'manchester.' : '');
+  const lit = $derived(litPairs(code, nerd));
+  const sparks = $derived(copperSparks(view.time, view.still, nerd, code));
   const fromHop = $derived(subject.route.hops[subject.link.from]);
   const toHop = $derived(subject.route.hops[subject.link.to]);
   const fromNode = $derived(fromHop.node.id);
@@ -50,13 +55,18 @@
   });
   const twistScale = $derived(portrait ? 1.12 : nerd ? 1.05 : 1.22);
   const pulseD = $derived(squareWavePath(L.kid.x + 76, L.kid.y + (portrait ? 112 : 96), L.kid.w - 152, portrait ? 78 : 62, [1, 0, 1, 1, 0, 0, 1, 0]));
-  const pamD = $derived(pamPath(L.pam.x + 96, L.pam.y + (portrait ? 104 : 92), L.pam.w - 148, portrait ? 168 : 102));
+  // the code card's wave: Manchester's is lower, to leave a row under it for its bits
+  const waveH = $derived(code === 'manchester' ? (portrait ? 120 : 76) : portrait ? 168 : 102);
+  const BITS = [1, 0, 1, 1, 0, 0, 1, 0];
+  const pamD = $derived(code === 'manchester'
+    ? manchesterPath(L.pam.x + 96, L.pam.y + (portrait ? 104 : 92), L.pam.w - 148, waveH, BITS)
+    : pamPath(L.pam.x + 96, L.pam.y + (portrait ? 104 : 92), L.pam.w - 148, waveH));
   const eyeD = (pts: { x: number; y: number }[], x: number, y: number, w: number, h: number) => 'M' + pts.map((p) => `${(x + p.x * w).toFixed(1)},${(y + p.y * h).toFixed(1)}`).join(' ');
 </script>
 
 {#if !portrait && !compact}<text x={L.title.x} y={L.title.y} text-anchor="middle" font-family="var(--label-font)" font-size={L.text.title} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="7" paint-order="stroke">{S('title')}</text>{/if}
 <g transform={trackTransform}>
-  <Cable paths={WIRE_PATHS} {sparks} {nerd} />
+  <Cable paths={WIRE_PATHS} {sparks} {lit} />
 </g>
 <Node id={fromNode} x={fromPos.x} y={fromPos.y} size={L.node.size} focused />
 <Node id={toNode} x={toPos.x} y={toPos.y} size={L.node.size} />
@@ -71,8 +81,8 @@
   <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={25} kind="node" />
 {/if}
 {#if !portrait}
-  <text x={L.cableLabel.x} y={L.cableLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size={fs(compact ? L.text.small : 26)} font-weight="900" fill={labelInk(subject.link.tech.colour)}>{S(compact ? 'pairsShort' : 'pairs')}</text>
-  {#if !compact}<text x={L.cableLabel.x} y={L.cableLabel.y + 34} text-anchor="middle" font-family="var(--label-font)" font-size="24" font-weight="900" fill="var(--line)">{S('bothWays')}</text>{/if}
+  <text x={L.cableLabel.x} y={L.cableLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size={fs(compact ? L.text.small : 26)} font-weight="900" fill={labelInk(subject.link.tech.colour)}>{S(M + (compact ? 'pairsShort' : 'pairs'))}</text>
+  {#if !compact}<text x={L.cableLabel.x} y={L.cableLabel.y + 34} text-anchor="middle" font-family="var(--label-font)" font-size="24" font-weight="900" fill="var(--line)">{S(M + 'bothWays')}</text>{/if}
 {/if}
 
 <Card x={L.twist.x} y={L.twist.y} w={L.twist.w} h={L.twist.h} tint="var(--teal)" />
@@ -93,19 +103,24 @@
 {#if nerd}
   {@const P = L.pam}
   <Card x={P.x} y={P.y} w={P.w} h={P.h} tint="var(--blue)" />
-  <text x={P.x + P.w / 2} y={P.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('pamTitle')}</text>
+  <text x={P.x + P.w / 2} y={P.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S(M ? 'manchester.title' : 'pamTitle')}</text>
   <g>
-    {#each PAM_LABELS as label, i}
-      {@const yy = P.y + (portrait ? 104 : 92) + ((portrait ? 168 : 102) * i) / 4}
+    {#each C.labels as label, i}
+      {@const yy = P.y + (portrait ? 104 : 92) + (waveH * i) / (C.labels.length - 1)}
       <path d={`M${P.x + 92} ${yy} H${P.x + P.w - 42}`} stroke="var(--line)" stroke-width="2" opacity="0.16" />
       {#if !compact || i % 2 === 0}<text x={P.x + 70} y={yy + L.text.tick * 0.33} text-anchor="end" font-family="var(--tag-font)" font-size={fs(L.text.tick)} font-weight="800" fill="var(--line)">{label}</text>{/if}
     {/each}
     <path d={pamD} fill="none" stroke="var(--line)" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" opacity="0.28" />
     <path d={pamD} fill="none" stroke="var(--berry)" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" />
+    {#if M}
+      {#each BITS as b, i}
+        <text x={P.x + 96 + ((P.w - 148) * (i + 0.5)) / BITS.length} y={P.y + (portrait ? 104 : 92) + waveH + L.text.tick * 1.45} text-anchor="middle" font-family="var(--tag-font)" font-size={fs(L.text.tick)} font-weight="800" fill="var(--line)">{b}</text>
+      {/each}
+    {/if}
   </g>
   {#if !compact}
-    <text x={P.x + 34} y={P.y + P.h - (portrait ? 54 : 62)} font-family="var(--label-font)" font-size={fs(L.text.body)} font-weight="800" fill="var(--line)">{S('pamLine')}</text>
-    {#if !portrait}<text x={P.x + 34} y={P.y + P.h - 30} font-family="var(--tag-font)" font-size={fs(L.text.small)} font-weight="800" fill="var(--line)">{S('tag.speedShort')}</text>{/if}
+    <text x={P.x + 34} y={P.y + P.h - (portrait ? 54 : 62)} font-family="var(--label-font)" font-size={fs(L.text.body)} font-weight="800" fill="var(--line)">{S(M ? 'manchester.line' : 'pamLine')}</text>
+    {#if !portrait}<text x={P.x + 34} y={P.y + P.h - 30} font-family="var(--tag-font)" font-size={fs(L.text.small)} font-weight="800" fill="var(--line)">{S(M ? 'manchester.speed' : 'tag.speedShort')}</text>{/if}
   {/if}
 
   {@const E = L.eye}
@@ -113,23 +128,25 @@
   <text x={E.x + E.w / 2} y={E.y + 42} text-anchor="middle" font-family="var(--label-font)" font-size={fs(L.text.head)} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('eyeTitle')}</text>
   <g>
     <rect x={E.x + 82} y={E.y + 78} width={E.w - 122} height={portrait ? 210 : 126} rx="18" fill="var(--paper-white)" stroke="var(--line)" stroke-width="4" opacity="0.9" />
-    {#each PAM_LABELS as label, i}
-      {@const yy = E.y + 88 + ((portrait ? 190 : 106) * i) / 4}
+    {#each C.labels as label, i}
+      {@const yy = E.y + 88 + ((portrait ? 190 : 106) * i) / (C.labels.length - 1)}
       <path d={`M${E.x + 82} ${yy} H${E.x + E.w - 40}`} stroke="var(--line)" stroke-width="2" opacity="0.14" />
       {#if !compact || i % 2 === 0}<text x={E.x + 64} y={yy + L.text.tick * 0.3} text-anchor="end" font-family="var(--tag-font)" font-size={fs(L.text.tick)} font-weight="800" fill="var(--line)">{label}</text>{/if}
     {/each}
-    {#each EYE_PATHS as e, i}
+    {#each C.eye as e, i}
       <path d={eyeD(e, E.x + 98, E.y + 88, E.w - 154, portrait ? 190 : 106)} fill="none" stroke={i % 3 === 0 ? 'var(--blue)' : i % 3 === 1 ? 'var(--orange)' : 'var(--teal)'} stroke-width="5" opacity="0.48" />
     {/each}
-    {#each [0, 1, 2, 3] as gap}
-      {@const gy = E.y + 88 + ((portrait ? 190 : 106) * (gap + 0.5)) / 4}
-      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} ry={portrait ? 18 : 13} fill="var(--paper-white)" opacity="0.52" />
-      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} ry={portrait ? 18 : 13} fill="none" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="7 9" opacity="0.42" />
+    {#each C.labels.slice(1) as _, gap}
+      {@const gaps = C.labels.length - 1}
+      {@const gy = E.y + 88 + ((portrait ? 190 : 106) * (gap + 0.5)) / gaps}
+      {@const ry = (portrait ? 18 : 13) * (gaps > 1 ? 1 : 3)}
+      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} {ry} fill="var(--paper-white)" opacity="0.52" />
+      <ellipse cx={E.x + E.w / 2 + 18} cy={gy} rx={portrait ? 72 : 62} {ry} fill="none" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="7 9" opacity="0.42" />
     {/each}
   </g>
   {#if !compact}
     <text x={E.x + 34} y={E.y + E.h - (portrait ? 54 : 62)} font-family="var(--label-font)" font-size={fs(L.text.body)} font-weight="800" fill="var(--line)">{S('eyeLine')}</text>
-    {#if !portrait}<text x={E.x + 34} y={E.y + E.h - 30} font-family="var(--tag-font)" font-size={fs(L.text.small)} font-weight="800" fill="var(--line)">{S('tag.duplexShort')} · {S('tag.catShort')}</text>{/if}
+    {#if !portrait}<text x={E.x + 34} y={E.y + E.h - 30} font-family="var(--tag-font)" font-size={fs(L.text.small)} font-weight="800" fill="var(--line)">{S(M ? 'manchester.duplex' : 'tag.duplexShort')} · {S(M ? 'manchester.cat' : 'tag.catShort')}</text>{/if}
   {/if}
 {:else}
   {@const K = L.kid}

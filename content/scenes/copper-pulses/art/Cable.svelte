@@ -3,7 +3,7 @@
   import { COPPER } from '../copper';
   import type { CableProps } from '../types';
   import Spark from './Spark.svelte';
-  let { paths, sparks, nerd }: CableProps = $props();
+  let { paths, sparks, lit }: CableProps = $props();
 </script>
 
 <g>
@@ -13,7 +13,7 @@
   <path d={`M${COPPER.cableX0 + 28} ${COPPER.jacketY - 74} C${COPPER.cableX0 + 255} ${COPPER.jacketY - 132} ${COPPER.cableX1 - 255} ${COPPER.jacketY - 132} ${COPPER.cableX1 - 28} ${COPPER.jacketY - 74} V${COPPER.jacketY + 74} C${COPPER.cableX1 - 255} ${COPPER.jacketY + 132} ${COPPER.cableX0 + 255} ${COPPER.jacketY + 132} ${COPPER.cableX0 + 28} ${COPPER.jacketY + 74} Z`} fill="var(--paper)" stroke="var(--line)" stroke-width="5" />
   <path d={`M${COPPER.cableX0 + 52} ${COPPER.jacketY - 67} C${COPPER.cableX0 + 280} ${COPPER.jacketY - 110} ${COPPER.cableX1 - 280} ${COPPER.jacketY - 110} ${COPPER.cableX1 - 52} ${COPPER.jacketY - 67}`} fill="none" stroke="var(--white)" stroke-width="8" opacity="0.55" />
   {#each paths as p, i}
-    {@const dim = !nerd && p.pair > 0}
+    {@const dim = !lit.includes(p.pair)}
     {#if p.stripe}
       <path d={p.d} fill="none" stroke="var(--paper)" stroke-width={dim ? 13 : 16} stroke-linecap="round" stroke-linejoin="round" opacity={dim ? 0.58 : 1} />
       <path d={p.d} fill="none" stroke={p.colour} stroke-width={dim ? 6 : 8} stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26 44" stroke-dashoffset={i * 6} opacity={dim ? 0.5 : 0.95} />

@@ -59,16 +59,5 @@
       "kid": "note",
       "nerd": "UPDATE"
     }
-  },
-  "1995": {
-    "describe": {
-      "nerd": "Inside the border router, the core-facing line card pops the MPLS label. A BGP routing table lists the server's prefix with IXP peer and transit paths. UPDATE notes arrive from both neighbours. The local-pref 200 row lights, and the packet exits to the IXP.",
-      "kid": "Your internet company's core is on the left. Two exits are on the right: the exchange, and a dim carrier you pay. A parcel arrives with a motorway sticker. The sticker peels off. Notes from both neighbours fly into the route book. The exchange row lights up, and the parcel leaves for the exchange."
-    },
-    "rib": {
-      "target": {
-        "kid": "the web server's company"
-      }
-    }
   }
 }

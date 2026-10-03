@@ -71,5 +71,80 @@
         "nerd": "Nak: brug 203.0.113.7"
       }
     }
+  },
+  "hdlc": {
+    "title": "Den lejede linjes kuvert",
+    "kid": "På en lejet linje mellem to internetfirmaer rejser din pakke i en enkel kuvert: hvor den starter, hvad der er indeni, et tjek, hvor den slutter. Der er intet login: linjen er deres hele tiden. Hvert tiende sekund råber hver router “er du der stadig?”, så de opdager det med det samme, hvis linjen går i stykker.",
+    "nerd": "Cisco HDLC, standarden på Ciscos serielle porte: 0x7E-flag, adresse 0x0F (unicast), kontrol 0x00, en EtherType på to byte (0x0800 for IPv4), pakken og en 16-bit FCS. Ingen godkendelse eller forhandling: SLARP-keepalives hvert 10. sekund bærer sekvensnumre begge veje, og tre mistede tager linjeprotokollen ned.",
+    "describe": {
+      "kid": "To routere sidder for enderne af en lejet linje med en kuvert, der går frem og tilbage. Det ene kort skiller kuverten ad: start, adresse, hvad der er indeni, din pakke, et tjek og slut. Det andet kort viser routerne tjekke på hinanden og en pakke gå over.",
+      "nerd": "To routere for enderne af en lejet linje udveksler Cisco HDLC-rammer. Det ene kort viser rammen: flag 7E, adresse 0F og kontrol 00, type 0800, IP-pakken, FCS og flag. Det andet afspiller SLARP-keepalives hver vej med deres sekvensnumre og så en IP-pakke."
+    },
+    "online": {
+      "kid": "Linjen er oppe!",
+      "nerd": "Line protocol is up"
+    },
+    "frameTitle": {
+      "kid": "Inde i kuverten",
+      "nerd": "Cisco HDLC-ramme"
+    },
+    "part": {
+      "flag": {
+        "kid": "Start eller slut her",
+        "nerd": "Flag"
+      },
+      "address": {
+        "kid": "Til den anden ende",
+        "nerd": "Adresse, kontrol"
+      },
+      "proto": {
+        "kid": "Siger: en IP-pakke",
+        "nerd": "Type: IPv4"
+      },
+      "packet": {
+        "kid": "Din pakke",
+        "nerd": "IP-pakken"
+      },
+      "fcs": {
+        "kid": "Et tjek for knas",
+        "nerd": "Rammetjek (CRC-16)"
+      }
+    },
+    "helloTitle": {
+      "kid": "Er du der stadig?",
+      "nerd": "Keepalives, så data"
+    },
+    "talk": {
+      "keep": {
+        "ask": {
+          "kid": "Er du der stadig?",
+          "nerd": "SLARP-keepalive: min 41, set 17"
+        },
+        "answer": {
+          "kid": "Ja, stadig her!",
+          "nerd": "Keepalive: min 18, set 41"
+        }
+      },
+      "again": {
+        "ask": {
+          "kid": "Og du, er du der?",
+          "nerd": "Keepalive: min 19, set 41"
+        },
+        "answer": {
+          "kid": "Stadig her!",
+          "nerd": "Keepalive: min 42, set 19"
+        }
+      },
+      "data": {
+        "ask": {
+          "kid": "Her er en pakke",
+          "nerd": "IP-pakke, type 0800"
+        },
+        "answer": {
+          "kid": "Fik den, her er en tilbage",
+          "nerd": "IP-pakke tilbage"
+        }
+      }
+    }
   }
 }

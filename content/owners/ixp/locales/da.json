@@ -1,1 +1,12 @@
-{ "name": { "kid": "Knudepunktet", "nerd": "IXP · peering-LAN" } }
+{
+  "name": {
+    "kid": "Knudepunktet",
+    "nerd": "IXP · peering-LAN"
+  },
+  "1995": {
+    "name": {
+      "kid": "Den danske udveksling",
+      "nerd": "DIX · Lyngby"
+    }
+  }
+}

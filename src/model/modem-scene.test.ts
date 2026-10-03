@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LINE, NUMBER, ONLINE_AT, PHOTO, SLOT, STEPS, dialled, dtmf, handshake, photoIn, ripples, seconds, stepAt } from '../../content/scenes/modem-call/modem';
-import { LOOP_S, TALKS, TALK_S, momentAt } from '../../content/scenes/ppp-hello/ppp';
+import { HDLC_TALKS, TALKS, TALK_S, loopS, momentAt } from '../../content/scenes/ppp-hello/ppp';
 import { content } from './registry';
 
 describe('the dial-up call (modem-call)', () => {
@@ -60,7 +60,7 @@ describe('the PPP hello (ppp-hello)', () => {
     expect(TALKS.map((t) => t.id)).toEqual(['lcp', 'chap', 'ipcp']);
     expect(TALKS.map((_, i) => momentAt(i * TALK_S + 0.1).ix)).toEqual([0, 1, 2]);
     expect(momentAt(TALKS.length * TALK_S + 0.5)).toEqual({ ix: TALKS.length, answered: true, at: null });
-    expect(momentAt(LOOP_S + 0.1)).toEqual(momentAt(0.1));
+    expect(momentAt(loopS(TALKS) + 0.1)).toEqual(momentAt(0.1));
   });
 
   it('sends each question from whoever starts the talk, and the answer back', () => {
@@ -74,5 +74,11 @@ describe('the PPP hello (ppp-hello)', () => {
     }
     // between crossings the envelope rests
     expect(momentAt(TALK_S / 2 - 0.1).at).toBeNull();
+  });
+
+  it('plays a rented line’s keepalives the same way, the far router sending the second', () => {
+    expect(HDLC_TALKS.map((_, i) => momentAt(i * TALK_S + 0.1, HDLC_TALKS).ix)).toEqual([0, 1, 2]);
+    expect(momentAt(TALK_S + 0.2, HDLC_TALKS).at).toBeGreaterThan(0.8);
+    expect(momentAt(loopS(HDLC_TALKS) + 0.1, HDLC_TALKS)).toEqual(momentAt(0.1, HDLC_TALKS));
   });
 });

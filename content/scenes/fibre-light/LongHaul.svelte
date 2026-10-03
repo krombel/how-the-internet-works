@@ -4,7 +4,7 @@
   // through each span and a booster makes every colour bright again at once; a counter follows the first colour's
   // flash and counts the kilometres.
   import { TagAt, Text, strings, view, type LinkSubject } from '$core/api';
-  import { FIBRE, LONG_HAUL, boostersOf, breaksOf, channelRoute, fadeAt, fibrePulses, haulOf, kmAt, laneNumbers, stretchKm, toScene, trackMatrix } from './light';
+  import { FIBRE, LONG_HAUL, boostersOf, breaksOf, channelRoute, fadeAt, fibrePulses, haulOf, kmAt, laneNumbers, oneColour, stretchKm, toScene, trackMatrix, wordsOf } from './light';
   import Fibre from './art/Fibre.svelte';
   import Route from './art/Route.svelte';
   import Emitter from './art/Emitter.svelte';
@@ -16,8 +16,13 @@
   const S = strings('scene.fibre-light');
   const F = FIBRE, H = LONG_HAUL;
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
-  const colours = ['#e85d75', '#f08a4b', '#ffcf5d', '#a8c957', '#55bfa3', '#4aa3cf', '#7f7fd5', '#c77dbb'];
-  const routes = H.lanes.map((c, i) => channelRoute(i, c));
+  const RAINBOW = ['#e85d75', '#f08a4b', '#ffcf5d', '#a8c957', '#55bfa3', '#4aa3cf', '#7f7fd5', '#c77dbb'];
+  // before DWDM: one colour, no prisms to mix and split them, and regenerators instead of amplifiers (its words say so)
+  const one = $derived(oneColour(subject.link.tech.id));
+  const words = $derived(wordsOf(subject.link.tech.id, 'backbone'));
+  const lanes = $derived(one ? H.lane : H.lanes);
+  const colours = $derived(one ? RAINBOW.slice(0, 1) : RAINBOW);
+  const routes = $derived(lanes.map((c, i) => channelRoute(i, c)));
   const haul = $derived(haulOf(stretchKm(subject.run), H.spanKm, F.x0, F.x1));
   const amps = $derived(boostersOf(haul));
   const pulses = $derived(fibrePulses(view.time, routes, 2));
@@ -36,19 +41,21 @@
   <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={view.time} />
   {#each breaksOf(haul) as x}<Break {x} y={F.y} h={F.cladH} />{/each}
   {#each routes as r, i}<Route points={r} channel={i} colour={colours[i]} size={0.6} />{/each}
-  {#each H.lanes as c, i}
+  {#each lanes as c, i}
     <Emitter x={F.laserX} y={c.y} kind="laser" channel={i} colour={colours[i]} time={view.time} size={0.62} />
     <Emitter x={F.detectorX} y={c.y} kind="detector" channel={i} colour={colours[i]} time={view.time} size={0.62} />
   {/each}
-  <Prism x={F.muxX} y={F.y} kind="mux" time={view.time} />
-  <Prism x={F.demuxX} y={F.y} kind="demux" time={view.time} />
+  {#if !one}
+    <Prism x={F.muxX} y={F.y} kind="mux" time={view.time} />
+    <Prism x={F.demuxX} y={F.y} kind="demux" time={view.time} />
+  {/if}
   {#each pulses as p}
     <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={view.time} fade={fadeAt(haul, p.head.x)} size={0.65} />
   {/each}
   <!-- over the light: it goes in faint and comes out bright -->
   {#each amps as x}<Amplifier {x} y={F.y} time={view.time} />{/each}
 </g>
-{#each boosters as b}<Text x={b.x} y={b.y} text={S('backbone.booster')} size={28} kind="big" />{/each}
+{#each boosters as b}<Text x={b.x} y={b.y} text={S(`${words}.booster`)} size={28} kind="big" />{/each}
 {#if haul.km}<Text x={counter.x} y={counter.y} text={`${counter.km} km`} size={30} kind="big" colour={colours[0]} />{/if}
-<TagAt x={tag.x} y={tag.y} text={S('tag.backbone')} size={24} />
-{#each laneNumbers(H.lanes, o, 0.62) as l}<Text x={l.x} y={l.y + 7} text={(view.level === 'nerd' ? 'λ' : '') + l.n} size={20} kind="small" />{/each}
+<TagAt x={tag.x} y={tag.y} text={S(`tag.${words}`)} size={24} />
+{#each one ? [] : laneNumbers(lanes, o, 0.62) as l}<Text x={l.x} y={l.y + 7} text={(view.level === 'nerd' ? 'λ' : '') + l.n} size={20} kind="small" />{/each}

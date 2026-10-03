@@ -71,5 +71,80 @@
         "nerd": "Nak: use 203.0.113.7"
       }
     }
+  },
+  "hdlc": {
+    "title": "The rented line’s envelope",
+    "kid": "On a rented line between two internet companies, your parcel travels in a plain envelope: where it starts, what’s inside, a check, where it ends. There’s no logging in: the line is theirs all the time. Every ten seconds each router calls “still there?” so they notice at once if the line breaks.",
+    "nerd": "Cisco HDLC, the default on Cisco serial ports: 0x7E flags, address 0x0F (unicast), control 0x00, a two-byte EtherType (0x0800 for IPv4), the packet and a 16-bit FCS. No authentication or negotiation: SLARP keepalives every 10 s carry sequence numbers both ways, and three missed ones take the line protocol down.",
+    "describe": {
+      "kid": "Two routers sit at the ends of a rented line, with an envelope going back and forth. One card takes the envelope apart: start, address, what’s inside, your parcel, a check and end. The other card shows the routers checking on each other, and a parcel going across.",
+      "nerd": "Two routers at the ends of a leased line exchange Cisco HDLC frames. One card lists the frame: flag 7E, address 0F and control 00, type 0800, the IP packet, FCS and flag. The other plays SLARP keepalives each way with their sequence numbers, then an IP packet."
+    },
+    "online": {
+      "kid": "Line up!",
+      "nerd": "Line protocol is up"
+    },
+    "frameTitle": {
+      "kid": "Inside the envelope",
+      "nerd": "Cisco HDLC frame"
+    },
+    "part": {
+      "flag": {
+        "kid": "Start or end here",
+        "nerd": "Flag"
+      },
+      "address": {
+        "kid": "To the other end",
+        "nerd": "Address, control"
+      },
+      "proto": {
+        "kid": "Says: an IP parcel",
+        "nerd": "Type: IPv4"
+      },
+      "packet": {
+        "kid": "Your parcel",
+        "nerd": "The IP packet"
+      },
+      "fcs": {
+        "kid": "A check, for crackles",
+        "nerd": "Frame check (CRC-16)"
+      }
+    },
+    "helloTitle": {
+      "kid": "Still there?",
+      "nerd": "Keepalives, then data"
+    },
+    "talk": {
+      "keep": {
+        "ask": {
+          "kid": "Still there?",
+          "nerd": "SLARP keepalive: mine 41, seen 17"
+        },
+        "answer": {
+          "kid": "Yes, still here!",
+          "nerd": "Keepalive: mine 18, seen 41"
+        }
+      },
+      "again": {
+        "ask": {
+          "kid": "And you, still there?",
+          "nerd": "Keepalive: mine 19, seen 41"
+        },
+        "answer": {
+          "kid": "Still here!",
+          "nerd": "Keepalive: mine 42, seen 19"
+        }
+      },
+      "data": {
+        "ask": {
+          "kid": "Here’s a parcel",
+          "nerd": "IP packet, type 0800"
+        },
+        "answer": {
+          "kid": "Got it, here’s one back",
+          "nerd": "IP packet back"
+        }
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { boostersOf, breaksOf, fadeAt, haulOf, kmAt, modeOf, stretchKm } from '../../content/scenes/fibre-light/light';
+import { boostersOf, breaksOf, fadeAt, haulOf, kmAt, modeOf, oneColour, stretchKm, wordsOf } from '../../content/scenes/fibre-light/light';
 import { CABLE_W, SEA, cable, cablePulses, seaHaul, shark, water } from '../../content/scenes/fibre-light/sea';
 import { content } from './registry';
 import { resolveRoute } from './resolve';
@@ -52,18 +52,29 @@ describe('long-haul fibre (#42)', () => {
   });
 });
 
+describe('before DWDM (1995)', () => {
+  it('lights the backbone and the sea cable with one colour each, in their own words', () => {
+    expect(modeOf('atm')).toBe('long-haul');
+    expect(modeOf('submarine-sdh')).toBe('submarine');
+    expect([oneColour('atm'), oneColour('submarine-sdh'), oneColour('backbone'), oneColour('submarine')]).toEqual([true, true, false, false]);
+    expect([wordsOf('atm', 'backbone'), wordsOf('backbone', 'backbone'), wordsOf('submarine-sdh', 'submarine')]).toEqual(['atm', 'backbone', 'submarine-sdh']);
+  });
+});
+
 describe('undersea cable (#39)', () => {
   it('is on every way to the video, its own fibre-light mode, with repeaters to match its length', () => {
     expect(modeOf('submarine')).toBe('submarine');
     expect(modeOf('backbone')).toBe('long-haul');
     for (const place of Object.keys(content.places)) {
       const r = resolveRoute({ activity: 'watch-video', places: [place] });
-      const sea = r.links.filter((l) => l.tech.id === 'submarine');
+      const sea = r.links.filter((l) => modeOf(l.tech.id) === 'submarine');
       expect(sea, place).toHaveLength(1);
+      // today's 180 km cable has a repeater every 60 km; 1995's CANTAT-3 is drawn as the most spans a haul gets
+      const repeaters = r.era === '1995' ? 5 : 2;
       for (const o of ['landscape', 'portrait'] as const) {
         const run = runOf(r, sceneRef(r, ['internet', sea[0].id], o)!, o).map((l) => l.link);
         expect(run.map((l) => l.id)).toEqual([sea[0].id]);
-        expect(boostersOf(seaHaul(SEA[o], stretchKm(run)))).toHaveLength(2);
+        expect(boostersOf(seaHaul(SEA[o], stretchKm(run)))).toHaveLength(repeaters);
       }
     }
   });

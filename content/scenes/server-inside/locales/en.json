@@ -69,8 +69,28 @@
     "nerd": "In 1995 this was one web server: a single program (say, NCSA HTTPd) reading files from its disk, with no CDN in front (Akamai began in 1998–99) and no virtual machines. The cutaway shows how a cache server does it today.",
     "app": "Web program",
     "ssd": {
+      "title": {
+        "kid": "Disk",
+        "nerd": "Hard disk"
+      },
       "line": {
-        "kid": "Shelves of pages"
+        "kid": "Shelves of pages",
+        "nerd": "Files on disk"
+      }
+    },
+    "nic": {
+      "title": {
+        "nerd": "NIC 10 Mbit/s"
+      },
+      "line": {
+        "kid": "Pulses → bits",
+        "nerd": "10BASE-T frames"
+      }
+    },
+    "compute": {
+      "line": {
+        "kid": "One program",
+        "nerd": "One OS · one httpd"
       }
     }
   }
