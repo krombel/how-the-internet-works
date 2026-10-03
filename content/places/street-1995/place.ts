@@ -34,7 +34,8 @@ export default definePlace({
     overview: street.layout!.overview,
     internet: {
       landscape: {
-        nodes: { 'cell-tower': [80, 860, 100], bsc: [90, 490, 110], 'mobile-core': [240, 300, 120], exchange: [350, 690, 120], bng: [620, 480, 120, 'above'] },
+        nodes: { 'cell-tower': [70, 800, 100], bsc: [90, 490, 110], 'mobile-core': [240, 300, 120], exchange: [380, 700, 110], bng: [620, 480, 120, 'above'] },
+        links: { 'exchange-bng': { bend: -0.2 } },
       },
       portrait: {
         nodes: { 'cell-tower': [100, 1520, 110], bsc: [570, 1485, 110], 'mobile-core': [805, 1475, 120, 'above'], exchange: [790, 1105, 120], bng: [480, 975, 120, 'above'] },

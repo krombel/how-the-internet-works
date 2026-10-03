@@ -992,3 +992,27 @@ Made while fixing 2010's leaks (#135):
   bottleneck, which is the DSL or 3G line.
 - **Follow-up for 1995**: the same full walk on 1995 also finds MPLS in two layer fields (`ethernet`'s type, `ip`'s
   TTL) and NVMe in `server-inside`'s SSD title, so `era-1995.test.ts` still reads captions only.
+
+Made while building #147 (on the go in 1995):
+- **The way**: as planned: `gsm` to the mast, `abis` twice (Abis to the BSC, Ater on to the MSC: one sideways stop,
+  "2 stretches · via the BSC"), `trunk` to the exchange, then `home-dialup`'s `pri` into the modem bank and 1995's
+  internet. The job ids stay the street's (`phone`, `cell-tower`, `mobile-core`), so `phone-cell-tower`, `phone~tcp`
+  and `internet/mobile-core` survive a trip in time from 2010 or today; from home in 1995 the picker keeps
+  `internet/exchange`, `internet/bng` and everything beyond.
+- **The internet's layout** goes up the left (the mast at the bottom left, the BSC and the MSC above it), down to the
+  exchange and across to the modem bank, so the call reads as a detour through the phone network before the ISP; in
+  portrait it runs along the bottom and up the right. A few bends keep the PRI clear of the ISP's other links.
+- **Dives**: `nr-radio`'s GSM mode slides one 577 µs slot per 0.45 s (5G's 0.5 ms per 0.55 s, slowed alike); your
+  call has slot 3 on the middle carrier, two neighbours theirs. `tdm-frames`'s Abis mode puts the mast's LAPD in slot
+  1 and cuts each call-carrying slot in four quarters (yours is quarter 1 of your slot); the trunk mode is a PRI's
+  frame with SS7 in slot 16. Their words are the scenes' `abis`, `trunk` and `1995` blocks, in both languages and levels.
+- **`away` went** with `era.1995.away.street`: `elsewhere(stop, there)` and `landing(stop)` lost their `from`. The
+  generic line stays, for a family with no member in an era (none now).
+- **Leak test**: `era-1995.test.ts` walks every 1995 place. Packet radio (GPRS, EDGE, HSCSD, HSPA, UMTS, 3G–5G, LTE,
+  NR, GTP, SGSN, GGSN) is matched case-sensitively and as whole words over every word the route says, labels included
+  (case-insensitive, "lte" and "edge" sat inside Danish words); the caption check for a later internet is main's.
+- **Accessibility run**: the time machine's journey from the street now lands on `street-1995/phone~tcp`, saying
+  "It's 1995." with no line; the street-1995 overview, internet, GSM, Abis and trunk dives are in the label-contrast
+  and path-label scenes.
+- **Eager JS: +0.78 kB gz** (100.87 against 100.09 on main, index.html's static imports gzipped), against the ~0.8 kB
+  estimate.
