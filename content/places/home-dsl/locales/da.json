@@ -1,6 +1,6 @@
 {
   "name": "Hjemme, via telefonlinjen",
-  "access": "Telefonlinje (DSL)",
+  "access": "Bærbar på Wi‑Fi",
   "kid": "Pakkerne suser gennem luften, ned ad et kabel til routeren og så langs den gamle kobbertelefonlinje som små toner ud til et skab på din gade – og videoen kommer tilbage samme vej!",
   "nerd": "Det samme hjemmenetværk, men routerens uplink er VDSL2: DMT-toner på kobbertelefonparret til en DSLAM i gadeskabet et par hundrede meter væk og derefter fiber til udbyderen.",
   "describe": {

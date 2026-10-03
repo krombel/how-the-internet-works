@@ -75,7 +75,9 @@ describe('device art and backdrops (#91)', () => {
     expect(deviceArt(id)).toEqual({ Art: expect.any(Function), face: expect.any(Array), pending: false });
     // a node without art isn't waiting for any: the theme draws its fallback body
     expect(deviceArt('no-such-node')).toEqual({ Art: null, face: null, pending: false });
+    // the routes' art, and the place picker's pictures (a phone on the move is in no route)
     for (const r of routes) await loadRouteArt(r);
+    await loadDevices(pictures());
     expect(artLoading()).toBe(false);
     for (const d of deviceFiles) expect(deviceArt(d).Art, d).toEqual(expect.any(Function));
     for (const p of placeFiles) expect(placeBackdrop(p), p).toEqual(expect.any(Function));

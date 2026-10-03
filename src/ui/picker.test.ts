@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { activityIds, content, eraOf } from '../model/registry';
 import { resolveRoute } from '../model/resolve';
-import { allowedPlaces, placeOptions, waysOnline } from './picker';
+import { allowedPlaces, iconOf, pictures, placeOptions, waysOnline } from './picker';
 
 const at = (here: string, activity = 'watch-video') => {
   const allowed = allowedPlaces(activity, 0), era = eraOf(here);
@@ -25,21 +25,34 @@ describe('the place picker in an era', () => {
   });
 
   it('offers each place’s member of the era, and stays where you are in your own family', () => {
-    expect(where('home-dsl')).toEqual({ home: ['home-dsl', false], street: ['street-2010', false], desk: ['desk-2010', false] });
-    expect(where('desk-2010')).toEqual({ home: ['home-dsl', false], street: ['street-2010', false], desk: ['desk-2010', false] });
-    expect(where('home-fttb')).toEqual({ home: ['home-fttb', false], street: ['street', false], desk: ['desk', false] });
+    expect(where('home-dsl')).toEqual({ home: ['home-dsl', false], street: ['street-2010', false] });
+    expect(where('home-fttb')).toEqual({ home: ['home-fttb', false], street: ['street', false] });
+    // the desk is a way online from home (#151): two places, at home and on the go
+    expect(where('desk')).toEqual({ home: ['desk', false], street: ['street', false] });
+    expect(where('desk-2010')).toEqual({ home: ['desk-2010', false], street: ['street-2010', false] });
+    expect(where('street')).toEqual({ home: ['home', false], street: ['street', false] });
+    expect(where('street-2010')).toEqual({ home: ['home-dsl', false], street: ['street-2010', false] });
     expect(at('street-2010').options.filter((o) => o.on).map((o) => o.id)).toEqual(['street']);
   });
 
+  it('shows each place by its own picture, the same for all its ways online and eras: a house, a phone on the move', () => {
+    for (const here of ['home', 'desk', 'home-dsl', 'home-dialup', 'street', 'street-2010'])
+      expect(at(here).options.map((o) => iconOf(o.id)), here).toEqual(['home', 'on-the-go']);
+    expect(Object.keys(content.places).map(iconOf).every((i) => content.nodes[i]?.kind === 'place')).toBe(true);
+    expect(pictures()).toEqual(['home', 'on-the-go']);
+  });
+
   it('takes a place with no member in the era to the era’s own trip, as the time machine does', () => {
-    expect(where('home-dialup')).toEqual({ home: ['home-dialup', false], street: ['home-dialup', true], desk: ['home-dialup', true] });
+    expect(where('home-dialup')).toEqual({ home: ['home-dialup', false], street: ['home-dialup', true] });
     const street = at('home-dialup').options.find((o) => o.id === 'street')!;
     expect(street.instead).toMatchObject({ era: '1995', place: 'home-dialup', instead: true });
   });
 
   it('lists only the era’s ways online, so a way online is never a trip in time', () => {
-    expect(at('home').ways).toEqual(['home', 'home-fttb']);
-    expect(at('home-dsl').ways).toEqual(['home-dsl']);
+    expect(at('home').ways).toEqual(['home', 'desk', 'home-fttb']);
+    expect(at('desk').ways).toEqual(at('home').ways);
+    expect(at('home-dsl').ways).toEqual(['home-dsl', 'desk-2010']);
+    expect(at('desk-2010').ways).toEqual(at('home-dsl').ways);
     expect(at('home-dialup').ways).toEqual(['home-dialup']);
     expect(at('street').ways).toEqual(['street']);
     expect(Object.keys(content.places).every((p) => at(p).ways.includes(p))).toBe(true);

@@ -12,7 +12,7 @@ npm run build                # type-check + static build into dist/
 
 ## What's in it
 
-You pick **where you are** (at home on Wi‑Fi, on the street on 5G, at the desk on a cable) and **what you do**
+You pick **where you are** (at home on Wi‑Fi or a cable, on the go on 5G) and **what you do**
 (watch a video). You then see your packets travel through the access network, the ISP, an internet exchange and on
 to a CDN server:
 - **Zoom into** the internet to unfold its hops. The home route passes the fibre cabinet, the backhaul and the BNG; the street route passes the mobile core.

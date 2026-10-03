@@ -82,11 +82,19 @@ export const badgeReach = (o: Orient, sk = 1 / GROW[o]) => 1.3 * badgeSize(28, s
 /** The square a badge's mark keeps to at `size` (its ring and its bob, as `badgeReach`): what text keeps clear of. */
 export const badgeBox = (at: Pt, size: number): Rect => ({ x: at.x - size * 1.3, y: at.y - size * 1.3, w: size * 2.6, h: size * 2.6 });
 
-/** What a device covers at its biggest: its art, and its name (`nameW`: its width at the authored 28 units), which
- *  grows up from its baseline, pushed inside the world as `placeTexts` draws it. */
-export function nodeBoxes(n: SNode, nameW: number, o: Orient): Rect[] {
-  const f = 28 * GROW[o], e = labelReach(nameW * GROW[o], f, 'middle');
+/** What a device covers at its biggest (or with its name `grow` times its authored size): its art, and its name
+ *  (`nameW`: its width at the authored 28 units), which grows up from its baseline, pushed inside the world as
+ *  `placeTexts` draws it. */
+export function nodeBoxes(n: SNode, nameW: number, o: Orient, grow = GROW[o]): Rect[] {
+  const f = 28 * grow, e = labelReach(nameW * grow, f, 'middle');
   return [{ x: n.x - n.size / 2, y: n.y - n.size / 2, w: n.size, h: n.size }, boxAt(keepIn({ x: n.x, y: labelY(n) }, e, WORLD_SIZE[o]), e)];
+}
+
+/** What a door is on, in scene units, with its name `grow` times its authored size: the device or group it opens (the
+ *  internet's cloud and its name), or nothing for a link's door. A coach card pointing at the door keeps clear of it. */
+export function doorCovers(d: Door, ps: PathScene, nameW: (n: SNode) => number, o: Orient, grow: number): Rect[] {
+  const n = d.links.length ? undefined : ps.nodes.find((k) => k.id === d.id);
+  return n ? nodeBoxes(n, nameW(n), o, grow) : [];
 }
 
 /** How far `p` is from the nearest of `boxes` (0 inside one). */

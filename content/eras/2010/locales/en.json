@@ -15,7 +15,7 @@
         "nerd": "A 2010 smartphone on HSPA (3G) to a NodeB, with the RNC and the GGSN behind it."
       }
     },
-    "desk": {
+    "desk-2010": {
       "kid": "The phone line carried the internet and phone calls at the same time, as tones too high to hear. At the desk, a cable ran from the laptop to the box with the modem inside.",
       "nerd": "DSL: ADSL2+ and then VDSL2 from street cabinets, from a few to tens of Mbit/s on the copper pair. The laptop has a 100 Mbit/s Ethernet cable to the modem-router, which does NAT.",
       "describe": {

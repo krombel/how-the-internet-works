@@ -3,7 +3,7 @@ import type { Orient, Pt } from '$core/api';
 export const LOOP = 18;
 export type Phase = 'handshake' | 'send' | 'loss' | 'resend' | 'ready';
 
-type Spot = Pt & { size: number };
+export type Spot = Pt & { size: number };
 type Box = { x: number; y: number; w: number; h: number };
 
 export interface Layout {
@@ -157,3 +157,23 @@ export function handshakeTicket(time: number): { key: 'hi' | 'yes' | 'great'; x:
 
 /** A speech ticket's width for its text. */
 export const ticketW = (text: string, size: number) => text.length * size * 0.56 + size * 1.4;
+
+/** What each card says under its boxes (keys under `label`), each about its own boxes (issue 138): the server its
+ *  window of 4 (nothing during the handshake: the hello tickets are on the road, and labelled there) and sending 5
+ *  again; the shelf that 5 is missing while the pieces after it arrive, the gap it keeps, and that all are in order. */
+export function cardLabels(time: number): { server: string | null; shelf: string | null } {
+  const b = phase(time), gap = shelfFilled(time, 6) && !shelfFilled(time, 5);
+  return {
+    server: b === 'handshake' ? null : b === 'resend' ? 'resend' : b === 'ready' ? 'done' : 'window',
+    shelf: b === 'ready' ? 'ready' : gap ? (b === 'loss' ? 'lost' : 'gap') : null,
+  };
+}
+
+/** Where the handshake's label goes: on the road, between the client and the next thing along it (`next`: the hop, or
+ *  the server), and under the road in portrait, where there's no room beside. On the server's card, under its window,
+ *  it read as the window's label (issue 138). */
+export function helloSpot(L: Layout, portrait: boolean, client: Spot, next: Spot): Pt {
+  if (portrait) return { x: (L.road.x0 + L.road.x1) / 2, y: L.road.y + 105 };
+  return { x: (client.x + client.size / 2 + next.x - next.size / 2) / 2, y: L.road.y - 90 };
+}
+

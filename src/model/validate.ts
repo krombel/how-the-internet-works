@@ -187,10 +187,18 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       const of = c.places[p.variantOf];
       if (of?.variantOf !== undefined) add(p.file, 'variantOf', `"${p.variantOf}" is itself a variant of "${of.variantOf}"; use "${of.variantOf}"`);
       need(p.file, `place.${p.id}.access`);
+      if (p.picture !== undefined) add(p.file, 'picture', `a variant shows the picture of "${p.variantOf}"; give it there`);
     } else {
       if (Object.values(c.places).some((v) => v.variantOf === p.id)) need(p.file, `place.${p.id}.access`);
       // where you are, in a sentence: the time machine's "In 1995 you'd have done this at home" (#59)
       need(p.file, `place.${p.id}.where`);
+      // its picture in "Where are you?": a node that stands for a place (the house)
+      if (p.picture === undefined) add(p.file, 'picture', 'a place needs a picture for "Where are you?": a node of kind "place" (the house)');
+      else {
+        ref(p.file, 'picture', 'nodes', p.picture, 'a node');
+        const n = c.nodes[p.picture];
+        if (n && n.kind !== 'place') add(p.file, 'picture', `"${p.picture}" is a ${n.kind}; the picture is a node of kind "place"`);
+      }
     }
     ref(p.file, 'era', 'eras', p.era, 'an era');
   }

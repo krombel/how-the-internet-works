@@ -1,6 +1,6 @@
 {
   "name": "At home, in a flat",
-  "access": "Fibre to the building",
+  "access": "In a flat",
   "kid": "Parcels zoom through the air to the Wi‑Fi box, along a cable to the router, then down the stairs to the basement. From there a glass thread takes them to the internet – and the video comes back the same way!",
   "nerd": "A block of flats with fibre to the building: Wi‑Fi bridged to Ethernet at the access point, NAT in the flat’s router, Ethernet down the riser to the ISP’s switch in the basement, then a point-to-point fibre to the ISP’s aggregation.",
   "describe": {

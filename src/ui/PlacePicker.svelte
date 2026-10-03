@@ -43,9 +43,9 @@
     <h2 id="pick-where">{tr('pick.where')}</h2>
     <button class="btn" onclick={onclose} aria-label={tr('ui.close')}><Icon name="close" /></button>
   </header>
-  <div class="options">
+  <div class="options places">
     {#each options as o (o.id)}
-      {@const icon = iconOf(o.to)}
+      {@const icon = iconOf(o.id)}
       {@const art = deviceArt(icon)}
       {@const line = o.instead && elsewhere?.(o.instead, o.id, o.to !== here, false)}
       <button class="btn option" class:on={o.on} aria-pressed={o.on} aria-describedby={line ? `pick-i-${o.id}` : undefined}

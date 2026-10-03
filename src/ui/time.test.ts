@@ -20,26 +20,22 @@ describe('the time machine’s words', () => {
     expect(time.elsewhere(stop('home', '1995'), 'home')).toBe('');
     state.setLevel('nerd');
     expect(time.elsewhere(stop('street', '1995'), 'street')).toMatch(/^In 1995 you’d have done this at home\. You’ll travel there\. .*GSM/);
-    expect(time.elsewhere(stop('desk', '1995'), 'desk')).not.toMatch(/GSM/);
     state.setLevel('kid');
   });
 
-  it('lets an era say its own line for where you are, in place of “you’d have done this at home”', () => {
-    state.setLang('en'); state.setLevel('kid');
-    // the desk in 1995 lands on the PC at home, which already sits at a desk (#113)
-    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toBe('In 1995 the computer on the desk was a big beige PC, and it went online through the phone line at home. You’ll travel there.');
-    state.setLevel('nerd');
-    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toMatch(/^In 1995 a desk meant a beige PC .* You’ll travel there\.$/);
-    expect(time.landing(stop('desk', '1995'), 'desk')).toMatch(/^It’s 1995\. In 1995 a desk meant a beige PC/);
-    state.setLang('da'); state.setLevel('kid');
-    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toMatch(/^I 1995 var computeren på skrivebordet en stor beige pc.* Du rejser derhen\.$/);
+  it('goes from the desk to the PC at home in 1995 with nothing to explain: the desk is a way online from home (#151)', () => {
     state.setLang('en');
+    for (const level of ['kid', 'nerd'] as const) {
+      state.setLevel(level);
+      expect(time.elsewhere(stop('desk', '1995'), 'desk')).toBe('');
+      expect(time.landing(stop('desk', '1995'), 'desk')).toBe('It’s 1995.');
+    }
+    state.setLevel('kid');
   });
 
   it('leaves out “You’ll travel there” where you are there already (the picker in 1995, at home)', () => {
     state.setLang('en'); state.setLevel('kid');
     expect(time.elsewhere(stop('street', '1995'), 'street', false)).toBe('In 1995 you’d have done this at home.');
-    expect(time.elsewhere(stop('desk', '1995'), 'desk', false)).toBe('In 1995 the computer on the desk was a big beige PC, and it went online through the phone line at home.');
     state.setLevel('nerd');
     expect(time.elsewhere(stop('street', '1995'), 'street', false)).toMatch(/^In 1995 you’d have done this at home\. Out and about .*GSM/);
     expect(time.elsewhere(stop('street', '1995'), 'street', false, false)).toBe('In 1995 you’d have done this at home.');
