@@ -61,11 +61,11 @@ export const MODES: Record<string, Mode> = {
   hspa: { beams: false, slot: 2.2, owner: shared },
 };
 
-/** Grid columns at time t: slot number and x offset in columns (they slide left; the grid clips them). The newest
- *  column slides in on the right; the one before it is "now" (being sent). */
-export function columns(t: number, slot: number) {
-  const s = t / slot, now = Math.floor(s), frac = s - now;
-  return Array.from({ length: COLS + 1 }, (_, c) => ({ slot: now - COLS + c, dx: c - frac, now: c === COLS - 1 }));
+/** Grid columns while slot `at` (the time in slots, floored) slides in on the right: slot number and column from the
+ *  left. The one before the newest is "now" (being sent). They all slide left by the share of slot `at` gone by, and
+ *  the grid clips them. */
+export function columns(at: number) {
+  return Array.from({ length: COLS + 1 }, (_, c) => ({ slot: at - COLS + c, col: c, now: c === COLS - 1 }));
 }
 
 /** One wide wave from the antenna over every phone (a sector), as an SVG path: a wedge just past the furthest. */
