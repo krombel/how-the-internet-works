@@ -10,9 +10,16 @@
   const onPc = (bx: number, by: number) => ({ x: pc.x + ((bx - 100) * pc.size) / 200, y: pc.y + ((by - 100) * pc.size) / 200 });
   /** A spot's centre, its bottom edge and the unit `s` that fits a prop `wide`·s by `tall`·s into it. */
   const fit = ([x, y, w, h]: [number, number, number, number], wide: number, tall: number) => ({ x, y, bottom: y + h / 2, s: Math.min(w / wide, h / tall) });
-  // the modem's send and receive lights flicker with the data (lit, still, with reduced motion)
-  const flicker = $derived(still || time % 0.25 < 0.16);
-  const sd = $derived(still || (traffic.up && flicker)), rd = $derived(still || (traffic.down && flicker));
+  // the modem's lights (issue 161): power steady in green; send and receive in red, blinking with the data in an uneven
+  // rhythm, about 7 steps a second, each light on in under half of them (lit, still, with reduced motion)
+  const blink = (i: number) => {
+    const h = Math.sin(Math.floor(time * 7) * 12.9898 + i * 78.233) * 43758.5453;
+    return h - Math.floor(h) < 0.45;
+  };
+  const sd = $derived(still || (traffic.up && blink(1))), rd = $derived(still || (traffic.down && blink(2)));
+  // each light's colour, its hot core and how it looks off
+  const GREEN = ['var(--leaf)', 'color-mix(in srgb, var(--leaf) 35%, var(--glow))', 'color-mix(in srgb, var(--leaf) 30%, var(--face))'];
+  const RED = ['var(--roof)', 'color-mix(in srgb, var(--roof) 35%, var(--glow))', 'color-mix(in srgb, var(--roof) 30%, var(--face))'];
   // the page takes about 15 s; the hourglass turns over every 2 s
   const loading = $derived(age < 15);
   const turn = $derived((Math.floor(time / 2) + Math.min(1, (time % 2) / 0.4)) * 180);
@@ -27,8 +34,19 @@
       <path d="M{x - s * 0.38} {shelf + s * 0.08} l{s * 0.1} {s * 0.12} M{x + s * 0.38} {shelf + s * 0.08} l{-s * 0.1} {s * 0.12}" fill="none" />
       <rect x={x - s * 0.5} y={shelf} width={s} height={s * 0.08} rx={s * 0.03} fill="var(--cardboard)" />
       <path d="M{x - s * 0.42} {shelf} L{x - s * 0.36} {shelf - s * 0.3} H{x + s * 0.36} L{x + s * 0.42} {shelf} Z" fill="var(--tan-pale)" />
+      <!-- the lights on a dark strip: lit, a halo and a hot core; unlit, nearly as dark as the strip -->
+      <rect x={x - s * 0.31} y={shelf - s * 0.245} width={s * 0.62} height={s * 0.19} rx={s * 0.095} fill="var(--face)" stroke="none" />
       {#each [true, sd, rd] as lit, i (i)}
-        <circle cx={x - s * 0.18 + i * s * 0.18} cy={shelf - s * 0.13} r={s * 0.055} fill={lit ? 'var(--sun)' : 'var(--stone)'} stroke-width={s * 0.025} />
+        {@const [tone, core, off] = i ? RED : GREEN}
+        {@const cx = x + (i - 1) * s * 0.2}
+        {@const cy = shelf - s * 0.15}
+        {#if lit}
+          <circle {cx} {cy} r={s * 0.1} fill={tone} opacity="0.4" stroke="none" />
+          <circle {cx} {cy} r={s * 0.078} fill={tone} stroke="none" />
+          <circle {cx} {cy} r={s * 0.04} fill={core} stroke="none" />
+        {:else}
+          <circle {cx} {cy} r={s * 0.078} fill={off} stroke="none" />
+        {/if}
       {/each}
     </g>
   {/if}

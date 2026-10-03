@@ -176,8 +176,9 @@ machine (#70). It checks:
   explore?"), ⋯ (focus in the menu, Esc back to ⋯), the picker (Tab stays in it, Esc back to its button), the
   time machine (it opens on where you are, Tab stays in it, Esc back to the chip; ← ← and Enter go to 1995, focus on
   the caption's heading, the announcer says the arrival; and back to today; from the top bar inside the TCP dive, at
-  home and on the street: Esc back to the button, ← ← and Enter go to the PC's TCP in 1995, focus on the caption's
-  heading, the announcer says "It's 1995." first and, from the street, why you are at home, and the button says 1995),
+  home and on the street: Esc back to the button, ← ← and Enter go to the TCP in 1995 (the PC's at home, the GSM
+  laptop's on the street), focus on the caption's heading, the announcer says "It's 1995." first, and the button says
+  1995),
   the scene's keys (Tab in, → → to the Wi‑Fi, Enter into its dive, Esc), the list view (the skip link opens it at
   where you are, Tab stays in it, Esc back to the skip link; from ⋯, a door in it lands in the scene), and read aloud:
   turned on in ⋯ it says so; through a door the announcer says the description, read aloud says the title, the
