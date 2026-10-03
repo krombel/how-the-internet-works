@@ -874,11 +874,14 @@ Made while building PR 8 (2010: the data centre):
   left to the 2010-leak lane (#135), as are `copper-pulses`' 2.5/5GBASE-T and the rest of #135.
 - **`server-inside` in 2010**: the cache mode, with 2010 words: bare metal (no VMs, no k8s), NIC 2×1G over
   1000BASE-T, RAM and hard disks ("SSDs were only starting to appear"), the "Video program". No new drawing.
+- **Merged with #134's sweep**, which had given `server-inside` and `fibre-light`'s `dc-fibre` 2010 words of their own
+  (a 10G NIC, 40GBASE-LR4 on CWDM): step 8's replace them, to match the hall as drawn (1G copper to the server,
+  10GBASE-SR in one colour between the switches).
 - **`era-2010.test.ts`**: the tree's maths (inside the world, no overlaps, uplinks and blocking, both parcels through
   the active switch only, the still pose), the hall's way, one-colour fibre, no later data-centre technology in the
   hall's words unless they say when (leaf–spine, ECMP, 25–400G, FR4, CWDM, k8s, NVMe, Maglev…), and the 2010 `at.<node>`
   check. The 2010 trips' other parts (the AP, the core, the AS count, `border-inside`, `ixp-inside`) are the leak lane's.
-- **Eager JS: +0.44 kB gz** (99.18 against 98.74 on main), under the ~0.5 kB estimate.
+- **Eager JS: +0.44 kB gz** (100.22 against 99.78 on main, index.html's static imports gzipped), under the ~0.5 kB estimate.
 
 Made while building PR 9 (the picker stays in the era, #146):
 - **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,
