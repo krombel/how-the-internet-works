@@ -248,7 +248,7 @@ port rewritten, checksums fixed; the cell tower: NR off, Ethernet and a GTP‑U 
 
 ### The peek (`ui/PeekPanel.svelte`)
 
-The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`, with `switched` for a router that only swaps a label), chips for what changed,
+The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`, with `switched` for a router that only swaps a label; in an era of the past the era's `era.<id>.peek.role.<role>` first: `peekKeys` in `model/packet.ts`), chips for what changed,
 the envelopes taken off here, then the packet as it leaves as nested envelopes (`ui/Envelope.svelte`), and below them
 **How it travels: Light in a glass thread**, down to the dive of the link it leaves on (at its last hop, the one it
 arrived on; the catch is let go and the camera flies there). Kids see only

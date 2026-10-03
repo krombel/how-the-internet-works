@@ -15,5 +15,12 @@
         "nerd": "En bærbar fra 1995 med et GSM-datakort i en ledning til en GSM-telefon, der ringer til udbyderen med 9,6 kbit/s."
       }
     }
+  },
+  "peek": {
+    "role": {
+      "router": {
+        "nerd": "Routet: longest-prefix match på modtageren, TTL − 1 og en ny link-ramme."
+      }
+    }
   }
 }
