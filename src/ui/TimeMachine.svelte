@@ -18,7 +18,7 @@
   import { deviceArt, loadEra, loadRouteArt } from '../render/lazy.svelte';
   import { fill, themeState, tr, trFirst, view } from '../state.svelte';
   import Icon from './Icon.svelte';
-  import { eraText, elsewhere as elsewhereFrom, landing } from './time';
+  import { eraText, elsewhere, landing } from './time';
 
   let { stops, here, at, onpick, onclose }: {
     stops: EraStop[];
@@ -27,12 +27,11 @@
     /** Travel: where to, and what to say first on landing ("It's 1995."). */
     onpick: (to: { trip: ReturnType<typeof eraTrip>; said: string }) => void; onclose: () => void;
   } = $props();
-  const elsewhere = (s: EraStop) => elsewhereFrom(s, at.places[0]);
   const A = $derived(themeState.current.art);
   const short = $derived(isShort(view.vp.w, view.vp.h));
   let chosen = $state(untrack(() => here));
   const stop = $derived(stops.find((s) => s.era === chosen)!);
-  const go = (s: EraStop) => (s.era === here ? onclose() : onpick({ trip: eraTrip(at, s.place), said: landing(s, at.places[0]) }));
+  const go = (s: EraStop) => (s.era === here ? onclose() : onpick({ trip: eraTrip(at, s.place), said: landing(s) }));
   let form: HTMLFormElement;
   // checked and focused from here, not by a `checked` attribute (whose runtime would load up front, with the app)
   onMount(() => {

@@ -9,8 +9,10 @@
 </script>
 
 {#snippet window(x: number, y: number, r: number)}
-  <circle cx={x} cy={y} r={r} fill="var(--window)" stroke="var(--line)" stroke-width="6" />
-  <path d="M{x - r} {y} H{x + r} M{x} {y - r} V{y + r}" stroke="var(--line)" stroke-width="4" />
+  <!-- a round window; at night it glows, in a dark frame -->
+  {#if night}<circle cx={x} cy={y} r={r * 1.7} fill="var(--window)" opacity="0.18" />{/if}
+  <circle cx={x} cy={y} r={r} fill="var(--window)" stroke="var(--window-frame)" stroke-width="6" />
+  <path d="M{x - r} {y} H{x + r} M{x} {y - r} V{y + r}" stroke="var(--window-frame)" stroke-width="4" />
 {/snippet}
 
 {#snippet lamp(x: number, y: number)}

@@ -2,7 +2,8 @@
 <script lang="ts">
   // Look inside a 5G link: the tower's antenna panel aims a beam at each phone, and a scheduler gives every phone its
   // own seats in a time × frequency grid (like seats on a bus), so many phones share the air at once. A 3G link (its
-  // `MODES`): one wave covers the whole sector, and the grid is spreading codes × 2 ms slots, in the era's words.
+  // `MODES`): one wave covers the whole sector, and the grid is spreading codes × 2 ms slots, in the era's words. A
+  // GSM data call (1995): one wave too, and each call keeps the same seat of every TDMA frame.
   import { Node, TagAt, Text, strings, view, type LinkSubject } from '$core/api';
   import { COLS, LAYOUT, MODES, ROWS, USERS, beamPath, columns, sectorPath } from './radio';
   import Beam from './art/Beam.svelte';

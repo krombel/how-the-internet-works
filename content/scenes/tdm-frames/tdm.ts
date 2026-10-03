@@ -1,17 +1,19 @@
 // Timeslots (TDM), the maths of the tdm-frames dive (style-agnostic): a 1990s digital line is a frame of 8-bit slots,
 // sent 8,000 times a second. An E1 has 32 slots (slot 0 keeps the frames in step); an ISDN PRI is an E1 whose slot 16
 // sets up calls and whose other 30 slots are calls; a leased E1 bundles slots 1–31 into one pipe; a T1 has 24 slots
-// and one framing bit. On the copper, ones are pulses that alternate up and down (AMI), with long runs of zeros
-// replaced so the clock never loses its beat (HDB3 on an E1, B8ZS on a T1).
+// and one framing bit. The GSM network's E1s (1995) carry calls too: between two switches a trunk is a PRI's frame
+// with slot 16 for SS7; from the mast to the switch (Abis, Ater) slot 1 is the mast's signalling and each traffic slot
+// is cut in four 16 kbit/s quarters, one GSM call each. On the copper, ones are pulses that alternate up and down
+// (AMI), with long runs of zeros replaced so the clock never loses its beat (HDB3 on an E1, B8ZS on a T1).
 import { SLOT } from '../modem-call/modem';
 
-export type Mode = 'pri' | 'e1' | 't1';
-const MODES: Record<string, Mode> = { pri: 'pri', e1: 'e1', t1: 't1' };
+export type Mode = 'pri' | 'e1' | 't1' | 'abis' | 'trunk';
+const MODES: Record<string, Mode> = { pri: 'pri', e1: 'e1', t1: 't1', abis: 'abis', trunk: 'trunk' };
 /** How a line is told, from its technology (any other is a leased E1). */
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'e1';
 
-/** What a slot carries: frame sync (or a T1's framing bit), call set-up (a PRI's D channel), your call, other calls,
- *  a free slot, or one bundled pipe (a leased line). */
+/** What a slot carries: frame sync (or a T1's framing bit), call set-up (a PRI's D channel, a trunk's SS7, the mast's
+ *  LAPD), your call, other calls, a free slot, or one bundled pipe (a leased line). */
 export type Kind = 'sync' | 'signal' | 'yours' | 'other' | 'idle' | 'pipe';
 /** A PRI's free slots: not every caller is online. */
 const FREE = new Set([4, 11, 20, 26, 29]);
@@ -22,7 +24,18 @@ export function slotsOf(mode: Mode): Kind[] {
   return Array.from({ length: 32 }, (_, i): Kind => {
     if (i === 0) return 'sync';
     if (mode === 'e1') return 'pipe';
-    return i === 16 ? 'signal' : i === SLOT ? 'yours' : FREE.has(i) ? 'idle' : 'other';
+    return i === (mode === 'abis' ? 1 : 16) ? 'signal' : i === SLOT ? 'yours' : FREE.has(i) ? 'idle' : 'other';
+  });
+}
+
+/** Which quarter of your slot is your GSM call's (Abis). */
+export const QUARTER = 1;
+/** An Abis frame's 16 kbit/s quarters: four calls to each slot that carries calls (yours, others, some free), none in
+ *  the others; every other line's slots are whole. */
+export function quartersOf(mode: Mode): (Kind[] | null)[] {
+  return slotsOf(mode).map((k, i) => {
+    if (mode !== 'abis' || (k !== 'yours' && k !== 'other')) return null;
+    return Array.from({ length: 4 }, (_, q): Kind => (k === 'yours' && q === QUARTER ? 'yours' : (i + q) % 5 === 3 ? 'idle' : 'other'));
   });
 }
 

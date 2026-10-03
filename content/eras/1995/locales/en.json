@@ -6,9 +6,14 @@
     "kid": "A big beige computer with a deep screen, and a keyboard on a cable. Its modem sits on a shelf, blinking, and phones the internet company.",
     "nerd": "A desktop PC: its external modem dials the ISP on the phone line, with no router in between."
   },
-  "away": {
+  "at": {
     "street": {
-      "nerd": "Out and about in 1995, GSM could carry data: a 9.6 kbit/s circuit-switched call (CSD) from a phone with a cable to a laptop. Far too slow for video."
+      "kid": "Out and about, hardly anyone went online, but you could: a laptop with a cable to a mobile phone rang the internet company. Three times slower than at home, and every minute cost money.",
+      "nerd": "GSM circuit-switched data: 9.6 kbit/s in one radio time slot, billed per minute like a call. The mobile switch’s modems (the IWF) call the ISP like a home modem; GPRS’s always-on packets came in 2000.",
+      "describe": {
+        "kid": "A thick laptop with a curly cable to a mobile phone the size of a brick, on the street.",
+        "nerd": "A 1995 laptop with a GSM data card on a cable to a GSM phone, dialling the ISP at 9.6 kbit/s."
+      }
     }
   }
 }
