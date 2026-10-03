@@ -117,8 +117,8 @@ describe('validation messages', () => {
   };
 
   it('suggests a close technology id', () => {
-    const msg = broken((c) => { c.places.street.hops[1] = { link: 'nr5g' }; });
-    expect(msg).toContain('content/places/street/place.ts › hops[1].link: "nr5g" is not a technology. Did you mean "nr"?');
+    const msg = broken((c) => { c.places['on-the-go'].hops[1] = { link: 'nr5g' }; });
+    expect(msg).toContain('content/places/on-the-go/place.ts › hops[1].link: "nr5g" is not a technology. Did you mean "nr"?');
   });
 
   it('catches hops and links out of order', () => {
@@ -219,36 +219,36 @@ describe('validation messages', () => {
   it('checks place variants: a known base, one level deep, and an access name', () => {
     expect(broken((c) => { c.places['home-dsl'].variantOf = 'hoem'; })).toContain('place.ts › variantOf: "hoem" is not a place. Did you mean "home"?');
     expect(broken((c) => { c.places.desk.variantOf = 'home-dsl'; })).toContain('desk/place.ts › variantOf: "home-dsl" is itself a variant of "home"; use "home"');
-    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', variantOf: 'street', picture: undefined }; }))
+    expect(broken((c) => { c.places.lake = { ...c.places['on-the-go'], id: 'lake', file: 'content/places/lake/place.ts', variantOf: 'on-the-go', picture: undefined }; }))
       .toContain('missing English string "place.lake.access"');
   });
 
   it('needs a base place to say where it is, in a sentence (the time machine, #59)', () => {
-    expect(broken((c) => { c.places.lake = { ...c.places.street, id: 'lake', file: 'content/places/lake/place.ts', era: undefined }; }))
+    expect(broken((c) => { c.places.lake = { ...c.places['on-the-go'], id: 'lake', file: 'content/places/lake/place.ts', era: undefined }; }))
       .toContain('missing English string "place.lake.where"');
   });
 
   it('needs a base place’s picture for “Where are you?”: a node that stands for a place, shown by its variants too (#151)', () => {
-    expect(broken((c) => { delete c.places.street.picture; })).toContain('street/place.ts › picture: a place needs a picture for "Where are you?"');
-    expect(broken((c) => { c.places.street.picture = 'on-the-og'; })).toContain('street/place.ts › picture: "on-the-og" is not a node. Did you mean "on-the-go"?');
-    expect(broken((c) => { c.places.street.picture = 'phone'; })).toContain('street/place.ts › picture: "phone" is a device; the picture is a node of kind "place"');
+    expect(broken((c) => { delete c.places['on-the-go'].picture; })).toContain('on-the-go/place.ts › picture: a place needs a picture for "Where are you?"');
+    expect(broken((c) => { c.places['on-the-go'].picture = 'on-the-og'; })).toContain('on-the-go/place.ts › picture: "on-the-og" is not a node. Did you mean "on-the-go"?');
+    expect(broken((c) => { c.places['on-the-go'].picture = 'phone'; })).toContain('on-the-go/place.ts › picture: "phone" is a device; the picture is a node of kind "place"');
     expect(broken((c) => { c.places.desk.picture = 'home'; })).toContain('desk/place.ts › picture: a variant shows the picture of "home"; give it there');
   });
 
   it('groups a place with its variants, base first, in order (the picker shows one place and its ways online)', () => {
-    expect([basePlace('home-dsl'), basePlace('desk'), basePlace('street')]).toEqual(['home', 'home', 'street']);
+    expect([basePlace('home-dsl'), basePlace('desk'), basePlace('on-the-go')]).toEqual(['home', 'home', 'on-the-go']);
     // the desk is a way online from home (#151): a laptop on a cable, today and in 2010
     expect(placeFamily('home-dsl')).toEqual(['home', 'desk', 'home-fttb', 'home-dsl', 'desk-2010', 'home-dialup']);
     expect(placeFamily('desk-2010')).toEqual(placeFamily('home'));
-    expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
-    expect(placeFamily('street-2010')).toEqual(['street', 'street-2010', 'street-1995']);
+    expect(placeFamily('home', ['home-dsl', 'on-the-go', 'home'])).toEqual(['home-dsl', 'home']);
+    expect(placeFamily('on-the-go-2010')).toEqual(['on-the-go', 'on-the-go-2010', 'on-the-go-1995']);
   });
 
   it('checks eras (#59): known, named and described, and two of them or none in a family', () => {
     expect(broken((c) => { c.places['home-dsl'].era = '2001'; })).toContain('home-dsl/place.ts › era: "2001" is not an era. Did you mean "2010"?');
     expect(broken((c) => { delete c.places['home-fttb'].era; })).toContain('home-fttb/place.ts › era: "home" and its ways of getting online have eras, so this needs one too.');
-    expect(broken((c) => { c.places.street.era = '2010'; c.places['street-1995'].era = '2010'; }))
-      .toContain('street/place.ts › era: every way of getting online from "street" is in the era "2010"; a time machine needs two eras at least');
+    expect(broken((c) => { c.places['on-the-go'].era = '2010'; c.places['on-the-go-1995'].era = '2010'; }))
+      .toContain('on-the-go/place.ts › era: every way of getting online from "on-the-go" is in the era "2010"; a time machine needs two eras at least');
     const msg = broken((c) => { c.eras['1985'] = { year: 1985.5, id: '1985', file: 'content/eras/1985/era.ts' }; });
     expect(msg).toContain('content/eras/1985/era.ts › year:');
     expect(msg).toContain('content/eras/1985/era.ts › strings: missing English string "era.1985.name"');
@@ -283,7 +283,7 @@ describe('validation messages', () => {
     expect(broken((c) => { c.layers.tcp.dive = typo; })).toContain(`content/layers/tcp/layer.ts › dive: "${typo}" is not a scene. Did you mean "${layerScene}"?`);
     expect(broken((c) => { c.layers.tcp.dive = 'wifi-radio'; })).toContain('content/layers/tcp/layer.ts › dive: "wifi-radio" explains a link; this needs a scene with `explains: \'layer\'`.');
     expect(broken((c) => { c.technologies.wifi.dive = layerScene; })).toContain(`content/technologies/wifi/technology.ts › dive: "${layerScene}" explains a layer; this needs a scene with \`explains: 'link'\`. Known: `);
-    expect(broken((c) => { c.places.street.hops[3] = { link: 'metro-fibre', dive: layerScene }; })).toContain('place.ts › hops[3].dive: ');
+    expect(broken((c) => { c.places['on-the-go'].hops[3] = { link: 'metro-fibre', dive: layerScene }; })).toContain('place.ts › hops[3].dive: ');
     expect(broken((c) => { (c.scenes[layerScene] as { explains: string }).explains = 'device'; })).toContain(`content/scenes/${layerScene}/scene.ts › explains:`);
   });
 

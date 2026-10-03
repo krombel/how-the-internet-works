@@ -59,7 +59,7 @@ Bigger ones get a plan first, in [plans/](plans/README.md).
 | Idea | What to add |
 |---|---|
 | Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/XGS-PON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
-| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); 2010 on the go (a phone on 3G: NodeB, RNC, a Direct Tunnel to the GGSN, the SGSN aside; `nr-radio` and `nr-grant` have a 3G mode) and at home on a cable (`desk-2010`: a laptop on a cable to the DSL router); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no member in an era, the era's own trip; 1995 on the go (`street-1995`, #147): a laptop with a GSM phone on a 9.6 kbit/s circuit-switched data call, BTS, BSC and MSC (`gsm`, `abis` and `trunk` links; `nr-radio` has a GSM mode, `tdm-frames` Abis and trunk modes), the MSC's IWF dialling the ISP's modem bank over the PSTN, then 1995's internet; 1995's internet (`isp-to-cdn-1995`, step 6): a PRI into the ISP's modem bank, 10BASE-T in its rack, a leased E1 to its upstream (DIX as the aside), CANTAT-3, an American ATM backbone and a T1, with the `tdm-frames` and `atm-cells` dives; 1995's server room (`datacentre-1995`, step 7), drawn by the `server-room` group node: the site's router, a 10BASE-T hub and one beige tower web server, whose dive is `server-inside`'s tower mode (one program, one disk) and whose HTTP dive is `http-chunk`'s page mode (GET /index.html, then the picture); 2010's internet is today's with 2010's numbers, and its data centre (`datacentre-2010`, step 8) a rented cage in a colocation centre further away, drawn by the `colocation` group node: the core router, a load-balancing appliance, an `aggregation` switch (the `three-tier` dive) and the rack's access switch, 10G fibre between them (one colour, 10GBASE-SR, in `fibre-light`) and 1G copper to a bare-metal cache (`server-inside`'s 2010 words: no VMs or k8s, a NIC 2×1G, hard disks). Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
+| Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); 2010 on the go (a phone on 3G: NodeB, RNC, a Direct Tunnel to the GGSN, the SGSN aside; `nr-radio` and `nr-grant` have a 3G mode) and at home on a cable (`desk-2010`: a laptop on a cable to the DSL router's 100 Mbit/s port, `fast-ethernet`: `copper-pulses` draws 100BASE-TX's MLT-3); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no member in an era, the era's own trip; 1995 on the go (`on-the-go-1995`, #147): a laptop with a GSM phone on a 9.6 kbit/s circuit-switched data call, BTS, BSC and MSC (`gsm`, `abis` and `trunk` links; `nr-radio` has a GSM mode, `tdm-frames` Abis and trunk modes), the MSC's IWF dialling the ISP's modem bank over the PSTN, then 1995's internet; 1995's internet (`isp-to-cdn-1995`, step 6): a PRI into the ISP's modem bank, 10BASE-T in its rack, a leased E1 to its upstream (DIX as the aside), CANTAT-3, an American ATM backbone and a T1, with the `tdm-frames` and `atm-cells` dives; 1995's server room (`datacentre-1995`, step 7), drawn by the `server-room` group node: the site's router, a 10BASE-T hub and one beige tower web server, whose dive is `server-inside`'s tower mode (one program, one disk) and whose HTTP dive is `http-chunk`'s page mode (GET /index.html, then the picture); 2010's internet is today's with 2010's numbers, and its data centre (`datacentre-2010`, step 8) a rented cage in a colocation centre further away, drawn by the `colocation` group node: the core router, a load-balancing appliance, an `aggregation` switch (the `three-tier` dive) and the rack's access switch, 10G fibre between them (one colour, 10GBASE-SR, in `fibre-light`) and 1G copper to a bare-metal cache (`server-inside`'s 2010 words: no VMs or k8s, a NIC 2×1G, hard disks). Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
 | Issue #2: IoT, LoRaWAN | A **node** (`sensor`, `lora-gateway`, `network-server`), a **technology** `lorawan` (look `radio`) with a `lorawan` **layer** and a `chirp` dive **scene**, a **place** (`garden`, `field`), and an **activity** such as `send-reading` with a small upward flow. `only` keeps it to places that make sense. Plan: [plans/2-iot-lorawan.md](plans/2-iot-lorawan.md). |
 | Messaging | An activity with two place slots (`me`, `friend`) around a `messaging-server` segment, and an `e2ee` layer that the server can't open (`openAt: ['endpoint']`). |
 | Video call (P2P, WebRTC) | A second flow on a direct path, with the NAT traversal shown on the routers (`role: 'nat'`). |
@@ -113,10 +113,10 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 
 ```
 #/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=technical  ?style=<theme>  ?mode=day|night
-#/da/street/watch-video/internet/@mobile-core
+#/da/on-the-go/watch-video/internet/@mobile-core
 #/en/home/watch-video/internet/home-cabinet                         (three levels: the access fibre)
 #/en/home/watch-video/router~ip                                     (a layer dive: IP at the home router)
-#/da/street/watch-video/internet/mobile-core~ip                     (IP at the mobile core: carrier-grade NAT)
+#/da/on-the-go/watch-video/internet/mobile-core~ip                     (IP at the mobile core: carrier-grade NAT)
 ```
 
 1. **Location** (`model/location.ts`, `router.ts`). The hash is parsed into `{ lang, places, activity, path, stop }`.
@@ -389,9 +389,10 @@ Packets restart on the new route, and the caption waits for the morph to finish.
 
 **The time machine (issue #59)** is the same morph. `eraStops(place, options)` (`model/era.ts`) lists every era,
 oldest first, each with the place to go to: the place itself for its own era, else its family's member of that era
-that starts the same way (the same first link: the laptop on a cable at home, `desk`, goes to `desk-2010`), else the
-first of its family of that era by `order`, else the era's own trip (the first place of that era, `instead`: for a
-family with no member in that era). A place's era is `eraOf` (`model/registry.ts`; none is today's). With two or more stops,
+that starts the same way (the same signal on the first link, its dive: the laptop on a cable at home, `desk`, goes to
+`desk-2010`, gigabit to 100BASE-TX), else the first of its family of that era by `order`, else the era's own trip (the
+first place of that era, `instead`: for a family with no member in that era). A place's era is `eraOf`
+(`model/registry.ts`; none is today's). With two or more stops,
 the top bar shows the time machine's button on every screen (`.time-btn`, `ui/Chrome.svelte`: a clock and "Today" or
 the year, `eraYear`), the caption a 🕰️ chip on every overview (`timeChip`, `ui/caption.ts`) and the list view a
 "Travel in time" button. They open `ui/TimeMachine.svelte`, a lazy dialog like the picker (same classes and stacking):
@@ -405,7 +406,7 @@ else), then the arrival. The panel's words are `ui/time.ts`, in its chunk too. T
 says it.
 
 **The picker stays in the era** (#59, step 9). Only the time machine changes the era. `placeOptions` (`ui/picker.ts`)
-offers each place as its stop of the route's era, by the same `eraStops`: its member of that era (`street-2010` in
+offers each place as its stop of the route's era, by the same `eraStops`: its member of that era (`on-the-go-2010` in
 2010), or, with none, the era's own trip, under the time machine's line (`elsewhere`, without "You'll travel there"
 where you are already), with the base place's `picture` (the house, a phone on the move). `ui/time.ts` loads with the
 picker then, and the era's words with the dive strings, before it opens; picking such a place lands like a trip in
@@ -539,7 +540,7 @@ in the scene's own folder, so a new dive needs no theme change.
 - **Headings.** The chrome's headings use `--heading` (by default `--accent`), so a theme can keep a bright accent
   for buttons and use a darker colour for text.
 
-**The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, the level (Simple / Technical),
+**The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, kid/nerd,
 ☀️/🌙). Settings you set once go in the ⋯ menu (`ui/Menu.svelte`): language, sound, the style (only with more than one
 theme) and About.
 - **Entries are data.** `Chrome.svelte` builds a list of `MenuEntry` (`ui/menu.ts`): a `choice` (a label and its
@@ -606,9 +607,6 @@ engine:
 
 - **Namespacing.** Each folder's `locales/<lang>.json` is namespaced by kind and id (`nodes/phone` → `node.phone.*`).
 - **Levels.** Any key may be a string or `{ "kid": …, "nerd": … }`. A level-aware lookup falls back from `key.<level>` to `key`.
-  Readers see the levels as "Simple" and "Technical" (`mode.kid`, `mode.nerd`; da "Enkel", "Teknisk"; #141), and the URL
-  and `localStorage` name them `simple` and `technical` (`LEVEL_NAME` in `state.svelte.ts`); `kid` and `nerd` are only
-  the keys in content and code. A test keeps "for kids" / "for nerds" out of every string (`src/levels.test.ts`).
 - **Lookup order.** Captions look up text from the most specific source to the least:
   1. the places and segments on the route (`place.home.stop.router`)
   2. the activity
@@ -648,7 +646,7 @@ zod never reaches the production bundle.
 In dev, problems go to the console and the Vite overlay:
 
 ```
-content/places/street/place.ts › hops[1].link: "nr5g" is not a technology. Did you mean "nr"? Known: backbone, ethernet, gpon, …
+content/places/on-the-go/place.ts › hops[1].link: "nr5g" is not a technology. Did you mean "nr"? Known: backbone, ethernet, gpon, …
 ```
 
 Vitest (`npm test`) covers:

@@ -2,15 +2,16 @@ import { definePlace } from '$core/define';
 import desk from '../desk/place';
 
 // At home, at the desk, around 2010: the same laptop on a cable, but the router is a DSL modem-router on the phone
-// line, as on Wi-Fi in 2010 (home-dsl): tones down the copper pair to a DSLAM in the street cabinet, then fibre. The
-// time machine goes between it and the desk today, which also start on a cable (`eraStops`).
+// line, as on Wi-Fi in 2010 (home-dsl): tones down the copper pair to a DSLAM in the street cabinet, then fibre. Its
+// LAN ports are 100 Mbit/s, so the cable is Fast Ethernet. The time machine goes between it and the desk today, which
+// also start on a cable (`eraStops`).
 export default definePlace({
   variantOf: 'home',
   order: 1.5,
   era: '2010',
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },
-    { link: 'ethernet', km: 0.003 },
+    { link: 'fast-ethernet', km: 0.003 },
     { at: 'router', node: 'dsl-router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'vdsl', km: 0.4 },
     { at: 'cabinet', node: 'dslam', in: 'internet', owner: 'isp' },

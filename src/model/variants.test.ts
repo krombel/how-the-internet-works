@@ -19,7 +19,7 @@ describe('era variants (#59)', () => {
   });
 
   it('gives a route its era, and the activity of that era', () => {
-    expect(['home', 'street', 'home-dsl', 'home-dialup'].map((p) => [at(p).era, at(p).activity.id])).toEqual([
+    expect(['home', 'on-the-go', 'home-dsl', 'home-dialup'].map((p) => [at(p).era, at(p).activity.id])).toEqual([
       ['today', 'watch-video'], ['today', 'watch-video'], ['2010', 'watch-video-2010'], ['1995', 'watch-video-1995'],
     ]);
     // honest flows: plain HTTP on port 80 before TLS was everywhere

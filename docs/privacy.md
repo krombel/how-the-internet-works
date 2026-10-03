@@ -11,7 +11,7 @@ sends nothing about you anywhere.
 - **No third-party requests.** The fonts (Baloo 2 and JetBrains Mono, from Fontsource) and every other asset are
   bundled and served from the same site as the page. Nothing is fetched from a CDN, font service or other site.
 - **Where you are in the app is in the address.** The language, place, activity and scene are in the URL (e.g.
-  `#/da/street/watch-video/internet`), and a few settings can be in its query (`?level=technical`, `?mode=night`,
+  `#/da/on-the-go/watch-video/internet`), and a few settings can be in its query (`?level=technical`, `?mode=night`,
   `?style=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
   page request, like any address.
 
@@ -22,7 +22,7 @@ are never sent anywhere, and you can delete them by clearing the site's data in 
 
 | Key | Value | What it is |
 | --- | --- | --- |
-| `level` | `simple` or `technical` | The level you picked |
+| `level` | `kid` or `nerd` | The level you picked |
 | `style` | a theme id, e.g. `storybook` | The art style |
 | `mode` | `day` or `night` | Day or night, only when you picked the one your system doesn't prefer |
 | `paused` | `1` | The packets are paused (removed when you play them again) |

@@ -75,6 +75,11 @@
     }
   },
   "1995": {
-    "server": "the web server"
+    "server": "the web server",
+    "field": {
+      "ttl": {
+        "about": "Every router takes one off and drops the packet at 0, so a routing loop can’t keep it forever."
+      }
+    }
   }
 }

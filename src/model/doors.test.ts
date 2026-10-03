@@ -9,7 +9,7 @@ import { loadAllPacks, packs } from './strings';
 import { childrenOf, diveRuns, fitRectLocal, frameOf, sceneRef, stopRectLocal, rectToRoot } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 const list = (ds: { kind: string; id: string }[]) => ds.map((d) => `${d.kind}:${d.id}`);
 /** A scene's doors, with its runs of links. */
 const doorsIn = (r: typeof home, group: string | null, o: 'landscape' | 'portrait', root = group === null) =>

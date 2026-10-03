@@ -83,6 +83,8 @@
   --berry-dark: #bd4f74;
   /* Lights: plain by day, lit at night */
   --window: var(--paper-2);
+  /* a window's frame and bars: the outline by day, dark at night so the lit pane stands out */
+  --window-frame: var(--line);
   --room: var(--paper-2);
   --lamp: var(--sun);
   /* The couriers' faces and shine: dark ink on their bright bodies in both modes */
@@ -206,6 +208,7 @@
   --berry: #b8698e;
   --berry-dark: #c86e92;
   --window: #ffd98a;
+  --window-frame: var(--face);
   --room: #d9a36a;
   --lamp: #ffe08a;
   --face: #2a1d33;

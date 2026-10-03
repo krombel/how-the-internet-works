@@ -15,31 +15,16 @@
   "pairsShort": "Fire snoede par",
   "bothWays": "Lysende skub løber begge veje på én gang",
   "twistTitle": "Snoningen",
-  "twistKid1": "Den ene tråd skubber op,",
-  "twistKid2": "den anden skubber ned.",
-  "mirror": "Differentialpar: +V og −V",
-  "noise": "Samme støj rammer begge tråde",
-  "difference": "modtageren trækker fra",
-  "clean": "bumpet forsvinder",
   "pushTitle": "Spændingsskub",
-  "pushKid1": "Bits er små skub,",
-  "pushKid2": "ikke elektroner der ræser hele vejen.",
-  "hundred": "Cirka 100 m, så falmer skubbene",
   "pamTitle": "PAM-5-symboler",
   "eyeTitle": "Åbent øje = læsbart",
-  "preamble": "10101010 × 7 → 10101011: vågn op, synkronisér uret",
-  "preambleShort": "præamblen synkroniserer uret",
   "tag": {
-    "speed": "1000BASE-T · 4 par × 125 MBd × 2 bit = 1 Gbit/s",
-    "duplex": "hybrider + ekkoudligning: begge veje på hvert par",
-    "cat": "Cat 5e-kanal · standardens budget: 100 m",
     "speedShort": "1000BASE-T · 1 Gbit/s",
     "duplexShort": "fuld duplex",
     "catShort": "100 m"
   },
   "twistLine": "Støj forsvinder.",
   "twistLineNerd": "Differentialpar: +V og −V.",
-  "pushLine": "Spændingsskub.",
   "pamLine": "5 niveauer pr. symbol.",
   "eyeLine": "Åbent øje = rent.",
   "hundredShort": "Ca. 100 m, så bliver de for svage",
@@ -55,6 +40,16 @@
     "pairsShort": "To par i brug",
     "bothWays": "Ét par hver vej, på skift"
   },
+  "mlt3": {
+    "title": "MLT-3-kode",
+    "line": "Et 1 tager et trin; et 0 bliver.",
+    "speed": "100BASE-TX · 100 Mbit/s",
+    "duplex": "fuld duplex",
+    "cat": "Cat 5 · 100 m",
+    "pairs": "To af de fire par bærer signalet",
+    "pairsShort": "To par i brug",
+    "bothWays": "Ét par hver vej, på én gang"
+  },
   "1995": {
     "kid": "Ethernet sender små spændingsstød ned ad snoede kobberpar. I 1995 bruger det kun to af dem: ét par til at sende og ét til at lytte, på skift. Snoningerne hjælper støjen med at ophæve sig selv, og efter omkring 100 m bliver stødene for svage.",
     "nerd": "10BASE-T (1990) bruger to par i et Cat 3-kabel: ét til at sende og ét til at modtage, som differentielle signaler med 10 Mbit/s i Manchester-kode, der skifter linjen midt i hver bit, så modtageren finder sit ur i dataene. På en hub taler kun den ene ende ad gangen (halv dupleks); de to andre par er ubrugte.",
@@ -65,6 +60,15 @@
     }
   },
   "2010": {
+    "fast-ethernet": {
+      "kid": "Ethernet sender små spændingsskub gennem snoede kobberpar. Kablet til en hjemmerouter i 2010 bruger to af dem: ét par til at sende og ét til at lytte, på samme tid. Snoningen hjælper støj med at udligne sig, og efter cirka 100 m bliver skubbene for svage.",
+      "nerd": "100BASE-TX (Fast Ethernet, 1995) bruger to par i et Cat 5-kabel, ét hver vej, fuld duplex. 4B5B gør hver 4 bit til 5, så 100 Mbit/s kører med 125 MBd, og MLT-3 træder linjen gennem +1, 0 og −1, ét trin for hvert 1, så signalets frekvenser holder sig lave nok til kablet. De to andre par er ubrugte.",
+      "extra": "Power over Ethernet: sådan et kabel kan også føre strøm, så et adgangspunkt eller et kamera i loftet ikke behøver en stikkontakt: 15,4 W med 802.3af (2003), på de ledige par eller på dataparrene, og 30 W med 802.3at, som kom i 2009. Hurtigere kobber: gigabit (1000BASE-T, 1999) bruger alle fire par med fem niveauer (PAM-5). De fleste bærbare i 2010 havde det, men hjemmerouterens 100 Mbit/s-porte satte tempoet.",
+      "describe": {
+        "kid": "To netværksbokse står i hver ende af et tykt kabel. Indeni ligger fire snoede par, men kun to lyser. Pulser løber den ene vej ad det ene par og tilbage ad det andet, på samme tid. Kortene zoomer ind på snoningen, pulserne og dæmpningen efter cirka 100 meter.",
+        "nerd": "Kabelsnittet viser fire par, hvoraf to er aktive: det ene bærer pulser frem, det andet tilbage, på samme tid. Kortene viser modsatte spændinger på et snoet par, et MLT-3-bitmønster, der træder mellem tre niveauer, og et øjediagram med tre niveauer."
+      }
+    },
     "extra": "Power over Ethernet: sådan et kabel kan også føre strøm, så et adgangspunkt eller et kamera i loftet ikke behøver en stikkontakt. Jævnstrømmen ligger på parrene som en fælles (fantom)spænding, som dataene, der sendes som forskelle, aldrig mærker: 15,4 W med 802.3af (2003) og 30 W med 802.3at, som kom i 2009. Hurtigere kobber: 10GBASE-T (2006) bruger 16 niveauer i stedet for 5 (PAM-16, parret i DSQ128-symboler med LDPC-fejlrettelse), kører 800 MBd pr. par og kræver Cat 6A for de fulde 100 m. I 2010 var det stadig mest til servere."
   }
 }

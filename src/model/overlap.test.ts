@@ -123,10 +123,10 @@ const KNOWN_SHORT = [
   'home-fttb × watch-video landscape /internet flats-basement',
   'home-fttb × watch-video portrait / ap-router',
   'home-fttb × watch-video portrait /internet border-transit',
-  'street × watch-video landscape /internet border-ixp',
-  'street × watch-video portrait /internet border-transit',
-  'street-2010 × watch-video landscape /internet border-ixp',
-  'street-2010 × watch-video portrait /internet border-transit',
+  'on-the-go × watch-video landscape /internet border-ixp',
+  'on-the-go × watch-video portrait /internet border-transit',
+  'on-the-go-2010 × watch-video landscape /internet border-ixp',
+  'on-the-go-2010 × watch-video portrait /internet border-transit',
 ];
 
 // Lit doors whose label finds no room on a big screen (#137): just clear of the backbone's name, in English only
@@ -136,8 +136,8 @@ const KNOWN_WAITING = [
   'en home × watch-video portrait /internet: dive label core-border',
   'en home-dsl × watch-video portrait /internet: dive label core-border',
   'en home-fttb × watch-video portrait /internet: dive label core-border',
-  'en street × watch-video portrait /internet: dive label core-border',
-  'en street-2010 × watch-video portrait /internet: dive label core-border',
+  'en on-the-go × watch-video portrait /internet: dive label core-border',
+  'en on-the-go-2010 × watch-video portrait /internet: dive label core-border',
 ];
 
 describe('path scenes (issues #64, #72, #137)', () => {
