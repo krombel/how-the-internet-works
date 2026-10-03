@@ -122,11 +122,11 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
    first place of that era by `order` (until #147, from the street in 1995 → `home-dialup`), and the panel and the arrival
    announcement say so ("In 1995 you'd have done this at home"). From an older era back to today you land on the
    family's today member (`home-dialup` → `home`); Back returns to the street if that's where you came from.
-   - **Street → 1995: a laptop on a GSM phone** (#147): the street's own 1995 member, `street-1995`, so nothing to
+   - **Street → 1995: a laptop on a GSM phone** (#147): the street's own 1995 member, `on-the-go-1995`, so nothing to
      explain. (Until then a nerd-only note under the arrival line said why there was no trip: "GSM's circuit-switched
      data (CSD) sent 9.6 kbit/s … rare and very nerdy, so it gets no trip of its own", `era.1995.away.street`; the
      note and its `away` mechanism went with #147.)
-   - **Street → 2010: a phone on 3G** (#113, step 4): the street's own 2010 member, `street-2010`, so nothing to
+   - **Street → 2010: a phone on 3G** (#113, step 4): the street's own 2010 member, `on-the-go-2010`, so nothing to
      explain. (Until step 4 the era said so with its own line, `era.2010.instead.street`, now gone.)
    - **Desk → 1995: the PC at home, which sits at a desk.** Since #151 the desk is a way online from home
      (`variantOf: 'home'`), so its 1995 stop is home's own member, `home-dialup`, and no line is needed: the stop is
@@ -134,7 +134,7 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
      `era.<era>.instead.<place>` with it, is gone from `ui/time.ts`.)
    - **The era's words, where its stop is.** The panel's text and picture description for an era are its own
      (`era.2010`: the DSL at home), unless it has words for the stop's place, `era.<era>.at.<base place>`
-     (`era.2010.at.street`: phones on 3G; `era.2010.at.desk`: a cable to the modem; `era.today.at.street`: 5G).
+     (`era.2010.at.on-the-go`: phones on 3G; `era.2010.at.desk`: a cable to the modem; `era.today.at.on-the-go`: 5G).
 2. **The activity** stays the same family; its era variant comes with the route. (From 1985 on, an era whose variant
    of your activity doesn't exist sends you to that era's first activity, and says so.)
 3. **The path** is kept as deep as it can be:
@@ -153,7 +153,7 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
 
 **Place switching and eras** (revised by the user, 3 Oct). Once an era is picked you stay in it: only the time
 machine changes the era. The picker offers each place as its member of the current era, by the time machine's own
-rule (`eraStops`): in 2010 the desk is `desk-2010`, the street `street-2010`, home `home-dsl`. A place with no member
+rule (`eraStops`): in 2010 the desk is `desk-2010`, the street `on-the-go-2010`, home `home-dsl`. A place with no member
 in the era keeps its option, with the time machine's line under it ("In 1995 you'd have done this at home", on the
 go in 1995), and picking it goes to the era's trip (the time
 machine's `instead` stop), still in the era; the arrival says why, as the time machine's does. The access chips ("How
@@ -170,10 +170,10 @@ and the top bar shows it.
 | `#/en/home-dialup/watch-video/internet/datacentre` | the 1995 server room (its router, a hub, the web server; the server keeps today's id, `cdn`, so `…/datacentre/cdn` is its dive in every era) |
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
-| `#/en/street/watch-video` → 1995 | `#/en/street-1995/watch-video` (#147: a laptop on a GSM phone; until then `home-dialup`, said so) |
-| `#/en/street-2010/watch-video/phone-cell-tower` → 1995 | `#/en/street-1995/watch-video/phone-cell-tower` (the GSM radio dive) |
-| `#/en/street/watch-video` → 2010 | `#/en/street-2010/watch-video` (step 4: a phone on 3G) |
-| `#/en/street/watch-video/phone-cell-tower` → 2010 | `#/en/street-2010/watch-video/phone-cell-tower` (the 3G radio dive) |
+| `#/en/on-the-go/watch-video` → 1995 | `#/en/on-the-go-1995/watch-video` (#147: a laptop on a GSM phone; until then `home-dialup`, said so) |
+| `#/en/on-the-go-2010/watch-video/phone-cell-tower` → 1995 | `#/en/on-the-go-1995/watch-video/phone-cell-tower` (the GSM radio dive) |
+| `#/en/on-the-go/watch-video` → 2010 | `#/en/on-the-go-2010/watch-video` (step 4: a phone on 3G) |
+| `#/en/on-the-go/watch-video/phone-cell-tower` → 2010 | `#/en/on-the-go-2010/watch-video/phone-cell-tower` (the 3G radio dive) |
 | `#/en/desk/watch-video` → 2010 | `#/en/desk-2010/watch-video` (step 4: a laptop on a cable to the DSL router; home's member that starts on a cable, #151) |
 | `#/en/desk/watch-video` → 1995 | `#/en/home-dialup/watch-video` (the PC at home: the desk is a way online from home since #151, so nothing to explain) |
 | PR 10: `#/en/home-1985/watch-video` | 1985: the home computer calls a BBS ("download a picture") |
@@ -239,8 +239,8 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 ### 1995 on the go: a laptop and a GSM phone (#147)
 
 Thomas (3 Oct): the street in 1995 gets a trip of its own. It was possible, but rare. Until now it landed at home with a
-nerd-only note (`era.1995.away.street`). The place is **`street-1995`**, the 1995 member of the street's family ("On the
-go" since #151), beside `street` and `street-2010`. From the ISP's modem bank on it is `home-dialup`'s trip.
+nerd-only note (`era.1995.away.street`). The place is **`on-the-go-1995`**, the 1995 member of the street's family ("On the
+go" since #151), beside `on-the-go` and `on-the-go-2010`. From the ISP's modem bank on it is `home-dialup`'s trip.
 
 | Part | What | Notes |
 |---|---|---|
@@ -252,7 +252,7 @@ go" since #151), beside `street` and `street-2010`. From the ISP's modem bank on
 | Mobile switch | **`mobile-core`** drawn as **`msc`** (new node: switch cabinets and a rack of modems, the IWF), role `bridge` | The interworking function (IWF; GSM 09.07, now 3GPP TS 29.007) ends RLP and plays the bytes as a **V.32 modem at 9,600 bit/s** into the phone network (as PCM samples), or, to an ISDN number, sends them digital, rate-adapted by V.110. In 1995 the modem. `mobile-core` is the mobile network's door out in every era (today's UPF, 2010's GGSN), so `internet/mobile-core` survives a trip in time. |
 | Phone network | **`trunk`** (new technology: look `cable`, `rate` 64 kbit/s): an E1 between the mobile switch and the phone company's **`exchange`** (`home-dialup`'s), 30 calls, slot 16 for SS7 signalling | Then `home-dialup`'s **`pri`** to the ISP's **`bng`** (`modem-bank`), whose modem answers the IWF's modem. From there on, the 1995 internet (`isp-to-cdn-1995`) and server room (`datacentre-1995`), through `watch-video-1995`. |
 | Owners | none for the mast, the BSC and the switch | Like the exchange: the phone networks of 1995 were not part of the internet. The internet starts at the modem bank, which gives the laptop its address: **no IP before it**. |
-| Backdrop | the street's (shops, a lamp post, the road), as `street-2010` reuses it | The era's parcel stamp comes with the era; its home props (a calendar, the modem) have no spots on the street. |
+| Backdrop | the street's (shops, a lamp post, the road), as `on-the-go-2010` reuses it | The era's parcel stamp comes with the era; its home props (a calendar, the modem) have no spots on the street. |
 | How long | 40 kB at 9.6 kbit/s: about 33 s for the bits alone (kids: "about 30 seconds"); today's video, about a day (23 h) | The 1995 nerd line ("the modem's top speed") holds as is: the IWF's V.32 modem runs at 9.6k. Three times home's 11 s. |
 
 - **Kid**: the laptop's phone rings the internet company like the computer at home does, but over the air to a mast
@@ -272,13 +272,13 @@ go" since #151), beside `street` and `street-2010`. From the ISP's modem bank on
     frame between two phone companies: 30 calls and slot 16 for SS7).
   - No new layer, layer dive or device dive: the mast, the BSC and the switch say what they do in their words; PPP's
     `ppp-hello` serves the laptop and the modem bank as at home.
-- **The era text**: `era.1995.at.street` (kid, nerd, `describe`: the laptop and its GSM phone) is 1995's words in the
+- **The era text**: `era.1995.at.on-the-go` (kid, nerd, `describe`: the laptop and its GSM phone) is 1995's words in the
   panel and on arrival from the street. `era.1995.away.street` goes, and with it the `away` note in `ui/time.ts`:
   nothing else uses it. The generic line ("In 1995 you'd have done this at home") stays for a family with no member in
   an era (none of today's, after this step; 1985 will have some).
-- **The time machine**: the street in 1995 is `street-1995`, not an `instead` stop, and the picker in 1995 offers "On
-  the go" as a real place with no line. `street-2010` ↔ `street-1995` keep `phone-cell-tower` (the radio dive) and
-  `internet/mobile-core`; `home-dialup` ↔ `street-1995` (the picker, in 1995) share `internet/exchange`,
+- **The time machine**: the street in 1995 is `on-the-go-1995`, not an `instead` stop, and the picker in 1995 offers "On
+  the go" as a real place with no line. `on-the-go-2010` ↔ `on-the-go-1995` keep `phone-cell-tower` (the radio dive) and
+  `internet/mobile-core`; `home-dialup` ↔ `on-the-go-1995` (the picker, in 1995) share `internet/exchange`,
   `internet/bng`, the PRI and everything beyond.
 - **Eager JS estimate: ~0.8 kB gz**: the place and its layouts ~0.25, three technologies with their links to read
   more ~0.2, four devices ~0.15, the art loader's four entries ~0.12, and the eager names (the place's name and
@@ -300,7 +300,7 @@ go" since #151), beside `street` and `street-2010`. From the ISP's modem bank on
 | Data centre | `datacentre` 2010 variant through the activity variant: **`dc-router`** (core), **`load-balancer`**, **`spine`** as an `aggregation` switch (new node, dive `three-tier`: core → aggregation → access, one uplink blocked by spanning tree, oversubscription), **`rack-switch`** (access), **`cdn`** cache server | Three-tier was the norm through the 2000s; leaf–spine (Clos, ECMP) spread with the hyperscalers from about 2010 and became the default by the mid-2010s. |
 | Activity | `watch-video-2010`: "Watch a small video", 360p (YouTube's usual setting then; 720p HD from 2008), flow `ip › tcp › http` | YouTube moved to HTTPS by default in the mid-2010s. |
 | How long | "arrives about 10× faster than you watch it" (a 3-minute 360p video, ~15 MB, at ~8 Mbit/s) | Streaming is "faster than you watch", not "how long". Built (PR 5): 17 MB (360p at ~0.75 Mbit/s) at the 20 Mbit/s DSL plan, about 7 s, ~26× faster than it plays; on the street's 3G at ~2 Mbit/s, about 70 s, ~3×. |
-| On the go (step 4; "the street" until #151) | **`street-2010`**: a 2010 smartphone (`phone-3g`) on 3G (`hspa`: WCDMA with HSPA) → a NodeB on the mast (`nodeb`, at the `cell-tower` hop) → Iub to the RNC (`rnc`) → GTP-U over a Direct Tunnel to the GGSN (`mobile-core`, "Mobile gate" in 2010, with NAT) → the ISP; the SGSN (`sgsn`, "Sign-in desk") as an aside; the 2010 activity (360p) | Direct Tunnel (3GPP Rel-7, TR 23.919) was common by 2010; without it the SGSN sat in the user plane with two tunnels, which the model can't draw (one tunnel per layer), so the nerd text says it. HSDPA peaked at 7.2 Mbit/s (category 8, most 2010 phones) or 14 Mbit/s (category 10; "14.4" is the usual rounding up), shared by the cell, with a few Mbit/s in practice. Backhaul (Iub) was often E1 lines over ATM or microwave (#108): drawn as today's metro fibre with a nerd note. |
+| On the go (step 4; "the street" until #151) | **`on-the-go-2010`**: a 2010 smartphone (`phone-3g`) on 3G (`hspa`: WCDMA with HSPA) → a NodeB on the mast (`nodeb`, at the `cell-tower` hop) → Iub to the RNC (`rnc`) → GTP-U over a Direct Tunnel to the GGSN (`mobile-core`, "Mobile gate" in 2010, with NAT) → the ISP; the SGSN (`sgsn`, "Sign-in desk") as an aside; the 2010 activity (360p) | Direct Tunnel (3GPP Rel-7, TR 23.919) was common by 2010; without it the SGSN sat in the user plane with two tunnels, which the model can't draw (one tunnel per layer), so the nerd text says it. HSDPA peaked at 7.2 Mbit/s (category 8, most 2010 phones) or 14 Mbit/s (category 10; "14.4" is the usual rounding up), shared by the cell, with a few Mbit/s in practice. Backhaul (Iub) was often E1 lines over ATM or microwave (#108): drawn as today's metro fibre with a nerd note. |
 | At home on a cable (step 4; "the desk" until #151) | **`desk-2010`**: the same laptop on a cable → a DSL modem-router (`dsl-router`) → VDSL2 to the DSLAM in the cabinet, as `home-dsl`'s; the desk's layout | Since #151 a member of the home family ("Laptop on a cable" beside `home-dsl`'s "Laptop on Wi‑Fi"). |
 
 ### Today: a phone, fibre (or 5G), a cache nearby
@@ -758,7 +758,7 @@ Made while building PR 4 (the street and the desk in 2010):
   (RNC–SGSN, SGSN–GGSN); one layer can't be two tunnels on one route, so the nerd text says so instead.
 - **The hops keep today's ids** where the job is the same (`phone`, `cell-tower` with the `nodeb` node,
   `mobile-core` for the GGSN, with a 2010 block: "Mobile gate", tag GGSN · Gi · NAT), so a jump keeps its path:
-  `street/…/phone-cell-tower` lands on the 3G radio dive, `internet/mobile-core~ip` survives, and back to today
+  `on-the-go/…/phone-cell-tower` lands on the 3G radio dive, `internet/mobile-core~ip` survives, and back to today
   `internet/rnc~gtp` (no RNC today) falls back to `internet`. The NodeB has no device dive (the mast's dive is
   5G's); its words say what it does.
 - **The links**: the radio is a new technology, `hspa` (look `radio`, layer `hspa`: H-RNTI, queue id, TSN, RLC
@@ -781,7 +781,7 @@ Made while building PR 4 (the street and the desk in 2010):
   today says 5G at the street. The desk in 1995 lands at home, whose PC sits at a desk, no trip. (Built here as an
   era line, `era.1995.instead.desk`; since #151 the desk is a home member, its 1995 stop is `home-dialup` like home's,
   and the `era.<era>.instead.<place>` mechanism is gone.)
-- **Past-only items speak in their era block**: `street-2010`, `desk-2010`, `phone-3g`, `nodeb`, `rnc`, `sgsn` and
+- **Past-only items speak in their era block**: `on-the-go-2010`, `desk-2010`, `phone-3g`, `nodeb`, `rnc`, `sgsn` and
   `hspa` keep only their name (and `access`, `yours`) eager; their other words are their `"2010"` block, so they load
   with `virtual:past-strings` (`withEra` finds them on a 2010 route). That took the eager growth from +2.4 kB to
   +0.8 kB. `home-dsl` and `home-dialup` could do the same later (about 1.5 kB).
@@ -976,7 +976,7 @@ Made while fixing 2010's leaks (#135):
 - **The exchange's cross-connects in one colour** (Thomas, 3 Oct): `fibre-light` draws `cross-connect` in 2010 as
   `dc-fibre` (`ONE_COLOUR_IN`): one 1310 nm laser, no mux or demux, the tag "10GBASE-LR · 1310 nm · SMF", its own kid,
   nerd and describe; today's stays 100GBASE-LR4 on four LAN-WDM lanes. The 1995 trip has no cross-connect (E1 and T1).
-- **The GGSN's NAT is a carrier's**: `carrierNat` takes 10.0.0.0/8 too (the street-2010 phone is 10.152.33.7), so
+- **The GGSN's NAT is a carrier's**: `carrierNat` takes 10.0.0.0/8 too (the on-the-go-2010 phone is 10.152.33.7), so
   2010's GGSN draws neighbouring phones and says "10.0.0.0/8 → public" instead of a home's 192.168.x.x; its words say
   the shared 100.64.0.0/10 came in 2012.
 - **Left as is** (era-neutral and true in 2010): `border-inside` and `ixp-inside` (MPLS, PHP, route servers, a CDN's
@@ -1011,10 +1011,27 @@ Made while building #147 (on the go in 1995):
 - **Leak test**: `era-1995.test.ts` walks every 1995 place. Packet radio (GPRS, EDGE, HSCSD, HSPA, UMTS, 3G–5G, LTE,
   NR, GTP, SGSN, GGSN) is matched case-sensitively and as whole words over every word the route says, labels included
   (case-insensitive, "lte" and "edge" sat inside Danish words); the caption check for a later internet is main's.
-- **Accessibility run**: the time machine's journey from the street now lands on `street-1995/phone~tcp`, saying
-  "It's 1995." with no line; the street-1995 overview, internet, GSM, Abis and trunk dives are in the label-contrast
+- **Accessibility run**: the time machine's journey from the street now lands on `on-the-go-1995/phone~tcp`, saying
+  "It's 1995." with no line; the on-the-go-1995 overview, internet, GSM, Abis and trunk dives are in the label-contrast
   and path-label scenes.
 - **Eager JS: +0.77 kB gz** (100.87 against 100.10 on main, index.html's static imports gzipped), against the ~0.8 kB
   estimate.
 - **`tdm-frames` on a phone**: the ends' names stay inside the frame (the trunk's "Telephone exchange" on the right
   ran off it), and the line's name sits higher, clear of the mast, the tallest end; the PRI and E1 dives move with it.
+
+Made while building #164 (the sweep's leftovers):
+- **100BASE-TX at home in 2010**: a technology of its own, `fast-ethernet` (100 Mbit/s, the router's LAN ports), on
+  `home-dsl`'s and `desk-2010`'s cable to the router; `copper-pulses` draws it from the rate as MLT-3 on two pairs, one
+  each way and both at once (`codeOf`: Manchester to 10 Mbit/s, MLT-3 to 100, PAM-5 above), with its words under
+  `mlt3.*` and a `2010.fast-ethernet` block. Not gigabit everywhere: a 2010 DSL router's ports were 100 Mbit/s. A dive
+  key can't tell two links of one technology apart, and the 2010 data centre's copper stays 1000BASE-T, hence the new
+  technology. The time machine pairs places by their first link's signal (its dive), not its technology, so the desk
+  still goes to `desk-2010`.
+- **1995's full walk**: `era-1995.test.ts` reads every word now, as 2010's does: 1995 words for Ethernet's type field
+  (IPv4 and ARP) and IP's TTL (no MPLS), VLANs and gigabit added to what it fails on, and two keys excused as never
+  shown in 1995 (the cache's SSD room in `server-inside`, gigabit's PAM-5 card in `copper-pulses`).
+- **The 100G rates** stay today's: a route shows one rate, its slowest link's, and the walk reads that one too
+  (`{rate}`), so a 100G core link would fail the 2010 test the day it set the pace.
+- **Found, not fixed**: 1995's IP header still names DSCP and ECN (1998, 2001; 1995's was the ToS byte), and IP's
+  protocol field and the routing line speak of ECMP over the 5-tuple. A follow-up: they need 1995 field names, not
+  only words.

@@ -31,5 +31,12 @@
       "name": "Frame check sequence",
       "about": "En CRC over hele rammen: en beskadiget ramme smides væk."
     }
+  },
+  "1995": {
+    "field": {
+      "type": {
+        "about": "Hvad der er indeni: 0x0800 IPv4, 0x0806 ARP."
+      }
+    }
   }
 }

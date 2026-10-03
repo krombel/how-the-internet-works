@@ -243,8 +243,9 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   with one colour on the thread, as before DWDM (1996), and their words under their own id (`light.ts` ›
   `oneColour`, `wordsOf`: `atm.title`, `submarine-sdh.kid`).
 - `copper-pulses` picks its line code from the link's `rate` (`copper.ts` › `codeOf`): up to 10 Mbit/s it's
-  10BASE-T's Manchester on two pairs taking turns (1995's ISP rack), above it 1000BASE-T's PAM-5 on four pairs both
-  ways; each code's words are under its name (`manchester.title`, `pam5.…`).
+  10BASE-T's Manchester on two pairs taking turns (1995's ISP rack), up to 100 Mbit/s 100BASE-TX's MLT-3 on two
+  pairs both ways at once (a 2010 home router's LAN ports: the `fast-ethernet` technology), above it 1000BASE-T's
+  PAM-5 on four pairs both ways; a two-pair code's words are under its name (`manchester.title`, `mlt3.speed`).
 - `tdm-frames` is every E1 and T1 (`pri`, `e1`, `t1`): its mode comes from the technology id (`tdm.ts` › `MODES`),
   and it draws the same row of timeslots as `modem-call`'s card (`tdm-frames/art/Slots.svelte`, imported by both).
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
@@ -408,7 +409,7 @@ An era is a time the place looked different: the home in 1995 (dial-up on a PC),
 today (fibre, a phone). The time machine (its button in the top bar, 🕰️ in the caption, "Travel in time" in the list
 view) switches between the members of a place family by their era, so an era switch is a place switch: no new route,
 URL or dive. From a place with no member in an era, it goes to that era's own trip, the first place of that era, and
-says so. Every family has a member in each era today (on the go in 1995 is `street-1995`, a laptop on a GSM data
+says so. Every family has a member in each era today (on the go in 1995 is `on-the-go-1995`, a laptop on a GSM data
 call), so this is for a family added later.
 - `content/eras/<id>/era.ts`: `defineEra({ year: 1995 })`. The folder name is the id (`today` is the present,
   whose `year` is the current one). The panel lists eras by `year`.
@@ -418,7 +419,7 @@ call), so this is for a family added later.
   Danish. The place picker shows the time machine's line ("In 1995 you'd have done this at home.") under a place
   with no way online in the era you are in.
   Where an era has a member of the place's family, `at.<place>`, else `at.<base place>` (`kid`, `nerd`,
-  `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.street`:
+  `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.on-the-go`:
   phones on 3G; `at.desk-2010`: a cable to the DSL modem). The era texts load with the dive strings, when the panel
   opens.
 - Each base place says where it is, `where` ("at home", "on the go"), for the time machine's "In 1995 you'd have
@@ -426,8 +427,9 @@ call), so this is for a family added later.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
   where only some members have an era, and on a family whose members all share one era (a time machine needs two).
   Two members of one era are fine (`home`, `desk` and `home-fttb` are all `today`): the time machine goes to the
-  place you are at if it's of that era, else to the one of that era that starts the same way (the same first link:
-  `desk`'s cable goes to `desk-2010`'s), else to the first by `order`.
+  place you are at if it's of that era, else to the one of that era that starts the same way (the same signal on the
+  first link: `desk`'s gigabit cable goes to `desk-2010`'s 100 Mbit/s one, both `copper-pulses`), else to the first
+  by `order`.
 - The internet inside is an era's own where a segment variant draws it (`isp-to-cdn-1995`: a small ISP, leased lines,
   CANTAT-3 and an American ATM backbone; `datacentre-1995`: a server room with a router, a hub and one web server,
   drawn by the `server-room` group node; `datacentre-2010`: a rented cage in a colocation centre, drawn by the
@@ -437,10 +439,13 @@ call), so this is for a family added later.
   switch in `ixp-inside`), its words say so plainly ("drawn as today") rather than describe today's technology as
   the era's. A dive's words for one device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`,
   not `at.cdn`). A test per era walks its routes and fails on a later technology unless the line says when it came,
-  and on a dive's `at.<node>` words for a node no route of that era reaches: `era-1995.test.ts` reads the captions,
-  names, tags and dives (MPLS, DWDM, 100G, leaf–spine, a CDN…); `era-2010.test.ts` reads every word a 2010 route can
-  show, labels and layer fields too (Wi‑Fi 5 and up, 4G/5G, 100G without "new in 2010", 100.64/10…), and the data
-  centre's more strictly (leaf–spine, ECMP, 25–400G, k8s, NVMe…). Both walk with `src/test/era-walk.ts`.
+  and on a dive's `at.<node>` words for a node no route of that era reaches: both read every word a route of their era can
+  show: captions, names, tags, dives, labels and layer fields, and the one rate shown (the slowest link's, so the
+  core's 100G, shared with today, never shows on a 2010 or 1995 route). `era-1995.test.ts` fails on MPLS, DWDM, 100G,
+  VLANs, gigabit, NVMe, leaf–spine, a CDN…; `era-2010.test.ts` on Wi‑Fi 5 and up, 4G/5G, 100G without "new in
+  2010", 100.64/10…, and the data centre's more strictly (leaf–spine, ECMP, 25–400G, k8s, NVMe…). Both walk with
+  `src/test/era-walk.ts`, which reads every key of a dive the route reaches, so a word of a mode the era never draws
+  (gigabit's PAM-5 card on 1995's copper) goes on the test's `UNSHOWN` list, with why.
 - **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the
   same keys as the rest of the file, for what is different then (`"1995": { "name": "Web server", "kid": … }` in
   `nodes/cdn`, `"1995": { "sealed": { … } }` in a dive). On a route of that era every lookup tries the block first,

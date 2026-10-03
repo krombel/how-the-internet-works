@@ -10,7 +10,7 @@ import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from 
 import { WORLD_SIZE, bezier } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
 import type * as Server from '../../content/scenes/server-inside/server';
-import { captionKeys, routeWords, scenes } from '../test/era-walk';
+import { routeWords, scenes } from '../test/era-walk';
 import { sceneKeys } from './describe';
 import { pathScene, propSpots } from './layout';
 import { activityIds, content } from './registry';
@@ -233,7 +233,7 @@ describe('the 1995 trip', () => {
   /** How each 1995 place reaches the ISP's modem bank. */
   const CALL: Record<string, string[]> = {
     'home-dialup': ['dialup/ppp', 'pri/ppp'],
-    'street-1995': ['gsm/ppp', 'abis/ppp', 'abis/ppp', 'trunk/ppp', 'pri/ppp'],
+    'on-the-go-1995': ['gsm/ppp', 'abis/ppp', 'abis/ppp', 'trunk/ppp', 'pri/ppp'],
   };
 
   it('dials, then rides timeslots, a sea cable and ATM to the server room', () => {
@@ -279,7 +279,7 @@ describe('the 1995 trip', () => {
       }
       expect(r.links.slice(0, upTo).every((l) => l.stack.join('+') === 'ppp')).toBe(true);
     }
-    const gsm = resolveRoute({ activity: 'watch-video', places: ['street-1995'] });
+    const gsm = resolveRoute({ activity: 'watch-video', places: ['on-the-go-1995'] });
     expect(gsm.chain.slice(0, 6).map((h) => `${h.id}:${h.node.id}`)).toEqual(['phone:laptop-gsm', 'cell-tower:bts', 'bsc:bsc', 'mobile-core:msc', 'exchange:exchange', 'bng:modem-bank']);
     // 9.6 kbit/s each way on the air: a third of the PC's modem at home
     expect(gsm.links[0].rate).toEqual({ down: 9600, up: 9600 });
@@ -304,18 +304,20 @@ describe('the 1995 trip', () => {
     }
   });
 
-  it('says nothing of a later internet, unless it says when (review panel F14–F16)', () => {
-    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container/i;
+  it('says nothing of a later internet, unless it says when (review panel F14–F16, #164)', () => {
+    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit/i;
     // and on the go (#147): GSM's circuit-switched data only, no packet radio
     const MOBILE = /\b(GPRS|EDGE|HSCSD|HSPA|SGSN|GGSN|GTP|UMTS|[345]G|LTE|NR)\b/;
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;
-    const bad = new Set<string>();
-    for (const r of trips()) {
-      for (const [key, s] of routeWords(r, captionKeys(r))) if (LATER.test(s) && !SAYS_WHEN.test(s)) bad.add(`${key}: ${s}`);
-      // every word of the route, a dive's labels too
-      for (const [key, s] of routeWords(r)) if (MOBILE.test(s) && !SAYS_WHEN.test(s)) bad.add(`${key}: ${s}`);
-    }
-    expect([...bad]).toEqual([]);
+    // walked, but never shown in 1995: the cache's rooms (1995's server is drawn as a tower: a card, the computer and
+    // a disk) and gigabit's PAM-5 card (1995's copper is 10BASE-T's Manchester)
+    const UNSHOWN = ['scene.server-inside.ssd.title', 'scene.copper-pulses.tag.speedShort'];
+    const bad = new Map<string, string>();
+    for (const r of trips()) for (const [key, s] of routeWords(r)) if ((LATER.test(s) || MOBILE.test(s)) && !SAYS_WHEN.test(s)) bad.set(key, s);
+    const keyOf = (k: string) => k.split(' ')[2];
+    expect([...bad].filter(([k]) => !UNSHOWN.includes(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
+    // each excuse still holds: drop an entry once it no longer leaks
+    expect(UNSHOWN.filter((k) => ![...bad.keys()].some((b) => keyOf(b) === k)), 'no longer leaks: take it off UNSHOWN').toEqual([]);
   });
 
   it('keeps a dive’s 1995 words for a device to the devices a 1995 route reaches', () => {

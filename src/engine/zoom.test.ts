@@ -152,7 +152,7 @@ describe('sideways travel in the zoom', () => {
 
 describe('no previews of what is inside on a phone (#90)', () => {
   const phones: [Viewport, 'portrait' | 'landscape'][] = [[{ w: 390, h: 844, top: 110, bottom: 280 }, 'portrait'], [{ w: 844, h: 390, top: 60, bottom: 69 }, 'landscape']];
-  const places = ['home', 'street', 'desk', 'home-dsl', 'home-fttb', 'home-dialup'];
+  const places = ['home', 'on-the-go', 'desk', 'home-dsl', 'home-fttb', 'home-dialup'];
   /** Every path scene of a route, with its children. */
   const walk = (r: Route, o: 'portrait' | 'landscape', path: string[] = []): string[][] =>
     [path, ...childrenOf(r, sceneInfo(r, path, o).ref, o).filter((c) => c.kind === 'expand').flatMap((c) => walk(r, o, [...path, c.step]))];

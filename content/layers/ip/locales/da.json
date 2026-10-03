@@ -75,6 +75,11 @@
     }
   },
   "1995": {
-    "server": "webserveren"
+    "server": "webserveren",
+    "field": {
+      "ttl": {
+        "about": "Hver router trækker én fra og smider pakken væk ved 0, så en routing-løkke ikke kan beholde den for evigt."
+      }
+    }
   }
 }

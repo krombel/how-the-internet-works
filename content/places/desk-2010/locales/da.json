@@ -15,7 +15,7 @@
     "stop": {
       "laptop": {
         "kid": "I 2010 gik den bærbare ved skrivebordet også på nettet gennem et kabel. Dens forespørgsel løber gennem kablet til routeren.",
-        "nerd": "En bærbar fra 2010 med en gigabit-Ethernetport, sat i modemrouterens LAN-switch: kablet var hurtigere end DSL-linjen bagved, ofte 8–20 Mbit/s ned."
+        "nerd": "En bærbar fra 2010 med en gigabit-Ethernetport, sat i en af modemrouterens LAN-porte på 100 Mbit/s, så kablet kører 100: stadig langt hurtigere end DSL-linjen bagved, ofte 8–20 Mbit/s ned."
       },
       "router": {
         "kid": "Routeren er hjemmets hoveddør. Den skriver dit hjems adresse på pakken, og dens modem synger den ud ad telefonlinjen.",

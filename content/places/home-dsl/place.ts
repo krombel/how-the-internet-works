@@ -13,7 +13,7 @@ export default definePlace({
     // Wi‑Fi 4 (802.11n) in practice
     { link: 'wifi', km: 0.005, rate: { down: 50e6, up: 50e6 } },
     { at: 'ap' },
-    { link: 'ethernet', km: 0.005 },
+    { link: 'fast-ethernet', km: 0.005 },
     { at: 'router', node: 'dsl-router', addr: '192.168.1.1', natTo: '203.0.113.7:61757' },
     { link: 'vdsl', km: 0.4 },
     { at: 'cabinet', node: 'dslam', in: 'internet', owner: 'isp' },

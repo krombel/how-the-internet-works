@@ -157,13 +157,13 @@ Night is a **mode** of Storybook, not a fifth style: the same picture book, read
 | | Day | Night |
 |---|---|---|
 | Home | ![](img/app-storybook-home-desktop.jpg) | ![](img/app-storybook-night-home-desktop.jpg) |
-| On the street | ![](img/app-storybook-street-desktop.jpg) | ![](img/app-storybook-night-street-desktop.jpg) |
+| On the street | ![](img/app-storybook-on-the-go-desktop.jpg) | ![](img/app-storybook-night-on-the-go-desktop.jpg) |
 | The internet | ![](img/app-storybook-internet-desktop.jpg) | ![](img/app-storybook-night-internet-desktop.jpg) |
 | Wi‑Fi dive | ![](img/app-storybook-wifi-desktop.jpg) | ![](img/app-storybook-night-wifi-desktop.jpg) |
 | Fibre, long haul | ![](img/app-storybook-backbone-desktop.jpg) | ![](img/app-storybook-night-backbone-desktop.jpg) |
 | Undersea cable | ![](img/app-storybook-submarine-desktop.jpg) | ![](img/app-storybook-night-submarine-desktop.jpg) |
 | TLS dive | ![](img/app-storybook-tls-desktop.jpg) | ![](img/app-storybook-night-tls-desktop.jpg) |
-| Peek, phone | ![](img/app-storybook-peek-street-phone.jpg) | ![](img/app-storybook-night-peek-street-phone.jpg) |
+| Peek, phone | ![](img/app-storybook-peek-on-the-go-phone.jpg) | ![](img/app-storybook-night-peek-on-the-go-phone.jpg) |
 
 Caption notes (a nerd's "Extra" in the physical dives, #31) are 14 px under the caption's text with their name in the
 door ink; on a phone's folded card they are cut to one line.

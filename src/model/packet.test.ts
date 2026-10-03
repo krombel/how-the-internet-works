@@ -8,7 +8,7 @@ import { bezier } from '../engine/geometry';
 import { chainOf, childrenOf, hopScenePath, sceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 const at = (r: Route, hop: string) => r.chain.findIndex((h) => h.id === hop);
 const onLink = (r: Route, id: string, dir: 'up' | 'down' = 'up') => packetOn(r, r.activity.flows[0], r.links.find((l) => l.id === id)!.index, dir);
 /** "ip.ttl" → its value on a link. */

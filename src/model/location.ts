@@ -1,5 +1,5 @@
 // Locations as URLs: #/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…[/@<stop>]
-// e.g. #/da/street/watch-video/internet/@mobile-core. Pure: parsing, formatting and validation against the content.
+// e.g. #/da/on-the-go/watch-video/internet/@mobile-core. Pure: parsing, formatting and validation against the content.
 import { isLang, FALLBACK } from './strings';
 import { normaliseChoice, resolveRoute } from './resolve';
 import { pathScene } from './layout';

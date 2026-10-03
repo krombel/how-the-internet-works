@@ -11,7 +11,7 @@ const trip = (place: string, path: string[], to: string) => eraTrip({ activity: 
 describe('the time machine (#59)', () => {
   it('knows each place’s era: a place without one is today’s', () => {
     expect(nowEra()).toBe('today');
-    const places = ['home', 'home-dsl', 'home-dialup', 'street', 'street-2010', 'street-1995', 'desk', 'desk-2010'];
+    const places = ['home', 'home-dsl', 'home-dialup', 'on-the-go', 'on-the-go-2010', 'on-the-go-1995', 'desk', 'desk-2010'];
     expect(places.map((p) => eraOf(p))).toEqual(['today', '2010', '1995', 'today', '2010', '1995', 'today', '2010']);
     const year = (place: string) => eraYear(resolveRoute({ activity: 'watch-video', places: [place] }));
     expect(places.map(year)).toEqual([null, 2010, 1995, null, 2010, 1995, null, 2010]);
@@ -28,24 +28,25 @@ describe('the time machine (#59)', () => {
     expect(eraStops('home-dialup')).toEqual(home);
     expect(eraStops('home-fttb')).toEqual([...home.slice(0, 2), { ...home[2], place: 'home-fttb' }]);
     // on the go has its own 2010 (#113) and 1995 (#147): a laptop on a GSM call
-    const away = [{ ...home[0], place: 'street-1995' }, { ...home[1], place: 'street-2010' }, { ...home[2], place: 'street' }];
-    expect(eraStops('street')).toEqual(away);
-    expect(eraStops('street-2010')).toEqual(away);
-    expect(eraStops('street-1995')).toEqual(away);
-    // the desk is a way online from home (#151): its laptop stays on a cable in 2010, and its 1995 is the PC at home
+    const away = [{ ...home[0], place: 'on-the-go-1995' }, { ...home[1], place: 'on-the-go-2010' }, { ...home[2], place: 'on-the-go' }];
+    expect(eraStops('on-the-go')).toEqual(away);
+    expect(eraStops('on-the-go-2010')).toEqual(away);
+    expect(eraStops('on-the-go-1995')).toEqual(away);
+    // the desk is a way online from home (#151): its laptop stays on a cable in 2010 (Fast Ethernet then, gigabit
+    // today), and its 1995 is the PC at home
     const desk = [home[0], { ...home[1], place: 'desk-2010' }, { ...home[2], place: 'desk' }];
     expect(eraStops('desk')).toEqual(desk);
     expect(eraStops('desk-2010')).toEqual(desk);
     // each stop's picture: the device you start on then
     expect(eraStops('home').map((s) => startDevice(s.place))).toEqual(['pc', 'laptop', 'phone']);
-    expect(eraStops('street').map((s) => startDevice(s.place))).toEqual(['laptop-gsm', 'phone-3g', 'phone']);
+    expect(eraStops('on-the-go').map((s) => startDevice(s.place))).toEqual(['laptop-gsm', 'phone-3g', 'phone']);
     expect(eraStops('desk').map((s) => startDevice(s.place))).toEqual(['pc', 'laptop', 'laptop']);
     // only where the activity allows
-    expect(eraStops('home', ['street', 'home-dsl', 'home'])).toEqual(home.slice(1));
-    expect(eraStops('street', ['street', 'desk'])).toEqual([{ era: 'today', year: now, place: 'street', instead: false }]);
-    expect(eraStops('street', ['street', 'street-2010'])).toEqual(away.slice(1));
+    expect(eraStops('home', ['on-the-go', 'home-dsl', 'home'])).toEqual(home.slice(1));
+    expect(eraStops('on-the-go', ['on-the-go', 'desk'])).toEqual([{ era: 'today', year: now, place: 'on-the-go', instead: false }]);
+    expect(eraStops('on-the-go', ['on-the-go', 'on-the-go-2010'])).toEqual(away.slice(1));
     // a family with no member in an era (here, with the GSM call left out): the era's own trip, instead
-    expect(eraStops('street', ['street', 'street-2010', 'home-dialup'])).toEqual([{ ...home[0], instead: true }, ...away.slice(1)]);
+    expect(eraStops('on-the-go', ['on-the-go', 'on-the-go-2010', 'home-dialup'])).toEqual([{ ...home[0], instead: true }, ...away.slice(1)]);
     expect(eraStops('desk', ['desk', 'home-dsl', 'home-dialup']).map((s) => s.place)).toEqual(['home-dialup', 'home-dsl', 'desk']);
   });
 
@@ -62,23 +63,23 @@ describe('the time machine (#59)', () => {
     expect(trip('home', ['router'], 'home-dsl').path).toEqual(['router']);
     expect(trip('home', ['router'], 'home-dialup').path).toEqual([]);
     // from the street to another family's trip, at home; a step through the cell tower doesn’t exist there
-    expect(trip('street', ['phone~tcp'], 'home-dialup')).toEqual({ activity: 'watch-video', places: ['home-dialup'], path: ['pc~tcp'] });
-    expect(trip('street', ['phone-cell-tower'], 'home-dsl').path).toEqual([]);
+    expect(trip('on-the-go', ['phone~tcp'], 'home-dialup')).toEqual({ activity: 'watch-video', places: ['home-dialup'], path: ['pc~tcp'] });
+    expect(trip('on-the-go', ['phone-cell-tower'], 'home-dsl').path).toEqual([]);
     // the street in 1995 (#147): the laptop's GSM call keeps the job's id, so its radio dive and its steps travel
-    expect(trip('street', ['phone-cell-tower'], 'street-1995')).toEqual({ activity: 'watch-video', places: ['street-1995'], path: ['phone-cell-tower'] });
-    expect(trip('street-2010', ['phone~tcp'], 'street-1995').path).toEqual(['phone~tcp']);
+    expect(trip('on-the-go', ['phone-cell-tower'], 'on-the-go-1995')).toEqual({ activity: 'watch-video', places: ['on-the-go-1995'], path: ['phone-cell-tower'] });
+    expect(trip('on-the-go-2010', ['phone~tcp'], 'on-the-go-1995').path).toEqual(['phone~tcp']);
     // the laptop's PPP is the PC's at home
-    expect(trip('street-1995', ['phone~ppp'], 'home-dialup').path).toEqual(['pc~ppp']);
+    expect(trip('on-the-go-1995', ['phone~ppp'], 'home-dialup').path).toEqual(['pc~ppp']);
     // no NR, HSPA or IP in the air in 1995
-    expect(trip('street', ['phone~nr'], 'street-1995').path).toEqual([]);
-    expect(trip('street-2010', ['phone~hspa'], 'street-1995').path).toEqual([]);
+    expect(trip('on-the-go', ['phone~nr'], 'on-the-go-1995').path).toEqual([]);
+    expect(trip('on-the-go-2010', ['phone~hspa'], 'on-the-go-1995').path).toEqual([]);
     // the street and the desk in 2010 (#113): the same phone and laptop, the same steps, as far as they exist then
-    expect(trip('street', ['phone~tcp'], 'street-2010')).toEqual({ activity: 'watch-video', places: ['street-2010'], path: ['phone~tcp'] });
-    expect(trip('street', ['phone-cell-tower'], 'street-2010').path).toEqual(['phone-cell-tower']);
-    expect(trip('street-2010', ['phone~http'], 'street').path).toEqual(['phone~http']);
+    expect(trip('on-the-go', ['phone~tcp'], 'on-the-go-2010')).toEqual({ activity: 'watch-video', places: ['on-the-go-2010'], path: ['phone~tcp'] });
+    expect(trip('on-the-go', ['phone-cell-tower'], 'on-the-go-2010').path).toEqual(['phone-cell-tower']);
+    expect(trip('on-the-go-2010', ['phone~http'], 'on-the-go').path).toEqual(['phone~http']);
     // no NR in 2010, no HSPA today
-    expect(trip('street', ['phone~nr'], 'street-2010').path).toEqual([]);
-    expect(trip('street-2010', ['phone~hspa'], 'street').path).toEqual([]);
+    expect(trip('on-the-go', ['phone~nr'], 'on-the-go-2010').path).toEqual([]);
+    expect(trip('on-the-go-2010', ['phone~hspa'], 'on-the-go').path).toEqual([]);
     expect(trip('desk', ['laptop~ethernet'], 'desk-2010').path).toEqual(['laptop~ethernet']);
     expect(trip('desk', ['laptop-router'], 'desk-2010').path).toEqual(['laptop-router']);
     expect(trip('desk-2010', ['laptop~tcp'], 'desk').path).toEqual(['laptop~tcp']);
@@ -93,11 +94,11 @@ describe('the time machine (#59)', () => {
     expect(trip('home', path, 'home-dialup').path).toEqual(path);
     expect(trip('home-dsl', path, 'home').path).toEqual(path);
     // the mobile core is there in both, the RNC only in 2010
-    expect(trip('street', ['internet', 'mobile-core~ip'], 'street-2010').path).toEqual(['internet', 'mobile-core~ip']);
-    expect(trip('street-2010', ['internet', 'rnc~gtp'], 'street').path).toEqual(['internet']);
+    expect(trip('on-the-go', ['internet', 'mobile-core~ip'], 'on-the-go-2010').path).toEqual(['internet', 'mobile-core~ip']);
+    expect(trip('on-the-go-2010', ['internet', 'rnc~gtp'], 'on-the-go').path).toEqual(['internet']);
     // and in 1995 the mobile switch (#147): no GTP tunnel, but the call still carries your IP packets inside PPP
-    expect(trip('street', ['internet', 'mobile-core~gtp'], 'street-1995').path).toEqual(['internet']);
-    expect(trip('street', ['internet', 'mobile-core~ip'], 'street-1995').path).toEqual(['internet', 'mobile-core~ip']);
-    expect(trip('street-1995', ['internet', 'datacentre'], 'home-dialup').path).toEqual(['internet', 'datacentre']);
+    expect(trip('on-the-go', ['internet', 'mobile-core~gtp'], 'on-the-go-1995').path).toEqual(['internet']);
+    expect(trip('on-the-go', ['internet', 'mobile-core~ip'], 'on-the-go-1995').path).toEqual(['internet', 'mobile-core~ip']);
+    expect(trip('on-the-go-1995', ['internet', 'datacentre'], 'home-dialup').path).toEqual(['internet', 'datacentre']);
   });
 });
