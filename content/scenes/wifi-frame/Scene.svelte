@@ -46,7 +46,7 @@
     rowNerd('addr2', down ? apName : phoneName),
     rowNerd('addr3', routerName),
     rowNerd(S('field.seq'), down ? '0x7c10' : '0x0a30'),
-    rowNerd('FCS', down ? '0x51b7' : '0x8d42'),
+    rowNerd('FCS', down ? '0x51b7e20c' : '0x8d42c3a1'),
   ]);
   const cableFields = $derived.by(() => down
     ? [rowNerd('Eth DA', phoneName, true), rowNerd('Eth SA', routerName)]
@@ -54,7 +54,7 @@
   const radioStrip = $derived.by(() => [
     `FC ${down ? 'FromDS' : 'ToDS'} · Dur44 · Seq${down ? '7c10' : '0a30'}`,
     `A1 ${down ? phoneName : apName} · A2 ${down ? apName : phoneName} · A3 ${routerName}`,
-    `FCS ${down ? '51b7' : '8d42'} · CCMP`,
+    `FCS ${down ? '51b7e20c' : '8d42c3a1'} · CCMP`,
   ]);
   const cableStrip = $derived.by(() => [
     `DA ${down ? phoneName : routerName}`,
@@ -75,7 +75,7 @@
     return Math.max(L.road.x0 + half, Math.min(L.road.x1 - half, x));
   };
   const timeline = $derived(nerd
-    ? [S('label.difs'), S('label.backoff'), S('label.data'), portrait || compact ? S('label.ackNerd') : S('label.sifsAck')]
+    ? [S('label.aifs'), S('label.backoff'), S('label.data'), portrait || compact ? S('label.ackNerd') : S('label.sifsAck')]
     : [S('label.listenKid'), S('label.waitKid'), S('label.sendKid'), S('label.gotItStep')]);
   const lineY = $derived(c1.y + c1.h * (compact ? 0.56 : 0.50));
   // a phone on its side: no laptop on the card (it waits on the road anyway), so the timeline spans the card and its

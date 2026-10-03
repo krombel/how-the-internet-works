@@ -25,8 +25,8 @@
       "internet": {
         "nerd": "RNC’en afslutter radiolagene og tunnelerer med Direct Tunnel pakkerne direkte til GGSN’en, der laver NAT; SGSN’en (stiplet) tjekker kun telefonen ind og sætter tunnelen op. Derfra er det det samme internet: udbyderens kerne, peering i et IXP (eller betalt transit) og en CDN-cache. Hvert farvet felt er én operatørs net.",
         "describe": {
-          "kid": "Inde i skyen starter ruten ved masten, går til radiostyringen og så til mobilselskabets port. En stiplet sidevej fører til indtjekningen. Fra porten går den gennem ISP-kernen, border-routeren og internetknudepunktet til videofirmaets datacenter. Pakker bevæger sig begge veje.",
-          "nerd": "Internetvisningen starter med NodeB, RNC og GGSN, med SGSN’en stiplet ved siden af RNC’en, derefter ISP-kerne, border-router, IXP og CDN’ets datacenter. Skyggerne viser mobil- eller ISP-net, exchange og videofirma. Pakker går begge veje over Iub, GTP, backbone-fiber og krydsforbindelser."
+          "kid": "Inde i skyen starter ruten ved masten, går til radiostyringen og så til mobilselskabets port. En stiplet sidevej fører til indtjekningen. Fra porten går den gennem ISP-kernen, grænserouteren og internetknudepunktet til videofirmaets datacenter. Pakker bevæger sig begge veje.",
+          "nerd": "Internetvisningen starter med NodeB, RNC og GGSN, med SGSN’en stiplet ved siden af RNC’en, derefter ISP-kerne, grænserouter, IXP og CDN’ets datacenter. De farvede felter viser mobil- eller ISP-nettet, internetknudepunktet og videofirmaet. Pakker går begge veje over Iub, GTP, backbone-fiber og krydsforbindelser."
         }
       }
     }

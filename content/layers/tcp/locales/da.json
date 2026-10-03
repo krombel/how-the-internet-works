@@ -15,7 +15,7 @@
   "field": {
     "sport": {
       "name": "Afsenderport",
-      "about": "Hvilken samtale hos afsenderen. En carrier-grade NAT skriver den om, så mange kunder kan dele én adresse."
+      "about": "Hvilken samtale hos afsenderen. En NAT (din hjemmerouter eller operatørens carrier-grade NAT) skriver den om, så flere enheder kan dele én adresse."
     },
     "dport": {
       "name": "Modtagerport",
@@ -59,6 +59,9 @@
   },
   "1995": {
     "field": {
+      "sport": {
+        "about": "Hvilken samtale hos afsenderen. Der er ingen NAT i 1995: den kommer frem, som den blev sendt."
+      },
       "dport": {
         "about": "Hvilken tjeneste hos modtageren: 80 = HTTP, nettet."
       }

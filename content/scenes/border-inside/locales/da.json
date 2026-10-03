@@ -8,8 +8,8 @@
     "kid": "Inde i grænserouteren",
     "nerd": "Grænserouterens RIB"
   },
-  "kid": "Det her er døren ud af dit internetfirma. Grænserouteren tager motorvejsmærkaten af, læser sedler fra naboerne og vælger den gratis genvej gennem knudepunktet. Den betalte transitvej er klar, men din pakke behøver den ikke.",
-  "nerd": "Ved PE/ASBR'en poppes det sidste MPLS-label før peering-LAN'et, som kun bruger Ethernet; med penultimate-hop popping kan kernen tage labelen af et hop tidligere. eBGP-updates fra IXP-peeren og transit-udbyderen fylder RIB'en, og local preference vælger peering frem for betalt transit til 198.51.100.0/24.",
+  "kid": "Det her er døren ud af dit internetfirma. Grænserouteren tager motorvejsmærkaten af, læser sedler fra naboerne og vælger genvejen gennem knudepunktet, hvor ingen betaler pr. pakke. Den betalte transitvej er klar, men din pakke behøver den ikke.",
+  "nerd": "Ved PE/ASBR'en skal den sidste MPLS-label være væk før peering-LAN'et, som kun bruger Ethernet; som standard (penultimate-hop popping) fjerner kernerouteren før den labelen, og her popper grænserouteren den selv. eBGP-updates fra IXP-peeren og transit-udbyderen fylder RIB'en, og local preference vælger peering frem for betalt transit til 198.51.100.0/24.",
   "describe": {
     "kid": "Dit internetfirmas kerne er til venstre. To udgange er til højre: knudepunktet og en dæmpet transit, som man betaler for. En pakke kommer med en motorvejsmærkat. Mærkaten pilles af. Sedler fra begge naboer flyver ind i vejbogen. Knudepunktets række lyser op, og pakken kører ud til knudepunktet.",
     "nerd": "Inde i grænserouteren popper linekortet mod kernen MPLS-labelen. En BGP-routingtabel viser videoprefixet med IXP-peer- og transitstier. UPDATE-sedler kommer fra begge naboer. Rækken med local-pref 200 lyser, og pakken går ud til IXP'et."
@@ -31,8 +31,8 @@
       "kid": "via knudepunktet",
       "nerd": "via IXP-peer",
       "detail": {
-        "kid": "kort vej · gratis",
-        "nerd": "AS path 1 hop · local-pref 200"
+        "kid": "kort vej · ingen betaling pr. pakke",
+        "nerd": "AS path: 1 AS · local-pref 200"
       }
     },
     "transit": {
@@ -40,7 +40,7 @@
       "nerd": "via transit",
       "detail": {
         "kid": "lang vej · betalt",
-        "nerd": "AS path 3 hop · local-pref 100"
+        "nerd": "AS path: 3 AS’er · local-pref 100"
       }
     }
   },

@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Den får et farvet mærke, så udbyderen ved, hvilken gade og hvilket hus den kom fra.",
-    "nerd": "Dobbelt-tagget (Q-in-Q): en S-VLAN pr. skab og en C-VLAN pr. kunde, mod BNG’en."
+    "nerd": "Dobbelt-tagget (Q-in-Q): et S-VLAN pr. skab og et C-VLAN pr. kunde, mod BNG’en."
   },
   "line": "802.1ad Q-in-Q, S-VLAN {svid}, C-VLAN {cvid}",
   "field": {

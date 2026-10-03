@@ -40,9 +40,10 @@ export function handshake(): Note[] {
   const notes: Note[] = [...NUMBER].map((k, i) => ({ at: KEY.from + i * (KEY.on + KEY.gap), dur: KEY.on, kind: 'tone', f: dtmf(k), gain: 0.5 }));
   notes.push({ at: 1.5, dur: 0.8, kind: 'tone', f: [425], gain: 0.4 });
   notes.push({ at: 2.45, dur: 0.8, kind: 'tone', f: [2100], gain: 0.35 });
-  for (let i = 0; i < 4; i++) notes.push({ at: 3.3 + i * 0.13, dur: 0.11, kind: 'tone', f: [i % 2 ? 2400 : 1200], gain: 0.35 });
-  notes.push({ at: 3.85, dur: 1.45, kind: 'hiss', f: [1800], gain: 0.6 });
-  notes.push({ at: 3.85, dur: 1.45, kind: 'tone', f: [1650, 980], gain: 0.2, warble: 0.09 });
+  // V.8 on V.21 first, then V.34's line probing, then the training hiss
+  notes.push({ at: 3.3, dur: 0.5, kind: 'tone', f: [1650, 980], gain: 0.25, warble: 0.09 });
+  for (let i = 0; i < 4; i++) notes.push({ at: 3.85 + i * 0.13, dur: 0.11, kind: 'tone', f: [i % 2 ? 2400 : 1200], gain: 0.35 });
+  notes.push({ at: 4.4, dur: 0.95, kind: 'hiss', f: [1800], gain: 0.6 });
   return notes;
 }
 

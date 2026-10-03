@@ -9,9 +9,8 @@ import { chainOf, childrenOf, hopScenePath, sceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
-const flow = home.activity.flows[0];
 const at = (r: Route, hop: string) => r.chain.findIndex((h) => h.id === hop);
-const onLink = (r: Route, id: string, dir: 'up' | 'down' = 'up') => packetOn(r, flow, r.links.find((l) => l.id === id)!.index, dir);
+const onLink = (r: Route, id: string, dir: 'up' | 'down' = 'up') => packetOn(r, r.activity.flows[0], r.links.find((l) => l.id === id)!.index, dir);
 /** "ip.ttl" → its value on a link. */
 const val = (r: Route, link: string, path: string, dir: 'up' | 'down' = 'up') => {
   const [layer, field] = path.split('.');
@@ -59,9 +58,15 @@ describe('the packet on each link', () => {
 
   it('counts the TTL down at every router, not at bridges', () => {
     const ttls = home.links.map((l) => val(home, l.id, 'ip.ttl'));
-    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '61', '60', '60', '59', '58', '57', '56']);
-    expect(val(home, 'bng-core', 'mpls.ttl')).toBe('62');
+    // the core router only switches the label: the IP TTL waits, and catches up when the border pops it (#134)
+    expect(ttls).toEqual(['64', '64', '63', '63', '63', '62', '62', '60', '60', '59', '58', '57', '56']);
+    expect(['bng-core', 'core-border'].map((l) => val(home, l, 'mpls.ttl'))).toEqual(['62', '61']);
+    expect(['core-border', 'bng-core', 'olt-bng'].map((l) => val(home, l, 'ip.ttl', 'down'))).toEqual(['59', '59', '57']);
+    expect(['core-border', 'bng-core'].map((l) => val(home, l, 'mpls.ttl', 'down'))).toEqual(['59', '58']);
     expect(val(home, 'phone-ap', 'ip.ttl', 'down')).toBe('56');
+    // a 1995 core router reads every packet
+    const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    expect(['bng-core', 'core-transit'].map((l) => val(dialup, l, 'ip.ttl'))).toEqual(['63', '62']);
   });
 
   it('keeps MAC addresses across bridges and writes new ones at routers', () => {
@@ -100,12 +105,42 @@ describe('the packet on each link', () => {
     expect(val(home, 'olt-bng', 'ethernet.type')).toBe('0x88A8 (802.1ad)');
     expect(val(home, 'bng-core', 'ethernet.type')).toBe('0x8847 (MPLS)');
     expect(val(home, 'ap-router', 'ip.proto')).toBe('6 (TCP)');
-    // IP 20 + TCP 20 + TLS 5+16 + HTTP 360 going up
-    expect(val(home, 'ap-router', 'ip.length')).toBe('421');
+    // IP 20 + TCP 20 + TLS 5 + HTTP 360 + TLS 1.3's inner content type 1 and tag 16 going up
+    expect(val(home, 'ap-router', 'ip.length')).toBe('422');
+    expect(val(home, 'ap-router', 'tls.length')).toBe(String(360 + 17));
     // the XGEM payload is the whole Ethernet frame: its 14-byte header, the packet and the 4-byte FCS
-    expect(val(home, 'router-cabinet', 'gpon.pli')).toBe(String(14 + 421 + 4));
-    expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.olen'))).toBe(421 + 44);
-    expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.length'))).toBe(421 + 8);
+    expect(val(home, 'router-cabinet', 'gpon.pli')).toBe(String(14 + 422 + 4));
+    expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.olen'))).toBe(422 + 44);
+    expect(Number(val(street, 'cell-tower-mobile-core', 'gtp.length'))).toBe(422 + 8);
+  });
+
+  it('acknowledges the bytes the other way carried (#134)', () => {
+    const seq = (r: Route) => Number(val(r, r.links[0].id, 'tcp.seq'));
+    const tcpPayload = (r: Route) => Number(val(r, r.links[1].id, 'ip.length')) - 20 - 20;
+    expect(Number(val(home, 'phone-ap', 'tcp.ack', 'down'))).toBe(seq(home) + tcpPayload(home));
+    expect(tcpPayload(home)).toBe(5 + 360 + 17);
+    // no TLS in 1995: just the HTTP request
+    const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    expect(Number(val(dialup, 'pc-exchange', 'tcp.ack', 'down'))).toBe(seq(dialup) + 360);
+  });
+
+  it('draws header fields at their real sizes (#134)', () => {
+    const bits = (r: Route, link: string, path: string) => {
+      const [l, f] = path.split('.');
+      return onLink(r, link).find((x) => x.id === l)?.fields.find((x) => x.id === f)?.bits;
+    };
+    // RFC 9293: 4 reserved bits and 8 flags
+    expect([bits(home, 'phone-ap', 'tcp.reserved'), bits(home, 'phone-ap', 'tcp.flags')]).toEqual([4, 8]);
+    // an encrypted Wi‑Fi frame has its Protected bit set
+    expect(val(home, 'phone-ap', 'wifi.fc')).toMatch(/^0x8841 /);
+    expect(val(home, 'phone-ap', 'wifi.fc', 'down')).toMatch(/^0x8842 /);
+    // PPP's default 16-bit frame check: 4 hex digits; Ethernet's is 32 bits
+    const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    expect(bits(dialup, 'pc-exchange', 'ppp.fcs')).toBe(16);
+    expect(val(dialup, 'pc-exchange', 'ppp.fcs')).toMatch(/^0x[0-9a-f]{4}$/);
+    expect(val(home, 'ap-router', 'ethernet.fcs')).toMatch(/^0x[0-9a-f]{8}$/);
+    // each GTP-U end picks the TEID it receives on
+    expect(val(street, 'cell-tower-mobile-core', 'gtp.teid')).not.toBe(val(street, 'cell-tower-mobile-core', 'gtp.teid', 'down'));
   });
 });
 
@@ -142,10 +177,11 @@ describe('one hop: received → used / changed → sent', () => {
     expect(shape(view(home, 'olt', 'down'))).toBe('+gpon ethernet -vlan ip (tcp) (tls) [http]');
   });
 
-  it('ISP core router: swaps the MPLS label for the one the next router asked for, TTL − 1', () => {
+  it('ISP core router: swaps the MPLS label for the one the next router asked for, MPLS TTL − 1, IP not read', () => {
     const v = view(home, 'core');
     expect(shape(v)).toBe('ethernet mpls ip (tcp) (tls) [http]');
-    expect(changed(v)).toEqual(expect.arrayContaining(['mpls.label', 'mpls.ttl', 'ip.ttl']));
+    expect(changed(v)).toEqual(['ethernet.dst', 'ethernet.src', 'ethernet.fcs', 'mpls.label', 'mpls.ttl']);
+    expect(used(v).filter((f) => !f.startsWith('ethernet.') && !f.startsWith('mpls.'))).toEqual([]);
     expect(field(v, 'mpls.label').before?.text).toBe(val(home, 'bng-core', 'mpls.label'));
     expect(field(v, 'mpls.label').value.text).toBe(val(home, 'core-border', 'mpls.label'));
     // each direction has its own labels
@@ -156,6 +192,8 @@ describe('one hop: received → used / changed → sent', () => {
     const v = view(home, 'border');
     expect(shape(v)).toBe('ethernet -mpls ip (tcp) (tls) [http]');
     expect(changed(v)).toEqual(['ethernet.dst', 'ethernet.src', 'ethernet.type', 'ethernet.fcs', 'ip.ttl', 'ip.checksum']);
+    // the IP TTL catches up with the label's as the label comes off
+    expect([field(v, 'ip.ttl').before?.text, field(v, 'ip.ttl').value.text]).toEqual(['62', '60']);
     expect(used(v)).toEqual(expect.arrayContaining(['ip.src', 'ip.dst', 'ip.proto', 'tcp.sport', 'tcp.dport']));
     expect(used(v)).not.toContain('tcp.seq');
     expect(onLink(home, 'border-ixp').map((l) => l.id)).toEqual(['ethernet', 'ip', 'tcp', 'tls', 'http']);

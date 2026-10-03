@@ -15,7 +15,7 @@
   "field": {
     "sport": {
       "name": "Source port",
-      "about": "Which conversation on the sender. A carrier-grade NAT rewrites it so many customers can share one address."
+      "about": "Which conversation on the sender. A NAT (your home router, or the operator’s carrier-grade NAT) rewrites it so several devices can share one address."
     },
     "dport": {
       "name": "Destination port",
@@ -59,6 +59,9 @@
   },
   "1995": {
     "field": {
+      "sport": {
+        "about": "Which conversation on the sender. There is no NAT in 1995: it arrives as it was sent."
+      },
       "dport": {
         "about": "Which service on the receiver: 80 = HTTP, the web."
       }

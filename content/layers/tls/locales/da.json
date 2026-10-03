@@ -9,7 +9,7 @@
   },
   "sealed": {
     "kid": "Låst. Ingen på vejen kan læse, hvad der er inden i.",
-    "nerd": "Krypteret: mellemliggende hop kan hverken læse eller ændre den."
+    "nerd": "Krypteret: mellemliggende hop kan ikke læse den eller ændre den, uden at det opdages."
   },
   "line": "Transport Layer Security: applikationsdata, længde {length}",
   "field": {
@@ -19,11 +19,11 @@
     },
     "version": {
       "name": "Version",
-      "about": "Altid 0x0303 på linjen af hensyn til kompatibilitet, også i TLS 1.3."
+      "about": "Altid 0x0303 på applikationsdata, også i TLS 1.3 (af hensyn til gamle middleboxes)."
     },
     "length": {
       "name": "Længde",
-      "about": "Bytes krypteret indhold der følger, inklusive autentifikations-tagget."
+      "about": "Bytes krypteret indhold der følger: nyttelasten, dens rigtige indholdstype på 1 byte og det 16 bytes autentifikations-tag."
     }
   }
 }

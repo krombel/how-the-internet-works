@@ -26,7 +26,7 @@
     },
     "ttl": {
       "name": "TTL",
-      "about": "Kopieret fra IP-headeren og talt ned ligesom den."
+      "about": "Kopieret fra IP-TTL’en, når labelen sættes på, og talt ned af hver label-switchende router; når labelen tages af, kopieres den tilbage til IP-headeren (den uniforme model)."
     }
   }
 }

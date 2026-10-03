@@ -122,6 +122,8 @@
   "peek.role.bridge.nerd": "{hop} bridger: den læser og skriver kun link-laget; IP-pakken passerer urørt.",
   "peek.role.router.kid": "{hop} læser adressen og vælger den bedste vej videre.",
   "peek.role.router.nerd": "Routet: longest-prefix match på modtageren, TTL − 1, et ECMP-hash over 5-tuplen og en ny link-ramme.",
+  "peek.role.switched.kid": "{hop} læser kun motorvejsmærkaten og bytter den til den næste. Den kigger slet ikke på adressen.",
+  "peek.role.switched.nerd": "Label-switchet: den øverste label byttes, og MPLS-TTL’en tælles ned; IP-headeren indeni læses ikke.",
   "peek.role.nat.up.kid": "{hop} bytter afsenderadressen ud med sin egen udadvendte adresse og husker, hvem der spurgte.",
   "peek.role.nat.up.nerd": "NAT: afsenderen omskrives til den udadvendte adresse, checksummer rettes, og koblingen gemmes; så routes den (TTL − 1).",
   "peek.role.nat.down.kid": "{hop} slår op, hvem der bad om den, og skifter adressen tilbage.",

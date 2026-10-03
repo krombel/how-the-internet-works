@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Selve beskeden, inde i den låste kasse.",
-    "nerd": "Applikationsbeskeden: en forespørgsel på det næste videosegment eller et stykke af svaret."
+    "nerd": "Applikationsbeskeden: en forespørgsel på det næste videosegment eller et stykke af svaret. Vist i HTTP/1.1’s tekstform; det meste video i dag rejser som HTTP/2 eller HTTP/3 (over QUIC), der bærer de samme felter i binære rammer."
   },
   "line": "Hypertext Transfer Protocol: {start}",
   "value": {
@@ -37,7 +37,7 @@
   },
   "1995": {
     "note": {
-      "kid": "Selve beskeden, i almindelig skrift: ingen låste den i 1995.",
+      "kid": "Selve beskeden, i almindelig skrift: almindelige sider var ikke låst i 1995.",
       "nerd": "Applikationsbeskeden i almindelig HTTP/1.0: en forespørgsel på siden eller dens billede eller et stykke af svaret."
     },
     "value": {

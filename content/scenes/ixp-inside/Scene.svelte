@@ -74,7 +74,7 @@
 
   {#each others as m (m)}
     <Member box={L.memberBoxes[m]} colour={colour(m)} {night} />
-    {#if T.label && nerd}<Text x={L.members[m].x} y={L.memberBoxes[m].y + L.memberBoxes[m].h + (portrait ? 30 : 32)} text={fill(S('member.as'), { n: 64510 + others.indexOf(m) })} size={T.small} kind="node" />{/if}
+    {#if T.label && nerd}<Text x={L.members[m].x} y={L.memberBoxes[m].y + L.memberBoxes[m].h + (portrait ? 30 : 32)} text={fill(S('member.as'), { n: 64506 + others.indexOf(m) })} size={T.small} kind="node" />{/if}
   {/each}
   {#if T.label && !nerd}<Text x={L.othersLabel.x} y={L.othersLabel.y} text={S('member.other')} size={T.label} kind="node" anchor={L.othersLabel.anchor} />{/if}
   {#if before}

@@ -221,14 +221,15 @@ hop. A layer's `fields` hold value templates with facts from the route:
 | Fact | On a link, in the packet's direction |
 |---|---|
 | `{src}` `{dst}` `{sport}` `{dport}` | The client's address and port after every NAT passed (`natTo: 'addr:port'` on a hop), the server's from its `addr` and the flow's `ports` |
-| `{ttl}` | 64 at the sender, minus one per `router` or `nat` passed |
+| `{ttl}` | 64 at the sender, minus one per `router` or `nat` passed. In a `switched` layer (MPLS) that is its own TTL; the packet's own skips the routers that only switched its label and catches up when the label comes off (RFC 3443's uniform model) |
 | `{mac.src}` `{mac.dst}` | The nearest L2 ends: the hops either side that aren't bridges or passive (a bridge passes the frame on, a splitter just the light) or where a tunnel starts or ends |
 | `{mac.tx}` `{mac.rx}` | The link's own two ends (radio transmitter and receiver) |
 | `{tunnel.src}` `{tunnel.dst}` | The ends of the run of links carrying the `tunnel` layer |
 | `{len}` `{payload}` (`{payload+8}`) | This layer and all inside it / only what's inside, in bytes (from `bits` and `bytes`) |
-| `{sum}` `{crc}` | Stable fake checksums that change whenever what they cover changes |
+| `{sum}` `{crc}` | Stable fake checksums that change whenever what they cover changes (`{crc}` as wide as its field) |
 | `{label}` | A stable fake MPLS label, the one the receiving hop asked for (so it is swapped at every label-switching hop and gone where the next link has no MPLS) |
 | `{inner.<code>}` | How this layer names the next one inside (`code` on that layer: EtherType, IP protocol) |
+| `{ack}` | The other direction's `seq` value in this layer plus the bytes it carried inside it: the next byte expected (TCP) |
 
 `packetOn(route, flow, link, dir)` resolves the stack on one link, inside-out (lengths and checksums cover inner
 layers). Values carry who they belong to (`who`: a hop), so kids see "your phone" where nerds see `192.168.1.23`.
@@ -237,6 +238,8 @@ layers). Values carry who they belong to (`who`: a hop), so kids see "your phone
 layers are **kept**, **added** or **removed**, like a tunnel or a new link frame). For each layer:
 - **sealed**: inside a `seals` layer (TLS) this hop doesn't open
 - **closed**: not in the layer's `openAt` for this hop's role (TCP at a router): readable, not its business
+- at a hop that only switches a label (`labelSwitched`: a router between two links that carry the same `switched`
+  layer), nothing inside that layer is used: the MPLS core router doesn't read the IP header
 - **open**: everything else
 
 Each field is **used** when the hop's role is in its `use` (or `use: true`), and **changed** (with the value `before`)
@@ -245,7 +248,7 @@ port rewritten, checksums fixed; the cell tower: NR off, Ethernet and a GTP‑U 
 
 ### The peek (`ui/PeekPanel.svelte`)
 
-The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`), chips for what changed,
+The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`, with `switched` for a router that only swaps a label), chips for what changed,
 the envelopes taken off here, then the packet as it leaves as nested envelopes (`ui/Envelope.svelte`), and below them
 **How it travels: Light in a glass thread**, down to the dive of the link it leaves on (at its last hop, the one it
 arrived on; the catch is let go and the camera flies there). Kids see only
@@ -284,9 +287,18 @@ dive; `CaptionDoor.path` carries where they go.
 - `doorsOf(pathScene, root)` lists them (the swap first, then in route order). They are exactly the scene tree's
   dive and group children (a test checks this for every place × activity), so a door can't point nowhere.
 - `layoutDoors` places the badges: a mark at the door's spot; labelled (always for *Open up*, for every door while
-  "What can I explore?" is on, and for the one pointed at) a pill that runs on from the mark. While lit, pills that
-  would cover each other are nudged apart. The same layout is used to draw and to hit-test, so a badge is always where
-  its tap target is. A tap right on a badge beats a packet passing under it.
+  "What can I explore?" is on, and for the one pointed at) a pill that runs on from the mark. **Labels win (#137):** a
+  pill covers no text of the scene (the signs, names, link names and tags as `placeTexts` placed them), no other
+  door's mark and no other pill, the world's edge included, with room for its bob, and for the glow and 1.12× growth
+  of the one pointed at (lit pills are plain: they don't glow over text). Trying each in turn (*Open up* first), it
+  runs on from its mark or back from it (`flip`, which `HintProps` passes to the theme), at its spot or nudged up or
+  down a pill or two, preferring a way off the devices' art; where nothing fits, a lit door shows its mark alone and
+  its label waits for a zoom, like a tag (the one pointed at shows it anyway). This runs when the scene, the zoom or
+  what is lit changes, not per frame. `PathScene` publishes the badges it drew (`render/drawn.svelte.ts`), and the
+  hit test and the coach use those, so a badge is always where its tap target is. A tap right on a badge beats a
+  packet passing under it.
+- **Packets go under the labels (#137).** Packets at rest or passing are drawn over the art and links but beneath the
+  signs, names, link names and tags; only the packet being followed is drawn above them (below the door badges).
 - **Hover and focus.** With a mouse, the door under the pointer glows and shows its label (and the cursor becomes a
   pointer over anything tappable). Pointing at or focusing a caption chip lights its badge in the scene the same way.
 - **"What can I explore?"** (the ✨ button in the chrome, a toggle with `aria-pressed`; issue #122) lights every door
@@ -430,7 +442,7 @@ mark (`mark`) to draw inside its own shape, so up and down still differ by shape
   (and `….title` likewise);
 - layer dives: `subject.layer`, `subject.ctx` (the hop's `LayerCtx`, below, at the current level), `subject.open`
   (whether the hop reads the layer, else it's sealed there) and `subject.route`. Captions look up
-  `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
+  `scene.<id>.at.<node>`, then `.role.<role>` (`.role.switched` first at a label-switching router), then `.sealed`, then the plain strings; each first under the layer
   (`scene.<id>.<layer>.at.<node>` … `scene.<id>.<layer>`), for a scene serving several layers.
 
 Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour and the device art): a scene's chunk is
@@ -647,13 +659,15 @@ Vitest (`npm test`) covers:
   glides at `travelK` along the path with no dive panel showing, keeps within its timings and carries on when
   re-planned mid-glide; neighbouring stretches into the same scene have different titles in every language
 - doors: the list per scene (matching the scene tree's children everywhere), badge spots, none while fading in a
-  place switch, which are on screen, and the badge layout (labels, nudging lit labels apart)
+  place switch, which are on screen, and the badge layout (labels; a lit label flips, nudges or waits rather than cover text, a mark or another label, #137)
 - crowding (#64, #72, `model/overlap.test.ts`): in every path scene of every place × activity, orientation, language
   and level, at the authored size and at the size a small screen draws them (doors' `GROW`: 1.7× portrait, 1.9×
   landscape), door badges, device names, link names, owner signs and nerd tags, where `placeTexts` puts them, keep
   apart from each other and from the devices, every link shows at least two packets' worth of itself, and at the
-  authored size no tag is cut to its first fact. Known short links are listed in the test (there is no known overlap
-  left); a new case fails, and so does a listed one that's gone
+  authored size no tag is cut to its first fact. With "What can I explore?" on, no lit label covers text or another
+  label (#137), and on a big screen each fits somewhere: the few that wait for a zoom are listed (`KNOWN_WAITING`).
+  Known short links are listed in the test (there is no known overlap left); a new case, or a listed one that's gone,
+  fails
 - layer dives: schema and validation (`dive` must point at a layer scene), URL round trip, never picked up by pinch
 - device dives (#9, #38): validation, the child and its frame on the device, its layer stack above it, the badge
   away from the name, stepping and travelling link → device → link with no dive panel showing on the glide, a device

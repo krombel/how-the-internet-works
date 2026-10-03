@@ -164,13 +164,16 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 ## Add a layer (issue #5)
 
 `content/layers/<id>/`:
-- `layer.ts`: `defineLayer({ fields, openAt?, seals?, tunnel?, code?, bytes?, dive?, learnMore })`.
+- `layer.ts`: `defineLayer({ fields, openAt?, seals?, tunnel?, switched?, code?, bytes?, dive?, learnMore })`.
   - `fields`: its header, in wire order (see below).
   - `openAt`: the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else leaves it closed. The default
     is everyone.
   - `seals: true`: what's inside is encrypted for every hop that doesn't open this layer (TLS).
   - `tunnel: true`: its addresses are the ends of the run of links that carry it, and the link frames around it end
     there too (GTP‑U: cell tower ↔ mobile core).
+  - `switched: true`: a label-switched layer (MPLS). A router between two links that carry it only swaps the label:
+    it reads nothing inside, its `{ttl}` is the layer's own, and the packet's TTL catches up where the label comes off.
+    Dives see it as `ctx.switched` and look up `role.switched` text first.
   - `code`: how outer layers name this one, e.g. `{ ethertype: '0x0800 (IPv4)', ipproto: '6 (TCP)' }`.
   - `bytes`: size not described by `bits` (a text header, a body), `{ up, down }`.
   - `dive`: a layer dive scene (see below): its envelope in the peek gets a magnifier that flies into it.
@@ -186,7 +189,7 @@ A field is `{ id, bits?, value, use?, kid? }`:
 - `bits`: its size on the wire. Give every field `bits` and the detail view draws the header diagram.
 - `value`: a template. Plain text is the same on every hop (`'4'`, `'010 (DF)'`); `{ up, down }` differs by direction;
   facts fill in per link: `{src}` `{dst}` `{sport}` `{dport}` `{ttl}` `{mac.src}` `{mac.dst}` `{mac.tx}` `{mac.rx}`
-  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{label}` `{inner.<code>}` (see
+  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{label}` `{ack}` `{inner.<code>}` (see
   [architecture](architecture.md#the-packet-model-modelpacketts)). `'@ask'` shows the string `value.ask` instead. An
   empty value leaves the field out in that direction.
 - `use`: the roles that act on it when the packet arrives (`['router', 'nat']` for TTL), or `true` for every hop that
@@ -318,7 +321,7 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
 - Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
 - Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
   1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)
-  2. `role.<role>` (e.g. `role.nat`)
+  2. `role.<role>` (e.g. `role.nat`; a router that only switches an MPLS label tries `role.switched` first)
   3. `sealed` (when this hop can't open the layer)
   4. the plain `title`/`kid`/`nerd`
 
