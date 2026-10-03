@@ -4,7 +4,7 @@
   // its signposts, a NAT swaps the sender sticker and notes it in its notebook (a carrier's NAT does it for a whole
   // street of phones), a bridge doesn't read it at all and only swaps the link envelope, and an endpoint checks it's
   // for itself and hands the contents up.
-  import { Node, TagAt, Text, fakeMac, fill, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
+  import { Node, TagAt, Text, fakeMac, fill, nameOf, strings, ttlAt, view, yours, type LayerSubject } from '$core/api';
   import { bob, carrierNat, layoutFor, match, moment, near, parcelX, ramp, roads, type Mode } from './post';
   import Card from './art/Card.svelte';
   import Lens from './art/Lens.svelte';
@@ -19,15 +19,16 @@
   const ctx = $derived(subject.ctx);
   const route = $derived(subject.route);
   const nerd = $derived(ctx.level === 'nerd');
-  const mode = $derived<Mode>(ctx.role);
+  // a router that only switches the label doesn't read this label either: it just swaps the envelopes
+  const mode = $derived<Mode>(ctx.switched ? 'bridge' : ctx.role);
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.size);
   const m = $derived(moment(view.time));
   const idx = $derived(ctx.to.index);
   const atServer = $derived(ctx.to.id === ctx.server.id);
-  const forwards = (role: string) => role === 'router' || role === 'nat';
-  const ttlUp = $derived(64 - route.chain.slice(1, idx).filter((h) => forwards(h.role)).length);
-  const ttlDown = $derived(64 - route.chain.slice(idx + 1, -1).filter((h) => forwards(h.role)).length);
+  /** The TTL arriving here and leaving, each way (it drops by more than one where a label comes off and it catches up). */
+  const ttlUp = $derived([ttlAt(route, idx - 1, 'up'), ttlAt(route, idx, 'up')]);
+  const ttlDown = $derived([ttlAt(route, idx, 'down'), ttlAt(route, idx - 1, 'down')]);
   /** Which way each leg's parcel travels: passing hops see one go out and one come back; an endpoint receives first. */
   const legUp = $derived<[boolean, boolean]>(mode === 'endpoint' && !atServer ? [false, true] : [true, false]);
   const up = $derived(legUp[m.leg]);
@@ -54,14 +55,15 @@
   const rows = $derived.by<Row[]>(() => {
     const from: Row = { k: IP('from'), v: up ? me : them, lit: false };
     const to: Row = { k: IP('to'), v: up ? them : me, lit: false };
-    let ttl = String(up ? ttlUp : ttlDown);
+    const [ttlIn, ttlOut] = up ? ttlUp : ttlDown;
+    let ttl = String(ttlIn);
     if (mode === 'nat') {
       if (up) Object.assign(from, { was: inside, v: outside, swap: act });
       else Object.assign(to, { was: outside, v: inside, swap: act });
     }
     if (mode === 'router' || mode === 'nat') {
       (up ? to : from).lit = mode === 'router' && m.phase === 'act';
-      if (act > 0.5) ttl = `${ttl} → ${+ttl - 1}`;
+      if (act > 0.5) ttl = `${ttlIn} → ${ttlOut}`;
     }
     if (mode === 'endpoint') {
       if (m.leg === 0) to.lit = act > 0.35 && m.phase === 'act';
@@ -119,7 +121,7 @@
   const labH = $derived(Math.min(lab.h, rowY(rows.length - 1) - lab.y + T.text * 0.72 + 36));
   const valueX = $derived(lab.x + T.text * 4.1);
   const cardTitle = $derived(S(mode === 'router' ? 'signs' : mode === 'nat' ? 'notebook' : mode === 'bridge' ? 'swap' : 'door'));
-  const tags = $derived<string[]>(mode === 'router' ? [S(side ? 'tag.lpm' : 'tag.default'), fill(S('tag.ttl'), { a: String(ttlUp), b: String(ttlUp - 1) })]
+  const tags = $derived<string[]>(mode === 'router' ? [S(side ? 'tag.lpm' : 'tag.default'), fill(S(ttlUp[1] < ttlUp[0] - 1 ? 'tag.ttlLabel' : 'tag.ttl'), { a: String(ttlUp[0]), b: String(ttlUp[1]) })]
     : mode === 'nat' ? [S(cgnat ? 'tag.cgnat' : 'tag.nat'), S('tag.ports')]
     : mode === 'bridge' ? [macTag, S('tag.untouched')]
     : [S('tag.proto'), S('tag.ttl64')]);

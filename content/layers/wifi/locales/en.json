@@ -11,7 +11,7 @@
   "field": {
     "fc": {
       "name": "Frame control",
-      "about": "Type (QoS data) and direction: to or from the wired network (DS)."
+      "about": "Type (QoS data), direction (to or from the wired network, DS) and a Protected bit: the payload is encrypted."
     },
     "duration": {
       "name": "Duration",

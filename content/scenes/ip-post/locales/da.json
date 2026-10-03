@@ -25,10 +25,19 @@
         "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at MAC-adresserne sendes uændret videre (et tunnelendepunkt sætter sin egen på), og at IP-headeren er urørt. Under pausen løftes den gamle kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
       }
     },
+    "switched": {
+      "title": "Kun mærkaten læses",
+      "kid": "Midt i internettets hurtige kerne læser denne router slet ikke adressemærket. Den læser kun motorvejsmærkaten udenpå, bytter den til den næste og sender pakken videre i en ny kuvert.",
+      "nerd": "En label-switchende router (en MPLS P-router): den slår kun den øverste label op, bytter den, tæller labelens TTL ned og lægger pakken i en ny Ethernet-ramme. IP-headeren indeni læses aldrig, så dens TTL og checksum bliver, som de er; TTL’en indhenter det, når labelen tages af ved kanten (RFC 3443’s uniforme model).",
+      "describe": {
+        "kid": "En vej forbinder din enhed, denne router og videoserveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert med motorvejsmærkaten. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
+        "nerd": "IP-headerkortet vises, men læses ikke, og dens TTL ændrer sig ikke. Link-kortet viser de indgående og udgående Ethernet- og MPLS-kuverter. Tekniske mærker viser routerens egen MAC-adresse og siger, at IP-headeren er urørt. Under pausen løftes den gamle kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
+      }
+    },
     "endpoint": {
       "title": "Er den til mig?",
       "kid": "For enden af vejen tjekker computeren adressemærket mod sin egen adresse. Det passer! Den åbner pakken og sender det nummererede stykke indeni videre op. På alt, den selv sender, skriver den selv mærkatet.",
-      "nerd": "Destinationen er en lokal adresse, så IP-headeren fjernes, og indholdet sendes op til TCP (protokol 6). På udgående pakker skriver værten selv afsender, modtager og en frisk TTL på 64.",
+      "nerd": "Destinationen er en lokal adresse, så IP-headeren fjernes, og indholdet sendes op til TCP (protokol 6). På udgående pakker skriver værten selv afsender, modtager og en frisk TTL (64 her, som på Linux, Android, iOS og macOS; Windows bruger 128, og Windows 95 brugte 32).",
       "describe": {
         "kid": "Vejen ender ved den enhed, der bliver tjekket. Ét kort viser adressemærket, og et andet viser enhedens egen adresse som et dørskilt. En pakke kommer frem, mærket passer, og et lille nummereret stykke stiger op til næste lag. På vej ud skrives mærket, før pakken går.",
         "nerd": "Ved et endepunkt sammenlignes IP-headeren med den lokale adresse på skiltet. Den indgående nyttelast stiger mod næste lag. På vej ud skriver værten frisk afsender, modtager og TTL 64. Mærker viser protokol 6 til TCP og nye pakker med TTL 64."
@@ -39,7 +48,7 @@
     "mobile-core": {
       "title": "En hel gade deler én adresse",
       "kid": "Telefoner på mobilnettet får ikke deres egen internetadresse. Mobilcentralen bytter afsender-mærkatet på en masse telefoner ud med den samme ene adresse og giver hver sit eget billetnummer i sin notesbog.",
-      "nerd": "Carrier-grade NAT: abonnenter får adresser fra det delte område 100.64.0.0/10 (RFC 6598), og tusindvis deler én offentlig IPv4-adresse med hver sin blok af porte. Det er en stor grund til IPv6.",
+      "nerd": "Carrier-grade NAT: abonnenter får adresser fra det delte område 100.64.0.0/10 (RFC 6598), og typisk fra et par dusin til et par hundrede deler én offentlig IPv4-adresse med hver sin blok af porte. Det er en stor grund til IPv6.",
       "describe": {
         "kid": "Vejen viser flere telefoner, der deler en mobilkerne på turen til videoserveren. Adressekortet ændrer Fra til mobilkernen. Byttebogen er fuld af naboer med numre. En pakke stopper i kernen, får skiftet mærkatet og går videre. Svarene bruger bogen til at finde den rigtige telefon.",
         "nerd": "Det er NAT-varianten for carrier-grade NAT. Kortet omskriver en kilde fra 100.64.0.0/10 til operatørens offentlige adresse. Tabellen kobler flere indvendige adresser og porte til udvendige porte. Pakken holder pause for omskrivningen, TTL falder, og videresendelsen fortsætter."
@@ -90,6 +99,7 @@
     "lpm": "længste match vinder",
     "default": "standardrute 0/0",
     "ttl": "TTL {a} → {b}",
+    "ttlLabel": "TTL {a} → {b}, fra labelen",
     "nat": "192.168.x.x → offentlig",
     "cgnat": "100.64.0.0/10 → offentlig",
     "ports": "optaget? ny port",

@@ -36,7 +36,7 @@
     },
     "fcs": {
       "name": "FCS",
-      "about": "Et tjek over rammen, så en knasen på linjen bliver opdaget."
+      "about": "Et 16-bit tjek over rammen (PPP’s standard), så en knasen på linjen bliver opdaget."
     }
   }
 }

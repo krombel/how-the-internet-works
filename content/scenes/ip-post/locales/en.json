@@ -25,10 +25,19 @@
         "nerd": "The IP header card is shown but not read. The link card shows incoming and outgoing envelopes. Technical labels say the MAC addresses are passed on unchanged (a tunnel end puts on its own), and the IP header is untouched. During the pause, the old envelope lifts off, the next one lands, and the packet continues with the same IP label and TTL."
       }
     },
+    "switched": {
+      "title": "Only the sticker is read",
+      "kid": "In the fast middle of the internet, this router doesn’t even read the address label. It reads only the motorway sticker on the outside, swaps it for the next one and sends the parcel on in a new envelope.",
+      "nerd": "A label-switching router (an MPLS P router): it looks up only the top label, swaps it, counts down the label’s TTL and puts the packet in a new Ethernet frame. The IP header inside is never read, so its TTL and checksum stay as they are; the TTL catches up when the label comes off at the edge (RFC 3443’s uniform model).",
+      "describe": {
+        "kid": "A road links your device, this router and the video server. The address card has sleepy eyes, and the other card shows the old and new envelopes with the motorway sticker. The parcel keeps its address label closed while one envelope lifts away and a fresh one drops on for the next stretch.",
+        "nerd": "The IP header card is shown but not read, and its TTL doesn’t change. The link card shows the incoming and outgoing Ethernet and MPLS envelopes. Technical labels show the router’s own MAC address and say the IP header is untouched. During the pause, the old envelope lifts off, the next one lands, and the packet continues with the same IP label and TTL."
+      }
+    },
     "endpoint": {
       "title": "Is it for me?",
       "kid": "At the end of the road the computer checks the address label against its own address. It’s a match! It opens the parcel and hands the numbered piece inside up. On everything it sends, it writes the label itself.",
-      "nerd": "The destination matches a local address, so the IP header is stripped and the payload goes up to TCP (protocol 6). For outgoing packets the host writes the source, the destination and a fresh TTL of 64.",
+      "nerd": "The destination matches a local address, so the IP header is stripped and the payload goes up to TCP (protocol 6). For outgoing packets the host writes the source, the destination and a fresh TTL (64 here, as on Linux, Android, iOS and macOS; Windows uses 128, and Windows 95 used 32).",
       "describe": {
         "kid": "The road ends at the device being checked. One card shows the address label, and another shows the device’s own address like a door plate. A parcel arrives, the label matches, and a small numbered piece rises to the next layer. On the way out, the label is written before the parcel leaves.",
         "nerd": "At an endpoint, the IP header is compared with the local address on the plate. The incoming payload rises toward the next layer. On the outgoing leg, the host writes a fresh source, destination and TTL 64. Labels show protocol 6 to TCP and new packets with TTL 64."
@@ -39,7 +48,7 @@
     "mobile-core": {
       "title": "A whole street shares one address",
       "kid": "Phones on the mobile network don’t get an internet address of their own. The mobile core swaps the sender sticker of lots of phones for the same single address, and gives each its own ticket number in its notebook.",
-      "nerd": "Carrier-grade NAT: subscribers get addresses from the shared space 100.64.0.0/10 (RFC 6598), and thousands of them share one public IPv4 address, each with its own block of ports. This is a big reason for IPv6.",
+      "nerd": "Carrier-grade NAT: subscribers get addresses from the shared space 100.64.0.0/10 (RFC 6598), and dozens to hundreds of them share one public IPv4 address, each with its own block of ports. This is a big reason for IPv6.",
       "describe": {
         "kid": "The road shows several phones sharing a mobile core on the way to the video server. The address card changes From to Mobile core. The swap notebook is full of neighbours with ticket numbers. A parcel stops at the core, gets its sticker changed, then walks on. Replies use the notebook to find the right phone.",
         "nerd": "This is the NAT variant for carrier-grade NAT. The card rewrites a source from 100.64.0.0/10 to the carrier’s public address. The table maps several inside address and port pairs to outside ports. The packet pauses for the rewrite, TTL drops, and forwarding continues."
@@ -90,6 +99,7 @@
     "lpm": "longest match wins",
     "default": "default route 0/0",
     "ttl": "TTL {a} → {b}",
+    "ttlLabel": "TTL {a} → {b}, from the label",
     "nat": "192.168.x.x → public",
     "cgnat": "100.64.0.0/10 → public",
     "ports": "clash? new port",

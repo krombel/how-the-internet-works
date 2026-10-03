@@ -7,7 +7,7 @@
   // envelopes, the link they leave on leads down to how it carries them (issue #13).
   // Its title takes focus when it opens; each hop is announced, and read aloud when that is on (#53).
   import { onMount, untrack } from 'svelte';
-  import { hopStepFor, hopView, stepHop, type Dir, type LayerView } from '../model/packet';
+  import { hopStepFor, hopView, labelSwitched, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
   import { layerPath, linkDivePath, linkOut } from '../model/tree';
   import { loadDive } from '../render/lazy.svelte';
@@ -29,7 +29,7 @@
   const at = $derived(v.hop);
   const last = $derived(dir === 'up' ? n - 1 : 0);
   const first = $derived(dir === 'up' ? 0 : n - 1);
-  const role = $derived(hop === first ? 'start' : hop === last ? 'end' : at.natTo ? `nat.${dir}` : at.role);
+  const role = $derived(hop === first ? 'start' : hop === last ? 'end' : at.natTo ? `nat.${dir}` : labelSwitched(route, hop) ? 'switched' : at.role);
   const says = $derived(fill(trFirst([`node.${at.node.id}.peek.${dir}`, `node.${at.node.id}.peek`, `peek.role.${role}`], loc.level), { hop: at === client ? yours(at) : nameOf(at) }));
   const off = $derived(v.layers.filter((l) => l.change === 'removed'));
   const kept = $derived(v.layers.filter((l) => l.change !== 'removed'));

@@ -23,7 +23,7 @@
     },
     "length": {
       "name": "Længde",
-      "about": "Bytes krypteret indhold der følger, inklusive autentifikations-tagget."
+      "about": "Bytes krypteret indhold der følger: nyttelasten, dens rigtige indholdstype på 1 byte og det 16 bytes autentifikations-tag."
     }
   }
 }

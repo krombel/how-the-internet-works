@@ -77,7 +77,7 @@
       "border": {
         "title": "Leaving the motorway",
         "kid": "The border router is the last junction in your internet company’s network. It takes the motorway sticker off, so the exchange and the next network can read the normal address again. Underneath, it travels as flashes of light in fibre.",
-        "nerd": "The egress PE pops the label before the Ethernet-only peering LAN at the IXP and forwards on the IP header towards the eBGP next hop. With penultimate-hop popping the core would pop it one hop earlier instead. TC bits carry class, and TTL is copied from IP and decremented.",
+        "nerd": "The egress PE pops the label before the Ethernet-only peering LAN at the IXP and forwards on the IP header towards the eBGP next hop. With penultimate-hop popping the core would pop it one hop earlier instead. TC bits carry class; at the pop the decremented MPLS TTL is copied back into the IP header (the uniform model; the pipe model leaves the IP TTL alone).",
         "describe": {
           "kid": "At the last four-door junction, the parcel arrives with a motorway number sticker. The label card shows that number turning back into IP, with a small pop sign between them. The label book says to remove the sticker, door 3 glows, and the parcel leaves as a normal address parcel.",
           "nerd": "The egress router is highlighted on the road with the MPLS-labelled packet at its doors. The action card shows the incoming label changed back to IP and marked pop. The LFIB card lists that label with a pop action and says to read IP next. The active egress door glows as the parcel continues without an MPLS label."

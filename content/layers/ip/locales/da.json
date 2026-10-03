@@ -49,7 +49,7 @@
         "kid": "Skridt tilbage",
         "nerd": "Time to live (TTL)"
       },
-      "about": "Hver router trækker én fra og smider pakken væk ved 0, så en routing-løkke ikke kan beholde den for evigt."
+      "about": "Hver router trækker én fra og smider pakken væk ved 0, så en routing-løkke ikke kan beholde den for evigt. Inde i en MPLS-kerne tælles labelens TTL i stedet og kopieres tilbage hertil ved kanten."
     },
     "proto": {
       "name": "Protokol",
@@ -57,7 +57,7 @@
     },
     "checksum": {
       "name": "Header-checksum",
-      "about": "Tjekkes af hver router og skrives om, fordi TTL’en ændrede sig."
+      "about": "Tjekkes af hver router, der læser headeren, og skrives om, fordi TTL’en ændrede sig."
     },
     "src": {
       "name": {

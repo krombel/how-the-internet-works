@@ -11,7 +11,7 @@
   "field": {
     "fc": {
       "name": "Frame control",
-      "about": "Type (QoS-data) og retning: til eller fra det kablede net (DS)."
+      "about": "Type (QoS-data), retning (til eller fra det kablede net, DS) og en Protected-bit: indholdet er krypteret."
     },
     "duration": {
       "name": "Varighed",

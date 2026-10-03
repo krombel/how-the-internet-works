@@ -23,7 +23,7 @@
     },
     "length": {
       "name": "Length",
-      "about": "Bytes of ciphertext that follow, including the authentication tag."
+      "about": "Bytes of ciphertext that follow: the payload, its 1-byte real content type and the 16-byte authentication tag."
     }
   }
 }

@@ -2,7 +2,7 @@ import { defineLayer } from '$core/define';
 
 export default defineLayer({
   fields: [
-    { id: 'fc', bits: 16, value: { up: '0x8801 (QoS data, to DS)', down: '0x8802 (QoS data, from DS)' }, use: true },
+    { id: 'fc', bits: 16, value: { up: '0x8841 (QoS data, to DS, protected)', down: '0x8842 (QoS data, from DS, protected)' }, use: true },
     { id: 'duration', bits: 16, value: '44 µs' },
     // radio receiver and transmitter; the third address is the far end (the router) the AP bridges to or from
     { id: 'addr1', bits: 48, value: '{mac.rx}', use: true, kid: true },

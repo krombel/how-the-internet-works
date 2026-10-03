@@ -122,6 +122,8 @@
   "peek.role.bridge.nerd": "{hop} bridges: it reads and rewrites only the link layer; the IP packet passes untouched.",
   "peek.role.router.kid": "{hop} reads the address and picks the best way onwards.",
   "peek.role.router.nerd": "Routed: longest-prefix match on the destination, TTL − 1, an ECMP hash over the 5-tuple, and a new link frame.",
+  "peek.role.switched.kid": "{hop} reads only the motorway sticker and swaps it for the next one. It doesn’t even look at the address.",
+  "peek.role.switched.nerd": "Label-switched: the top label is swapped and the MPLS TTL counted down; the IP header inside isn’t read.",
   "peek.role.nat.up.kid": "{hop} swaps the sender address for its own outside address, and remembers who asked.",
   "peek.role.nat.up.nerd": "NAT: the source is rewritten to the outside address, checksums are fixed and the mapping is kept; then it’s routed (TTL − 1).",
   "peek.role.nat.down.kid": "{hop} looks up who asked for this and changes the address back.",

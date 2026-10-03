@@ -36,7 +36,7 @@
     },
     "fcs": {
       "name": "FCS",
-      "about": "A check over the frame, so a crackle on the line is noticed."
+      "about": "A 16-bit check over the frame (PPP’s default), so a crackle on the line is noticed."
     }
   }
 }
