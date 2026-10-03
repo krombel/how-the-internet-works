@@ -437,7 +437,7 @@ eager in all**.
 | 5. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units); built: +1.0 kB (`speed.ts` and the caption's line ~0.58, the rates and the English `takes` words ~0.33, the icon and the pace's wiring ~0.11) | the past's `takes` words (their era blocks, in `virtual:past-strings`) |
 | 6. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
 | 7. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91); built: +0.43 kB (three devices' definitions and names, the segment variant and its layouts, the art loader's four entries) | `server-inside`'s 1995 mode (its chunk); `http-chunk`'s page mode |
-| 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
+| 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91); built: +0.44 kB (two devices' definitions and names, the segment variant and its layouts, the dive's and the art loader's entries) | `three-tier` dive; the 2010 words of `server-inside`, `fibre-light` and the hall's devices (era blocks) |
 | 9. The picker and eras | ~0.1 kB | |
 | 10. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
 | 11–14. Flats 2010, ~2002, milestones, 1985 lab | estimated in each step's plan update | |
@@ -512,8 +512,8 @@ Each is small, leaves main working and says "Part of #59".
    grows past one review, split off `atm` and `atm-cells` (the backbone drawn as an `e1`-like circuit until then).
 7. **1995: the server room** (built). The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
    mode of `server-inside`; no CDN, no origin.
-8. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
-   away in words, the 2010 nerd texts.
+8. **2010: the data centre** (built). The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
+   away in words, the 2010 nerd texts, the `colocation` group node and backdrop; #135's data-centre items.
 9. **The picker stays in the era** (#146; the user's design of 3 Oct). Each place is its member of the current
    era (`eraStops`); a place with none keeps its option with the time machine's "instead" line and goes to the era's
    trip, said on arrival; the access chips list only the era's ways online; "Other years" opens the time machine. A
@@ -847,6 +847,41 @@ Made while building PR 7 (1995: the server room):
   today's in 1995 too (a follow-up for the page's real sizes).
 - **Eager JS: +0.43 kB gz** (98.54 against 98.11 on main, index.html's static imports gzipped), under the ~0.7 kB
   estimate: the three devices' definitions and names, the segment variant and its layouts, the art loader's entries.
+
+Made while building PR 8 (2010: the data centre):
+- **The way**: the segment variant `datacentre-2010` stands in for `datacentre` on `watch-video-2010`, whose group
+  is `{ id: 'datacentre', in: 'internet', node: 'colocation' }`: the core router (`dc-router`, "Core router" in 2010)
+  → a load-balancing appliance (`load-balancer`'s 2010 words: an F5-style box, one VIP) → the `spine` hop as an
+  `aggregation` switch (new device) → the rack's access switch (`rack-switch`, a `bridge` in 2010: layer 2 ends at
+  the aggregation pair) → the `cdn` cache, with the origin aside kept (a cache still misses). Instance ids stay, so
+  `…/datacentre/spine` is `three-tier` in 2010 and `leaf-spine` today. Links: 10G `dc-fibre` between the switches,
+  1G `ethernet` (copper) from the access switch to the server, its own stretch with `copper-pulses` as its dive.
+- **`colocation`** (new network node, decided over an era prop on `datacentre`: backdrops have no era): a windowless
+  hall with roof cooling; its backdrop a caged row of grey racks on a raised floor, cooling units at the ends and the
+  access switches' lights blinking. "A rented cage in a bigger city, further away than today's": **the cache further
+  away is words only** (the hall, the cache and `server-inside`'s 2010 kid text); the exchange's cross-connect is
+  shared with today's `isp-to-cdn`, so its km stay.
+- **`three-tier`** (new dive): a core pair, the aggregation pair (this switch active and named, its twin pale, "Spare"
+  / "Standby (HSRP)") and three access switches, each with an uplink to both; spanning tree blocks the uplinks to the
+  standby (dashed, a no-entry sign at the rack's end). Your parcel comes from the load balancer through the active
+  switch to your rack; other racks' traffic goes up to the core, down or across, always through the active switch.
+  The sticker says it: one road open, one closed ("Uplink 2: blocked", "48×1G ↓ 10G ↑": 4.8 : 1
+  oversubscribed). Its `extra` says when leaf–spine came. It reuses `leaf-spine`'s switch and rack art. Not reached
+  today; `leaf-spine` is not reached in 2010, which covers #135's leaf-spine item (no 2010 keys needed there).
+- **`fibre-light` in one colour in 2010**: `ONE_COLOUR_IN` (`light.ts`) makes `dc-fibre` one colour in 2010 (the
+  route's era comes with the subject): one 850 nm lane, no mux or demux, the 2010 tag "10GBASE-SR · 850 nm · OM3"
+  (`tag.dc-fibre` in the era block); today's stays CWDM4. The cross-connect's "100GBASE-LR4" is the exchange's and
+  left to the 2010-leak lane (#135), as are `copper-pulses`' 2.5/5GBASE-T and the rest of #135.
+- **`server-inside` in 2010**: the cache mode, with 2010 words: bare metal (no VMs, no k8s), NIC 2×1G over
+  1000BASE-T, RAM and hard disks ("SSDs were only starting to appear"), the "Video program". No new drawing.
+- **Merged with #134's sweep**, which had given `server-inside` and `fibre-light`'s `dc-fibre` 2010 words of their own
+  (a 10G NIC, 40GBASE-LR4 on CWDM): step 8's replace them, to match the hall as drawn (1G copper to the server,
+  10GBASE-SR in one colour between the switches).
+- **`era-2010.test.ts`**: the tree's maths (inside the world, no overlaps, uplinks and blocking, both parcels through
+  the active switch only, the still pose), the hall's way, one-colour fibre, no later data-centre technology in the
+  hall's words unless they say when (leaf–spine, ECMP, 25–400G, FR4, CWDM, k8s, NVMe, Maglev…), and the 2010 `at.<node>`
+  check. The 2010 trips' other parts (the AP, the core, the AS count, `border-inside`, `ixp-inside`) are the leak lane's.
+- **Eager JS: +0.44 kB gz** (100.22 against 99.78 on main, index.html's static imports gzipped), under the ~0.5 kB estimate.
 
 Made while building PR 9 (the picker stays in the era, #146):
 - **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,

@@ -112,22 +112,39 @@
     }
   },
   "2010": {
-    "nerd": "A 2010 cache server terminates a 10G link on its NIC; the cache software runs on bare metal and serves hot objects from RAM, the rest from spinning disks and the first SSDs. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
+    "nerd": "A 2010 CDN cache server: a 1U or 2U box whose 1G copper NIC (1000BASE-T) goes to the rack’s access switch, running Linux and a cache program (Squid, Varnish or the CDN’s own) straight on the hardware, no VMs. Hot objects sit in RAM, the rest on spinning disks; SSDs were only starting to appear. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
     "describe": {
-      "kid": "An open server case shows a network card, the computer, memory and video shelves. A request comes in as light, reaches the video app, then the shelf either sends a film piece back or asks the far-away main copy first.",
-      "nerd": "The cutaway cache server shows NIC, host CPU running the cache app, RAM and disk cache. The request enters on fibre and reaches the highlighted app. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
+      "kid": "An open server case shows a network card, the computer with its helpers, memory and shelves of disks. A request comes in on a copper cable and reaches the video program, then the shelf either sends a film piece back or asks the far-away main copy first.",
+      "nerd": "The cutaway cache server shows the 1000BASE-T NIC, the CPU running cache processes on bare Linux, RAM and the hard-disk cache. The request arrives over copper from the access switch and reaches the highlighted process. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
     },
     "nic": {
       "title": {
-        "nerd": "NIC 2×10G"
+        "nerd": "NIC 2×1G"
+      },
+      "line": {
+        "kid": "Pulses → bits",
+        "nerd": "1000BASE-T → frames"
       }
     },
     "ssd": {
       "title": {
-        "nerd": "Disk cache"
+        "nerd": "Hard-disk cache",
+        "kid": "Disk shelves"
       },
       "line": {
-        "nerd": "HDDs and early SSDs"
+        "nerd": "Objects on hard disks",
+        "kid": "Shelves of videos"
+      }
+    },
+    "kid": "The video server is a computer that keeps popular videos in a big city’s data centre. Your request comes in on a copper cable from the rack’s switch and becomes bits on the network card. The video program looks in its memory and on its disks; if the piece is there, it sends it straight back. If not, it asks the main copy far away, saves a copy, and then sends yours.",
+    "app": "Video program",
+    "compute": {
+      "title": {
+        "nerd": "CPU · bare metal"
+      },
+      "line": {
+        "kid": "Helpers at work",
+        "nerd": "Linux · cache processes"
       }
     }
   }

@@ -2,13 +2,14 @@ import { defineActivity } from '$core/define';
 import watchVideo from '../watch-video/activity';
 
 // "Get something big from far away", in 2010 (#59): a small video, fetched as one file over plain HTTP (video sites
-// moved to HTTPS a few years later). The internet in the middle is today's for now, so the route, groups and layout
-// are the base's.
+// moved to HTTPS a few years later). The route and layout are the base's (its data centre has a 2010 variant, a
+// three-tier tree); that group is drawn by a colocation hall, not today's PoP, for its own backdrop.
 const [video] = watchVideo.flows;
 export default defineActivity({
   ...watchVideo,
   variantOf: 'watch-video',
   era: '2010',
+  groups: ['internet', { id: 'datacentre', in: 'internet', node: 'colocation' }],
   flows: [
     {
       ...video,

@@ -152,10 +152,16 @@
       }
     },
     "tag": {
-      "backbone": "40–80 λ · EDFA / 80 km"
+      "backbone": "40–80 λ · EDFA / 80 km",
+      "dc-fibre": "10GBASE-SR · 850 nm · OM3"
     },
     "dc-fibre": {
-      "nerd": "Datacenteroptik i 2010: mest 10G, på korte multimode-forbindelser (10GBASE-SR) eller single-mode (10GBASE-LR); den nye 40GBASE-LR4 lægger fire 10G-baner på fire CWDM-bølgelængder (1271–1331 nm) over ét single-mode-par. De sidste meter ind til en server er ofte kobber. Hver forbindelse er ét hop i fabric’en."
+      "nerd": "Datacenteroptik i 2010: 10GBASE-SR, én 850 nm-laser (en VCSEL) i hver retning over et par multimode-fibre (OM3), op til 300 m. Én farve pr. fiber, intet at samle eller dele. Serverne hænger på access-switchene med kobber (1000BASE-T). Hver forbindelse er ét hop i træet med tre lag.",
+      "kid": "Inde i datacentret forbinder korte glaskabler de store switches. De er kun få meter lange, så lyset krydser dem på et øjeblik. Hver tråd bærer én farve, lige efter rød: så dyb en rød, at vores øjne ikke kan se den.",
+      "describe": {
+        "kid": "En kort glastråd mellem to switches i datacentret vises tæt på. Ét lys i den ene ende hopper gennem kernen til den anden ende. Glimtene krydser på et øjeblik.",
+        "nerd": "Datacenterforbindelsen vises som en kort multimode-strækning med én 850 nm-bane: en laser i den ene ende, lyset i zigzag gennem kernen og en detektor i den anden. Mærket siger 10GBASE-SR ved 850 nm over OM3."
+      }
     }
   }
 }
