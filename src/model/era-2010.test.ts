@@ -197,7 +197,7 @@ describe('the 2010 trips', () => {
   beforeAll(loadAllPacks);
 
   it('are the home’s ways online and on the go', () => {
-    expect(new Set(places.map((p) => basePlace(p)))).toEqual(new Set(['home', 'street']));
+    expect(new Set(places.map((p) => basePlace(p)))).toEqual(new Set(['home', 'on-the-go']));
     expect(places.length).toBeGreaterThan(2);
     for (const r of trips()) expect(r.era).toBe('2010');
   });
@@ -232,7 +232,7 @@ describe('the 2010 trips', () => {
     expect(carrierNat('10.152.33.7')).toBe(true);
     expect(carrierNat('100.64.12.7')).toBe(true);
     expect(carrierNat('192.168.1.23')).toBe(false);
-    const r = resolveRoute({ activity: 'watch-video', places: ['street-2010'] });
+    const r = resolveRoute({ activity: 'watch-video', places: ['on-the-go-2010'] });
     expect(carrierNat(r.hops.phone.addr!)).toBe(true);
   });
 });

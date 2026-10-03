@@ -8,7 +8,7 @@ import { activityIds, content, type Content } from './registry';
 import { packetOn } from './packet';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
-const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
+const street = resolveRoute({ activity: 'watch-video', places: ['on-the-go'] });
 const ids = (xs: { id: string }[]) => xs.map((x) => x.id);
 
 describe('resolveRoute', () => {
@@ -110,14 +110,14 @@ const layerDives = () => {
   const c: Content = structuredClone(content);
   for (const l of Object.values(c.layers)) delete l.dive;
   c.layers.ip.dive = c.layers.tcp.dive = c.layers.gtp.dive = Object.values(c.scenes).find((s) => s.explains === 'layer')!.id;
-  return { home: resolveRoute({ activity: 'watch-video', places: ['home'] }, c), street: resolveRoute({ activity: 'watch-video', places: ['street'] }, c) };
+  return { home: resolveRoute({ activity: 'watch-video', places: ['home'] }, c), street: resolveRoute({ activity: 'watch-video', places: ['on-the-go'] }, c) };
 };
 
 /** The real content with a dive for every layer (so these tests don't depend on which layer dives exist). */
 const allLayerDives = () => {
   const c: Content = structuredClone(content);
   for (const l of Object.values(c.layers)) l.dive = Object.values(c.scenes).find((s) => s.explains === 'layer')!.id;
-  return { home: resolveRoute({ activity: 'watch-video', places: ['home'] }, c), street: resolveRoute({ activity: 'watch-video', places: ['street'] }, c) };
+  return { home: resolveRoute({ activity: 'watch-video', places: ['home'] }, c), street: resolveRoute({ activity: 'watch-video', places: ['on-the-go'] }, c) };
 };
 
 describe('scene tree', () => {
@@ -377,9 +377,9 @@ describe('scene tree', () => {
 
 describe('location', () => {
   it('round-trips', () => {
-    const h = '#/da/street/watch-video/internet/@mobile-core';
+    const h = '#/da/on-the-go/watch-video/internet/@mobile-core';
     const l = parseHash(h);
-    expect(l).toEqual({ lang: 'da', places: ['street'], activity: 'watch-video', path: ['internet'], stop: 'mobile-core' });
+    expect(l).toEqual({ lang: 'da', places: ['on-the-go'], activity: 'watch-video', path: ['internet'], stop: 'mobile-core' });
     expect(formatHash(l)).toBe(h);
     expect(normaliseLoc(l)).toEqual(l);
   });
@@ -391,7 +391,7 @@ describe('location', () => {
   });
 
   it('round-trips layer dives', () => {
-    for (const h of ['#/en/home/watch-video/router~ip', '#/da/street/watch-video/internet/mobile-core~ip']) {
+    for (const h of ['#/en/home/watch-video/router~ip', '#/da/on-the-go/watch-video/internet/mobile-core~ip']) {
       const l = parseHash(h);
       expect(formatHash(l)).toBe(h);
       expect(normaliseLoc(l)).toEqual(l);
@@ -400,15 +400,15 @@ describe('location', () => {
   });
 
   it('keeps a layer dive across a place switch only where its hop still is', () => {
-    expect(normaliseLoc(parseHash('#/en/street/watch-video/phone~ip')).path).toEqual(['phone~ip']);
-    expect(normaliseLoc(parseHash('#/en/street/watch-video/router~ip')).path).toEqual([]);
-    expect(normaliseLoc(parseHash('#/en/street/watch-video/internet/cabinet~ip')).path).toEqual(['internet']);
-    expect(normaliseLoc(parseHash('#/en/street/watch-video/phone~wifi')).path).toEqual([]);
+    expect(normaliseLoc(parseHash('#/en/on-the-go/watch-video/phone~ip')).path).toEqual(['phone~ip']);
+    expect(normaliseLoc(parseHash('#/en/on-the-go/watch-video/router~ip')).path).toEqual([]);
+    expect(normaliseLoc(parseHash('#/en/on-the-go/watch-video/internet/cabinet~ip')).path).toEqual(['internet']);
+    expect(normaliseLoc(parseHash('#/en/on-the-go/watch-video/phone~wifi')).path).toEqual([]);
   });
 
   it('repairs stale and partial links', () => {
     expect(normaliseLoc(parseHash('#/xx'))).toEqual({ lang: 'en', places: ['home'], activity: 'watch-video', path: [], stop: null });
-    expect(normaliseLoc(parseHash('#/en/street/watch-video/internet/home-cabinet'))).toMatchObject({ path: ['internet'], stop: null });
+    expect(normaliseLoc(parseHash('#/en/on-the-go/watch-video/internet/home-cabinet'))).toMatchObject({ path: ['internet'], stop: null });
     expect(normaliseLoc(parseHash('#/en/home/watch-video/@nope')).stop).toBeNull();
     expect(parseHash('', 'da-DK').lang).toBe('da');
   });

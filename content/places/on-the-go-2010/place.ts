@@ -1,12 +1,12 @@
 import { definePlace } from '$core/define';
-import street from '../street/place';
+import onTheGo from '../on-the-go/place';
 
 // On the go around 2010: a smartphone on 3G (HSPA). The NodeB on the mast sends the radio pieces back to its
 // radio network controller (RNC), which ends the radio layers and, with Direct Tunnel (3GPP Rel-7, common by 2010),
 // tunnels the packets (GTP-U) straight to the GGSN, the mobile network's gate to the internet. The SGSN signs the
 // phone in and sets the tunnel up, beside the path.
 export default definePlace({
-  variantOf: 'street',
+  variantOf: 'on-the-go',
   order: 2.4,
   era: '2010',
   hops: [
@@ -25,7 +25,7 @@ export default definePlace({
   aside: [{ at: 'sgsn', in: 'internet', from: 'rnc', link: 'metro-fibre', owner: 'isp' }],
   layout: {
     // the same street, so the trip in time only swaps the phone and the mast
-    overview: street.layout!.overview,
+    overview: onTheGo.layout!.overview,
     internet: {
       landscape: { nodes: { 'cell-tower': [90, 740, 120], rnc: [340, 450, 140, 'above'], sgsn: [540, 690, 110, 'above'], 'mobile-core': [750, 370, 160] }, owners: { isp: [400, 210] } },
       portrait: {

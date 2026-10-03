@@ -7,7 +7,7 @@
     "nerd": "En stationær pc: dens eksterne modem ringer op til udbyderen på telefonlinjen, uden nogen router imellem."
   },
   "at": {
-    "street": {
+    "on-the-go": {
       "kid": "Ude i byen var næsten ingen på nettet, men man kunne godt: en bærbar med en ledning til en mobiltelefon ringede til internetfirmaet. Tre gange langsommere end derhjemme, og hvert minut kostede penge.",
       "nerd": "GSM’s kredsløbskoblede data: 9,6 kbit/s i én radiotidsslot, betalt pr. minut som et opkald. Mobilcentralens modemmer (IWF’en) ringer til udbyderen som et modem derhjemme; GPRS’ altid-tændte pakker kom i 2000.",
       "describe": {
