@@ -90,9 +90,9 @@ function takesOf(r: Route, lv: Level): CaptionNote[] {
   }) }];
 }
 
-/** A hint, naming the keys when the last input was a key (#53), else the gestures; a scene may have none for them
- *  (the overview: "What can I explore?" says what there is to tap, #122). */
-const hint = (key: string) => (view.keys ? tr(`${key}.keys`) : trFirst([key]));
+/** A hint, naming the keys when the last input was a key (#53; and C, which folds the caption away, #168), else the
+ *  gestures; a scene may have none for them (the overview: "What can I explore?" says what there is to tap, #122). */
+const hint = (key: string) => (view.keys ? `${tr(`${key}.keys`)} ${tr('hint.fold.keys')}` : trFirst([key]));
 
 /** The title of a scene (for the breadcrumb and the caption). */
 export function sceneTitle(r: Route, path: string[], o: Orient): string {

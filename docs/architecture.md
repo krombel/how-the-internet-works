@@ -324,6 +324,10 @@ dive; `CaptionDoor.path` carries where they go.
   phone held upright keeps the names: an icon alone told a child nothing, #138); the group keeps the verb as its
   label. On a portrait phone the folded card's title is then only for screen readers, so two rows of
   chips fit; on a short landscape screen the pill holds one row, scrolling sideways.
+- **Folding the caption away** (#168). `Caption`'s `tucked` (bound to App, in memory) folds it to the pill on any
+  screen, over the screen's own fold (`captionFold`), until it's unfolded. While it is tucked, App keeps the room the
+  caption had (`resize` keeps `vp.bottom`, and the caption's height no longer refits), so the scene stays where it is.
+  Its chevron and C (`Caption`'s key, while focus is in it or the picture) fold it; the pill, its button and C unfold it.
 - **Motion.** The breathing, pulsing and bobbing stop with `prefers-reduced-motion` (`view.still`).
 - **First-run coach marks** (issue #21). A visit that starts at the top (`coachRun` in `ui/coach.ts`: the overview, no
   stop) and has never had them gets, after 700 ms of the scene moving, four cards (`ui/CoachMarks.svelte` with

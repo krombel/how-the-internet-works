@@ -112,6 +112,8 @@ describe('caption hints', () => {
     keys.forEach((k, i) => {
       expect(k).not.toMatch(/^hint\.|Tap|Swipe|Pinch/);
       expect(k).not.toBe(taps[i]);
+      // and C, which folds the caption away (#168), as its own sentence
+      expect(k).toMatch(/[.!?] C folds the text away\.$/);
     });
   });
 });
