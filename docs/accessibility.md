@@ -108,14 +108,14 @@ The work comes in four slices:
   on" (that tap is what lets iOS speak). While it is on, the caption has "Read again"; in the peek each hop is read.
   Going somewhere else cuts it off, and the quiet packet ticks wait while it speaks. Screen-reader users don't need
   it: the announcer speaks in their own voice.
-  - Toggles keep their name and say their state with `aria-pressed` ("Pause all motion, pressed"). The kid/nerd
-    buttons say which one is on. The ladder's lists and the crumbs are disclosures (`aria-expanded`), not menus.
+  - Toggles keep their name and say their state with `aria-pressed` ("Pause all motion, pressed"). The level's
+    buttons (Simple, Technical) say which one is on. The ladder's lists and the crumbs are disclosures (`aria-expanded`), not menus.
   - A changed header field reads "60, was 61" (`ui/Change.svelte`) instead of the struck-through old value and the
     new one run together.
   - Learn-more links in another language than the page carry `lang`.
 - **Contrast.** The chrome's text pairs, including the "Change" link and the peek's old and new values, meet AA in day
   and night (`model/contrast.test.ts`). So do its non-text parts at 3:1 (WCAG 1.4.11): a card's edge on the page, a
-  button's and a chip's edge in a card, what is on (kid/nerd, a pressed toggle, a rung), the caption's door chips
+  button's and a chip's edge in a card, what is on (the level, a pressed toggle, a rung), the caption's door chips
   and the scene's door badges, the focus ring and the keyboard's ring in the scene, and dark marks (`--face`) on
   bright bodies.
 - **The scene's own text.** Labels are checked where they are drawn (`npm run evaluate -- --only=a11y`, below): 4.5:1

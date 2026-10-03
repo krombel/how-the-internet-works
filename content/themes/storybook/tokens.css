@@ -329,6 +329,11 @@
     line-height: 1;
   }
 
+  /* the level's words ("Enkel", "Teknisk") keep the controls on one row from 360 px (#141) */
+  :root[data-style='storybook'] .seg .btn {
+    padding-inline: 4px;
+  }
+
   :root[data-style='storybook'] .controls .icon-btn {
     min-width: 30px;
     padding: 3px 4px;
