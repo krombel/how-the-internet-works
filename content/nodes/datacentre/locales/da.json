@@ -11,5 +11,18 @@
       "kid": "I en stor hal står rækker af høje skabe. Vejen kommer fra knudepunktet til kantrouteren, load balanceren, en spine-switch, en rack-switch og videoserveren. En stiplet vej fører langt væk til hovedkopien. Pakker går ind, og video kommer ud igen.",
       "nerd": "PoP-visningen starter ved IXP’et og går i zigzag gennem kantrouter, L4-load balancer, spine, top-of-rack-leaf og cache-serveren over kort fiber. En stiplet gren fra cachen fører til origin i en cloud-region. Forespørgsler og video bevæger sig i hver sin retning."
     }
+  },
+  "1995": {
+    "kid": "Tegnet som nutidens datacenter. I 1995 boede hjemmesiden i et lille serverrum: én computer på en hylde, en router og et par tynde kobberkabler. Tryk for at se indenfor!",
+    "nerd": "Tegnet som i dag (et CDN-PoP og en leaf–spine-fabric, fra 2010’erne). I 1995 kom siden fra et hostingsteds serverrum: en router på T1’eren, en 10 Mbit/s Ethernet-hub og webserveren.",
+    "tag": "Serverrum · tegnet som i dag",
+    "inside": {
+      "kid": "Tegnet som nutidens datacenter med en trafikbetjent, vejkryds og skabe. I 1995 kom din pakke ind på en lejet linje til én router og så ad et tyndt kobberkabel til den ene computer med hjemmesiden.",
+      "nerd": "Tegnet som i dag: load balancer og leaf–spine-fabric kom år senere. I 1995 endte T1’eren på stedets router, som sendte pakken over en delt 10BASE-T-hub til webserveren. Der var ingen cache og ingen origin: serveren havde den eneste kopi.",
+      "describe": {
+        "kid": "Tegnet som nutidens datacenter: inde i en stor hal står rækker af høje skabe. Vejen kommer ind til hoveddørens router, load balanceren, en spine-switch, en rack-switch og webserveren. En stiplet vej fører langt væk til en hovedkopi. Pakker går ind, og siden kommer ud igen.",
+        "nerd": "Tegnet som i dag: vejen går i zigzag gennem stedets router, en L4-load balancer, en spine, en top-of-rack-leaf og serveren over kort fiber, med en stiplet gren til en origin i en cloud-region. I 1995 stod her kun routeren, en hub og webserveren."
+      }
+    }
   }
 }

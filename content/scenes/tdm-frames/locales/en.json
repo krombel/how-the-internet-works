@@ -1,0 +1,110 @@
+{
+  "title": "A line cut into slots",
+  "kid": "This line doesn’t carry one call: it carries lots, taking turns. Every tiny moment it sends a row of boxes, one box for each conversation, eight thousand rows a second. Each conversation always gets the same box.",
+  "nerd": "Time-division multiplexing: a frame of 8-bit timeslots, 8,000 frames a second (one every 125 µs), so each slot is a steady 64 kbit/s channel. Both ends count slots from the frame alignment pattern.",
+  "describe": {
+    "kid": "Two machines at the ends of a line send rows of little coloured boxes to each other. One card shows a row box by box; the other shows the line’s ups and downs.",
+    "nerd": "Two ends of a TDM line exchange trains of frames. One card shows a frame’s timeslots; the other the line code on the copper."
+  },
+  "pri": {
+    "title": "Thirty calls on one line",
+    "kid": "Your phone call left the telephone exchange in a box on a big line together with 29 other calls: each call keeps its own box in every row. One box keeps the rows in step, and one carries the exchange’s messages: a new call, a hang-up. The internet company’s modem rack gets all thirty calls at once.",
+    "nerd": "An ISDN Primary Rate Interface (ITU-T I.431) on an E1: 32 timeslots × 64 kbit/s = 2.048 Mbit/s. Slot 0 carries frame alignment, slot 16 the D channel (Q.931 call set-up and clear-down), and slots 1–15 and 17–31 are 30 B channels, each one digitised modem call. The access server’s digital modems answer the calls straight off the slots.",
+    "describe": {
+      "kid": "The telephone exchange and the internet company’s modem rack, joined by a line full of rows of boxes. One card shows a row: a yellow box to keep step, a teal box for messages, your call’s box and the other callers’ boxes. The other card shows the line going up and down.",
+      "nerd": "The exchange and the access server exchange E1 frames on an ISDN PRI. One card shows the 32 timeslots: 0 for alignment, 16 for the D channel, slot 7 your call and the rest other B channels, some idle. The other shows HDB3 on the copper."
+    }
+  },
+  "e1": {
+    "title": "A rented line to the next network",
+    "kid": "The internet company rents a line from the telephone company: 31 boxes in every row, all theirs, glued together into one pipe for parcels. It’s always on, day and night, and costs the same whether it’s busy or not.",
+    "nerd": "A leased E1 (G.703/G.704): 32 timeslots at 8,000 frames a second. Slot 0 is frame alignment; slots 1–31 are bundled into one 1.984 Mbit/s channel carrying Cisco HDLC frames with the IP packets. A CSU/DSU at each end meets the telco’s circuit.",
+    "describe": {
+      "kid": "Two routers at the ends of a rented line send rows of boxes to each other. One card shows a row: a yellow box to keep step, then 31 boxes glued into one pipe. The other shows the line going up and down.",
+      "nerd": "Two routers on a leased E1. One card shows the frame: slot 0 for alignment and slots 1–31 bundled at 1.984 Mbit/s. The other shows HDB3 on the copper."
+    }
+  },
+  "t1": {
+    "title": "An American rented line",
+    "kid": "In America the rented lines have 24 boxes in every row, not 32, and one extra blip to keep step. All 24 are glued into one pipe for parcels, to the building where the web site lives.",
+    "nerd": "A T1 (DS1): 24 timeslots plus one framing bit, (24 × 8 + 1) × 8,000 = 1.544 Mbit/s; 1.536 Mbit/s for data. ESF framing, B8ZS line code. Leased to the hosting site, with Cisco HDLC on top.",
+    "describe": {
+      "kid": "Two routers at the ends of an American rented line send rows of boxes to each other. One card shows a row: one small blip to keep step and 24 boxes glued into one pipe. The other shows the line going up and down.",
+      "nerd": "Two routers on a leased T1. One card shows the frame: the framing bit and 24 timeslots bundled at 1.536 Mbit/s. The other shows AMI pulses on the copper."
+    }
+  },
+  "wire": {
+    "kid": "A row of boxes, 8,000 times a second",
+    "nerd": "One frame every 125 µs, each way"
+  },
+  "frameTitle": {
+    "kid": "One row of boxes",
+    "nerd": "One frame, slot by slot"
+  },
+  "legend": {
+    "sync": {
+      "kid": "Keeps in step",
+      "nerd": "0: alignment"
+    },
+    "fbit": {
+      "kid": "Keeps in step",
+      "nerd": "F: framing bit"
+    },
+    "signal": {
+      "kid": "Messages",
+      "nerd": "16: D channel"
+    },
+    "yours": {
+      "kid": "Your call",
+      "nerd": "Your B channel"
+    },
+    "other": {
+      "kid": "Other callers",
+      "nerd": "Other B channels"
+    },
+    "idle": {
+      "kid": "Free",
+      "nerd": "Idle"
+    },
+    "pipe": {
+      "kid": "One pipe",
+      "nerd": "1–31: one channel"
+    },
+    "pipeT1": {
+      "kid": "One pipe",
+      "nerd": "1–24: one channel"
+    }
+  },
+  "sum": {
+    "e1": {
+      "kid": "32 boxes × 8,000 rows a second",
+      "nerd": "32 × 8 bit × 8,000/s = 2.048 Mbit/s"
+    },
+    "t1": {
+      "kid": "24 boxes × 8,000 rows a second",
+      "nerd": "(24 × 8 + 1) × 8,000/s = 1.544 Mbit/s"
+    }
+  },
+  "code": {
+    "e1": {
+      "title": {
+        "kid": "Ups and downs on the copper",
+        "nerd": "HDB3 line code"
+      },
+      "line": {
+        "kid": "Each 1 flips up or down; long quiet runs get a fake blip",
+        "nerd": "AMI, with 0000 sent as 000V to keep the clock"
+      }
+    },
+    "t1": {
+      "title": {
+        "kid": "Ups and downs on the copper",
+        "nerd": "AMI line code"
+      },
+      "line": {
+        "kid": "Each 1 flips up or down, so the line stays balanced",
+        "nerd": "AMI; B8ZS replaces 8 zeros with violations"
+      }
+    }
+  }
+}

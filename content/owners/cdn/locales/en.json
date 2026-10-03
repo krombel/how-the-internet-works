@@ -1,1 +1,12 @@
-{ "name": { "kid": "The video company", "nerd": "Video CDN · AS64501" } }
+{
+  "name": {
+    "kid": "The video company",
+    "nerd": "Video CDN · AS64501"
+  },
+  "1995": {
+    "name": {
+      "kid": "The web site",
+      "nerd": "Web host"
+    }
+  }
+}

@@ -2,5 +2,10 @@
   "name": "Load balancer",
   "kid": "A traffic warden. Lots of computers could answer, so it picks one that isn’t busy, and sends every parcel of your video to that same one.",
   "nerd": "An L4 load balancer holds the service address (VIP). It hashes each connection’s 5-tuple onto a healthy backend (consistent hashing, as in Maglev), so every packet of one TCP connection reaches the same server; health checks take broken servers out.",
-  "tag": "L4 · VIP · consistent hash"
+  "tag": "L4 · VIP · consistent hash",
+  "1995": {
+    "kid": "Drawn as today. In 1995 there was only one web computer, so nobody needed to pick one.",
+    "nerd": "Drawn as today. Load balancers came later in the 1990s, as busy sites outgrew one server; in 1995 this site’s one web server answered everyone.",
+    "tag": "Drawn as today"
+  }
 }

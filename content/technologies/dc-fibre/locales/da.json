@@ -2,5 +2,10 @@
   "name": "Datacenterfiber",
   "kid": "Korte glaskabler mellem kasserne i én bygning, som alle hører til det samme firma.",
   "nerd": "Inde i fabric’en: 100–400G Ethernet over kort single-mode-fiber (eller kobber de sidste meter ind til en server).",
-  "tag": "400GBASE-FR4 · SMF"
+  "tag": "400GBASE-FR4 · SMF",
+  "1995": {
+    "kid": "Tegnet som nutidens korte glaskabler. I 1995 var serverrummet trukket med tynde kobberkabler.",
+    "nerd": "Tegnet som i dag (100–400G Ethernet over fiber). I 1995 var et serverrum trukket med 10 Mbit/s Ethernet over kobber (10BASE-T) gennem en hub.",
+    "tag": "Tegnet som i dag"
+  }
 }

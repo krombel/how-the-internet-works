@@ -2,5 +2,10 @@
   "name": "Rack-switch",
   "kid": "Switchen øverst i et højt skab fuld af computere (et rack). Den giver pakkerne videre til computerne i sit eget skab.",
   "nerd": "Top-of-rack-switchen (ToR) er en leaf: et uplink til hver spine og 25–100G ned til de par dusin servere i racket.",
-  "tag": "ToR-leaf · 25G til servere"
+  "tag": "ToR-leaf · 25G til servere",
+  "1995": {
+    "kid": "Tegnet som i dag. I 1995 stod webcomputeren på en hylde, sat i en hub med et tyndt kobberkabel.",
+    "nerd": "Tegnet som i dag. I 1995 sad servere i en delt 10BASE-T-hub (10 Mbit/s, halv dupleks), ikke en 25G top-of-rack-switch.",
+    "tag": "Tegnet som i dag"
+  }
 }

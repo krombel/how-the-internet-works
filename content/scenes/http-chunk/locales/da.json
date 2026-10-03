@@ -130,7 +130,11 @@
       "cdn": {
         "title": "Serveren svarer",
         "kid": "Serveren læser hver seddel og sender det tilbage, den beder om: først siden og så dens billede. Hvert svar starter med et stempel: 200 OK betyder værsgo.",
-        "nerd": "I 1995 svarer serveren HTTP/1.0 200 OK med Content-Type: text/html og så image/gif for billedet, og den lukker forbindelsen efter hvert svar. Der var ingen CDN-cacher endnu (Akamai begyndte i 1998–99): hylden og hovedkopien på tegningen er dagens."
+        "nerd": "I 1995 svarer serveren HTTP/1.0 200 OK med Content-Type: text/html og så image/gif for billedet, og den lukker forbindelsen efter hvert svar. Der var ingen CDN-cacher endnu (Akamai begyndte i 1998–99): hylden og hovedkopien på tegningen er dagens.",
+        "describe": {
+          "kid": "Tegnet som i dag. Serveren er fremhævet for enden af vejen. Sedler kommer fra {yours}. Stykke 42 ligger allerede på hylden, så et 200 OK-stempel kommer ned, og en stor filmæske går tilbage. Stykke 43 er der ikke: en æske kommer fra en hovedkopi langt væk, og så går en mindre æske tilbage.",
+          "nerd": "Tegnet som i dag: serveren er det fremhævede endepunkt. På cachekortet er segment 42 et hit, 200 OK, og et stort svar går tilbage; segment 43 er et miss, en kopi kommer fra origin, og et mindre 200 OK-svar kommer tilbage. I 1995 sendte serveren hver fil fra sin egen disk."
+        }
       }
     },
     "card": {
@@ -167,6 +171,10 @@
     },
     "tag": {
       "length": "Ingen TLS: alt i klartekst"
+    },
+    "describe": {
+      "kid": "Tegnet som en videoafspiller spørger i dag. En vej forbinder {yours} og serveren. På det venstre kort beder en seddel om stykke 42, og den går til serveren. Serveren finder 42 på sin hylde, stempler 200 OK og sender en stor filmæske tilbage. Så beder den næste seddel om 43, og en mindre æske kommer tilbage.",
+      "nerd": "Tegnet som i dag: det venstre kort viser en forespørgsel, GET /video/720p/42.m4s med Host, ved siden af signalstreger. Det højre kort er en cachehylde: 42 er et hit, stemplet 200 OK, og et stort segment går tilbage; 43 er et miss og hentes først fra en origin. I 1995 var det GET /index.html og 200 OK, uden cache."
     }
   },
   "2010": {

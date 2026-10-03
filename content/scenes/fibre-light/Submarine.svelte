@@ -4,7 +4,7 @@
   // along it make the light bright again, powered through the cable's copper from the shore; a slice shows what is
   // inside, a counter follows the first colour across (#42), and for kids a shark swims by.
   import { TagAt, Text, fill, strings, view, type LinkSubject } from '$core/api';
-  import { boostersOf, fadeAt, kmAt, stretchKm } from './light';
+  import { boostersOf, fadeAt, kmAt, oneColour, stretchKm, wordsOf } from './light';
   import { CABLE_W, SEA, cable, cablePulses, ground, seaHaul, shark, sparks, water } from './sea';
   import Sea from './art/Sea.svelte';
   import Cable from './art/Cable.svelte';
@@ -16,7 +16,10 @@
   let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.fibre-light');
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
-  const colours = ['#e85d75', '#ffcf5d', '#55bfa3', '#4aa3cf'];
+  const FOUR = ['#e85d75', '#ffcf5d', '#55bfa3', '#4aa3cf'];
+  // before DWDM (CANTAT-3, 1994): one colour per fibre, made bright again by regenerators; its own words
+  const colours = $derived(oneColour(subject.link.tech.id) ? FOUR.slice(0, 1) : FOUR);
+  const words = $derived(wordsOf(subject.link.tech.id, 'submarine'));
   const o = $derived(view.orient);
   const portrait = $derived(o === 'portrait');
   const compact = $derived(o === 'landscape' && view.vp.h < 470);
@@ -53,12 +56,12 @@
 {#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} time={view.time} />{/each}
 {#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} time={view.time} />{/each}
 
-{#each L.stations as s}<Text x={s.x} y={s.y} text={S('submarine.landing')} size={28} kind="big" anchor={s.anchor} />{/each}
-{#each repeaters as x, i}<Text {x} y={L.repeater + (i % 2) * L.stagger} text={S('submarine.repeater')} size={26} kind="big" />{/each}
+{#each L.stations as s}<Text x={s.x} y={s.y} text={S(`${words}.landing`)} size={28} kind="big" anchor={s.anchor} />{/each}
+{#each repeaters as x, i}<Text {x} y={L.repeater + (i % 2) * L.stagger} text={S(`${words}.repeater`)} size={26} kind="big" />{/each}
 {#if !compact}
-  <Text x={L.slice.x} y={L.title} text={S('submarine.inside')} size={28} kind="big" />
-  <Text x={L.parts.copper.x} y={L.parts.y} text={S('submarine.copper')} size={24} kind="small" anchor={L.parts.copper.anchor} />
-  <Text x={L.parts.glass.x} y={L.parts.y} text={S('submarine.glass')} size={24} kind="small" anchor={L.parts.glass.anchor} />
+  <Text x={L.slice.x} y={L.title} text={S(`${words}.inside`)} size={28} kind="big" />
+  <Text x={L.parts.copper.x} y={L.parts.y} text={S(`${words}.copper`)} size={24} kind="small" anchor={L.parts.copper.anchor} />
+  <Text x={L.parts.glass.x} y={L.parts.y} text={S(`${words}.glass`)} size={24} kind="small" anchor={L.parts.glass.anchor} />
 {/if}
 {#if haul.km}<Text x={counter.x} y={L.counter} text={`${counter.km} km`} size={30} kind="big" colour={colours[0]} />{/if}
-<TagAt x={sea.w / 2} y={L.tag} text={fill(S('tag.submarine'), { span: Math.round(haul.km / (repeaters.length + 1)) })} size={24} />
+<TagAt x={sea.w / 2} y={L.tag} text={fill(S(`tag.${words}`), { span: Math.round(haul.km / (repeaters.length + 1)) })} size={24} />
