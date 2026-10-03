@@ -1018,3 +1018,20 @@ Made while building #147 (on the go in 1995):
   estimate.
 - **`tdm-frames` on a phone**: the ends' names stay inside the frame (the trunk's "Telephone exchange" on the right
   ran off it), and the line's name sits higher, clear of the mast, the tallest end; the PRI and E1 dives move with it.
+
+Made while building #164 (the sweep's leftovers):
+- **100BASE-TX at home in 2010**: a technology of its own, `fast-ethernet` (100 Mbit/s, the router's LAN ports), on
+  `home-dsl`'s and `desk-2010`'s cable to the router; `copper-pulses` draws it from the rate as MLT-3 on two pairs, one
+  each way and both at once (`codeOf`: Manchester to 10 Mbit/s, MLT-3 to 100, PAM-5 above), with its words under
+  `mlt3.*` and a `2010.fast-ethernet` block. Not gigabit everywhere: a 2010 DSL router's ports were 100 Mbit/s. A dive
+  key can't tell two links of one technology apart, and the 2010 data centre's copper stays 1000BASE-T, hence the new
+  technology. The time machine pairs places by their first link's signal (its dive), not its technology, so the desk
+  still goes to `desk-2010`.
+- **1995's full walk**: `era-1995.test.ts` reads every word now, as 2010's does: 1995 words for Ethernet's type field
+  (IPv4 and ARP) and IP's TTL (no MPLS), VLANs and gigabit added to what it fails on, and two keys excused as never
+  shown in 1995 (the cache's SSD room in `server-inside`, gigabit's PAM-5 card in `copper-pulses`).
+- **The 100G rates** stay today's: a route shows one rate, its slowest link's, and the walk reads that one too
+  (`{rate}`), so a 100G core link would fail the 2010 test the day it set the pace.
+- **Found, not fixed**: 1995's IP header still names DSCP and ECN (1998, 2001; 1995's was the ToS byte), and IP's
+  protocol field and the routing line speak of ECMP over the 5-tuple. A follow-up: they need 1995 field names, not
+  only words.

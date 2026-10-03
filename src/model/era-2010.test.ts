@@ -9,6 +9,7 @@ import type { Level } from '../define';
 import { WORLD_SIZE, type Pt } from '../engine/geometry';
 import { routeWords, scenes } from '../test/era-walk';
 import { stubBrowser } from '../test/stub-browser';
+import { codeOf, copperSparks, litPairs, mlt3Levels, mlt3Path } from '../../content/scenes/copper-pulses/copper';
 import { carrierNat } from '../../content/scenes/ip-post/post';
 import { metroTag, modeOf, oneColour } from '../../content/scenes/fibre-light/light';
 import type * as Tier from '../../content/scenes/three-tier/tier';
@@ -17,6 +18,7 @@ import { sceneKeys } from './describe';
 import { activityIds, basePlace, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
 import { resolveRoute, stringSources } from './resolve';
+import { formatRate } from './speed';
 import { diveSubject } from './tree';
 
 /** Later than 2010: Wi‑Fi 5 and up, 4G and 5G, XGS-PON, G.fast and vectoring, 200G and up, 2.5G/5G copper and
@@ -123,6 +125,34 @@ describe('the three-tier tree (three-tier)', () => {
   });
 });
 
+describe('100BASE-TX (copper-pulses in a 2010 home, #164)', () => {
+  it('runs the home’s cables at 100 Mbit/s, as MLT-3 on two pairs, and the data centre’s at gigabit', () => {
+    const copper = trips().flatMap((r) => r.links.filter((l) => l.dive === 'copper-pulses'));
+    const home = copper.filter((l) => l.tech.id === 'fast-ethernet');
+    expect(home.length).toBeGreaterThan(0);
+    for (const l of home) expect(codeOf(l.rate.down)).toBe('mlt3');
+    const dc = copper.filter((l) => l.tech.id !== 'fast-ethernet');
+    expect(dc.length).toBeGreaterThan(0);
+    for (const l of dc) expect(codeOf(l.rate.down)).toBe('pam5');
+    expect(litPairs('mlt3', false)).toEqual([0, 1]);
+  });
+
+  it('steps the line through 0, +1, 0, −1 for each 1 and holds it for a 0', () => {
+    expect(mlt3Levels([1, 0, 1, 1, 0, 0, 1, 0])).toEqual([1, 1, 0, -1, -1, -1, 0, 0]);
+    // four bits in 40 wide, 10 high: +1 (top), +1, 0 (middle), −1 (bottom)
+    expect(mlt3Path(0, 0, 40, 10, [1, 0, 1, 1])).toBe('M0 0.0 H10.0 H20.0 V5.0 H30.0 V10.0 H40.0');
+  });
+
+  it('sends both ways at once, one pair each way, never on the others', () => {
+    for (let t = 0; t < 12; t += 0.25) {
+      const live = copperSparks(t, false, true, 'mlt3').filter((s) => s.alpha > 0.02);
+      expect(live.length).toBeGreaterThan(0);
+      for (const s of live) expect(s.dir).toBe(s.pair === 0 ? 1 : -1);
+    }
+    expect(copperSparks(3, false, true, 'mlt3').map((s) => s.dir).sort()).toEqual([-1, 1]);
+  });
+});
+
 describe('the 2010 data centre', () => {
   beforeAll(loadAllPacks);
 
@@ -214,6 +244,15 @@ describe('the 2010 trips', () => {
     expect([...leaks].filter(([k]) => !excused.has(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
     // each excuse still holds: drop an entry once it no longer leaks
     expect([...excused].filter((k) => !leaked.has(k)), 'no longer leaks: take it off UNSHOWN').toEqual([]);
+  });
+
+  it('show one rate, their slowest link’s: never today’s 100G of the core they share (#164)', () => {
+    for (const r of trips()) {
+      const rates = [...routeWords(r)].filter(([k]) => k.endsWith(' {rate}')).map(([, s]) => s);
+      expect(rates.length).toBe(Object.keys(packs).length * 2);
+    }
+    // the walk above reads it: today's core would be caught
+    for (const lang of Object.keys(packs)) expect(NEW.test(formatRate(100e9, lang))).toBe(true);
   });
 
   it('draw a few colours on one fibre only where 2010 did: metro DWDM, long haul and the sea (#135)', () => {

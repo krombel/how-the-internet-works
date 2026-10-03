@@ -15,31 +15,16 @@
   "pairsShort": "Four twisted pairs",
   "bothWays": "Glowing pushes travel both ways at once",
   "twistTitle": "The twist",
-  "twistKid1": "One wire pushes up,",
-  "twistKid2": "the other pushes down.",
-  "mirror": "Differential pair: +V and −V",
-  "noise": "Same noise hits both wires",
-  "difference": "receiver subtracts",
-  "clean": "the bump cancels",
   "pushTitle": "Voltage pushes",
-  "pushKid1": "Bits are little pushes,",
-  "pushKid2": "not electrons racing end to end.",
-  "hundred": "About 100 m, then the pushes fade",
   "pamTitle": "PAM-5 symbols",
   "eyeTitle": "Open eye = readable",
-  "preamble": "10101010 × 7 → 10101011: wake up, sync clock",
-  "preambleShort": "preamble wakes the clock",
   "tag": {
-    "speed": "1000BASE-T · 4 pairs × 125 MBd × 2 bits = 1 Gbit/s",
-    "duplex": "hybrids + echo cancelling: both ways on every pair",
-    "cat": "Cat 5e channel · standard budget: 100 m",
     "speedShort": "1000BASE-T · 1 Gbit/s",
     "duplexShort": "full duplex",
     "catShort": "100 m"
   },
   "twistLine": "Noise cancels.",
   "twistLineNerd": "Differential pair: +V and −V.",
-  "pushLine": "Voltage pushes.",
   "pamLine": "5 levels per symbol.",
   "eyeLine": "Open eye = clean.",
   "hundredShort": "About 100 m, then too faint",
@@ -55,6 +40,16 @@
     "pairsShort": "Two pairs in use",
     "bothWays": "One pair each way, taking turns"
   },
+  "mlt3": {
+    "title": "MLT-3 code",
+    "line": "A 1 moves a step; a 0 stays.",
+    "speed": "100BASE-TX · 100 Mbit/s",
+    "duplex": "full duplex",
+    "cat": "Cat 5 · 100 m",
+    "pairs": "Two of the four pairs carry the signal",
+    "pairsShort": "Two pairs in use",
+    "bothWays": "One pair each way, both at once"
+  },
   "1995": {
     "kid": "Ethernet sends tiny voltage pushes down twisted copper pairs. In 1995 it uses just two of them: one pair to send, one to listen, taking turns. The twists help noise cancel out, and after about 100 m the pushes get too faint.",
     "nerd": "10BASE-T (1990) uses two pairs of a Cat 3 cable: one to send, one to receive, as differential signals at 10 Mbit/s in Manchester code, which flips the line in the middle of every bit so the receiver finds its clock in the data. On a hub only one end talks at a time (half duplex); the other two pairs stay unused.",
@@ -65,6 +60,15 @@
     }
   },
   "2010": {
+    "fast-ethernet": {
+      "kid": "Ethernet sends tiny voltage pushes down twisted copper pairs. The cable to a 2010 home router uses two of them: one pair to send and one to listen, both at once. The twists help noise cancel out, and after about 100 m the pushes get too faint.",
+      "nerd": "100BASE-TX (Fast Ethernet, 1995) uses two pairs of a Cat 5 cable, one each way, full duplex. 4B5B turns every 4 bits into 5, so 100 Mbit/s runs at 125 MBd, and MLT-3 steps the line through +1, 0 and −1, one step for each 1, which keeps the signal’s frequencies low enough for the cable. The other two pairs are unused.",
+      "extra": "Power over Ethernet: a cable like this can carry power too, so an access point or a camera on the ceiling needs no socket: 15.4 W with 802.3af (2003), on the spare pairs or the data pairs, and 30 W with 802.3at, new in 2009. Faster copper: gigabit (1000BASE-T, 1999) uses all four pairs with five levels (PAM-5). Most 2010 laptops had it, but a home router’s 100 Mbit/s ports set the pace.",
+      "describe": {
+        "kid": "Two network boxes sit at the ends of a thick cable. Inside are four twisted pairs, but only two glow. Pulses run one way along one pair and back along the other, both at once. The cards zoom into the twists, the pulses and the fading after about 100 metres.",
+        "nerd": "The cable cutaway shows four pairs, two of them live: one carries pulses forward, the other back, at the same time. Cards show opposite voltages on a twisted pair, an MLT-3 bit pattern stepping between three levels, and a three-level eye diagram."
+      }
+    },
     "extra": "Power over Ethernet: a cable like this can carry power too, so an access point or a camera on the ceiling needs no socket. Direct current rides on the pairs as a common-mode (phantom) voltage that the data, sent as differences, never notices: 15.4 W with 802.3af (2003), and 30 W with 802.3at, new in 2009. Faster copper: 10GBASE-T (2006) uses 16 levels instead of 5 (PAM-16, paired into DSQ128 symbols with LDPC error correction), runs 800 MBd per pair and needs Cat 6A for the full 100 m. In 2010 it was still mostly for servers."
   }
 }
