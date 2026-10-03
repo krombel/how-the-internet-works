@@ -21,7 +21,10 @@ The work comes in four slices:
 - **Keyboard.** Everything in the chrome, the caption, the ladder, the peek, the ⋯ menu and the picker is a real
   button or link. Esc goes back up, closes a list, a menu or a dialog, folds an opened caption, or lets a caught
   packet go. ← → (▲ ▼ in portrait) step along, except inside an opened caption that scrolls (the arrows scroll it).
-  C folds the caption away and back (in the caption or the picture).
+  Along the path they walk the whole trip (#169): on past the end of a group's stops, back out of it, and into the
+  next group; ◀ ▶ then name where they go ("Into: The internet", "Back out: Your home"), in their accessible name
+  and in a small label beside the button that says the same. C folds the caption away and back (in the caption or
+  the picture).
 - **The keyboard in the scene.** The picture is one Tab stop, after the top bar (`ui/SceneKeys.svelte`, a
   `toolbar` named "The picture"): a real button over every spot of the scene, in a layer that moves with the camera,
   with a roving tabindex on where you are. The spots and their order come from one focus model (`spotsOf` in
@@ -193,7 +196,11 @@ machine (#70). It checks:
   coach marks: a first visit gets them and the announcer says the first; Tab goes skip link, then the card; Next
   steps on and keeps focus; Esc ends them, leaves focus somewhere visible and they don't come back after a reload; a
   link into a scene gets none (and doesn't use them up); a tap on "Open up" ends them and opens it. A returning reader
-  (`coached` `'1'`) gets the time machine's card alone, said as new with no count, and after Esc never again.
+  (`coached` `'1'`) gets the time machine's card alone, said as new with no count, and after Esc never again. Last,
+  the walk (#169), on a desktop and a portrait phone: ▶ from the phone to the server through the internet and its
+  data centre, each crossing named on the button and in its label alike ("Into: The internet", "Into: Data
+  centre"), a bump at the end; ◀ walks it back exactly ("Back out: Your home") to the overview, and focus is left
+  somewhere visible.
 
 Every other page the evaluate opens (shots, timings, checks, the vision sheets) has had the coach marks already
 (`coached` in `localStorage`), so none of them sees the cards.
@@ -217,6 +224,8 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
 - [ ] Open a door from the caption: you hear the new scene's title once, then what lies below and its description,
       and focus is on its heading (VO-→ reads on into the caption).
 - [ ] Step with ← →: each stop's title is spoken once; nothing re-reads the whole caption.
+- [ ] Step ▶ on from the last stop before the internet: the button says "Into: The internet", and you arrive inside
+      at its first stop; ◀ from there says "Back out: Your home".
 - [ ] Catch a packet (its chip in the caption): focus moves to the peek; ◀ ▶ say "Home router, 3 of 9…"; a changed
       field says "…, was …"; Esc returns to where you were.
 - [ ] Ladder: the current rung's list opens and closes ("expanded" / "collapsed"); Esc folds it.
