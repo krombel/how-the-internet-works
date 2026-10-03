@@ -26,7 +26,7 @@
     },
     "ttl": {
       "name": "TTL",
-      "about": "Copied from the IP header and counted down like it."
+      "about": "Copied from the IP TTL when the label goes on and counted down by every label-switching router; when the label comes off, it’s copied back into the IP header (the uniform model)."
     }
   }
 }

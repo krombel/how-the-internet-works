@@ -1,6 +1,6 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Node, Text, fakeLabel, fakeMac, fill, legibleSize, nameOf, strings, view, yours, type LayerSubject } from '$core/api';
+  import { Node, Text, fakeLabel, fakeMac, fill, legibleSize, nameOf, strings, ttlAt, view, yours, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import StickerParcel from './art/StickerParcel.svelte';
   import { bob, layoutFor, moment, parcelX, ramp, type LayerKind, type RoleKind } from './sticker';
@@ -77,8 +77,10 @@
   const fieldsLine = $derived(layer === 'vlan'
     ? '0x88a8 S101 · 0x8100 C2042'
     : layer === 'mpls'
-      ? `${mplsLeft} → ${mplsRight} · TC 0 · S 1 · TTL ${ctx.ttl}`
+      ? `${mplsLeft} → ${mplsRight} · TC 0 · S 1 · TTL ${labelTtl}`
       : `dst …${dstMac.slice(-5)} · src …${srcMac.slice(-5)} · 0x0800`);
+  // the label's own TTL: the one it goes out with, or (popped) came in with
+  const labelTtl = $derived(ttlAt(subject.route, labelOut ? ctx.to.index : ctx.to.index - 1, 'up', true));
   const mplsLeft = $derived(action === 'mpls.push' ? 'IP' : inLabel);
   const mplsRight = $derived(action === 'mpls.pop' ? 'IP' : outLabel);
   const mplsMid = $derived(action === 'mpls.pop' ? 'pop' : '');

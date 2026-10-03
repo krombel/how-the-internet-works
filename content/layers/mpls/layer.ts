@@ -3,6 +3,8 @@ import { defineLayer } from '$core/define';
 export default defineLayer({
   dive: 'sticker-doors',
   code: { ethertype: '0x8847 (MPLS)' },
+  // a core router swaps the label and counts down its TTL; the IP packet inside isn't read until the label comes off
+  switched: true,
   fields: [
     { id: 'label', bits: 20, value: '{label}', use: true, kid: true },
     { id: 'tc', bits: 3, value: '0' },

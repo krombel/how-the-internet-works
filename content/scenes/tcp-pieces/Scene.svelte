@@ -1,12 +1,12 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  import { Node, TagAt, Text, nameOf, strings, view, type LayerSubject } from '$core/api';
+  import { Node, TagAt, Text, fill, nameOf, strings, view, type LayerSubject } from '$core/api';
   import Box from './art/Box.svelte';
   import Card from './art/Card.svelte';
   import Pothole from './art/Pothole.svelte';
   import RoadBox from './art/RoadBox.svelte';
   import Ticket from './art/Ticket.svelte';
-  import { ackTicket, ackX, cardGap, cardLabels, handshakeTicket, helloSpot, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
+  import { ackTicket, ackX, cardGap, cardLabels, dupAcks, handshakeTicket, helloSpot, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.tcp-pieces');
@@ -25,7 +25,7 @@
   const ack = $derived(ackTicket(view.time));
   const win = $derived(windowStart(view.time));
   const natSticker = $derived(ctx.nat ? `${ctx.nat.insidePort}↔${ctx.nat.outsidePort}` : '');
-  const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? S('tag.dupAck') : beat === 'resend' ? S('tag.fast') : S('tag.order'));
+  const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? fill(S('tag.dupAck'), { n: Math.max(1, dupAcks(view.time)) }) : beat === 'resend' ? S('tag.fast') : S('tag.order'));
   const tagB = $derived(ctx.nat ? (nerd ? S('tag.nat').replace('{nat}', natSticker) : S('label.port')) : S('tag.seal'));
   const labels = $derived(cardLabels(view.time));
   const hello = $derived(helloSpot(L, portrait, clientSpot, hopSpot ?? serverSpot));
@@ -115,7 +115,7 @@
 {/if}
 
 {#if beat !== 'handshake' && ack.x !== null && !compact}
-  {@const text = S(ack.text === 'got' ? 'ack.got3' : 'ack.wait5')}
+  {@const text = S(`ack.${ack.text}`)}
   <Ticket x={ticketX(ackX(L, ack.x), text)} y={ticketY} {text} size={L.text.label} green />
 {/if}
 

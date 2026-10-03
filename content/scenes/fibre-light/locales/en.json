@@ -1,6 +1,6 @@
 {
   "title": "Light in a glass thread",
-  "kid": "Fibre is a glass thread thinner than a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
+  "kid": "Fibre is a glass thread about as thin as a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
   "nerd": "Light is confined to the core by total internal reflection at the core/cladding boundary. DWDM multiplexes dozens of wavelengths around 1550 nm onto one fibre, each an independent channel of 100–800 Gbit/s.",
   "core": "Core",
   "cladding": "Cladding",
@@ -87,7 +87,7 @@
   "submarine": {
     "title": "Light under the sea",
     "kid": "Here the internet crosses the sea! The glass threads lie inside a cable as thick as a garden hose, right on the sea floor. Electricity runs through the cable from the shore to power the boosters, which make the light bright again on the way across.",
-    "nerd": "A submarine cable: a few fibre pairs in a steel tube, wrapped in copper and polyethylene, armoured and buried near the shore against anchors and trawls. The landing stations feed several kV of DC through the copper to power the repeaters (EDFAs) every 60–80 km.",
+    "nerd": "A submarine cable: a few fibre pairs in a steel tube, wrapped in copper and polyethylene, armoured and buried near the shore against anchors and trawls. The landing stations feed several kV of DC through the copper to power the repeaters (EDFAs), one about every 50–80 km on long cables; a crossing this short is often built without any.",
     "describe": {
       "kid": "A side view of the sea between two landing stations on the shore. A cable runs down the slope and along the sea floor, with boosters on it. Coloured flashes of light and little yellow sparks of electricity travel along the cable, a red number counts the kilometres, and a shark swims by. A circle shows the cable cut open.",
       "nerd": "A side view of a submarine cable between two landing stations. The cable is buried near the shore and lies on the sea floor, with a repeater every span of up to 60 km. Four wavelengths cross, fading over each span; sparks show DC power from the shore. A cross-section shows fibres in a tube, copper and steel armour. A counter follows λ1 in km."
@@ -152,7 +152,28 @@
       }
     },
     "tag": {
-      "backbone": "40–80 λ · EDFA / 80 km"
+      "backbone": "40–80 λ · EDFA / 80 km",
+      "dc-fibre": "10GBASE-SR · 850 nm · OM3",
+      "cross-connect": "10GBASE-LR · 1310 nm · SMF"
+    },
+    "dc-fibre": {
+      "nerd": "Data-centre optics in 2010: 10GBASE-SR, one 850 nm laser (a VCSEL) per direction over a pair of multimode fibres (OM3), up to 300 m. One colour per fibre, nothing to combine or split. The servers hang off the access switches on copper (1000BASE-T). Each link is one hop of the three-tier tree.",
+      "kid": "Inside the data centre, short glass cables join the big switches. They are only a few metres long, so the light crosses them in a blink. Each thread carries one colour, just past red: too deep a red for our eyes to see.",
+      "describe": {
+        "kid": "A short glass thread between two switches in the data centre is shown close up. One light, at one end, bounces along the core to the other end. The flashes cross in a blink.",
+        "nerd": "The data-centre link view shows a short multimode run with one 850 nm lane: a laser at one end, the light zig-zagging through the core, a detector at the other. The label says 10GBASE-SR at 850 nm over OM3."
+      }
+    },
+    "metro-fibre": {
+      "nerd": "Metro fibre: single-mode links between street cabinets, aggregation sites and the exchange. In 2010 mostly 1 or 10 Gbit/s Ethernet optics, with CWDM or DWDM putting a handful of wavelengths on one fibre pair."
+    },
+    "cross-connect": {
+      "kid": "In the exchange's building, every company has its own boxes, and a short glass cable joins them. Your parcels cross it in a blink, as flashes of one colour just past red: too deep a red for our eyes to see.",
+      "nerd": "A cross-connect: a single-mode patch through the meet-me room, a few hundred metres at most. In 2010 mostly 10GBASE-LR: one 1310 nm laser per direction over a pair of single-mode fibres, good for up to 10 km. One colour per fibre, nothing to combine or split.",
+      "describe": {
+        "kid": "Inside the exchange, a short glass thread is shown close up. One light, at one end, bounces along the core to the other end. The flashes cross the hall in a blink.",
+        "nerd": "The cross-connect view shows a short single-mode patch with one 1310 nm lane: a laser at one end, the light zig-zagging through the core, a detector at the other. The label says 10GBASE-LR at 1310 nm over single-mode fibre."
+      }
     }
   }
 }

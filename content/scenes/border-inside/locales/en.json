@@ -8,8 +8,8 @@
     "kid": "Inside the border router",
     "nerd": "Border router RIB"
   },
-  "kid": "This is the door out of your internet company. The border router takes the motorway sticker off, reads neighbour notes, and chooses the free shortcut through the exchange. The paid transit road is ready, but your parcel does not need it.",
-  "nerd": "At the PE/ASBR, the last MPLS label is popped before the Ethernet-only peering LAN; with penultimate-hop popping the core may remove it one hop earlier. eBGP updates from the IXP peer and the transit provider feed the RIB, and local preference picks peering over paid transit for 198.51.100.0/24.",
+  "kid": "This is the door out of your internet company. The border router takes the motorway sticker off, reads neighbour notes, and chooses the shortcut through the exchange, where nobody pays per parcel. The paid transit road is ready, but your parcel does not need it.",
+  "nerd": "At the PE/ASBR, the last MPLS label must be gone before the Ethernet-only peering LAN; by default (penultimate-hop popping) the core router before it removes it, and here the border pops it itself. eBGP updates from the IXP peer and the transit provider feed the RIB, and local preference picks peering over paid transit for 198.51.100.0/24.",
   "describe": {
     "kid": "Your internet company's core is on the left. Two exits are on the right: the exchange, and a dim carrier you pay. A parcel arrives with a motorway sticker. The sticker peels off. Notes from both neighbours fly into the route book. The exchange row lights up, and the parcel leaves for the exchange.",
     "nerd": "Inside the border router, the core-facing line card pops the MPLS label. A BGP routing table lists the video prefix with IXP peer and transit paths. UPDATE notes arrive from both neighbours. The local-pref 200 row lights, and the packet exits to the IXP."
@@ -31,8 +31,8 @@
       "kid": "via the exchange",
       "nerd": "via IXP peer",
       "detail": {
-        "kid": "short road · free",
-        "nerd": "AS path 1 hop · local-pref 200"
+        "kid": "short road · no fee per parcel",
+        "nerd": "AS path: 1 AS · local-pref 200"
       }
     },
     "transit": {
@@ -40,7 +40,7 @@
       "nerd": "via transit",
       "detail": {
         "kid": "long road · paid",
-        "nerd": "AS path 3 hops · local-pref 100"
+        "nerd": "AS path: 3 ASes · local-pref 100"
       }
     }
   },

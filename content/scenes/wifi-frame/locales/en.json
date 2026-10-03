@@ -10,7 +10,7 @@
       "nerd": "At the bridge, the uplink 802.11 QoS data frame has RA=AP, TA=STA and addr3=the distribution-system destination. The AP decapsulates it, verifies CCMP/FCS, then emits an Ethernet frame toward the router; the IP packet is untouched.",
       "describe": {
         "kid": "The road holds {yours}, the access point and the router. Paper cards show addresses and taking turns. A radio envelope walks from {yours} to the access point. It opens there and changes into a cable envelope for the router. The turn card shows listen, wait, bump, try again and “Got it!”.",
-        "nerd": "The address card shows the uplink 802.11 frame beside the Ethernet frame. It lists To DS, addr1 AP, addr2 STA and addr3 router, then DA and SA on cable. The airtime strip animates DIFS, backoff, data, no ACK, retry, SIFS plus ACK, and sequence, retry and CCMP labels."
+        "nerd": "The address card shows the uplink 802.11 frame beside the Ethernet frame. It lists To DS, addr1 AP, addr2 STA and addr3 router, then DA and SA on cable. The airtime strip animates AIFS, backoff, data, no ACK, retry, SIFS plus ACK, and sequence, retry and CCMP labels."
       }
     },
     "endpoint": {
@@ -41,7 +41,7 @@
     "radioToAp": "for the AP",
     "listen": "listen",
     "backoff": "backoff",
-    "difs": "DIFS",
+    "aifs": "AIFS",
     "data": "data",
     "sifsAck": "SIFS+ACK",
     "listenKid": "listen",
@@ -70,7 +70,7 @@
     "fromDs": "From DS = 1",
     "csma": "CSMA/CA · random backoff",
     "encrypt": "WPA3/CCMP hides the payload",
-    "sequence": "SIFS 16 µs · ACK · retry bit",
+    "sequence": "SIFS 16 µs (5 GHz) · ACK · retry bit",
     "everyone": "everyone hears it",
     "gotIt": "receiver says “Got it!”",
     "noAck": "no ACK"

@@ -18,7 +18,7 @@
     },
     "bng": {
       "kid": "Her svarer dit internetselskabs modemer opkaldet. De tjekker din adgangskode, giver computeren en adresse og sender pakkerne videre ud på internettet.",
-      "nerd": "Udbyderens adgangsserver: en bank af digitale modemer på ISDN PRI-linjer fra centralen, 30 opkald pr. linje. Den svarer, tjekker dit login (CHAP), tildeler en adresse (IPCP) og router PPP-sessionens pakker ud på udbyderens 10 Mbit/s-Ethernet."
+      "nerd": "Udbyderens adgangsserver: en bank af digitale modemer på ISDN PRI-linjer fra centralen, 30 opkald pr. linje. Den svarer, tjekker dit login (PAP eller CHAP), tildeler en adresse (IPCP) og router PPP-sessionens pakker ud på udbyderens 10 Mbit/s-Ethernet."
     }
   }
 }

@@ -22,7 +22,7 @@ export interface LayerVal { id: string; fields: FieldVal[]; bytes: number }
 /** The facts header templates can use, as {name} (documented in docs/authoring.md). */
 export const FACTS = [
   'src', 'dst', 'sport', 'dport', 'ttl', 'mac.src', 'mac.dst', 'mac.tx', 'mac.rx', 'tunnel.src', 'tunnel.dst',
-  'len', 'payload', 'sum', 'crc', 'label',
+  'len', 'payload', 'sum', 'crc', 'label', 'ack',
 ] as const;
 const INNER = 'inner.';
 /** {fact}, {inner.<code>}, or a size with an offset: {payload+8}. */
@@ -86,10 +86,22 @@ export function clientAt(r: Route, i: number, flow?: FlowDef): { addr: Val; port
 }
 
 const forwards = (h: Hop) => h.role === 'router' || h.role === 'nat';
-/** TTL on chain link `i`: 64 at the sender, minus one per router passed. */
-export function ttlAt(r: Route, i: number, dir: Dir): number {
+const switchedOn = (r: Route, l: Link | undefined) => l?.stack.filter((id) => r.content.layers[id]?.switched) ?? [];
+/** Whether chain hop `h` forwards on a label alone (an MPLS core router): it routes, and the links either side carry
+ *  the same label-switched layer, so it swaps the label without reading the packet inside. */
+export function labelSwitched(r: Route, h: number): boolean {
+  const a = switchedOn(r, r.links[h - 1]), b = switchedOn(r, r.links[h]);
+  return a.some((id) => b.includes(id)) && forwards(r.chain[h]);
+}
+/** TTL on chain link `i`: 64 at the sender, minus one per router passed. That is a label-switched layer's own TTL
+ *  (`label`); the packet's own skips the routers that only switched its label on the run of labelled links it is
+ *  still on, and catches up when the label comes off (its TTL is copied back: RFC 3443's uniform model). */
+export function ttlAt(r: Route, i: number, dir: Dir, label = false): number {
   const passed = dir === 'up' ? r.chain.slice(1, i + 1) : r.chain.slice(i + 1, -1);
-  return 64 - passed.filter(forwards).length;
+  let ttl = 64 - passed.filter(forwards).length;
+  const back = dir === 'up' ? -1 : 1;
+  if (!label) for (let h = dir === 'up' ? i : i + 1; labelSwitched(r, h); h += back) ttl++;
+  return ttl;
 }
 
 const isTunnel = (r: Route, id: string) => !!r.content.layers[id]?.tunnel;
@@ -124,6 +136,8 @@ export function frameEnds(r: Route, i: number, dir: Dir): { src: Hop; dst: Hop }
 }
 
 const pick = (v: string | { up: string; down: string }, dir: Dir) => (typeof v === 'string' ? v : v[dir]);
+/** The size of a layer's own header (and trailer) going `dir`, in bytes. */
+const ownBytes = (def: LayerDef, dir: Dir) => Math.ceil(def.fields.reduce((s, f) => s + (f.bits ?? 0), 0) / 8) + (def.bytes?.[dir] ?? 0);
 /** Whether a link's frames carry MAC addresses (a layer on it has a mac.* field; a phone line's PPP has none). */
 export const carriesMac = (r: Route, l: Link) =>
   l.stack.some((id) => r.content.layers[id]?.fields.some((f) => (['up', 'down'] as const).some((d) => pick(f.value, d).includes('{mac.'))));
@@ -150,10 +164,14 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
   const out: LayerVal[] = [];
   let inner = 0;
   const innerTexts: string[] = [];
+  const other: Dir = dir === 'up' ? 'down' : 'up';
   for (let k = ids.length - 1; k >= 0; k--) {
     const def = defs[k], id = ids[k];
-    const own = Math.ceil(def.fields.reduce((s, f) => s + (f.bits ?? 0), 0) / 8) + (def.bytes?.[dir] ?? 0);
+    const own = ownBytes(def, dir);
     const facts: Record<string, Val> = { ...base, len: { text: String(own + inner) }, payload: { text: String(inner) } };
+    if (def.switched) facts.ttl = { text: String(ttlAt(r, i, dir, true)) };
+    const seq = def.fields.find((f) => f.id === 'seq');
+    if (seq) facts.ack = { text: String(Number(pick(seq.value, other)) + defs.slice(k + 1).reduce((s, d) => s + ownBytes(d, other), 0)) };
     if (def.tunnel) {
       const [a, b] = tunnelEnds(r, i, id), [s, d] = dir === 'up' ? [a, b] : [b, a];
       facts['tunnel.src'] = { text: s.addr ?? '', who: s };
@@ -185,7 +203,7 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
     for (const [fi, f] of fields.entries()) {
       const tpl = pick(def.fields.find((d) => d.id === f.id)!.value, dir);
       if (tpl === '{sum}') f.value = { text: hex(hash([...texts, base.src.text, base.dst.text]) & 0xffff, 4) };
-      else if (tpl === '{crc}') f.value = { text: hex(hash([...texts, ...innerTexts]), 8) };
+      else if (tpl === '{crc}') f.value = { text: hex(hash([...texts, ...innerTexts]), Math.min(8, (f.bits ?? 32) / 4)) };
       texts[fi] = f.value.text;
     }
     innerTexts.push(...texts);
@@ -255,6 +273,9 @@ export function hopView(r: Route, flowId: string, dir: Dir, h: number): HopView 
   const a = got ?? [], b = sent ?? got ?? [];
   const rows = got && sent ? align(a.map((l) => l.id), b.map((l) => l.id)) : b.map((l, k) => ({ id: l.id, ai: got ? k : -1, bi: k }));
   let seal = false;
+  // a label-switching router reads only the label: nothing inside it is its business
+  let under = false;
+  const lsr = labelSwitched(r, h);
   const layers: LayerView[] = [];
   for (const row of rows) {
     const def = r.content.layers[row.id];
@@ -266,10 +287,11 @@ export function hopView(r: Route, flowId: string, dir: Dir, h: number): HopView 
     const fields = shown.fields.map((f): FieldView => {
       const was = inL?.fields.find((x) => x.id === f.id)?.value;
       const before = change === 'kept' && was && was.text !== f.value.text ? was : null;
-      return { ...f, used: state !== 'sealed' && !!inL && usedBy(def, f.id, role), before };
+      return { ...f, used: state !== 'sealed' && !under && !!inL && usedBy(def, f.id, role), before };
     });
     layers.push({ id: row.id, state, change, fields });
     if (def.seals && !open && change !== 'removed') seal = true;
+    if (lsr && def.switched && change === 'kept') under = true;
   }
   return { hop, dir, arrive: got ? arrive : null, leave: sent ? leave : null, layers };
 }

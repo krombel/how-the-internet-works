@@ -75,6 +75,10 @@ export const layer = z.strictObject({
   seals: z.literal(true).optional(),
   /** A tunnel: its own addresses are the hops where it starts and ends, and the link frames around it end there. */
   tunnel: z.literal(true).optional(),
+  /** Label-switched (MPLS): a router that gets it and sends it on forwards on this layer alone. It doesn't read the
+   *  layers inside, and their TTL isn't counted down there: this layer's own {ttl} is, and is copied back when it
+   *  comes off (RFC 3443's uniform model). */
+  switched: z.literal(true).optional(),
   /** How outer layers name this one ({inner.<code>}), e.g. { ethertype: '0x0800 (IPv4)', ipproto: '6 (TCP)' }. */
   code: z.record(id, z.string()).optional(),
   /** Header fields, in wire order. */

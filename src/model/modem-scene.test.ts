@@ -29,6 +29,12 @@ describe('the dial-up call (modem-call)', () => {
     for (const n of notes) expect(n.gain).toBeLessThanOrEqual(1);
     // the answer tone is the 2100 Hz one, and it comes after the ringing
     expect(notes.find((n) => n.f[0] === 2100)!.at).toBeGreaterThanOrEqual(STEPS[2].at);
+    // V.8's warble, then the 1200/2400 Hz line probing, then the training hiss (#134)
+    const at = (p: (n: (typeof notes)[number]) => boolean) => notes.filter(p).map((n) => n.at);
+    const warble = at((n) => !!n.warble), probe = at((n) => n.f[0] === 1200 || n.f[0] === 2400), hiss = at((n) => n.kind === 'hiss');
+    expect(Math.min(...warble)).toBeGreaterThanOrEqual(STEPS[3].at);
+    expect(Math.max(...warble)).toBeLessThan(Math.min(...probe));
+    expect(Math.max(...probe)).toBeLessThan(Math.min(...hiss));
   });
 
   it('puts something on the line at every step, inside the line', () => {

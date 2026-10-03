@@ -5,7 +5,7 @@
   },
   "title": "Strøm i kobber",
   "kid": "Ethernet sender små spændingsskub gennem snoede kobberpar. Snoningen hjælper støj med at udligne sig, og kablet kan tale begge veje på én gang. Efter cirka 100 m bliver skubbene for svage og udtværede. Sådan rejser kabel-kuverten.",
-  "nerd": "1000BASE-T bruger differential signalering på alle fire Cat 5e-par. Hvert par kører 125 MBd med PAM-5-niveauer tæt på ±1 V, hybrider og ekkoudligning gør hvert par fuld duplex, og standarden budgetterer cirka 100 m til tab og krydstale.",
+  "nerd": "1000BASE-T bruger differentiel signalering på alle fire Cat 5e-par. Hvert par kører 125 MBd med PAM-5-niveauer tæt på ±1 V, hybrider og ekkoudligning gør hvert par fuld duplex, og standarden budgetterer cirka 100 m til tab og krydstale.",
   "extra": "Power over Ethernet: sådan et kabel kan også føre strøm, så et adgangspunkt eller et kamera i loftet ikke behøver en stikkontakt. Jævnstrømmen ligger på parrene som en fælles (fantom)spænding, som dataene, der sendes som forskelle, aldrig mærker: 15,4 W med 802.3af, 30 W med 802.3at og op til 90 W på alle fire par med 802.3bt. Hurtigere kobber: 2.5G, 5G og 10GBASE-T bruger 16 niveauer i stedet for 5 (PAM-16, parret i DSQ128-symboler med LDPC-fejlrettelse). 2.5G og 5G kører på almindeligt Cat 5e/6; 10G kører 800 MBd pr. par og kræver Cat 6A for de fulde 100 m.",
   "describe": {
     "kid": "To netværksbokse står i hver ende af et tykt kabel. Indeni ligger fire snoede par. Lysende spændingsskub bevæger sig begge veje gennem parrene. Kortene zoomer ind på snoningen, skubbene og dæmpningen efter cirka 100 meter.",
@@ -63,5 +63,8 @@
       "kid": "To netværksbokse står i hver sin ende af et tykt kabel. Indeni er fire snoede par, men kun to lyser. En puls løber ad det ene par, så kommer en anden tilbage ad det andet: de skiftes. Kortene zoomer ind på snoningerne, pulserne og falmningen efter omkring 100 meter.",
       "nerd": "Kabelsnittet viser fire par, hvoraf to er aktive: det ene bærer pulser frem, det andet tilbage, på skift. Kortene viser modsatte spændinger på et snoet par, et Manchester-kodet bitmønster med et skift i hver bit og et øjediagram med to niveauer."
     }
+  },
+  "2010": {
+    "extra": "Power over Ethernet: sådan et kabel kan også føre strøm, så et adgangspunkt eller et kamera i loftet ikke behøver en stikkontakt. Jævnstrømmen ligger på parrene som en fælles (fantom)spænding, som dataene, der sendes som forskelle, aldrig mærker: 15,4 W med 802.3af (2003) og 30 W med 802.3at, som kom i 2009. Hurtigere kobber: 10GBASE-T (2006) bruger 16 niveauer i stedet for 5 (PAM-16, parret i DSQ128-symboler med LDPC-fejlrettelse), kører 800 MBd pr. par og kræver Cat 6A for de fulde 100 m. I 2010 var det stadig mest til servere."
   }
 }

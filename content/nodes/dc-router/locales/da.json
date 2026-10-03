@@ -8,5 +8,9 @@
     "kid": "Serverrummets hoveddør. Den lejede linje fra det store net ender her, og siden går samme vej ud igen.",
     "nerd": "Hostingstedets router: T1’eren fra backbonens PoP ender på en seriel port (Cisco HDLC) med en statisk standardrute tilbage op ad den. Et så lille sted har ingen BGP selv.",
     "tag": "T1 · statisk rute"
+  },
+  "2010": {
+    "name": "Core-router",
+    "nerd": "Core-routeren i videofirmaets bur: den peerer over BGP på knudepunktet, annoncerer firmaets adresser og router ned over 10G til load balanceren og aggregeringsswitchene."
   }
 }

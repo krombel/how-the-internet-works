@@ -1,7 +1,7 @@
 {
   "title": "Telefonopkaldets kuvert",
   "kid": "Når du ringer op med modem, rejser dine pakker i en telefonopkalds-kuvert. Kun din computer og internetselskabets modem åbner den; telefoncentralen imellem sender bare lyden videre. Før den første pakke siger de to ender goddag: de aftaler, hvordan de taler, tjekker, hvem du er, og giver din computer dens adresse.",
-  "nerd": "PPP (RFC 1661) i HDLC-lignende indramning (RFC 1662): 0x7E-flag, adresse 0xFF, kontrol 0x03, et protokolnummer (0x0021 for IPv4) og et rammetjek. LCP åbner forbindelsen og aftaler MRU og indstillinger, CHAP godkender med en udfordring og en hash, og IPCP tildeler adressen. Så kører IPv4-pakker i rammerne, til nogen lægger på.",
+  "nerd": "PPP (RFC 1661) i HDLC-lignende indramning (RFC 1662): 0x7E-flag, adresse 0xFF og kontrol 0x03 (ofte komprimeret væk af LCP), et protokolnummer (0x0021 for IPv4) og et rammetjek. LCP åbner forbindelsen og aftaler MRU og indstillinger, CHAP godkender med en udfordring og en hash (PAP, også almindeligt i 1995, sendte bare adgangskoden), og IPCP tildeler adressen. Så kører IPv4-pakker i rammerne, til nogen lægger på.",
   "describe": {
     "kid": "Din computer og internetselskabets modem sidder i hver sin ende af en telefonlinje, og en kuvert går frem og tilbage. Ét kort skiller kuverten ad: start, adresse, hvad der er indeni, din pakke, et tjek og slut. Det andet kort viser goddaget: hvordan man taler, hvem er du, og hvilken adresse du får.",
     "nerd": "De to PPP-ender sidder for enderne af opkaldet, mens en ramme pendler mellem dem. Ét kort viser rammen: flag 7E, adresse FF og kontrol 03, protokol 0021, IP-pakken, FCS og flag. Det andet spiller LCP-konfiguration, CHAP-udfordring og -svar og IPCP, der uddeler 203.0.113.7."

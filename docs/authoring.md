@@ -164,13 +164,16 @@ defineTechnology({ look: 'radio' | 'cable' | 'fibre' | 'trunk', colour: '#rrggbb
 ## Add a layer (issue #5)
 
 `content/layers/<id>/`:
-- `layer.ts`: `defineLayer({ fields, openAt?, seals?, tunnel?, code?, bytes?, dive?, learnMore })`.
+- `layer.ts`: `defineLayer({ fields, openAt?, seals?, tunnel?, switched?, code?, bytes?, dive?, learnMore })`.
   - `fields`: its header, in wire order (see below).
   - `openAt`: the roles that read it (TCP, TLS and HTTP: `['endpoint']`). Everyone else leaves it closed. The default
     is everyone.
   - `seals: true`: what's inside is encrypted for every hop that doesn't open this layer (TLS).
   - `tunnel: true`: its addresses are the ends of the run of links that carry it, and the link frames around it end
     there too (GTP‑U: cell tower ↔ mobile core).
+  - `switched: true`: a label-switched layer (MPLS). A router between two links that carry it only swaps the label:
+    it reads nothing inside, its `{ttl}` is the layer's own, and the packet's TTL catches up where the label comes off.
+    Dives see it as `ctx.switched` and look up `role.switched` text first.
   - `code`: how outer layers name this one, e.g. `{ ethertype: '0x0800 (IPv4)', ipproto: '6 (TCP)' }`.
   - `bytes`: size not described by `bits` (a text header, a body), `{ up, down }`.
   - `dive`: a layer dive scene (see below): its envelope in the peek gets a magnifier that flies into it.
@@ -186,7 +189,7 @@ A field is `{ id, bits?, value, use?, kid? }`:
 - `bits`: its size on the wire. Give every field `bits` and the detail view draws the header diagram.
 - `value`: a template. Plain text is the same on every hop (`'4'`, `'010 (DF)'`); `{ up, down }` differs by direction;
   facts fill in per link: `{src}` `{dst}` `{sport}` `{dport}` `{ttl}` `{mac.src}` `{mac.dst}` `{mac.tx}` `{mac.rx}`
-  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{label}` `{inner.<code>}` (see
+  `{tunnel.src}` `{tunnel.dst}` `{len}` `{payload}` (`{payload+8}`) `{sum}` `{crc}` `{label}` `{ack}` `{inner.<code>}` (see
   [architecture](architecture.md#the-packet-model-modelpacketts)). `'@ask'` shows the string `value.ask` instead. An
   empty value leaves the field out in that direction.
 - `use`: the roles that act on it when the packet arrives (`['router', 'nat']` for TTL), or `true` for every hop that
@@ -318,7 +321,7 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
 - Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
 - Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
   1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)
-  2. `role.<role>` (e.g. `role.nat`)
+  2. `role.<role>` (e.g. `role.nat`; a router that only switches an MPLS label tries `role.switched` first)
   3. `sealed` (when this hop can't open the layer)
   4. the plain `title`/`kid`/`nerd`
 
@@ -428,11 +431,17 @@ place of that era, and says so.
   `desk`'s cable goes to `desk-2010`'s), else to the first by `order`.
 - The internet inside is an era's own where a segment variant draws it (`isp-to-cdn-1995`: a small ISP, leased lines,
   CANTAT-3 and an American ATM backbone; `datacentre-1995`: a server room with a router, a hub and one web server,
-  drawn by the `server-room` group node); where a part is still today's drawing (DIX's switch in `ixp-inside`), its
-  words say so plainly ("drawn as today") rather than describe today's technology as the era's. A dive's words for one
-  device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`, not `at.cdn`). A test
-  walks every route of the past and fails on a later technology named in its captions, names, tags and dives
-  (`era-1995.test.ts`: MPLS, DWDM, 100G, leaf–spine, a CDN…) unless the line says when it came.
+  drawn by the `server-room` group node; `datacentre-2010`: a rented cage in a colocation centre, drawn by the
+  `colocation` group node, its `spine` hop an `aggregation` switch whose dive is `three-tier`, not `leaf-spine`); a
+  dive whose drawing changes with the era takes the route's era from its subject (`fibre-light` draws 2010's
+  data-centre fibre in one colour: `ONE_COLOUR_IN` in `light.ts`); where a part is still today's drawing (DIX's
+  switch in `ixp-inside`), its words say so plainly ("drawn as today") rather than describe today's technology as
+  the era's. A dive's words for one device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`,
+  not `at.cdn`). A test per era walks its routes and fails on a later technology unless the line says when it came,
+  and on a dive's `at.<node>` words for a node no route of that era reaches: `era-1995.test.ts` reads the captions,
+  names, tags and dives (MPLS, DWDM, 100G, leaf–spine, a CDN…); `era-2010.test.ts` reads every word a 2010 route can
+  show, labels and layer fields too (Wi‑Fi 5 and up, 4G/5G, 100G without "new in 2010", 100.64/10…), and the data
+  centre's more strictly (leaf–spine, ECMP, 25–400G, k8s, NVMe…). Both walk with `src/test/era-walk.ts`.
 - **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the
   same keys as the rest of the file, for what is different then (`"1995": { "name": "Web server", "kid": … }` in
   `nodes/cdn`, `"1995": { "sealed": { … } }` in a dive). On a route of that era every lookup tries the block first,

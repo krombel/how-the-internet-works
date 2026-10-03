@@ -8,8 +8,8 @@
     "kid": "Inside the internet exchange",
     "nerd": "IXP peering LAN"
   },
-  "kid": "An internet exchange is a meeting table for networks. The helper shares notes about who can reach what. Then your parcel swaps straight across the shared switch, without paying a carrier or visiting the helper.",
-  "nerd": "The IXP is a shared Ethernet fabric. Members peer with BGP, often through a route server that reflects routes but does not forward traffic. Your packet takes one data-plane hop across the peering LAN from ISP port to CDN port.",
+  "kid": "An internet exchange is a meeting table for networks. The helper shares notes about who can reach what. Then your parcel swaps straight across the shared switch, without paying per parcel or visiting the helper.",
+  "nerd": "The IXP is a shared Ethernet fabric. Members peer with BGP, often through a route server that redistributes routes but does not forward traffic. Your packet takes one data-plane hop across the peering LAN from ISP port to CDN port.",
   "describe": {
     "kid": "A long shared switch sits in the middle. Your internet company's router plugs in at one end, and the video company's at the other. Four more networks plug in too. A helper box has its own cable. Little notes ride the switch to the helper and back. Then your parcel crosses the switch straight to the video company.",
     "nerd": "A peering LAN switch with six member ports. The route server has a port of its own. BGP UPDATE notes cross the fabric to the route server and back to every member. Then the packet crosses the fabric in one hop, from the ISP's border port to the CDN's port. It never visits the route server."

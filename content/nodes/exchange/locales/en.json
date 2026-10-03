@@ -2,5 +2,9 @@
   "name": "Telephone exchange",
   "kid": "The phone company’s exchange connects your call to the internet company, like a giant switchboard. It keeps the line open for as long as you stay online.",
   "nerd": "The local exchange switches the call: the copper loop ends here, and the call goes on as a 64 kbit/s digital timeslot through the phone network to the ISP’s modems.",
-  "tag": "Circuit · 64 kbit/s"
+  "tag": "Circuit · 64 kbit/s",
+  "peek": {
+    "kid": "The exchange doesn’t open anything: it just carries your call, sound and all, on to the internet company.",
+    "nerd": "Circuit-switched: the call goes on as a 64 kbit/s timeslot. Nothing here reads a frame; the PPP frames ride inside the modems’ sound."
+  }
 }

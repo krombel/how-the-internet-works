@@ -1,5 +1,9 @@
 {
   "name": "Video server",
   "kid": "The video lives here, on a computer in one of the cupboards. The video company keeps copies of popular videos in lots of places, so none of them is ever too far away.",
-  "nerd": "A CDN cache server: the video app runs in a container and serves the segment from memory or SSD; only cache misses go further, back to the origin."
+  "nerd": "A CDN cache server: the video app runs in a container and serves the segment from memory or SSD; only cache misses go further, back to the origin.",
+  "2010": {
+    "kid": "The video lives here, on a computer in one of the cupboards. The video company keeps copies of popular videos in a few big cities, so the nearest one is further away than today’s.",
+    "nerd": "A CDN cache server in 2010: Linux and a cache program straight on the hardware, with hot video in RAM and the rest on spinning disks; only cache misses go further, back to the origin."
+  }
 }
