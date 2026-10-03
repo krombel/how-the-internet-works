@@ -14,7 +14,7 @@ const at = (path: string[]) => fit(sceneInfo(home, path, 'landscape').fit, vp);
 describe('dives on a phone on its side (issue #33)', () => {
   const svp: Viewport = { w: 844, h: 390, top: 60, bottom: 69 };
   it('fill the height between the bars, running under their edges only by the rim, clear of the side buttons', () => {
-    for (const path of [['phone-ap'], ['router~ip'], ['internet', 'cabinet~ethernet']]) {
+    for (const path of [['phone-ap'], ['router~ip'], ['internet', 'olt~ethernet']]) {
       const r = sceneInfo(home, path, 'landscape').fit, cam = camFor(home, path, null, svp, 'landscape');
       const sx = (x: number) => x * cam.k + cam.x, sy = (y: number) => y * cam.k + cam.y;
       expect(cam.k).toBeGreaterThan(fit(r, svp).k * 1.15);
@@ -42,17 +42,17 @@ describe('layer dives in the zoom', () => {
   });
 
   it('hides the link dives beside a layer dive, which would crowd its panel', () => {
-    const path = ['internet', 'cabinet~ethernet'], cam = at(path);
+    const path = ['internet', 'olt~ethernet'], cam = at(path);
     const m = mixes(cam, vp, home, [path], 'landscape');
-    expect(m.get('internet/cabinet~ethernet')).toBeCloseTo(1);
-    expect(m.has('internet/home-cabinet') || m.has('internet/cabinet-backhaul')).toBe(false);
+    expect(m.get('internet/olt~ethernet')).toBeCloseTo(1);
+    expect(m.has('internet/home-cabinet') || m.has('internet/olt-bng')).toBe(false);
   });
 
   it('draws a layer dive whose stack reaches past the edge of its scene', () => {
-    const path = ['internet', 'cabinet~gpon'], cam = fit(sceneInfo(home, path, 'portrait').fit, pvp);
+    const path = ['internet', 'olt~gpon'], cam = fit(sceneInfo(home, path, 'portrait').fit, pvp);
     const scene = sceneInfo(home, ['internet'], 'portrait').fit, dive = sceneInfo(home, path, 'portrait').fit;
     expect(dive.y).toBeGreaterThan(scene.y + scene.h);
-    expect(mixes(cam, pvp, home, [path], 'portrait').get('internet/cabinet~gpon')).toBeCloseTo(1);
+    expect(mixes(cam, pvp, home, [path], 'portrait').get('internet/olt~gpon')).toBeCloseTo(1);
     expect(decide(cam, pvp, home, path, 'portrait')).toBeNull();
   });
 
@@ -94,7 +94,9 @@ describe('sideways travel in the zoom', () => {
   it('glides over the path scene with no dive showing, and lands in the next dive', () => {
     for (const [o, v, from, to] of [
       ['landscape', vp, ['phone-ap'], ['router-internet']],
-      ['portrait', pvp, ['internet', 'home-cabinet'], ['internet', 'bng-core']],
+      ['portrait', pvp, ['internet', 'olt-bng'], ['internet', 'core-border']],
+      // into a stretch through the splitter, whose dive sits at its middle
+      ['landscape', vp, ['internet', 'olt-bng'], ['internet', 'home-cabinet']],
       // past a device with a dive of its own, which stays shut; and into one
       ['landscape', vp, ['ap-router'], ['router-internet']],
       ['portrait', pvp, ['ap-router'], ['router']],

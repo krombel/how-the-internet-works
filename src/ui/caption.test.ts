@@ -45,7 +45,9 @@ describe('caption scale tag', () => {
   it('tells a stretch of several links how long it is; a single link, like the cross-connect into the exchange, has no count', () => {
     state.setLang('en'); state.setLevel('kid');
     const dive = (step: string) => caption.captionFor(home, ['internet', step], null, 'landscape');
-    expect(dive('cabinet-backhaul')).toMatchObject({ title: 'Colours sharing one thread', tag: '2 stretches · via Backhaul switch · 24 km' });
+    // the PON: from the house through the splitter to the OLT
+    expect(dive('home-cabinet')).toMatchObject({ title: 'Light shared by your street', tag: '2 stretches · via Street cabinet · 7.2 km' });
+    expect(dive('olt-bng')).toMatchObject({ tag: undefined });
     // the backbone and the undersea cable are a link each (#39)
     expect(dive('bng-core')).toMatchObject({ title: 'Light on the motorway', tag: undefined });
     expect(dive('core-border')).toMatchObject({ title: 'Light under the sea', tag: undefined });

@@ -47,7 +47,8 @@ export const layerStep = (hop: string, layer: string) => `${hop}~${layer}`;
 /** The layers with a dive that arrive at a hop, bottom of the stack first. Each is seen in one direction: arriving
  *  upwards (client → server) if it does, else downwards; the scenes tell the round trip either way. */
 export function layersAt(r: Route, hop: Hop): LayerAt[] {
-  if (hop.index < 0) return [];
+  // a passive hop (a splitter) reads nothing: there is no envelope to look inside at it
+  if (hop.index < 0 || hop.role === 'passive') return [];
   const lower: LayerAt[] = [], upper: LayerAt[] = [], seen = new Set<string>();
   for (const [dir, link] of [['up', r.links[hop.index - 1]], ['down', r.links[hop.index]]] as const) {
     if (!link) continue;
@@ -173,6 +174,14 @@ export function downFrom(r: Route, ref: SceneRef): string[] | null {
   return linkDivePath(r, ref.at!.link, parentPath(ref.path));
 }
 
+/** The hop that reads a link layer at one end of link `i` (`step` +1: its far end, -1: its near end): that end, or,
+ *  past a passive one (a splitter), the next hop on along links that still carry the layer. */
+function readerAt(r: Route, i: number, step: 1 | -1, layer: string): Hop {
+  let h = step > 0 ? i + 1 : i;
+  while (r.chain[h].role === 'passive' && r.links[step > 0 ? h : h - 1]?.stack.includes(layer)) h += step;
+  return r.chain[h];
+}
+
 /** Up from a signal to what it carries: a link dive leads to the dives of its link's own layers, at the end of the
  *  link drawn beside it (else the one that receives them on the way up: the Wi‑Fi radio → the access point's frame).
  *  A device dive leads to the envelopes it takes off and puts on: those of the links on either side, at the device. */
@@ -188,7 +197,8 @@ export function upFrom(r: Route, ref: SceneRef): { layer: string; path: string[]
   }
   const link = ref.link!.link;
   return link.stack.flatMap((layer) => {
-    const ends = [link.to, link.from].map((hop) => layerPath(r, hop, layer)).filter((p) => p !== null);
+    const hops = link.index < 0 ? [link.to, link.from] : ([1, -1] as const).map((step) => readerAt(r, link.index, step, layer).id);
+    const ends = hops.map((hop) => layerPath(r, hop, layer)).filter((p) => p !== null);
     const path = ends.find((p) => parentPath(p).join('/') === here) ?? ends[0];
     return path ? [{ layer, path }] : [];
   });

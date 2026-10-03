@@ -45,8 +45,9 @@ describe('long-haul fibre (#42)', () => {
   it('measures the stretch a dive stands for, from the route', () => {
     const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
     const run = (step: string) => runOf(home, sceneRef(home, ['internet', step], 'landscape')!, 'landscape').map((l) => l.link);
-    expect(run('cabinet-backhaul').map((l) => l.id)).toEqual(['cabinet-backhaul', 'backhaul-bng']);
-    expect(stretchKm(run('cabinet-backhaul'))).toBe(24);
+    // the PON runs from the house through the splitter to the OLT
+    expect(run('home-cabinet').map((l) => l.id)).toEqual(['router-cabinet', 'cabinet-olt']);
+    expect(stretchKm(run('home-cabinet'))).toBe(7.2);
     expect(run('bng-core').map((l) => l.tech.id)).toEqual(['backbone']);
   });
 });

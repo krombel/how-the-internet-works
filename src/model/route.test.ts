@@ -13,9 +13,9 @@ const ids = (xs: { id: string }[]) => xs.map((x) => x.id);
 
 describe('resolveRoute', () => {
   it('chains the place and the shared segment', () => {
-    expect(ids(home.chain)).toEqual(['phone', 'ap', 'router', 'cabinet', 'backhaul', 'bng', 'core', 'border', 'ixp', 'dc-router', 'load-balancer', 'spine', 'rack-switch', 'cdn']);
+    expect(ids(home.chain)).toEqual(['phone', 'ap', 'router', 'cabinet', 'olt', 'bng', 'core', 'border', 'ixp', 'dc-router', 'load-balancer', 'spine', 'rack-switch', 'cdn']);
     expect(ids(street.chain)).toEqual(['phone', 'cell-tower', 'mobile-core', 'core', 'border', 'ixp', 'dc-router', 'load-balancer', 'spine', 'rack-switch', 'cdn']);
-    expect(home.links.map((l) => l.tech.id)).toEqual(['wifi', 'ethernet', 'gpon', 'metro-fibre', 'metro-fibre', 'backbone', 'submarine', 'cross-connect', 'cross-connect', 'dc-fibre', 'dc-fibre', 'dc-fibre', 'dc-fibre']);
+    expect(home.links.map((l) => l.tech.id)).toEqual(['wifi', 'ethernet', 'gpon', 'gpon', 'metro-fibre', 'backbone', 'submarine', 'cross-connect', 'cross-connect', 'dc-fibre', 'dc-fibre', 'dc-fibre', 'dc-fibre']);
   });
 
   it('defaults unknown places and activities', () => {
@@ -66,8 +66,8 @@ describe('path scenes', () => {
 
   it('unfolds the group with its entry and side branch', () => {
     const ps = pathScene(home, 'internet', 'landscape');
-    expect(ids(ps.nodes)).toEqual(['home', 'cabinet', 'backhaul', 'bng', 'core', 'border', 'ixp', 'datacentre', 'transit']);
-    expect(ps.stops).toEqual(['home-cabinet', 'cabinet', 'cabinet-backhaul', 'backhaul', 'backhaul-bng', 'bng', 'bng-core', 'core', 'core-border', 'border', 'transit', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
+    expect(ids(ps.nodes)).toEqual(['home', 'cabinet', 'olt', 'bng', 'core', 'border', 'ixp', 'datacentre', 'transit']);
+    expect(ps.stops).toEqual(['home-cabinet', 'cabinet', 'cabinet-olt', 'olt', 'olt-bng', 'bng', 'bng-core', 'core', 'core-border', 'border', 'transit', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
     expect(ps.links.find((l) => l.id === 'border-transit')?.dashed).toBe(true);
     const s = pathScene(street, 'internet', 'landscape');
     expect(ids(s.nodes).slice(0, 3)).toEqual(['cell-tower', 'mobile-core', 'core']);
@@ -177,8 +177,9 @@ describe('scene tree', () => {
   it('has layer dives at the hops drawn in each scene, following their hop', () => {
     const { home: h, street: s } = layerDives();
     expect(layerSteps(h, [])).toEqual(['phone~ip', 'phone~tcp', 'ap~ip', 'ap~tcp', 'router~ip', 'router~tcp']);
-    // inside a group: its own hops, not the entry stand-in ("home") or a side branch nobody travels ("transit")
-    expect(layerSteps(h, ['internet']).filter((x) => x.endsWith('~ip'))).toEqual(['cabinet~ip', 'backhaul~ip', 'bng~ip', 'core~ip', 'border~ip', 'ixp~ip']);
+    // inside a group: its own hops, not the entry stand-in ("home"), a passive splitter that reads nothing ("cabinet")
+    // or a side branch nobody travels ("transit")
+    expect(layerSteps(h, ['internet']).filter((x) => x.endsWith('~ip'))).toEqual(['olt~ip', 'bng~ip', 'core~ip', 'border~ip', 'ixp~ip']);
     // lower layers first: GTP (under IP on the tunnel link) at the tower and the core; the phone never sees it
     expect(layerSteps(s, [])).toEqual(['phone~ip', 'phone~tcp', 'cell-tower~gtp', 'cell-tower~ip', 'cell-tower~tcp']);
     expect(layerSteps(s, ['internet']).slice(0, 3)).toEqual(['mobile-core~gtp', 'mobile-core~ip', 'mobile-core~tcp']);
@@ -213,7 +214,8 @@ describe('scene tree', () => {
 
   it('finds where a layer dive lives', () => {
     expect(layerPath(home, 'router', 'ip')).toEqual(['router~ip']);
-    expect(layerPath(home, 'cabinet', 'ip')).toEqual(['internet', 'cabinet~ip']);
+    expect(layerPath(home, 'olt', 'ip')).toEqual(['internet', 'olt~ip']);
+    expect(layerPath(home, 'cabinet', 'gpon')).toBeNull();
     expect(layerPath(street, 'mobile-core', 'ip')).toEqual(['internet', 'mobile-core~ip']);
     expect(layerPath(home, 'transit', 'ip')).toBeNull();
     expect(layerPath(home, 'router', 'wifi')).toBeNull();
@@ -239,39 +241,40 @@ describe('scene tree', () => {
 
   it('ends a stretch at a device with a dive of its own, and only there', () => {
     const c: Content = structuredClone(content);
-    c.nodes.backhaul.dive = c.nodes.router.dive;
+    c.nodes.cabinet.dive = c.nodes.router.dive;
     const h = resolveRoute({ activity: 'watch-video', places: ['home'] }, c);
-    expect(diveRuns(h, 'internet', 'landscape').runs.map((x) => x.links.map((l) => l.id))).toEqual([['home-cabinet'], ['cabinet-backhaul'], ['backhaul-bng'], ['bng-core'], ['core-border'], ['border-ixp'], ['ixp-datacentre']]);
-    expect(notLayers(h, ['internet']).map((x) => x.step)).toEqual(['home-cabinet', 'cabinet-backhaul', 'backhaul', 'backhaul-bng', 'bng-core', 'core-border', 'border', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
+    expect(diveRuns(h, 'internet', 'landscape').runs.map((x) => x.links.map((l) => l.id))).toEqual([['home-cabinet'], ['cabinet-olt'], ['olt-bng'], ['bng-core'], ['core-border'], ['border-ixp'], ['ixp-datacentre']]);
+    expect(notLayers(h, ['internet']).map((x) => x.step)).toEqual(['home-cabinet', 'cabinet', 'cabinet-olt', 'olt-bng', 'bng-core', 'core-border', 'border', 'border-ixp', 'ixp', 'ixp-datacentre', 'datacentre']);
   });
 
   it('makes a stretch of consecutive links into the same scene with the same technology one dive', () => {
     const desk = resolveRoute({ activity: 'watch-video', places: ['desk'] });
     const runs = (r: typeof home, group: string | null) => diveRuns(r, group, 'landscape').runs.map((x) => x.links.map((l) => l.id));
-    // access, metro, long haul, under the sea, the exchange's cross-connects: not eight identical fibre dives
-    expect(runs(home, 'internet')).toEqual([['home-cabinet'], ['cabinet-backhaul', 'backhaul-bng'], ['bng-core'], ['core-border'], ['border-ixp'], ['ixp-datacentre']]);
+    // the PON through the splitter, metro, long haul, under the sea, the exchange's cross-connects: not eight identical
+    // fibre dives
+    expect(runs(home, 'internet')).toEqual([['home-cabinet', 'cabinet-olt'], ['olt-bng'], ['bng-core'], ['core-border'], ['border-ixp'], ['ixp-datacentre']]);
     expect(runs(street, 'internet')).toEqual([['cell-tower-mobile-core'], ['mobile-core-core'], ['core-border'], ['border-ixp'], ['ixp-datacentre']]);
     // different scenes (or technologies) stay apart
     expect(runs(street, null)).toEqual([['phone-cell-tower'], ['cell-tower-internet']]);
     expect(runs(desk, null)).toEqual([['laptop-router'], ['router-internet']]);
     // one child, one sideways stop, one step each way: its first link is its step, the rest are not steps of their own
-    expect(sideways(home, ['internet', 'cabinet-backhaul'], null, 'portrait')).toMatchObject({ steps: ['home-cabinet', 'cabinet-backhaul', 'bng-core', 'core-border', 'border', 'border-ixp', 'ixp', 'ixp-datacentre'], i: 1 });
-    expect(sceneRef(home, ['internet', 'backhaul-bng'])).toBeNull();
-    expect(validPrefix(home, ['internet', 'backhaul-bng'])).toEqual(['internet']);
+    expect(sideways(home, ['internet', 'olt-bng'], null, 'portrait')).toMatchObject({ steps: ['home-cabinet', 'olt-bng', 'bng-core', 'core-border', 'border', 'border-ixp', 'ixp', 'ixp-datacentre'], i: 1 });
+    expect(sceneRef(home, ['internet', 'cabinet-olt'])).toBeNull();
+    expect(validPrefix(home, ['internet', 'cabinet-olt'])).toEqual(['internet']);
     // the dive sits in the middle of the stretch (a single link's at its midpoint), and a travel lands there
     for (const o of ['landscape', 'portrait'] as const) {
       const ch = chainOf(home, 'internet', o), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
-      const metro = diveRuns(home, 'internet', o).byLink.get('backhaul-bng')!;
-      expect(metro.s).toBeCloseTo((s('cabinet-backhaul') + s('backhaul-bng')) / 2);
-      expect(travelOf(home, ['internet', 'home-cabinet'], ['internet', 'cabinet-backhaul'], o)).toEqual({ parent: ['internet'], b: metro.s });
-      expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'home-cabinet'], o)!.b).toBe(s('home-cabinet'));
-      const pf = frameOf(home, ['internet'], o), f = frameOf(home, ['internet', 'cabinet-backhaul'], o), W = WORLD_SIZE[o];
-      expect(f.x).toBeCloseTo(pf.x + (metro.at.x - (W.w * DETAIL_SCALE) / 2) * pf.s, 6);
-      expect(f.y).toBeCloseTo(pf.y + (metro.at.y - (W.h * DETAIL_SCALE) / 2) * pf.s, 6);
+      const pon = diveRuns(home, 'internet', o).byLink.get('cabinet-olt')!;
+      expect(pon.s).toBeCloseTo((s('home-cabinet') + s('cabinet-olt')) / 2);
+      expect(travelOf(home, ['internet', 'olt-bng'], ['internet', 'home-cabinet'], o)).toEqual({ parent: ['internet'], b: pon.s });
+      expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'olt-bng'], o)!.b).toBe(s('olt-bng'));
+      const pf = frameOf(home, ['internet'], o), f = frameOf(home, ['internet', 'home-cabinet'], o), W = WORLD_SIZE[o];
+      expect(f.x).toBeCloseTo(pf.x + (pon.at.x - (W.w * DETAIL_SCALE) / 2) * pf.s, 6);
+      expect(f.y).toBeCloseTo(pf.y + (pon.at.y - (W.h * DETAIL_SCALE) / 2) * pf.s, 6);
     }
     // a layer dive's way down to its signal finds the stretch
-    const backhaul = pathScene(home, 'internet', 'landscape').links.find((l) => l.id === 'backhaul-bng')!.link;
-    expect(linkDivePath(home, backhaul)).toEqual(['internet', 'cabinet-backhaul']);
+    const pon = pathScene(home, 'internet', 'landscape').links.find((l) => l.id === 'cabinet-olt')!.link;
+    expect(linkDivePath(home, pon)).toEqual(['internet', 'home-cabinet']);
   });
 
   it('draws a path scene\'s chain as one curve through its links and devices', () => {
@@ -317,7 +320,7 @@ describe('scene tree', () => {
     expect(Math.abs(chainNear(ch, { x: chainAt(ch, s('ap')).x, y: chainAt(ch, s('ap')).y + 3 }) - s('ap'))).toBeLessThan(5);
     // passing the access point on the way
     expect(chainItemAt(ch, (s('phone-ap') + tv.b) / 2)).toBe('ap');
-    expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'cabinet-backhaul'], 'portrait')).toMatchObject({ parent: ['internet'] });
+    expect(travelOf(home, ['internet', 'bng-core'], ['internet', 'olt-bng'], 'portrait')).toMatchObject({ parent: ['internet'] });
     const { home: h } = layerDives();
     expect(travelOf(h, ['router~ip'], ['router~tcp'], 'landscape')).toBeNull();
     expect(travelOf(home, ['router-internet'], ['internet', 'home-cabinet'], 'landscape')).toBeNull();
@@ -333,8 +336,10 @@ describe('scene tree', () => {
     expect(down(h, ['phone~wifi'])).toEqual(['phone-ap']);
     expect(down(h, ['router~ethernet'])).toEqual(['ap-router']);
     expect(down(h, ['router~gpon'])).toEqual(['router-internet']);
-    expect(down(h, ['internet', 'cabinet~gpon'])).toEqual(['internet', 'home-cabinet']);
-    expect(down(h, ['internet', 'backhaul~vlan'])).toEqual(['internet', 'cabinet-backhaul']);
+    // through the passive splitter: the OLT's PON frame is carried by the whole stretch from the house
+    expect(down(h, ['internet', 'olt~gpon'])).toEqual(['internet', 'home-cabinet']);
+    expect(down(h, ['internet', 'olt~ethernet'])).toEqual(['internet', 'home-cabinet']);
+    expect(down(h, ['internet', 'olt~vlan'])).toEqual(['internet', 'olt-bng']);
     expect(down(s, ['cell-tower~gtp'])).toEqual(['cell-tower-internet']);
     expect(down(h, ['router~ip'])).toBeNull();
     expect(downFrom(h, sceneRef(h, ['phone-ap'])!)).toBeNull();
@@ -344,8 +349,9 @@ describe('scene tree', () => {
     const { home: h, street: s } = allLayerDives();
     const up = (r: typeof h, path: string[]) => upFrom(r, sceneRef(r, path)!);
     expect(up(h, ['phone-ap'])).toEqual([{ layer: 'wifi', path: ['ap~wifi'] }]);
-    expect(up(h, ['router-internet'])).toEqual([{ layer: 'gpon', path: ['router~gpon'] }]);
-    expect(up(h, ['internet', 'home-cabinet'])).toEqual([{ layer: 'gpon', path: ['internet', 'cabinet~gpon'] }]);
+    expect(up(h, ['router-internet'])).toEqual([{ layer: 'gpon', path: ['router~gpon'] }, { layer: 'ethernet', path: ['router~ethernet'] }]);
+    // past the passive splitter (it reads nothing) to the OLT, which ends the PON
+    expect(up(h, ['internet', 'home-cabinet'])).toEqual([{ layer: 'gpon', path: ['internet', 'olt~gpon'] }, { layer: 'ethernet', path: ['internet', 'olt~ethernet'] }]);
     expect(up(h, ['internet', 'bng-core']).map((u) => u.path)).toEqual([['internet', 'core~ethernet'], ['internet', 'core~mpls']]);
     expect(up(s, ['cell-tower-internet']).map((u) => u.path)).toEqual([['cell-tower~ethernet'], ['cell-tower~gtp']]);
     expect(up(h, ['router~ip'])).toEqual([]);
