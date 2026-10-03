@@ -36,15 +36,23 @@ describe('the place picker in an era', () => {
   });
 
   it('shows each place by its own picture, the same for all its ways online and eras: a house, a phone on the move', () => {
-    for (const here of ['home', 'desk', 'home-dsl', 'home-dialup', 'street', 'street-2010'])
+    for (const here of ['home', 'desk', 'home-dsl', 'home-dialup', 'street', 'street-2010', 'street-1995'])
       expect(at(here).options.map((o) => iconOf(o.id)), here).toEqual(['home', 'on-the-go']);
     expect(Object.keys(content.places).map(iconOf).every((i) => content.nodes[i]?.kind === 'place')).toBe(true);
     expect(pictures()).toEqual(['home', 'on-the-go']);
   });
 
+  it('offers on the go in 1995 as a place of its own: a laptop on a GSM call (#147)', () => {
+    expect(where('home-dialup')).toEqual({ home: ['home-dialup', false], street: ['street-1995', false] });
+    expect(where('street-1995')).toEqual({ home: ['home-dialup', false], street: ['street-1995', false] });
+    expect(at('home-dialup').options.find((o) => o.id === 'street')!.instead).toBeNull();
+  });
+
   it('takes a place with no member in the era to the era’s own trip, as the time machine does', () => {
-    expect(where('home-dialup')).toEqual({ home: ['home-dialup', false], street: ['home-dialup', true] });
-    const street = at('home-dialup').options.find((o) => o.id === 'street')!;
+    // with the GSM call left out of what the activity allows, on the go has no 1995
+    const allowed = allowedPlaces('watch-video', 0).filter((p) => p !== 'street-1995');
+    const street = placeOptions('home-dialup', '1995', allowed).find((o) => o.id === 'street')!;
+    expect(street.to).toBe('home-dialup');
     expect(street.instead).toMatchObject({ era: '1995', place: 'home-dialup', instead: true });
   });
 
@@ -55,6 +63,7 @@ describe('the place picker in an era', () => {
     expect(at('desk-2010').ways).toEqual(at('home-dsl').ways);
     expect(at('home-dialup').ways).toEqual(['home-dialup']);
     expect(at('street').ways).toEqual(['street']);
+    expect(at('street-1995').ways).toEqual(['street-1995']);
     expect(Object.keys(content.places).every((p) => at(p).ways.includes(p))).toBe(true);
   });
 });

@@ -33,6 +33,24 @@
       "nerd": "Two routers on a leased T1. One card shows the frame: the framing bit and 24 timeslots bundled at 1.536 Mbit/s. The other shows AMI pulses on the copper."
     }
   },
+  "abis": {
+    "title": "Four calls in every box",
+    "kid": "From the mast to the mobile company’s switch, a GSM call is so small that four of them share one box in every row: each call keeps its own quarter, row after row, for as long as it lasts. Another box carries the mast’s messages.",
+    "nerd": "Abis and Ater on an E1: 32 timeslots × 64 kbit/s. Slot 0 is frame alignment, slot 1 the BTS’s signalling (LAPD); each traffic slot carries four 16 kbit/s sub-slots, one GSM channel each. Your data call is a quarter of slot 7: 12 kbit/s of RLP frames plus framing, rate-adapted at the TRAU into a whole 64 kbit/s slot for the MSC.",
+    "describe": {
+      "kid": "The mast and the controller box (or the controller and the mobile switch), joined by a line full of rows of boxes. One card shows a row: a yellow box to keep step, a teal box for messages, and boxes cut into four, one quarter of one box yours. The other card shows the line going up and down.",
+      "nerd": "Two ends of an Abis or Ater E1. One card shows the 32 timeslots: 0 for alignment, 1 for LAPD, and traffic slots cut into four 16 kbit/s sub-slots, your call in a quarter of slot 7, some free. The other shows HDB3 on the copper."
+    }
+  },
+  "trunk": {
+    "title": "Thirty calls between two switches",
+    "kid": "The mobile company’s switch and the phone company’s exchange share a big line with 30 calls on it: each call keeps its own box in every row. Your laptop’s call is one of them, beeping like a modem. One box carries the switches’ messages: a new call, a hang-up.",
+    "nerd": "An E1 trunk between the MSC and the PSTN: 32 timeslots × 64 kbit/s. Slot 0 is frame alignment, slot 16 carries SS7 (ISUP sets up and clears each circuit), and the other 30 are calls in A-law PCM. Your circuit carries the IWF’s V.32 modem tones, 9.6 kbit/s inside a 64 kbit/s slot.",
+    "describe": {
+      "kid": "The mobile switch and the telephone exchange, joined by a line full of rows of boxes. One card shows a row: a yellow box to keep step, a teal box for messages, your call’s box and the other callers’ boxes. The other card shows the line going up and down.",
+      "nerd": "The MSC and the exchange exchange E1 frames on a trunk. One card shows the 32 timeslots: 0 for alignment, 16 for SS7, slot 7 your circuit and the rest other circuits, some idle. The other shows HDB3 on the copper."
+    }
+  },
   "wire": {
     "kid": "A row of boxes, 8,000 times a second",
     "nerd": "One frame every 125 µs, each way"
@@ -73,6 +91,30 @@
     "pipeT1": {
       "kid": "One pipe",
       "nerd": "1–24: one channel"
+    },
+    "ss7": {
+      "kid": "Messages",
+      "nerd": "16: SS7"
+    },
+    "circuit": {
+      "kid": "Your call",
+      "nerd": "Your circuit"
+    },
+    "circuits": {
+      "kid": "Other callers",
+      "nerd": "Other circuits"
+    },
+    "lapd": {
+      "kid": "Mast messages",
+      "nerd": "1: LAPD"
+    },
+    "quarter": {
+      "kid": "Your call: a quarter",
+      "nerd": "Your 16k sub-slot"
+    },
+    "quarters": {
+      "kid": "Calls, four a box",
+      "nerd": "16k sub-slots"
     }
   },
   "sum": {

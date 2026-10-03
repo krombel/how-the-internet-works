@@ -6,9 +6,14 @@
     "kid": "En stor beige computer med en dyb skærm og et tastatur i en ledning. Modemmet står blinkende på en hylde og ringer op til internetfirmaet.",
     "nerd": "En stationær pc: dens eksterne modem ringer op til udbyderen på telefonlinjen, uden nogen router imellem."
   },
-  "away": {
+  "at": {
     "street": {
-      "nerd": "Ude på farten i 1995 kunne GSM bære data: et kredsløbskoblet opkald (CSD) på 9,6 kbit/s fra en telefon med et kabel til en bærbar. Alt for langsomt til video."
+      "kid": "Ude i byen var næsten ingen på nettet, men man kunne godt: en bærbar med en ledning til en mobiltelefon ringede til internetfirmaet. Tre gange langsommere end derhjemme, og hvert minut kostede penge.",
+      "nerd": "GSM’s kredsløbskoblede data: 9,6 kbit/s i én radiotidsslot, betalt pr. minut som et opkald. Mobilcentralens modemmer (IWF’en) ringer til udbyderen som et modem derhjemme; GPRS’ altid-tændte pakker kom i 2000.",
+      "describe": {
+        "kid": "En tyk bærbar med en krøllet ledning til en mobiltelefon på størrelse med en mursten, ude på gaden.",
+        "nerd": "En bærbar fra 1995 med et GSM-datakort i en ledning til en GSM-telefon, der ringer til udbyderen med 9,6 kbit/s."
+      }
     }
   }
 }
