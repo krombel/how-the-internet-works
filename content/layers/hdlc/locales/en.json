@@ -1,0 +1,42 @@
+{
+  "name": {
+    "kid": "Leased-line envelope",
+    "nerd": "Cisco HDLC frame"
+  },
+  "note": {
+    "kid": "On a rented line between two routers, the parcel rides in a simple envelope. Each router opens it and puts the parcel in a fresh one for the next line.",
+    "nerd": "Cisco HDLC on a leased line: a flag, address 0x0F, control 0x00, an EtherType and a 16-bit check. Each router ends the frame; keepalives every 10 seconds tell both ends the line is up."
+  },
+  "line": "Cisco HDLC, protocol {proto}",
+  "value": {
+    "ip": {
+      "kid": "An internet parcel",
+      "nerd": "IPv4 inside"
+    }
+  },
+  "field": {
+    "flag": {
+      "name": "Flag",
+      "about": "Marks where a frame starts and ends in the stream of bits."
+    },
+    "address": {
+      "name": "Address",
+      "about": "0x0F for an ordinary frame: a line has only two ends."
+    },
+    "control": {
+      "name": "Control",
+      "about": "Always 0x00."
+    },
+    "proto": {
+      "name": {
+        "kid": "What’s inside",
+        "nerd": "Protocol"
+      },
+      "about": "What the frame carries, with Ethernet’s numbers: 0x0800 is an IPv4 packet."
+    },
+    "fcs": {
+      "name": "FCS",
+      "about": "A check over the frame, so a crackle on the line is noticed."
+    }
+  }
+}

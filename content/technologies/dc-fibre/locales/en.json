@@ -2,5 +2,10 @@
   "name": "Data-centre fibre",
   "kid": "Short glass cables between the boxes in one building, all belonging to the same company.",
   "nerd": "Inside the fabric: 100–400G Ethernet over short single-mode fibre (or copper for the last metres to a server).",
-  "tag": "400GBASE-FR4 · SMF"
+  "tag": "400GBASE-FR4 · SMF",
+  "1995": {
+    "kid": "Drawn as today’s short glass cables. In 1995 the server room was wired with thin copper cables.",
+    "nerd": "Drawn as today (100–400G Ethernet over fibre). In 1995 a server room was wired with 10 Mbit/s Ethernet over copper (10BASE-T), through a hub.",
+    "tag": "Drawn as today"
+  }
 }

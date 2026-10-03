@@ -1,1 +1,12 @@
-{ "name": { "kid": "A cloud company", "nerd": "Cloud region · AS64503" } }
+{
+  "name": {
+    "kid": "A cloud company",
+    "nerd": "Cloud region · AS64503"
+  },
+  "1995": {
+    "name": {
+      "kid": "Today’s cloud",
+      "nerd": "Cloud region · today"
+    }
+  }
+}

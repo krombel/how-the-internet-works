@@ -1,7 +1,7 @@
 import { definePlace } from '$core/define';
 
 // At home in the 1990s, on dial-up: no Wi-Fi and no router. The computer's own modem phones the internet company,
-// the telephone exchange connects the call, and the ISP's modems answer and hand the computer an address (PPP).
+// the telephone exchange connects the call, and the ISP's modem bank answers and hands the computer an address (PPP).
 export default definePlace({
   variantOf: 'home',
   order: 1.6,
@@ -10,9 +10,11 @@ export default definePlace({
     { at: 'pc', addr: '203.0.113.7' },
     { link: 'dialup', km: 2.5 },
     { at: 'exchange', in: 'internet' },
-    { link: 'dialup', km: 20 },
-    { at: 'bng', in: 'internet', owner: 'isp' },
-    { link: 'backbone', km: 25 },
+    // the exchange hands the call to the ISP in a timeslot of an ISDN line (PRI), to its rack of modems
+    { link: 'pri', km: 20 },
+    { at: 'bng', node: 'modem-bank', in: 'internet', owner: 'isp' },
+    // a 10 Mbit/s Ethernet cable in the same rack, to the ISP's one router (10BASE-T)
+    { link: 'ethernet', km: 0.005, rate: { down: 10e6, up: 10e6 } },
   ],
   entry: { internet: 'home' },
   layout: {
@@ -31,8 +33,8 @@ export default definePlace({
       },
     },
     internet: {
-      landscape: { nodes: { home: [140, 620, 120], exchange: [320, 430, 150, 'above'], bng: [540, 560, 150] }, links: { 'bng-core': { bend: 0.6 } } },
-      portrait: { nodes: { home: [200, 1470, 130], exchange: [640, 1330, 150], bng: [720, 1060, 150] }, links: { 'bng-core': { bend: 0.08 } } },
+      landscape: { nodes: { home: [140, 620, 120], exchange: [250, 385, 150, 'above'], bng: [565, 585, 150, 'above'] }, links: { 'bng-core': { bend: 0.6 } } },
+      portrait: { nodes: { home: [200, 1470, 130], exchange: [610, 1380, 150], bng: [720, 1060, 150] }, links: { 'bng-core': { bend: 0.08 } } },
     },
   },
   learnMore: [

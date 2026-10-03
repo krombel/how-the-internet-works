@@ -62,8 +62,9 @@ for 30 years (packets, addresses, envelopes inside envelopes, routers reading th
    in 1995, watch a small video in 2010, stream one today. The caption says how long it takes, like with like.
 7. **Small era touches** around the house: a calendar on the wall, a modem whose lights blink as the page arrives, a
    buffering wheel in 2010, a smart speaker today (*Era flavour*, below).
-8. **The picker** ("Where are you?") marks the ways online with their year ("Dial-up · 1995") and says when a place
-   would take you back to today.
+8. **The picker** ("Where are you?") stays in the era you are in (decided by the user, 3 Oct): each place is its
+   member of that era, and a place with none says where you'd have done it then ("In 1995 you'd have done this at
+   home"). Only the time machine changes the era; the picker's "Other years" opens it.
 
 ```mermaid
 graph LR
@@ -152,11 +153,16 @@ era, catches anachronisms cheaply (Wi‑Fi in 1995, TLS on a 1985 BBS).
    same instance id (`spine`: a leaf–spine spine → an aggregation switch) cross-fades in place instead of swapping its
    art in one frame.
 
-**Place switching and eras.** The picker keeps the era where it can: in 1995, picking another place takes that
-place's 1995 member; a place with none (the street) takes you back to today, and the picker says so under it
-("Only today"), and so does the arrival. The access chips stay: they list the whole family, each with its year
-("Fibre · today", "Fibre to the building · today", "DSL · 2010", "Dial-up · 1995"), so `home-dsl`, `home-fttb` and
-`home-dialup` work as before, and picking "Dial-up" is a trip to 1995 (the top bar says so).
+**Place switching and eras** (revised by the user, 3 Oct). Once an era is picked you stay in it: only the time
+machine changes the era. The picker offers each place as its member of the current era, by the time machine's own
+rule (`eraStops`): in 2010 the desk is `desk-2010`, the street `street-2010`, home `home-dsl`. A place with no member
+in the era keeps its option, with the time machine's line under it ("In 1995 you'd have done this at home", or the
+era's own `era.<era>.instead.<place>`, as for the desk in 1995), and picking it goes to the era's trip (the time
+machine's `instead` stop), still in the era; the arrival says why, as the time machine's does. The access chips ("How
+do you get online?") list only the era's ways online (today fibre and fibre to the building; 2010 DSL; 1995
+dial-up), so the section is gone when only one is left; other years are the time machine's, and the picker's
+"Other years ⏲" opens it. Links into another era (`#/en/home-dialup/…`) work as before: the place carries the era,
+and the top bar shows it.
 
 **URLs** (no new parameter; the place carries the era):
 
@@ -188,7 +194,7 @@ place's 1995 member; a place with none (the street) takes you back to today, and
    takes" line uses the bottleneck of the route and the era's own `size`, so it compares like with like.
 5. **Era strings** (`era.<id>.name/kid/nerd/describe`) stay as they are; `describe` is rewritten for the new pictures
    (the start devices). New `ui.json` strings: `time.now` (the top bar's "Today"), `time.instead` ("In {era} you'd
-   have done this at {place}. You'll travel there."), `time.only` (the picker's "Only today"), `coach.time`; and the
+   have done this at {place}. You'll travel there."), `pick.years` (the picker's "Other years"), `coach.time`; and the
    optional, nerd-only `era.<era>.away.<place>` (the GSM note above).
 
 ## Era-accurate content
@@ -216,9 +222,9 @@ Ethernet beyond the rooms, no MPLS, no POS. New technologies, all content: `pri`
 | Technology | Stack | Dive |
 |---|---|---|
 | `pri` (exchange → modem bank) | `ppp` (still inside the modem's tones) | **`tdm-frames`** (new, one dive for every E1/T1), mode PRI: 30 callers in their slots, slot 0 for sync, slot 16 the D channel ("a call for the ISP"); yours is slot 7, as on `modem-call`'s card |
-| `e1` (ISP → upstream, ISP → DIX) | `ppp` | `tdm-frames`, mode leased: all 31 slots bundled into one 2 Mbit/s pipe for PPP frames; a 64k line is one slot |
-| `t1` (US → the server room) | `ppp` | `tdm-frames`, mode T1: 24 slots and one framing bit, 193 bits 8,000 times a second |
-| `submarine-sdh` (the Atlantic) | `ppp` | `fibre-light`, submarine mode (exists), 1995 strings: SDH, 2.5 Gbit/s per fibre pair, the upstream's circuit inside |
+| `e1` (ISP → upstream, ISP → DIX) | `hdlc` (built: Cisco HDLC, the routers' default on a leased line; `ppp-hello` has an HDLC mode) | `tdm-frames`, mode leased: all 31 slots bundled into one 2 Mbit/s pipe for PPP frames; a 64k line is one slot |
+| `t1` (US → the server room) | `hdlc` | `tdm-frames`, mode T1: 24 slots and one framing bit, 193 bits 8,000 times a second |
+| `submarine-sdh` (the Atlantic) | `hdlc` | `fibre-light`, submarine mode (exists), 1995 strings: SDH, 2.5 Gbit/s per fibre pair, the upstream's circuit inside |
 | `atm` (the US backbone) | `atm` | `fibre-light`, long-haul mode (exists, SONET words); the layer `atm` gets **`atm-cells`** (new): the packet cut into 48-byte pieces, each with a 5-byte label, so about a tenth is labels ("the cell tax"), and the label is swapped at every switch, MPLS's ancestor |
 | `ethernet` (in the ISP's rack, the server room's hub) | `ethernet` | `copper-pulses` (exists) with a `rate` of 10 Mbit/s and a nerd line for 10BASE-T (two pairs, Manchester code) |
 
@@ -282,6 +288,18 @@ watch it"). The base activity `watch-video` is today's.
   Engineering, "Introducing data center fabric" (2014); Wikipedia, *Clos network*.
 - Wi‑Fi: Wikipedia, *IEEE 802.11n-2009*. YouTube: Wikipedia, *YouTube* (HD 2008); Google Transparency Report, *HTTPS
   encryption* (YouTube).
+- 1995's internet (step 6, checked 2026-10-03): Wikipedia, *CANTAT-3* (in service 1994, 3 × 2.5 Gbit/s, landings
+  incl. Blåbjerg) and *TAT-12/13* (1996, the first optically amplified); ITU-T I.431 and G.704 (the PRI and E1: 32
+  slots, slot 0 framing, slot 16 the D channel; HDB3) and T1 (24 slots plus a framing bit, 1.544 Mbit/s, AMI/B8ZS);
+  Cisco, *HDLC* and *SLARP keepalives* (every 10 s by default on serial lines); RFC 1483 (1993, IP over ATM's
+  LLC/SNAP) and ITU-T I.361/I.363.5 (53-byte cells, 5 + 48; AAL5's 8-byte trailer: 1500 bytes → 32 cells = 1696);
+  IEEE 802.3i (10BASE-T, 1990: Manchester, two pairs; 1 is low → high mid-bit) and 802.3u (Fast Ethernet, 1995);
+  dix.dk (DIX, 1994, UNI•C at DTU in Lyngby). The review panel's anachronisms: RFC 3031 (MPLS architecture, January
+  2001; Cisco's tag switching from 1997); Wikipedia, *Wavelength-division multiplexing* (commercial DWDM from 1996),
+  *Akamai Technologies* (1998–99); IEEE 802.3ba (40/100G, 2010) and 802.3bs (200/400G, 2017); Al-Fares et al. (2008)
+  and Facebook's fabric (2014) for leaf–spine. AS counts: bgp.potaroo.net and cidr-report.org (October 1996: 1,644
+  ASes in the table, the earliest series; 2010: about 33,000–36,000; October 2026: about 79,500), so 1995 says "under
+  1,700", 2010 "about 35,000" and today "about 80,000".
 - BBSes and FidoNet: Wikipedia, *Bulletin board system* and *FidoNet* (1984, nightly mail hour); textfiles.com, *BBS
   documentary*. IRC: Wikipedia, *IRC* (Jarkko Oikarinen, Finland, 1988). Messengers: Wikipedia, *MSN Messenger*,
   *Skype*, *Signal Protocol*.
@@ -481,7 +499,7 @@ Each is small, leaves main working and says "Part of #59".
      Under reduced motion and pause it follows the clock as packets do now; it stays within the perf budget (the
      evaluate phases' p95).
    - **Not on rush hour**: rush hour was removed (#114), so this step doesn't build on it.
-6. **1995: the internet.** `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
+6. **1995: the internet** (built). `home-dialup`'s exchange → modem bank link becomes `pri`; `isp-to-cdn-1995`: the modem
    bank, the small ISP's router, an `e1` to the upstream (DIX as the aside), CANTAT-3 (`submarine-sdh`), the US
    backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
    `atm` layer with `atm-cells`; 1995 strings for `fibre-light` and `copper-pulses`; owners' words; describes. If it
@@ -490,8 +508,10 @@ Each is small, leaves main working and says "Part of #59".
    mode of `server-inside`; no CDN, no origin.
 8. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
    away in words, the 2010 nerd texts.
-9. **The picker and eras.** Year tags on the access chips, "Only today" under places without a trip in this era,
-   the arrival line when the picker takes you back to today.
+9. **The picker stays in the era** (#146; the user's design of 3 Oct). Each place is its member of the current
+   era (`eraStops`); a place with none keeps its option with the time machine's "instead" line and goes to the era's
+   trip, said on arrival; the access chips list only the era's ways online; "Other years" opens the time machine. A
+   test fails if the picker offers, or lands on, a place of another era.
 10. **1985: before the internet** (decided; the step after the three trips): `home-1985`, the BBS, the `xmodem` layer and dive,
    a route without the internet, flows without IP, the FidoNet aside, its era flavour (with the phosphor tokens).
 11. **The flats in 2010 on cable TV** (#118), with #109.
@@ -517,8 +537,8 @@ generations is an idea (#108).
 - **Eager growth**: device art and English strings; mitigations above (#91, a lazy era pack).
 - **Anachronisms**: the optional `since` check; each content PR lists its sources.
 - **Morph cost**: inside the data centre whole regions swap; the new evaluate phases watch p95.
-- **Two "switch" UIs** (the picker's access row, the dial) reach the same places. The year tags make the overlap a
-  feature: the access row is "what kind of home", the dial is "when".
+- **Two "switch" UIs** (the picker, the dial) could reach the same places. They don't overlap: the picker is "where,
+  and what kind of home" within the era, the dial is "when" (step 9).
 
 ## Decisions
 
@@ -732,3 +752,70 @@ Made while building PR 5 (how long it takes):
 - **Eager JS: +1.0 kB gz** (95.49 against 94.47 on main, index.html's static imports gzipped; the plan said ~0.3):
   `speed.ts` and `takesOf` in the caption's chunk ~0.58, the rates and today's English `takes` words ~0.33, the
   stopwatch icon and the wiring ~0.11. The 1995 and 2010 words are era blocks, so they're lazy.
+
+Made while building PR 6 (1995: the internet):
+- **The way**: `home-dialup`'s exchange → modem bank is a `pri` (your call's 64 kbit/s slot), the modem bank
+  (`modem-bank`, new device) joins the ISP's one router on 10BASE-T in the rack (`ethernet` with a 10 Mbit/s `rate`),
+  and `isp-to-cdn-1995` goes core → `e1` → the upstream in Copenhagen → `submarine-sdh` (CANTAT-3, 8,400 km from the
+  router in Copenhagen to New York) → a `backbone-router` (new device, used for both American hops) → `atm` (OC-3c,
+  1,500 km) → the PoP → `t1` → the server room. DIX is the aside, on its own `e1`, for Danish traffic only. The new owner `us-backbone` ("An American network"; MCI, Sprint) owns both American
+  routers.
+- **HDLC, not PPP, on the leased lines** (`e1`, `t1`, `submarine-sdh`): Cisco HDLC was the default on a router's
+  serial port, so the 1995 links carry a new layer `hdlc`, whose dive is `ppp-hello` in an HDLC mode (keepalives every
+  10 seconds, no login). PPP stays on the call (`dialup`, `pri`).
+- **The sea cable's rate** is the upstream's two E1 circuits in it (3.97 Mbit/s), not the cable's 7.5 Gbit/s: the
+  `rate` is what the trip gets. The `t1` is 1.536 Mbit/s of payload; the bottleneck stays the modem.
+- **`tdm-frames`** (new dive, three modes by technology id): `pri` (30 callers, slot 0 sync, slot 16 signalling, yours
+  slot 7, as on `modem-call`'s card), `e1` (31 slots bundled, HDB3 on the copper) and `t1` (24 slots and a framing
+  bit, AMI). `submarine-sdh`'s stretch is told by `fibre-light`, so `tdm-frames` is not its dive. The slot row is one
+  shared component (`tdm-frames/art/Slots.svelte`), which `modem-call` imports.
+- **`atm-cells`** (the `atm` layer's dive): a 1,500-byte packet cut into 32 cells of 53 bytes (AAL5), the label (VPI/
+  VCI) swapped at each switch; "about a tenth is labels" (the cell tax, 11.6 %). Its nerd text names MPLS as ATM's
+  successor "from 2001" (RFC 3031). Not split off: the whole step fitted one review.
+- **`fibre-light` in 1995**: `atm` is the long-haul mode and `submarine-sdh` the sea mode, with **one** colour on the
+  thread (DWDM came in 1996) and their own words (`oneColour`, `wordsOf` in `light.ts`). Today's `backbone` got a 2010
+  block too (10–40G, the first 100G in 2010).
+- **`copper-pulses` by rate**: at 10 Mbit/s and below it draws 10BASE-T's Manchester code (two pairs, one way at a
+  time, as on a hub), above it PAM-5; `codeOf(rate)` in `copper.ts`, the words under `manchester.*`. That also settles
+  PR 5's follow-up for 1995 (not yet for 2010's 100 Mbit/s).
+- **The review panel's anachronisms (F14–F16, Appendix B #5)**: the core's 1995 words drop MPLS and 100–400G ("ISP
+  router", "Router · 2 × E1"); its 2010 block says MPLS at 10G. Every item a 1995 route reaches has words of its own
+  or says it's drawn as today: the server room (`datacentre`, `dc-router`, `load-balancer`, `spine`, `rack-switch`,
+  `origin`, `dc-fibre`, `leaf-spine`, `server-inside`, `http-chunk` at the server) says "drawn as today" until step 7;
+  the web host replaces the CDN by name (`owner.cdn`'s 1995 block: "The web site", "Web host"); `ixp-inside`'s 1995
+  block is DIX without a CDN; `border-inside`'s 1995 block went (no border router on the 1995 route). The internet
+  node's AS count is "about 80,000" today, "about 35,000" in 2010 and "under 1,700" in 1995 (the earliest count,
+  October 1996, was 1,644). A test walks every 1995 route's captions, names, tags, owners and dives and fails on a
+  later technology unless the line says when (`era-1995.test.ts`).
+- **2010 fixes kept small**: the AS count, the core's MPLS at 10G, today's backbone's 2010 block. The rest of 2010's
+  data centre is step 8's.
+- **Layouts**: the 1995 internet has its own landscape and portrait layouts (a zigzag across the screen; DIX below
+  the ISP's router); `home-dialup`'s exchange moved a little away from the modem bank so the PRI's new dive badge
+  leaves its packets room (MIN_CLEAR). Two of `home-dialup`'s KNOWN_SHORT entries (border links no longer on its
+  route) went; KNOWN_OVERLAPS stays empty. The American network's nerd sign is "US backbone · AS64504" ("Hovednet ·
+  AS64504" in Danish, short enough for small landscape).
+- **Short landscape**: `tdm-frames` and `atm-cells` drop their cards' footer lines there (as they drop the title), and
+  a long sea cable's booster names go up a line in turn when they would touch (`crowded` in `Submarine.svelte`; the
+  8,400 km CANTAT-3 draws five boosters close together).
+- **Read-more links are English only for ATM**; the Danish drafts want a native review as before.
+- **Eager JS: +1.2 kB gz** (96.64 against 95.40 on main, index.html's static imports gzipped): the five technologies'
+  and two layers' definitions with their read-more links, the two devices' and the owner's names, the segment and its
+  layouts, the two dives' loader entries. The words of the past grew from about 4.5 to 8.2 kB gz (lazy), the dive
+  strings from 37.1 to 42.5 kB gz (lazy).
+
+Made while building PR 9 (the picker stays in the era, #146):
+- **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,
+  the time machine's own; your own family stays where you are. The option shows the member's name ("On the street,
+  on 3G" in 2010) and picture; a place with no member shows its own name and the picture of where it goes.
+- **The line under such a place** is the time machine's `elsewhere`, short: why, and "You'll travel there." only
+  where it does go somewhere (in 1995 every place is the one home trip, so there it doesn't); the nerds' note (GSM on
+  the street) is left for the arrival, which says it as the time machine's does, so the cards stay short in short
+  landscape. An era's own `instead.<place>` line no longer ends in "You'll travel there.": `elsewhere` adds it, so the
+  two can't disagree.
+- **Arrival**: going there lands like a trip in time (focus on the caption's heading, the line said first); picking
+  it where you are already says the line and gives focus back to the picker's opener.
+- **"Other years ⏲"** (decided: yes): a small button under the places (and the access chips) that opens the time
+  machine, from slot 0 when there is another era; Esc there gives focus back to the picker's opener. Without it the
+  picker, which used to reach DSL and dial-up through its chips, would have no way to other years. About 90 bytes gz.
+- **Loading**: `ui/time.ts` stays lazy (with the panel): the picker loads it, and the dive strings (the era's own
+  lines), before it opens when a place would go to the era's trip. Importing it eagerly cost 0.35 kB more.

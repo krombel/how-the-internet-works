@@ -130,7 +130,11 @@
       "cdn": {
         "title": "The server answers",
         "kid": "The server reads each slip and sends back what it asks for: first the page, then its picture. Every answer starts with a stamp: 200 OK means here it is.",
-        "nerd": "In 1995 the server answers HTTP/1.0 200 OK with Content-Type: text/html, then image/gif for the picture, and closes the connection after each answer. There were no CDN caches yet (Akamai began in 1998–99): the shelf and the main copy in the drawing are today's."
+        "nerd": "In 1995 the server answers HTTP/1.0 200 OK with Content-Type: text/html, then image/gif for the picture, and closes the connection after each answer. There were no CDN caches yet (Akamai began in 1998–99): the shelf and the main copy in the drawing are today's.",
+        "describe": {
+          "kid": "Drawn as today. The server is highlighted at the end of the road. Slips arrive from {yours}. Chunk 42 is already on the shelf, so a 200 OK stamp comes down and a big film box walks back. Chunk 43 isn’t there: a box comes from a main copy far away, then a smaller box walks back.",
+          "nerd": "Drawn as today: the server is the focused endpoint. On the cache card segment 42 is a hit, 200 OK, and a large response walks back; segment 43 misses, a copy comes from the origin, and a smaller 200 OK response returns. In 1995 the server sent every file from its own disk."
+        }
       }
     },
     "card": {
@@ -167,6 +171,10 @@
     },
     "tag": {
       "length": "No TLS: all in the clear"
+    },
+    "describe": {
+      "kid": "Drawn as a video player asks today. A road links {yours} and the server. On the left card a slip asks for chunk 42, and it walks to the server. The server finds 42 on its shelf, stamps 200 OK and sends a big film box back. Then the next slip asks for 43, and a smaller box comes back.",
+      "nerd": "Drawn as today: the left card shows a request, GET /video/720p/42.m4s with Host, beside signal bars. The right card is a cache shelf: 42 is a hit, stamped 200 OK, and a large segment walks back; 43 misses and is fetched from an origin first. In 1995 it was GET /index.html and 200 OK, with no cache."
     }
   },
   "2010": {

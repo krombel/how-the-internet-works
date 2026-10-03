@@ -1,0 +1,42 @@
+{
+  "name": {
+    "kid": "Lejet-linje-kuvert",
+    "nerd": "Cisco HDLC-ramme"
+  },
+  "note": {
+    "kid": "På en lejet linje mellem to routere kører pakken i en enkel kuvert. Hver router åbner den og lægger pakken i en ny til den næste linje.",
+    "nerd": "Cisco HDLC på en lejet linje: et flag, adresse 0x0F, kontrol 0x00, en EtherType og et 16-bit tjek. Hver router afslutter rammen; keepalives hvert 10. sekund fortæller begge ender, at linjen er oppe."
+  },
+  "line": "Cisco HDLC, protokol {proto}",
+  "value": {
+    "ip": {
+      "kid": "En internetpakke",
+      "nerd": "IPv4 indeni"
+    }
+  },
+  "field": {
+    "flag": {
+      "name": "Flag",
+      "about": "Viser, hvor en ramme starter og slutter i strømmen af bit."
+    },
+    "address": {
+      "name": "Adresse",
+      "about": "0x0F for en almindelig ramme: en linje har kun to ender."
+    },
+    "control": {
+      "name": "Kontrol",
+      "about": "Altid 0x00."
+    },
+    "proto": {
+      "name": {
+        "kid": "Hvad er indeni",
+        "nerd": "Protokol"
+      },
+      "about": "Hvad rammen bærer, med Ethernets numre: 0x0800 er en IPv4-pakke."
+    },
+    "fcs": {
+      "name": "FCS",
+      "about": "Et tjek over rammen, så en knasen på linjen bliver opdaget."
+    }
+  }
+}

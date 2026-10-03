@@ -214,9 +214,9 @@ const A11Y_STATES = [
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
-  // another way online (#3): the phone line's dive, and the picker with its access row on a variant
+  // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose street and desk say they are at home
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
-  { name: 'picker-dsl', where: 'home-dsl/watch-video', picker: true, views: ['phone'] },
+  { name: 'picker-1995', where: 'home-dialup/watch-video', q: '&level=nerd', picker: true, views: ['phone', 'short'] },
   { name: 'dialup', where: 'home-dialup/watch-video/pc-internet', views: ['desktop', 'phone', 'short'] },
   // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, which is the era's own
   // trip at home (`timeTo`: how many eras back), said in a line; from its chip on the 2010 overview
@@ -442,7 +442,7 @@ async function a11y(style) {
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
     if (s.explore) { await p.click('.explore-btn'); await still(p); }
-    if (s.picker) await p.evaluate(() => window.__app.picker(true));
+    if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForSelector('.picker'); }
     if (s.time === 'chip') { if (!(await p.isVisible('.caption .chip.time'))) await p.click('.cap-toggle'); await p.click('.caption .chip.time'); }
     else if (s.time) await p.click('.time-btn');
     if (s.time) await p.waitForSelector('.picker.time');
