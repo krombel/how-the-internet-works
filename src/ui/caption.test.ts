@@ -150,3 +150,17 @@ describe('caption notes', () => {
     expect(notes(['phone-ap'])).toEqual([]);
   });
 });
+
+describe('a layer dive\'s words (#132)', () => {
+  const body = (path: string[]) => caption.captionFor(home, path, null, 'landscape').body;
+
+  it('names who wrote the frame and the next hop a router asks for, not the client’s address', () => {
+    state.setLang('en'); state.setLevel('kid');
+    expect(body(['router~ethernet'])).toContain('“Who has ISP gateway’s address?”');
+    expect(body(['ap~ethernet'])).toContain('from Home router');
+    state.setLevel('nerd');
+    expect(body(['router~ethernet'])).toContain('next hop on the outgoing link (ISP gateway)');
+    expect(body(['ap~ethernet'])).toContain('(here Home router and your phone)');
+    state.setLevel('kid');
+  });
+});
