@@ -23,8 +23,8 @@
   <!-- the neighbours' floors: just windows -->
   {#each B.floors as [t, b] (t)}
     {#each windows as x (x)}
-      <rect x={x - 36} y={t + 16} width="72" height={b - t - 32} rx="8" fill="var(--window)" stroke="var(--line)" stroke-width="6" />
-      <path d="M{x} {t + 16} V{b - 16}" stroke="var(--line)" stroke-width="4" />
+      <rect x={x - 36} y={t + 16} width="72" height={b - t - 32} rx="8" fill="var(--window)" stroke="var(--window-frame)" stroke-width="6" />
+      <path d="M{x} {t + 16} V{b - 16}" stroke="var(--window-frame)" stroke-width="4" />
     {/each}
   {/each}
   <!-- your flat, cut away -->
