@@ -4,7 +4,7 @@
   // two ends. One card lays a frame out slot by slot (an ISDN PRI's callers, a leased E1's one pipe, a T1's 24 slots,
   // a GSM trunk's calls and SS7, the mast's line's calls in quarters); the other shows the bits as pulses on the copper,
   // ones alternating up and down.
-  import { Node, Text, legibleSize, nameOf, strings, view, type LinkSubject } from '$core/api';
+  import { Node, Text, legibleSize, nameOf, strings, textBox, view, type LinkSubject } from '$core/api';
   import Card from '../copper-pulses/art/Card.svelte';
   import Slots from './art/Slots.svelte';
   import { lineCode, modeOf, pulsePath, quartersOf, slotsOf, train, type Kind, type Mode } from './tdm';
@@ -58,6 +58,11 @@
     };
   });
   const A = $derived(L.cards[0]), B = $derived(L.cards[1]);
+  /** An end's name, under it but kept inside the frame (a long one on a phone: the trunk's "Telephone exchange"). */
+  const nameX = (x: number, text: string) => {
+    const half = textBox(text, legible(L.name), 'middle', 0.6, '--label-font').w / 2 + 8, w = portrait ? 900 : 1600;
+    return Math.min(Math.max(x, A.x + half), w - A.x - half);
+  };
   const t = $derived(view.still ? 1.5 : view.time);
 
   // the wire: one lane each way, frames running along it
@@ -94,9 +99,10 @@
 {/each}
 <Node id={from.node.id} x={L.line.x0} y={L.line.y} size={L.size} />
 <Node id={to.node.id} x={L.line.x1} y={L.line.y} size={L.size} />
-<Text x={L.line.x0} y={L.names} text={nameOf(from)} size={L.name} kind="node" />
-<Text x={L.line.x1} y={L.names} text={nameOf(to)} size={L.name} kind="node" />
-{#if !compact}<Text x={(L.line.x0 + L.line.x1) / 2} y={L.line.y - 62} text={S('wire')} size={L.name} kind="big" />{/if}
+<Text x={nameX(L.line.x0, nameOf(from))} y={L.names} text={nameOf(from)} size={L.name} kind="node" />
+<Text x={nameX(L.line.x1, nameOf(to))} y={L.names} text={nameOf(to)} size={L.name} kind="node" />
+<!-- the line's name; on a phone higher, clear of the mast, the tallest end -->
+{#if !compact}<Text x={(L.line.x0 + L.line.x1) / 2} y={L.line.y - (portrait ? 105 : 62)} text={S('wire')} size={L.name} kind="big" />{/if}
 
 <!-- one frame, slot by slot -->
 <Card x={A.x} y={A.y} w={A.w} h={A.h} tint="var(--sun)" />
