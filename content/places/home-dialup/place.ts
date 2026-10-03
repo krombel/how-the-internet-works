@@ -19,17 +19,18 @@ export default definePlace({
   entry: { internet: 'home' },
   layout: {
     overview: {
-      // the computer on the desk; the line runs past the telephone and out of the house. The era's props: a calendar
-      // on the wall, a mouse on the desk, the modem on a shelf between the desk and the telephone
+      // the computer on the desk; its phone line (#137) runs through the modem on its shelf to the socket on the wall,
+      // which the telephone is plugged into too, and out through the wall to the street. The era's props: a calendar on
+      // the wall, a mouse on the desk, the modem and the socket on the line. In portrait the line goes out by the eave
       landscape: {
         nodes: { pc: [400, 575, 220] },
-        links: { 'pc-internet': { curve: [[510, 575], [900, 455], [1290, 430]], label: [40, 70] } },
-        props: { wall: [215, 545, 90, 100], desk: [502, 644, 48, 24], modem: [640, 600, 80, 52] },
+        links: { 'pc-internet': { curve: [[510, 575], [860, 665], [1290, 430]], label: [-60, -70] } },
+        props: { wall: [215, 545, 90, 100], desk: [502, 644, 48, 24], modem: [640, 599, 80, 52], socket: [1045, 540, 22, 30] },
       },
       portrait: {
         nodes: { pc: [280, 1345, 250] },
-        links: { 'pc-internet': { curve: [[400, 1320], [860, 1000], [610, 480]], label: [-150, 30] } },
-        props: { wall: [760, 1222, 76, 96], desk: [418, 1404, 52, 24], modem: [600, 1290, 84, 54] },
+        links: { 'pc-internet': { curve: [[400, 1320], [1240, 1260], [610, 480]], label: [-110, 40, 'end'] } },
+        props: { wall: [200, 1115, 76, 96], desk: [418, 1404, 52, 24], modem: [660, 1276, 84, 54], socket: [790, 1206, 22, 30] },
       },
     },
     internet: {

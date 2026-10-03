@@ -207,9 +207,36 @@ describe('doors', () => {
     expect(lit[2]).toMatchObject({ x: 500, y: 0 }); // "Open up" is centred on its spot
     const overlap = (p: typeof lit[0], q: typeof lit[0]) => Math.abs(p.x - q.x) * 2 < p.w + q.w && Math.abs(p.y - q.y) * 2 < p.h + q.h;
     expect(overlap(lit[0], lit[1])).toBe(false);
-    expect(lit[2].y).toBe(0);
-    expect(lit[0].y).toBe(10); // the earlier door keeps its spot; the next one gives way
+    // nor does a pill cover the other door's mark: one of them gives way, a pill or more up or down
+    for (const [i, j] of [[0, 1], [1, 0]]) expect(overlap(lit[i], rest[j])).toBe(false);
     expect(Math.abs(lit[1].y - lit[0].y)).toBeGreaterThanOrEqual(size * 2.4);
+  });
+
+  it('keeps a lit label off the text (#137): back from its mark, nudged, or waiting for a zoom', () => {
+    const size = 20, h = size * 2.4, textW = () => 100, W = { w: 1000, h: 1000 };
+    const door: Door = { kind: 'dive', id: 'd', links: [], at: { x: 500, y: 500 } };
+    const lay = (texts: { x: number; y: number; w: number; h: number }[], hot: string | null = null) =>
+      layoutDoors([door], size, hot === null, hot, textW, { texts, arts: [], W })[0];
+    // a name on its right: the label runs back from the mark, which stays on its spot
+    const right = { x: 540, y: 480, w: 200, h: 40 };
+    expect(lay([right])).toMatchObject({ y: 500, labelled: true, flip: true });
+    expect(lay([right]).x + lay([right]).w / 2).toBeCloseTo(500 + h / 2);
+    // names both sides: up or down a pill
+    const both = [right, { x: 260, y: 480, w: 200, h: 40 }];
+    const nudged = lay(both);
+    expect(nudged.labelled).toBe(true);
+    expect(Math.abs(nudged.y - 500)).toBeGreaterThanOrEqual(h);
+    // nowhere: lit, the door shows its mark; pointed at, its label anyway
+    const wall = [{ x: 0, y: 0, w: 1000, h: 1000 }];
+    expect(lay(wall)).toMatchObject({ x: 500, y: 500, w: h, labelled: false });
+    expect(lay(wall, 'd').labelled).toBe(true);
+    // pointed at, a pill grows and glows: a name just clear of it lit is in its way then
+    const near = [{ x: 650, y: 480, w: 100, h: 40 }];
+    expect(lay(near)).toMatchObject({ y: 500, flip: false });
+    expect(lay(near, 'd')).toMatchObject({ y: 500, flip: true });
+    // and a pill keeps inside the world
+    const edge = layoutDoors([{ ...door, at: { x: 950, y: 500 } }], size, true, null, textW, { texts: [], arts: [], W })[0];
+    expect(edge).toMatchObject({ flip: true, labelled: true });
   });
 
   it('keeps badge labels readable when zoomed out', () => {
