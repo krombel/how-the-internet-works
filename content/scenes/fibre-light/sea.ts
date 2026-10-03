@@ -17,7 +17,7 @@ export interface Sea {
 }
 export const SEA: Record<Orient, Sea> = {
   landscape: { w: 1600, h: 900, land: 240, surface: 262, floor: 720, shore: [180, 1420], a: 360, b: 1240, stations: [{ x: 95, y: 240 }, { x: 1505, y: 240 }], stationSize: 1, slice: { x: 800, y: 450, r: 105 } },
-  portrait: { w: 900, h: 1600, land: 420, surface: 442, floor: 1000, shore: [110, 790], a: 230, b: 670, stations: [{ x: 58, y: 420 }, { x: 842, y: 420 }], stationSize: 0.8, slice: { x: 450, y: 720, r: 110 } },
+  portrait: { w: 900, h: 1600, land: 480, surface: 502, floor: 1180, shore: [150, 750], a: 240, b: 660, stations: [{ x: 84, y: 480 }, { x: 816, y: 480 }], stationSize: 0.7, slice: { x: 450, y: 850, r: 120 } },
 };
 
 /** The sea bed and the land either side, as one outline (land top, down the slope, the floor, up the other slope). */

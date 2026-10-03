@@ -181,8 +181,8 @@
 <Node id={ctx.server.node.id} x={serverSpot.x} y={serverSpot.y} size={serverSpot.size} focused={where === 'server'} />
 {#if where === 'middle'}<Node id={ctx.to.node.id} x={L.hop.x} y={L.hop.y} size={L.hop.size} focused />{/if}
 {#if names}
-  <Text x={clientSpot.x} y={L.names} text={nameOf(ctx.client)} size={T.text} kind={where === 'client' ? 'big' : 'node'} />
-  <Text x={serverSpot.x} y={L.names} text={nameOf(ctx.server)} size={T.text} kind={where === 'server' ? 'big' : 'node'} />
+  <Text x={clientSpot.x} y={L.names} text={nameOf(ctx.client)} size={T.text} kind={where === 'client' ? 'big' : 'node'} fit />
+  <Text x={serverSpot.x} y={L.names} text={nameOf(ctx.server)} size={T.text} kind={where === 'server' ? 'big' : 'node'} fit />
   {#if where === 'middle'}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" />{/if}
 {:else}
   <Text x={focusedSpot.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" />

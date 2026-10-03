@@ -97,15 +97,15 @@
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} />{/if}
+    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} fit />{/if}
   {/if}
   {#if after}
     <Node id={after.node.id} x={L.outNode.x} y={L.outNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={portrait ? 32 : 25} kind="node" anchor={L.outLabel.anchor} />{/if}
+    {#if !compact}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={portrait ? 32 : 25} kind="node" anchor={L.outLabel.anchor} fit />{/if}
   {/if}
   {#if !compact}
     {#each ends as e (e.d)}
-      <Text x={e.tag.x} y={e.tag.y} text={linkName(e.link.tech.id)} size={portrait ? 30 : 24} kind="link" colour={e.link.tech.colour} anchor={e.tag.anchor} />
+      <Text x={e.tag.x} y={e.tag.y} text={linkName(e.link.tech.id)} size={portrait ? 30 : 24} kind="link" colour={e.link.tech.colour} anchor={e.tag.anchor} fit />
     {/each}
   {/if}
 </g>

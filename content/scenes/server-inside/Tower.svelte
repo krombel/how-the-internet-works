@@ -85,7 +85,7 @@
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} />{/if}
+    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" anchor={L.inLabel.anchor} fit />{/if}
   {/if}
   {#if !compact && inLink}
     <Text x={L.inTag.x} y={L.inTag.y} text={strings(`tech.${inLink.tech.id}`)('name')} size={portrait ? 30 : 24} kind="link" colour={inLink.tech.colour} anchor={L.inTag.anchor} />

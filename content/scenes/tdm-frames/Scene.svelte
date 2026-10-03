@@ -84,8 +84,8 @@
 {/each}
 <Node id={from.node.id} x={L.line.x0} y={L.line.y} size={L.size} />
 <Node id={to.node.id} x={L.line.x1} y={L.line.y} size={L.size} />
-<Text x={L.line.x0} y={L.names} text={nameOf(from)} size={L.name} kind="node" />
-<Text x={L.line.x1} y={L.names} text={nameOf(to)} size={L.name} kind="node" />
+<Text x={L.line.x0} y={L.names} text={nameOf(from)} size={L.name} kind="node" fit />
+<Text x={L.line.x1} y={L.names} text={nameOf(to)} size={L.name} kind="node" fit />
 {#if !compact}<Text x={(L.line.x0 + L.line.x1) / 2} y={L.line.y - 62} text={S('wire')} size={L.name} kind="big" />{/if}
 
 <!-- one frame, slot by slot -->

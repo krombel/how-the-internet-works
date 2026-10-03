@@ -74,11 +74,11 @@
   <text x={L.node.toLabel.x} y={L.node.toLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size="30" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{nameOf(toHop)}</text>
   <text x={L.node.fromLabel.x} y={L.node.fromLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size="30" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{nameOf(fromHop)}</text>
 {:else if compact}
-  <Text x={L.node.fromLabel.x} y={L.node.fromLabel.y} text={nameOf(fromHop)} size={L.text.small} kind="node" anchor="start" />
-  <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={L.text.small} kind="node" anchor="end" />
+  <Text x={L.node.fromLabel.x} y={L.node.fromLabel.y} text={nameOf(fromHop)} size={L.text.small} kind="node" anchor="start" fit />
+  <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={L.text.small} kind="node" anchor="end" fit />
 {:else}
-  <Text x={L.node.fromLabel.x} y={L.node.fromLabel.y} text={nameOf(fromHop)} size={25} kind="node" />
-  <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={25} kind="node" />
+  <Text x={L.node.fromLabel.x} y={L.node.fromLabel.y} text={nameOf(fromHop)} size={25} kind="node" fit />
+  <Text x={L.node.toLabel.x} y={L.node.toLabel.y} text={nameOf(toHop)} size={25} kind="node" fit />
 {/if}
 {#if !portrait}
   <text x={L.cableLabel.x} y={L.cableLabel.y} text-anchor="middle" font-family="var(--label-font)" font-size={fs(compact ? L.text.small : 26)} font-weight="900" fill={labelInk(subject.link.tech.colour)}>{S(M + (compact ? 'pairsShort' : 'pairs'))}</text>

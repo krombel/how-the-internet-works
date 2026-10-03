@@ -578,6 +578,9 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
   `model/doors.test.ts` check).
 - [ ] A new technology has a `dive`, and each layer in its `stack` a layer dive (all the way down), and a `rate`
   true to its era.
+- [ ] A dive's labels near its panel's edge (the device names at either end, its nerd tag) have `fit`, so they slide
+  inside the frame at a phone's sizes and in longer languages; `npm run evaluate -- --only=fit` walks every dive on a
+  phone, upright and on its side, and fails on anything cut (#136).
 - [ ] Art uses palette tokens, not colour literals, and looks right at night (`?mode=night`).
 - [ ] `npm test` and `npm run build` pass; have a look in `npm run dev` in both orientations.
 - [ ] `npm run evaluate` if it adds animation (budget: p95 within one frame at 6× CPU throttle).

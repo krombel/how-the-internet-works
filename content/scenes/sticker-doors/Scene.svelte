@@ -228,8 +228,8 @@
 {/if}
 
 {#if !isPortrait && !L.compact}
-  <Text x={L.ends[0].x} y={L.names} text={nameOf(ctx.client)} size={T.small} kind="node" />
-  <Text x={L.ends[1].x} y={L.names} text={nameOf(ctx.server)} size={T.small} kind="node" />
+  <Text x={L.ends[0].x} y={L.names} text={nameOf(ctx.client)} size={T.small} kind="node" fit />
+  <Text x={L.ends[1].x} y={L.names} text={nameOf(ctx.server)} size={T.small} kind="node" fit />
 {/if}
 {#if !L.compact}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.title * (isPortrait ? 0.82 : 1)} kind="big" />{/if}
 

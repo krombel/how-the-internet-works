@@ -120,11 +120,11 @@
     <text x="220" y={n.y} text-anchor="middle" font-size="28" font-weight="900" stroke="var(--paper)" stroke-width="6" paint-order="stroke" font-family="var(--label-font)" fill="var(--line)">{nameOf(n.h)}</text>
   {/each}
 {:else}
-  <Text x={compact ? 30 : fromPos.x} y={compact ? 400 : fromPos.y + 145} text={nameOf(ends.from)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'start' : 'middle'} />
+  <Text x={compact ? 30 : fromPos.x} y={compact ? 400 : fromPos.y + 145} text={nameOf(ends.from)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'start' : 'middle'} fit />
   {#each mids as m (m.hop.id)}
-    <Text x={m.x} y={compact ? 400 : at(m.x).y + 118} text={nameOf(m.hop)} size={compact ? 42 : 25} kind="node" anchor="middle" />
+    <Text x={m.x} y={compact ? 400 : at(m.x).y + 118} text={nameOf(m.hop)} size={compact ? 42 : 25} kind="node" anchor="middle" fit />
   {/each}
-  <Text x={compact ? 1570 : toPos.x} y={compact ? 400 : toPos.y + 145} text={nameOf(ends.to)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'end' : 'middle'} />
+  <Text x={compact ? 1570 : toPos.x} y={compact ? 400 : toPos.y + 145} text={nameOf(ends.to)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'end' : 'middle'} fit />
   {#if !compact}
     <!-- the two parts of the call: copper to the exchange, then the phone network -->
     {#each [{ x: (LINE.x0 + midX) / 2, key: 'loop' }, { x: (midX + LINE.x1) / 2, key: 'trunk' }] as seg (seg.key)}

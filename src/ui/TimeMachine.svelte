@@ -5,9 +5,10 @@
   // Enter) travels there: a place switch with the start device's steps carried over (`eraTrip`), done by App.svelte,
   // which is told what to say first on landing (`landing`). Where the place has no way online in an era, the stop
   // is that era's own trip, and a line says so (also in the radio's description, so it is heard before going). A
-  // dialog like the place picker: a card on wide screens, a bottom sheet on a portrait phone, one compact row (no
-  // pictures, no era text) in short landscape. It loads, with the era strings and its pictures, when its button is
-  // pointed at; choosing an era fetches its props (the era flavour) and the art of where it goes (#91) ahead of the trip.
+  // dialog like the place picker: a card on wide screens, a bottom sheet on a portrait phone, a wider, compact card in
+  // short landscape (the eras in a row, each picture beside its year, the text under them; #136). It loads, with the
+  // era strings and its pictures, when its button is pointed at; choosing an era fetches its props (the era flavour)
+  // and the art of where it goes (#91) ahead of the trip.
   import { onMount, untrack } from 'svelte';
   import { isShort } from '../engine/camera';
   import { startDevice, type EraStop } from '../model/era';
@@ -56,11 +57,9 @@
           <label class="stop" class:on={s.era === chosen}>
             <input type="radio" name="era" data-here={s.era === here || undefined} onchange={() => { chosen = s.era; void loadEra(s.era); void loadRouteArt(resolveRoute(eraTrip(at, s.place))); }} aria-describedby="time-d-{s.era}"
               onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), go(s))} />
-            {#if !short}
-              <svg viewBox="0 0 200 200" aria-hidden="true">
-                <A.Device id={device} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
-              </svg>
-            {/if}
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <A.Device id={device} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
+            </svg>
             <span class="year">{tr(`era.${s.era}.name`)}</span>
             <span class="way">{trFirst([`place.${s.place}.access`, `place.${s.place}.name`])}</span>
             {#if s.era === here}<span class="now">{tr('map.here')}</span>{/if}
@@ -73,7 +72,7 @@
       </div>
     </fieldset>
     {#if stop.instead}<p class="instead" aria-hidden="true"><Icon name="time" />{elsewhere(stop)}</p>{/if}
-    {#if !short}<p class="text" aria-hidden="true">{eraText(stop)}</p>{/if}
+    <p class="text" aria-hidden="true">{eraText(stop)}</p>
     <button type="submit" class="btn go">
       {chosen === here ? tr('time.stay') : fill(tr('time.go'), { era: tr(`era.${chosen}.name`) })}
     </button>
@@ -102,14 +101,19 @@
   .instead :global(svg) { width: 20px; height: 20px; flex: none; margin-top: 1px; }
   .text { grid-area: text; margin: 10px 2px 0; min-height: 4.2em; font-size: 15px; line-height: 1.4; }
   .go { grid-area: go; justify-self: end; min-height: 44px; margin-top: 10px; padding: 8px 18px; background: var(--btn-on); color: var(--btn-on-ink); font-size: 16px; }
-  /* short landscape: the title row with the button, then the eras in a row; no pictures, no text */
-  .compact { padding-block: 8px 10px; }
-  .compact form { grid-template-columns: 1fr auto auto; grid-template-areas: 'title go close' 'dial dial dial' 'instead instead instead'; align-items: center; gap: 6px 10px; }
+  /* short landscape: wider, the title row with the button, then the eras in a row, each picture beside its year and way
+     online, and the chosen era's text under them (#136) */
+  .compact { width: min(760px, calc(100% - 24px)); padding-block: 8px 10px; }
+  .compact form { grid-template-columns: 1fr auto auto; grid-template-areas: 'title go close' 'dial dial dial' 'instead instead instead' 'text text text';
+    align-items: center; gap: 6px 10px; }
   .compact .instead { margin-top: 0; font-size: 13px; }
   .compact h2 { margin: 0; }
-  .compact .stop { padding: 6px 8px 8px 38px; align-items: flex-start; text-align: start; }
+  .compact .stop { display: grid; grid-template-columns: 48px minmax(0, 1fr); grid-auto-rows: auto; align-content: center; gap: 0 8px; padding: 6px 8px 6px 38px;
+    text-align: start; }
+  .compact .stop svg { grid-row: span 3; width: 48px; height: 48px; }
   .compact .stop input { top: 50%; translate: 0 -50%; }
   .compact .year { font-size: 18px; }
-  .compact .now { margin-top: 2px; font-size: 11px; white-space: nowrap; }
+  .compact .now { justify-self: start; margin-top: 2px; font-size: 11px; white-space: nowrap; }
+  .compact .text { margin-top: 0; min-height: 2.8em; font-size: 14px; line-height: 1.35; }
   .compact .go { margin-top: 0; }
 </style>

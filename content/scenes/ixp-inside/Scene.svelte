@@ -79,11 +79,11 @@
   {#if T.label && !nerd}<Text x={L.othersLabel.x} y={L.othersLabel.y} text={S('member.other')} size={T.label} kind="node" anchor={L.othersLabel.anchor} />{/if}
   {#if before}
     <Node id={before.node.id} x={L.members.before.x} y={L.members.before.y} size={L.nodeSize} />
-    {#if T.label}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={T.label} kind="node" anchor={L.inLabel.anchor} />{/if}
+    {#if T.label}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={T.label} kind="node" anchor={L.inLabel.anchor} fit />{/if}
   {/if}
   {#if after}
     <Node id={after.node.id} x={L.members.after.x} y={L.members.after.y} size={L.nodeSize} />
-    {#if T.label}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={T.label} kind="node" anchor={L.outLabel.anchor} />{/if}
+    {#if T.label}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={T.label} kind="node" anchor={L.outLabel.anchor} fit />{/if}
   {/if}
 
   {#each flows as f, i (`${f.from}-${f.to}-${i}`)}

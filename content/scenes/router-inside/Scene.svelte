@@ -115,11 +115,11 @@
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" />{/if}
+    {#if !compact}<Text x={L.inLabel.x} y={L.inLabel.y} text={nameOf(before)} size={portrait ? 32 : 25} kind="node" fit />{/if}
   {/if}
   {#if after}
     <Node id={after.node.id} x={L.outNode.x} y={L.outNode.y} size={L.nodeSize} />
-    {#if !compact}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={portrait ? 32 : 25} kind="node" />{/if}
+    {#if !compact}<Text x={L.outLabel.x} y={L.outLabel.y} text={nameOf(after)} size={portrait ? 32 : 25} kind="node" fit />{/if}
   {/if}
   {#if !compact}
     {#each [[path[0], path[1], inLink], [path[path.length - 2], path[path.length - 1], outLink]] as const as [a, b, l], i (i)}

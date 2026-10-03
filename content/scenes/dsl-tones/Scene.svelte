@@ -115,8 +115,8 @@
   <text x={L.node.to.x} y={L.node.to.y} text-anchor="middle" font-family="var(--label-font)" font-size="30" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{nameOf(toHop)}</text>
   <text x={L.node.from.x} y={L.node.from.y} text-anchor="middle" font-family="var(--label-font)" font-size="30" font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{nameOf(fromHop)}</text>
 {:else}
-  <Text x={L.node.from.x} y={L.node.from.y} text={nameOf(fromHop)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'start' : 'middle'} />
-  <Text x={L.node.to.x} y={L.node.to.y} text={nameOf(toHop)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'end' : 'middle'} />
+  <Text x={L.node.from.x} y={L.node.from.y} text={nameOf(fromHop)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'start' : 'middle'} fit />
+  <Text x={L.node.to.x} y={L.node.to.y} text={nameOf(toHop)} size={compact ? 42 : 25} kind="node" anchor={compact ? 'end' : 'middle'} fit />
   {#if !compact}
     <text x="800" y="420" text-anchor="middle" font-family="var(--label-font)" font-size="26" font-weight="900" fill={labelInk(subject.link.tech.colour)} stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('lineLabel')}</text>
     <text x="800" y="456" text-anchor="middle" font-family="var(--label-font)" font-size="22" font-weight="800" fill="var(--line)" stroke="var(--paper)" stroke-width="6" paint-order="stroke">{S('lineSub')}</text>

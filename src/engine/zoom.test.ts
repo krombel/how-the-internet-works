@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { content } from '../model/registry';
 import { resolveRoute } from '../model/resolve';
 import { areaCentre, fit, toWorldPt, travelInterpolator, type Viewport } from './camera';
 import { DIVE_RIM, camFor, decide, keyOf, mixes, sceneInfo, travelK } from './zoom';
@@ -87,6 +88,33 @@ describe('device dives in the zoom', () => {
         }
       }
     }
+  });
+});
+
+describe('dives whose panels overlap (#136)', () => {
+  it('show one panel at a time: in a dive, a sibling dive drawn over part of it stays hidden', () => {
+    const over = (a: { x: number; y: number; w: number; h: number }, b: typeof a) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    let seen = 0;
+    for (const place of Object.keys(content.places))
+      for (const [o, v] of [['landscape', vp], ['portrait', pvp]] as const) {
+        const r = resolveRoute({ activity: 'watch-video', places: [place] });
+        const walk = (path: string[]) => {
+          const kids = childrenOf(r, sceneInfo(r, path, o).ref, o).filter((c) => c.kind !== 'layer');
+          for (const c of kids) {
+            const p = [...path, c.step], f = sceneInfo(r, p, o).fit, m = mixes(camFor(r, p, null, v, o), v, r, [p], o);
+            expect(m.get(keyOf(p)), `${place} ${o} ${keyOf(p)}`).toBeCloseTo(1);
+            for (const d of kids)
+              if (d !== c && d.kind === 'dive' && over(f, sceneInfo(r, [...path, d.step], o).fit)) {
+                seen++;
+                expect(m.get(keyOf([...path, d.step])) ?? 0, `${place} ${o} ${keyOf(p)} under ${d.step}`).toBeLessThan(0.01);
+              }
+            if (c.kind === 'expand') walk(p);
+          }
+        };
+        walk([]);
+      }
+    // the fibre to the building's two backhaul links on a phone, at least
+    expect(seen).toBeGreaterThan(0);
   });
 });
 

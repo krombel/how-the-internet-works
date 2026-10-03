@@ -408,6 +408,14 @@ always muted again on reload.
   - A dive fills that height, its border and flap tucked under the bars' edges (issue #33). Even so, 14 px on screen is
     about 42 world units, so dives here use a compact layout: bigger text, fewer labels, and small detail (the rows of
     an envelope, long MAC addresses, the nerd field list) drawn as lines or shortened. The caption still names it all.
+  - The caught packet's panel goes in two columns, the hop and its words on the left and the envelopes beside them,
+    so the envelopes get the height. The time machine is a wider, low card: the eras in a row, each picture beside
+    its year and way online, and the chosen era's text under them (issue #136).
+- **Dives fit their panel** (issue #136). A device's name at the edge of a dive grows on a phone and is longer in
+  Danish; it slides in from the frame rather than being cut by it (`fit` on `Text` and `TagAt`). Two link dives
+  whose panels overlap (close links on a phone, as the two fibres of a block of flats) never show at once: the one
+  nearer the middle fades the other out, as beside a device's dive. `npm run evaluate -- --only=fit` walks every dive
+  on a phone, upright and on its side, in both languages, by kids and nerds, and fails on anything cut.
 - **Overrides.** The layout is picked from the aspect ratio. At the tag, the lab (Layout → Landscape/Portrait,
   or `?orient=portrait`) forces either one. The slimmed prototype only picks from the aspect ratio.
 
