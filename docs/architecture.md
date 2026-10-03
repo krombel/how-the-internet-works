@@ -259,6 +259,11 @@ fields with a `kid` value that matter here (used, changed, or new); nerds see ev
 field with its value, size and what it's for. No bytes.
 While a packet is caught, the caption and the breadcrumb step aside: the panel's header ("Caught: a piece of video")
 says what you're looking at. Both come back when it's let go.
+On a phone the peek is a **sheet** of about a third of the screen (#139): at the bottom when upright, down the side
+when on its side, so the scene and the caught packet stay in view. Under the hop's row (◀ name ▶) it scrolls as one
+and starts each hop at its top; the grip on its top edge (a button, `aria-expanded`) opens it all the way, which on
+its side is the two columns of #136. The camera keeps the caught packet in the middle of the larger part of the screen
+the panel leaves free, above it or beside it (`clearOf` in `engine/camera.ts`).
 
 ### Doors: what you can open (issue #19)
 

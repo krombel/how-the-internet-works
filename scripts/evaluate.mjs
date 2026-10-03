@@ -219,6 +219,8 @@ const A11Y_STATES = [
   { name: 'nerd-da', where: 'home/watch-video', lang: 'da', q: '&level=technical', views: ['desktop', 'zoom'] },
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=technical', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
+  // a phone's peek is a third of the screen (#139); its grip opens it all the way: the detail tree, Danish
+  { name: 'caught-full', where: 'home/watch-video', lang: 'da', q: '&level=technical', catch: 'video', at: ['router'], detail: true, full: true, views: ['phone', 'short'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
   // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose "On the go" is a laptop on GSM (#147)
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
@@ -452,6 +454,7 @@ async function a11y(style) {
     if (s.coach !== undefined) { await p.waitForSelector('.coach.placed'); for (let i = 0; i < s.coach; i++) await p.click('.coach-next'); }
     if (s.catch) await catchAt(p, s.catch, s.at, `${s.name} (${view})`);
     if (s.detail) await p.click('.peek header .chip');
+    if (s.full) await p.click('.peek-grip');
     if (s.explore) { await p.click('.explore-btn'); await still(p); }
     if (s.fold) await p.click('.cap-fold');
     if (s.picker) { await p.evaluate(() => window.__app.picker(true)); await p.waitForSelector('.picker'); }
@@ -484,8 +487,9 @@ async function a11y(style) {
     }
   // 2. Tab once round each state: focus is always somewhere you can see, with a ring. Tab past the last stop goes to
   //    the browser's own controls, which the page sees as focus on <body>: that ends the round. (Danish nerd, the later
-  //    coach marks and the panel from its chip Tab like the overview, the first mark and the panel from the top bar.)
-  for (const s of A11Y_STATES.filter((x) => !['nerd-da', 'coach-explore', 'coach-time', 'time-chip'].includes(x.name))) {
+  //    coach marks and the panel from its chip Tab like the overview, the first mark and the panel from the top bar; a
+  //    phone's peek opened all the way has no desktop.)
+  for (const s of A11Y_STATES.filter((x) => !['nerd-da', 'coach-explore', 'coach-time', 'time-chip', 'caught-full'].includes(x.name))) {
     const { ctx, p } = await prep(s, 'desktop');
     // a long route has many stops (the list view has a button for each), so the round may take as many Tabs as the
     // page has things to focus, and a few more

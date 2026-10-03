@@ -110,6 +110,7 @@
   "peek.next": "Et hop videre",
   "peek.hop": "{n} af {of}",
   "peek.detail": "Detaljer",
+  "peek.full": "Vis hele panelet",
   "peek.off": "Taget af her",
   "peek.sealed.kid": "Låst: denne boks kan ikke læse den.",
   "peek.sealed.nerd": "Krypteret: dette hop kan ikke læse den.",
