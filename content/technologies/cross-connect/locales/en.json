@@ -2,5 +2,9 @@
   "name": "Cross-connect",
   "kid": "A short glass cable inside one building that joins two companies' boxes.",
   "nerd": "A cross-connect: a single-mode fibre pair patched through the data centre's meet-me room between two tenants' ports, usually 10–100G Ethernet.",
-  "tag": "100GBASE-LR4 · SMF"
+  "tag": "100GBASE-LR4 · SMF",
+  "2010": {
+    "nerd": "A cross-connect: a single-mode fibre pair patched through the data centre's meet-me room between two tenants' ports, usually 1–10G Ethernet; the first 100G ports came in 2010.",
+    "tag": "10GBASE-LR · SMF"
+  }
 }

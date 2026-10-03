@@ -1,18 +1,44 @@
-// The 2010 data centre (#59, step 8): a rented cage at a colocation centre, built as a three-tier tree (the dive's
-// maths), the way through it, and that nothing it says belongs to a later data centre (#135 F15: leaf–spine, k8s,
-// NVMe, 100–400G and four-colour optics reached from 2010).
+// The 2010 trips (#59, #135): nothing they say belongs to a later internet, from the home (and its other ways online)
+// and on the go to the inside of the internet and the data centre, unless it says when it came. Modelled on the 1995
+// trip's test (era-1995.test.ts), but it reads everything on the way: the captions, and every label, tag and field a
+// dive, a layer or the era shows. And the 2010 data centre (step 8): a rented cage at a colocation centre, built as a
+// three-tier tree (the dive's maths), the way through it, and nothing of a later data centre (#135 F15: leaf–spine,
+// k8s, NVMe, 100–400G and four-colour optics).
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { WORLD_SIZE, type Pt } from '../engine/geometry';
+import { routeWords, scenes } from '../test/era-walk';
 import { stubBrowser } from '../test/stub-browser';
-import { metroTag, oneColour } from '../../content/scenes/fibre-light/light';
+import { carrierNat } from '../../content/scenes/ip-post/post';
+import { metroTag, modeOf, oneColour } from '../../content/scenes/fibre-light/light';
 import type * as Tier from '../../content/scenes/three-tier/tier';
 import type { TierLayout } from '../../content/scenes/three-tier/types';
 import { sceneKeys } from './describe';
-import { activityIds } from './registry';
+import { activityIds, basePlace, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
-import { resolveRoute, stringSources, type Route } from './resolve';
-import { childrenOf, diveSubject, sceneRef, type SceneRef } from './tree';
+import { resolveRoute, stringSources } from './resolve';
+import { diveSubject } from './tree';
+
+/** Later than 2010: Wi‑Fi 5 and up, 4G and 5G, XGS-PON, G.fast and vectoring, 200G and up, 2.5G/5G copper and
+ *  802.3bt, leaf–spine, containers and Kubernetes, NVMe, today's AS count, TLS 1.3, HTTP/2 and 3, QUIC, ECH, WPA3,
+ *  VXLAN/EVPN, segment routing, DASH's MPD and the CGNAT space of 2012. */
+const LATER = new RegExp([
+  /802\.11(?:ac|ax|be)|Wi.Fi [5-7]\b|\b[45]G\b|\bLTE\b|\bNR\b|\bgNB\b|\bUPF\b|XGS|G\.fast|[Vv]ector(?:ing|isering)/,
+  /\b[2-8]00\s?G|400GBASE|\bFR4\b|CWDM4|802\.3b[tz]|\b(?:2\.5|5)GBASE/,
+  /[Ll]eaf|\b(?:in a|i en) container|containers\b|containere|k8s|[Kk]ubernetes|Docker|NVMe|75 000|80 000/,
+  /TLS 1\.3|HTTP\/[23]|QUIC|\bECH\b|WPA3|VXLAN|EVPN|SRv6|[Ss]egment [Rr]outing|\bMPD\b|100\.64\.0\.0|RFC 6598/,
+].map((r) => r.source).join('|'));
+/** New in 2010 (100G Ethernet and its 25G lanes, coherent optics): fine if it says it was new then. */
+const NEW = /\b100\s?G|100GBASE|\b25G\b|[Cc]oherent|[Kk]ohærent/;
+const SAYS_LATER = /today|i dag|nutid|later|senere|\b(?:201[1-9]|20[2-9]\d)\b|2010s|2010’erne/i;
+const SAYS_NEW = /today|i dag|nutid|later|senere|\b20[1-9]\d\b/i;
+
+/** Walked, but never shown on a 2010 trip: the router's light box (ONT) only shows on fibre, and 2010's router
+ *  goes out on the phone line (its modem room). */
+const UNSHOWN = ['scene.router-inside.ont.line'];
+
+const places = Object.values(content.places).filter((p) => p.era === '2010').map((p) => p.id);
+const trips = () => places.flatMap((p) => activityIds().map((activity) => resolveRoute({ activity, places: [p] })));
 
 type Box = { x: number; y: number; w: number; h: number };
 const inside = (a: Box, b: Box) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
@@ -20,18 +46,6 @@ const apart = (a: Box, b: Box) => a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + 
 const ptInside = (p: Pt, b: Box) => p.x >= b.x && p.y >= b.y && p.x <= b.x + b.w && p.y <= b.y + b.h;
 const same = (a: Pt, b: Pt) => Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9;
 const ORIENTS = [['landscape', false], ['portrait', false], ['landscape', true]] as const;
-
-function scenes(r: Route): SceneRef[] {
-  const out = new Map<string, SceneRef>();
-  for (const o of ['landscape', 'portrait'] as const) {
-    const walk = (ref: SceneRef): void => {
-      out.set(ref.path.join('/'), ref);
-      for (const c of childrenOf(r, ref, o)) walk(sceneRef(r, [...ref.path, c.step], o)!);
-    };
-    walk(sceneRef(r, [], o)!);
-  }
-  return [...out.values()];
-}
 
 describe('the three-tier tree (three-tier)', () => {
   let tier: typeof Tier;
@@ -111,7 +125,6 @@ describe('the three-tier tree (three-tier)', () => {
 
 describe('the 2010 data centre', () => {
   beforeAll(loadAllPacks);
-  const trips = () => ['home-dsl', 'desk-2010', 'street-2010'].flatMap((place) => activityIds().map((activity) => resolveRoute({ activity, places: [place] })));
 
   it('is a rented cage at a colocation centre: core router, load balancer, aggregation, access and the cache', () => {
     for (const r of trips()) {
@@ -140,7 +153,8 @@ describe('the 2010 data centre', () => {
   it('says nothing of a later data centre, unless it says when (#135 F15)', () => {
     const LATER = /\bleaf|\bspine|ECMP|[1-8]00\s?G|25\s?G\b|400GBASE|FR4|CWDM|k8s|Kubernetes|container|NVMe|Maglev|consistent hash|konsistent hash/i;
     const CLOS = /\bClos\b/;
-    // the exchange's cross-connect into the hall is the internet's (#135's fibre-light cross-connect item, a later lane)
+    // the exchange's cross-connect into the hall is the internet's: its drawing's 100GBASE-LR4 was new in 2010, which
+    // the trips' test below allows when the words say so
     const EXCHANGE = /^scene\.fibre-light\.cross-connect/;
     const SAYS_WHEN = /today|i dag|nutid|\b20(1[1-9]|2\d)\b|2010s|2010’erne/i;
     const bad = new Set<string>();
@@ -176,5 +190,49 @@ describe('the 2010 data centre', () => {
     const at = Object.keys(packs.en.strings).flatMap((k) => k.match(/^scene\.[^.]+\.2010\.(?:[^.]+\.)?at\.([^.]+)\./)?.[1] ?? []);
     expect(at.length).toBeGreaterThan(0);
     expect([...new Set(at)].filter((n) => !reached.has(n))).toEqual([]);
+  });
+});
+
+describe('the 2010 trips', () => {
+  beforeAll(loadAllPacks);
+
+  it('are the home’s ways online and on the go', () => {
+    expect(new Set(places.map((p) => basePlace(p)))).toEqual(new Set(['home', 'street']));
+    expect(places.length).toBeGreaterThan(2);
+    for (const r of trips()) expect(r.era).toBe('2010');
+  });
+
+  it('say nothing of a later internet, unless they say when (#135)', () => {
+    const leaks = new Map<string, string>();
+    for (const r of trips()) for (const [key, s] of routeWords(r)) {
+      const later = LATER.test(s) && !SAYS_LATER.test(s), early = NEW.test(s) && !SAYS_NEW.test(s);
+      if (later || early) leaks.set(key, s);
+    }
+    const keyOf = (k: string) => k.split(' ')[2];
+    const leaked = new Set([...leaks.keys()].map(keyOf));
+    const excused = new Set(UNSHOWN);
+    expect([...leaks].filter(([k]) => !excused.has(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
+    // each excuse still holds: drop an entry once it no longer leaks
+    expect([...excused].filter((k) => !leaked.has(k)), 'no longer leaks: take it off UNSHOWN').toEqual([]);
+  });
+
+  it('draw a few colours on one fibre only where 2010 did: metro DWDM, long haul and the sea (#135)', () => {
+    const many = new Set<string>();
+    for (const r of trips()) for (const s of scenes(r)) {
+      const tech = s.dive === 'fibre-light' ? s.link?.link.tech.id : undefined;
+      if (tech && !oneColour(tech, r.era)) many.add(`${modeOf(tech)}:${tech}`);
+    }
+    expect([...many].sort()).toEqual(['long-haul:backbone', 'metro:metro-fibre', 'submarine:submarine']);
+    // the exchange's cross-connects: one 1310 nm colour, not today's four-lane 100GBASE-LR4
+    expect(metroTag('cross-connect', oneColour('cross-connect', '2010'))).toBe('tag.cross-connect');
+    for (const lang of Object.keys(packs)) expect(firstOf(lang, withEra(['scene.fibre-light.tag.cross-connect'], '2010'))).toMatch(/^10GBASE-LR · 1310 nm/);
+  });
+
+  it('draw the GGSN’s NAT as a carrier’s: phones had private 10/8 addresses before the shared space of 2012', () => {
+    expect(carrierNat('10.152.33.7')).toBe(true);
+    expect(carrierNat('100.64.12.7')).toBe(true);
+    expect(carrierNat('192.168.1.23')).toBe(false);
+    const r = resolveRoute({ activity: 'watch-video', places: ['street-2010'] });
+    expect(carrierNat(r.hops.phone.addr!)).toBe(true);
   });
 });
