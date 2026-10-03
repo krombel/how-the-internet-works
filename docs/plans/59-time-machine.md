@@ -786,6 +786,9 @@ Made while building PR 6 (1995: the internet):
   leaves its packets room (MIN_CLEAR). Two of `home-dialup`'s KNOWN_SHORT entries (border links no longer on its
   route) went; KNOWN_OVERLAPS stays empty. The American network's nerd sign is "US backbone · AS64504" ("Hovednet ·
   AS64504" in Danish, short enough for small landscape).
+- **Short landscape**: `tdm-frames` and `atm-cells` drop their cards' footer lines there (as they drop the title), and
+  a long sea cable's booster names go up a line in turn when they would touch (`crowded` in `Submarine.svelte`; the
+  8,400 km CANTAT-3 draws five boosters close together).
 - **Read-more links are English only for ATM**; the Danish drafts want a native review as before.
 - **Eager JS: +1.2 kB gz** (96.64 against 95.40 on main, index.html's static imports gzipped): the five technologies'
   and two layers' definitions with their read-more links, the two devices' and the owner's names, the segment and its
