@@ -153,7 +153,8 @@
     },
     "tag": {
       "backbone": "40–80 λ · EDFA / 80 km",
-      "dc-fibre": "10GBASE-SR · 850 nm · OM3"
+      "dc-fibre": "10GBASE-SR · 850 nm · OM3",
+      "cross-connect": "10GBASE-LR · 1310 nm · SMF"
     },
     "dc-fibre": {
       "nerd": "Datacenteroptik i 2010: 10GBASE-SR, én 850 nm-laser (en VCSEL) i hver retning over et par multimode-fibre (OM3), op til 300 m. Én farve pr. fiber, intet at samle eller dele. Serverne hænger på access-switchene med kobber (1000BASE-T). Hver forbindelse er ét hop i træet med tre lag.",
@@ -161,6 +162,17 @@
       "describe": {
         "kid": "En kort glastråd mellem to switches i datacentret vises tæt på. Ét lys i den ene ende hopper gennem kernen til den anden ende. Glimtene krydser på et øjeblik.",
         "nerd": "Datacenterforbindelsen vises som en kort multimode-strækning med én 850 nm-bane: en laser i den ene ende, lyset i zigzag gennem kernen og en detektor i den anden. Mærket siger 10GBASE-SR ved 850 nm over OM3."
+      }
+    },
+    "metro-fibre": {
+      "nerd": "Metrofiber: single-mode-forbindelser mellem gadeskabe, aggregeringspunkter og centralen. I 2010 mest 1 eller 10 Gbit/s Ethernet-optik, hvor CWDM eller DWDM lægger en håndfuld bølgelængder på ét fiberpar."
+    },
+    "cross-connect": {
+      "kid": "I knudepunktets bygning har hvert firma sine egne bokse, og et kort glaskabel forbinder dem. Dine pakker krydser det på et øjeblik, som glimt i én farve lige efter rød: så dyb en rød, at vores øjne ikke kan se den.",
+      "nerd": "En krydsforbindelse: en single-mode-patch gennem meet-me-rummet, højst et par hundrede meter. I 2010 mest 10GBASE-LR: én 1310 nm-laser i hver retning over et par single-mode-fibre, god til op til 10 km. Én farve pr. fiber, intet at samle eller dele.",
+      "describe": {
+        "kid": "Inde i knudepunktet ses en kort glastråd tæt på. Ét lys i den ene ende hopper gennem kernen til den anden ende. Glimtene krydser rummet på et øjeblik.",
+        "nerd": "Krydsforbindelsen vises som en kort single-mode-patch med én 1310 nm-bane: en laser i den ene ende, lyset i zigzag gennem kernen og en detektor i den anden. Mærket siger 10GBASE-LR ved 1310 nm over single-mode-fiber."
       }
     }
   }

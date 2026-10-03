@@ -1,7 +1,8 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // Metro: a few colours share one thread, each its own channel (combined at one end, split at the other). A thread
-  // with one colour (`one`: a data centre's link in 2010) has one laser and one detector, and nothing to combine.
+  // with one colour (`one`: a data centre's link or a cross-connect in 2010) has one laser and one detector, and
+  // nothing to combine.
   import { TagAt, Text, strings, view } from '$core/api';
   import { DWDM, FIBRE, LONG_HAUL, channelRoute, fibrePulses, laneNumbers, metroTag, trackMatrix } from './light';
   import Fibre from './art/Fibre.svelte';
