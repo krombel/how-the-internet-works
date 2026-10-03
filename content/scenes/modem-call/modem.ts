@@ -142,8 +142,8 @@ export function ripples(s: number, t: number, mid: number): Ripple[] {
 
 /** A photo of this many kB, at this many kbit/s, in seconds. */
 export const seconds = (kB: number, kbit: number) => (kB * 8) / kbit;
-/** The photo on the speed card: 100 kB at a real 50 kbit/s. */
-export const PHOTO = { kB: 100, kbit: 50 };
+/** The photo on the speed card: 30 kB at 1995's V.34 modem's 28.8 kbit/s (the dial-up technology's rate). */
+export const PHOTO = { kB: 30, kbit: 28.8 };
 
 /** How much of the photo is in (0..1), `s` seconds after arriving: it starts once online, then again after a pause. */
 export function photoIn(s: number, still: boolean): number {

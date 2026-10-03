@@ -15,6 +15,8 @@ export default defineActivity({
       stack: ['ip', 'tcp', 'http'],
       // Windows 7 picks its client ports from 49152 up; the video server listens on port 80
       ports: { client: 50112, server: 80 },
+      // the same 3 minutes in 360p (YouTube's usual then, about 0.75 Mbit/s)
+      packets: [video.packets[0], { ...video.packets[1], size: 17_000_000 }],
     },
   ],
   learnMore: [

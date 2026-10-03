@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LINE, NUMBER, ONLINE_AT, PHOTO, SLOT, STEPS, dialled, dtmf, handshake, photoIn, ripples, seconds, stepAt } from '../../content/scenes/modem-call/modem';
 import { LOOP_S, TALKS, TALK_S, momentAt } from '../../content/scenes/ppp-hello/ppp';
+import { content } from './registry';
 
 describe('the dial-up call (modem-call)', () => {
   it('walks the handshake in order and stays online', () => {
@@ -42,11 +43,12 @@ describe('the dial-up call (modem-call)', () => {
     }
   });
 
-  it('brings a photo in slowly, once online', () => {
-    expect(seconds(PHOTO.kB, PHOTO.kbit)).toBe(16);
+  it('brings a photo in slowly, once online, at 1995’s V.34 speed (the dial-up line’s rate, #59)', () => {
+    expect(PHOTO.kbit * 1000).toBe(content.technologies.dialup.rate.down);
+    expect(seconds(PHOTO.kB, PHOTO.kbit)).toBeCloseTo(8.33, 2);
     expect(photoIn(ONLINE_AT - 0.1, false)).toBe(0);
-    expect(photoIn(ONLINE_AT + 8, false)).toBeCloseTo(0.5);
-    expect(photoIn(ONLINE_AT + 16.01, false)).toBe(1);
+    expect(photoIn(ONLINE_AT + 4.2, false)).toBeCloseTo(0.5, 1);
+    expect(photoIn(ONLINE_AT + 8.34, false)).toBe(1);
     expect(photoIn(0, true)).toBeGreaterThan(0);
     // the call's own timeslot is a voice one: not 0 (framing) or 16 (signalling) on an E1
     expect([0, 16]).not.toContain(SLOT);

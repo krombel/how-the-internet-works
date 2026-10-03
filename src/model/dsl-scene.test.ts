@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { content } from './registry';
 import { LINE, MAX_KM, PLAN_998, bandSpans, bitsAt, lineTones, pitchX, speedAt, toneBars } from '../../content/scenes/dsl-tones/tones';
 
 describe('the phone line (dsl-tones)', () => {
@@ -27,8 +28,10 @@ describe('the phone line (dsl-tones)', () => {
     const ks = [0, 0.3, 0.4, 1, 2, MAX_KM, 9];
     const rates = ks.map(speedAt);
     for (let i = 1; i < rates.length; i++) expect(rates[i]).toBeLessThanOrEqual(rates[i - 1]);
-    expect(speedAt(0.4)).toBeGreaterThan(80);
-    expect(speedAt(0.4)).toBeLessThan(110);
+    // 2010's VDSL2 without vectoring (#59): this home's 400 m line could carry about 55 Mbit/s, more than its 20 Mbit/s plan
+    expect(speedAt(0.4)).toBeGreaterThan(45);
+    expect(speedAt(0.4)).toBeLessThan(65);
+    expect(speedAt(0.4)).toBeGreaterThan(content.technologies.vdsl.rate.down / 1e6);
   });
 
   it('sends more, quicker tones down than up, and keeps a still frame still', () => {

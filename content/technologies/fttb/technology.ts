@@ -7,6 +7,8 @@ export default defineTechnology({
   colour: '#3a8fc0',
   stack: ['ethernet'],
   dive: 'fibre-light',
+  // a 1 Gbit/s BiDi optic
+  rate: { down: 1e9, up: 1e9 },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Fiber_to_the_x', title: 'Fibre to the building', level: 'both', lang: 'en' },
     { url: 'https://da.wikipedia.org/wiki/Fiber_to_the_x', title: 'Fiber til bygningen', level: 'both', lang: 'da' },

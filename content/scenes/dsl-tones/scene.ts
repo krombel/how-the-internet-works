@@ -7,6 +7,6 @@ export default defineScene({
     { url: 'https://da.wikipedia.org/wiki/Digital_Subscriber_Line', title: 'Digital Subscriber Line', level: 'both', lang: 'da' },
     { url: 'https://en.wikipedia.org/wiki/VDSL', title: 'VDSL', level: 'nerd', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/Discrete_multitone_modulation', title: 'Discrete multitone modulation', level: 'nerd', lang: 'en' },
-    { url: 'https://en.wikipedia.org/wiki/G.993.5', title: 'G.993.5 (vectoring)', level: 'nerd', lang: 'en' },
+    { url: 'https://en.wikipedia.org/wiki/Crosstalk', title: 'Crosstalk', level: 'nerd', lang: 'en' },
   ],
 });

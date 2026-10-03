@@ -2,6 +2,10 @@
   "title": "Vi ser en video",
   "kid": "Du beder om en video.",
   "nerd": "Appen henter videoen i små segmenter over HTTPS (HTTP inde i TLS inde i TCP), og serveren streamer dem tilbage.",
+  "takes": {
+    "kid": "Hele videoen er her på omkring {time}: {faster} gange hurtigere, end du kan se den.",
+    "nerd": "{size} HD-video ved {rate}, den langsomste forbindelses hastighed ({link}): alle {plays} på omkring {time}, {faster}× hurtigere, end den spiller. Afspilleren henter kun lidt forud, så linjen hviler det meste af tiden."
+  },
   "packet": {
     "request": "Forespørgsel",
     "video": "Video"
@@ -25,11 +29,19 @@
     },
     "peek": {
       "page": "Fanget: et stykke af siden"
+    },
+    "takes": {
+      "kid": "Siden og dens billede tager omkring {time} om at komme frem. Dagens video ville tage {now}!",
+      "nerd": "{size} ved {rate}, modemets topfart: omkring {time} for selve bittene, mere med håndtryk, headere og gensendelser. Dagens {nowSize} HD-video ville tage {now}."
     }
   },
   "2010": {
     "title": "Vi ser en lille video",
     "kid": "Du beder om en lille video.",
-    "nerd": "Afspilleren henter videoen som én fil over almindelig HTTP (ingen TLS): en lille 360p-MP4, der begynder at spille, mens resten stadig er på vej (progressive download). Videosider gik over til HTTPS nogle år senere. Cachen, den kom fra, lå som regel i en større by længere væk end i dag."
+    "nerd": "Afspilleren henter videoen som én fil over almindelig HTTP (ingen TLS): en lille 360p-MP4, der begynder at spille, mens resten stadig er på vej (progressive download). Videosider gik over til HTTPS nogle år senere. Cachen, den kom fra, lå som regel i en større by længere væk end i dag.",
+    "takes": {
+      "kid": "Hele den lille video er her på omkring {time}: {faster} gange hurtigere, end du kan se den. Dagens skarpere video ville tage {now}.",
+      "nerd": "{size} 360p-video ved {rate}, den langsomste forbindelses hastighed ({link}): alle {plays} på omkring {time}, {faster}× hurtigere, end den spiller. Dagens {nowSize} HD-video ville tage {now}."
+    }
   }
 }

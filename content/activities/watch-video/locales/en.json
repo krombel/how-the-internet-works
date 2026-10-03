@@ -2,6 +2,10 @@
   "title": "Watching a video",
   "kid": "You ask for a video.",
   "nerd": "The app fetches the video in small segments over HTTPS (HTTP inside TLS inside TCP), and the server streams them back.",
+  "takes": {
+    "kid": "The whole video gets here in about {time}: {faster} times faster than you can watch it.",
+    "nerd": "{size} of HD video at {rate}, the slowest link’s speed ({link}): all {plays} in about {time}, {faster}× faster than it plays. The player fetches only a little ahead, so the line mostly rests."
+  },
   "packet": {
     "request": "Request",
     "video": "Video"
@@ -25,11 +29,19 @@
     },
     "peek": {
       "page": "Caught: a piece of the page"
+    },
+    "takes": {
+      "kid": "The page and its picture take about {time} to get here. Today’s video would take {now}!",
+      "nerd": "{size} at {rate}, the modem’s top speed: about {time} for the bits alone, more with the handshakes, headers and resends. Today’s {nowSize} of HD video would take {now}."
     }
   },
   "2010": {
     "title": "Watching a small video",
     "kid": "You ask for a small video.",
-    "nerd": "The player fetches the video as one file over plain HTTP (no TLS): a small 360p MP4 that starts playing while the rest is still on its way (progressive download). Video sites moved to HTTPS a few years later. The cache it came from was usually in a bigger city further away than today’s."
+    "nerd": "The player fetches the video as one file over plain HTTP (no TLS): a small 360p MP4 that starts playing while the rest is still on its way (progressive download). Video sites moved to HTTPS a few years later. The cache it came from was usually in a bigger city further away than today’s.",
+    "takes": {
+      "kid": "The whole small video gets here in about {time}: {faster} times faster than you can watch it. Today’s sharper video would take {now}.",
+      "nerd": "{size} of 360p video at {rate}, the slowest link’s speed ({link}): all {plays} in about {time}, {faster}× faster than it plays. Today’s {nowSize} of HD video would take {now}."
+    }
   }
 }
