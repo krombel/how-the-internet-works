@@ -670,7 +670,8 @@ async function walkJourney(style, fail) {
         seen.push(await at());
       }
       const end = await at();
-      await p.click(sel);
+      // aria-disabled still takes the click (it bumps); Playwright won't click a button it thinks is disabled
+      await p.click(sel, { force: true });
       if ((await at()) !== end) fail(where, `${d > 0 ? '▶' : '◀'} goes on past ${end}`);
       return { seen, said };
     };
