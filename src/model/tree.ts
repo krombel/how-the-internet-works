@@ -225,18 +225,64 @@ export function hopScenePath(r: Route, hop: number, o: Orient, current: string[]
 
 /** Walking sideways: along a path scene's stops, between the link and device dives of the parent (a stretch of
  *  same-technology links is one dive, see `diveRuns`), or up and down the layers of one hop (+1 = the next stop / dive, or the layer
- *  above). `min` is the lowest index allowed (-1 = no stop at all). */
-export interface Sideways { kind: 'stop' | 'dive' | 'layer'; steps: string[]; i: number; min: number }
+ *  above). A path scene's ◀ ▶ go on past its ends: `walkStep`. */
+export interface Sideways { kind: 'stop' | 'dive' | 'layer'; steps: string[]; i: number }
 export function sideways(r: Route, path: string[], stop: string | null, o: Orient): Sideways {
   const ref = sceneRef(r, path, o)!;
   if (ref.kind === 'path') {
     const steps = pathScene(r, ref.group, o).stops;
-    return { kind: 'stop', steps, i: stop ? steps.indexOf(stop) : -1, min: -1 };
+    return { kind: 'stop', steps, i: stop ? steps.indexOf(stop) : -1 };
   }
   const parent = sceneRef(r, parentPath(path), o)!;
   const kids = childrenOf(r, parent, o).filter((c) => c.kind === ref.kind);
   const steps = (ref.at ? kids.filter((c) => spots(r, parent.group, o).get(c.step)!.at.hop === ref.at!.hop) : kids).map((c) => c.step);
-  return { kind: ref.kind === 'layer' ? 'layer' : 'dive', steps, i: steps.indexOf(path[path.length - 1]), min: 0 };
+  return { kind: ref.kind === 'layer' ? 'layer' : 'dive', steps, i: steps.indexOf(path[path.length - 1]) };
+}
+
+/** Walking the whole trip (#169): every stop of every path scene in route order, a group's stops in its place (the
+ *  root's overview comes before them all). A group is not a stop of the walk itself: the step that would land on it
+ *  goes in. `gap`: by a group's path, the index its stops start at. */
+interface Walk { at: { path: string[]; stop: string }[]; gap: Map<string, number> }
+const walkMemo = new WeakMap<Route, Map<Orient, Walk>>();
+function walkOf(r: Route, o: Orient): Walk {
+  let m = walkMemo.get(r);
+  if (!m) walkMemo.set(r, (m = new Map()));
+  const hit = m.get(o);
+  if (hit) return hit;
+  const w: Walk = { at: [], gap: new Map() };
+  const visit = (path: string[], group: string | null) => {
+    w.gap.set(path.join('/'), w.at.length);
+    const ps = pathScene(r, group, o);
+    for (const stop of ps.stops) {
+      if (ps.nodes.find((n) => n.id === stop)?.kind === 'group') visit([...path, stop], stop);
+      else w.at.push({ path, stop });
+    }
+  };
+  visit([], null);
+  m.set(o, w);
+  return w;
+}
+
+/** Where a step of the walk lands, and, if it crosses into another path scene, how: into a group (named by it), or
+ *  out of one (named by where you came from, its entry, or go on to, its exit). */
+export interface WalkTo { path: string[]; stop: string | null; cross: { kind: 'in' | 'out'; node: SNode } | null }
+/** A step (+1: on, -1: back) along the walk from a stop of a path scene (null: the scene as a whole), or null at either
+ *  end. On a group, or a group's own scene as a whole, ▶ goes to its first stop and ◀ to the stop before it; from the
+ *  root's first stop ◀ goes back to its overview. */
+export function walkStep(r: Route, path: string[], stop: string | null, d: -1 | 1, o: Orient): WalkTo | null {
+  const w = walkOf(r, o), key = path.join('/'), scene = (p: string[]) => pathScene(r, sceneRef(r, p, o)!.group, o);
+  const group = stop !== null && scene(path).nodes.find((n) => n.id === stop)?.kind === 'group';
+  let i: number;
+  if (group || (stop === null && path.length)) i = w.gap.get(group ? [...path, stop].join('/') : key)! - (d < 0 ? 1 : 0);
+  else i = (stop === null ? -1 : w.at.findIndex((a) => a.stop === stop && a.path.join('/') === key)) + d;
+  if (i < -1 || i >= w.at.length) return null;
+  const to = i < 0 ? { path: [], stop: null } : w.at[i];
+  let c = 0;
+  while (c < path.length && c < to.path.length && path[c] === to.path[c]) c++;
+  const cross = to.path.length > c ? { kind: 'in' as const, node: scene(to.path.slice(0, c)).nodes.find((n) => n.id === to.path[c])! }
+    : path.length > c ? { kind: 'out' as const, node: scene(path.slice(0, c + 1)).nodes.find((n) => n.kind === (d < 0 ? 'entry' : 'exit'))! }
+    : null;
+  return { path: to.path, stop: to.stop, cross };
 }
 
 /** A path scene's chain as one curve through its links and devices (start device → … → end device), so a camera can

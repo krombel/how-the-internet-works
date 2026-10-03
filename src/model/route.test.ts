@@ -223,17 +223,17 @@ describe('scene tree', () => {
 
   it('steps sideways along stops, between link dives, and up and down a hop\'s layers', () => {
     const { home: h } = layerDives();
-    expect(sideways(h, [], 'ap', 'landscape')).toMatchObject({ kind: 'stop', i: 2, min: -1 });
+    expect(sideways(h, [], 'ap', 'landscape')).toMatchObject({ kind: 'stop', i: 2 });
     expect(sideways(h, [], null, 'landscape').steps).toEqual(pathScene(h, null, 'landscape').stops);
-    expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 3, min: 0 });
-    expect(sideways(h, ['router~ip'], null, 'portrait')).toEqual({ kind: 'layer', steps: ['router~ip', 'router~tcp'], i: 0, min: 0 });
-    expect(sideways(h, ['internet', 'core~tcp'], null, 'landscape')).toEqual({ kind: 'layer', steps: ['core~ip', 'core~tcp'], i: 1, min: 0 });
+    expect(sideways(h, ['router-internet'], null, 'landscape')).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 3 });
+    expect(sideways(h, ['router~ip'], null, 'portrait')).toEqual({ kind: 'layer', steps: ['router~ip', 'router~tcp'], i: 0 });
+    expect(sideways(h, ['internet', 'core~tcp'], null, 'landscape')).toEqual({ kind: 'layer', steps: ['core~ip', 'core~tcp'], i: 1 });
   });
 
   it('walks link → device → link, travelling along the chain (#38)', () => {
     for (const o of ['landscape', 'portrait'] as const) {
       const ch = chainOf(home, null, o), s = (id: string) => ch.items.find((x) => x.id === id)!.s;
-      expect(sideways(home, ['router'], null, o)).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 2, min: 0 });
+      expect(sideways(home, ['router'], null, o)).toEqual({ kind: 'dive', steps: ['phone-ap', 'ap-router', 'router', 'router-internet'], i: 2 });
       expect(travelOf(home, ['ap-router'], ['router'], o)).toEqual({ parent: [], b: s('router') });
       expect(travelOf(home, ['router'], ['router-internet'], o)).toEqual({ parent: [], b: s('router-internet') });
     }

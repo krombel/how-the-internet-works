@@ -321,6 +321,13 @@ button { cursor: pointer; }
 .port .step { bottom: calc(var(--cap-h, 150px) + 16px); }
 .port .step.prev { transform-origin: 0 100%; }
 .port .step.next { transform-origin: 100% 100%; }
+/* a step into a group or back out of one names where it goes (#169): under the button, above it on a portrait screen */
+.step-to { position: absolute; top: calc(100% + 6px); padding: 3px 10px; border-radius: 999px; background: var(--card);
+  border: var(--card-edge-w) solid var(--card-edge); box-shadow: var(--card-shadow); color: var(--ink); font-size: 13px;
+  font-weight: 700; white-space: nowrap; pointer-events: none; }
+.step.prev .step-to { left: 0; }
+.step.next .step-to { right: 0; }
+.port .step-to { top: auto; bottom: calc(100% + 6px); }
 
 /* ---------------- peek (a caught packet at one hop) */
 .peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 96px);
