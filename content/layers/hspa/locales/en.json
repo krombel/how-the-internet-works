@@ -1,0 +1,32 @@
+{
+  "name": {
+    "kid": "3G radio envelope",
+    "nerd": "3G HSPA frame (RLC · MAC-hs)"
+  },
+  "note": {
+    "kid": "Sent through the air in the slots the mast gives your phone. The controller behind the mast checks every piece arrived and asks again if one got lost.",
+    "nerd": "MAC-hs in the NodeB sends it in the 2 ms TTIs its scheduler grants and resends with HARQ; RLC in the RNC ciphers it and resends what HARQ missed."
+  },
+  "line": "3G HSPA user plane, H-RNTI {hrnti}, RLC SN {rlcsn}",
+  "field": {
+    "hrnti": {
+      "name": {
+        "kid": "Phone no.",
+        "nerd": "H-RNTI"
+      },
+      "about": "The NodeB’s short name for this phone on the shared HSDPA channel (it marks the phone’s slots on the control channel)."
+    },
+    "queue": {
+      "name": "Priority queue",
+      "about": "MAC-hs header: which of the phone’s queues in the NodeB this came from."
+    },
+    "tsn": {
+      "name": "Transmission sequence no.",
+      "about": "MAC-hs header: puts the 2 ms blocks back in order after HARQ resends."
+    },
+    "rlcsn": {
+      "name": "RLC sequence number",
+      "about": "Puts segments in order between phone and RNC and asks again for lost ones (ARQ)."
+    }
+  }
+}

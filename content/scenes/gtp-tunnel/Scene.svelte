@@ -2,9 +2,10 @@
 <script lang="ts">
   // THESIS: GTP is the mobile network's tunnel envelope, staged like the IP dive: a road below and paper cards above.
   // OWN-WORLD: storybook road, pinned paper cards, chunky tunnel mouths, cream envelopes, brown ink. STORY: the tower
-  // wraps a phone-addressed parcel for the mobile core, the core unwraps it, and handover swings the tunnel to the next
-  // tower while the phone address stays. FIRST VIEWPORT: focused reader hop on the road, cards explain tunnel label and
-  // handover. FORM: IP-dive family staging with a deterministic 16 s loop.
+  // (5G; in 3G the radio controller, RNC, with Direct Tunnel) wraps a phone-addressed parcel for the mobile core, the core
+  // unwraps it, and handover swings the tunnel to the next tower while the phone address stays. FIRST VIEWPORT: focused
+  // reader hop on the road, cards explain tunnel label and handover. FORM: IP-dive family staging with a deterministic
+  // 16 s loop.
   import { Node, TagAt, Text, nameOf, strings, view, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import Parcel from './art/Parcel.svelte';
@@ -14,14 +15,17 @@
 
   let { subject }: { subject: LayerSubject } = $props();
   const S = strings('scene.gtp-tunnel');
-  const focus = $derived(subject.ctx.to.node.id === 'mobile-core' ? 'mobile-core' : 'cell-tower');
+  // the tunnel's two ends are its link's: the tower (5G) or the radio controller (3G), and the mobile core
+  const start = $derived(subject.route.hops[subject.ctx.link.from]);
+  const end = $derived(subject.route.hops[subject.ctx.link.to]);
+  const focus = $derived(subject.ctx.to.id === end.id ? 'end' : 'start');
   const L = $derived(layoutFor(view.orient, focus, view.vp));
   const T = $derived(L.size);
   const st = $derived(sceneState(view.time, L));
   const phoneName = $derived(nameOf(subject.ctx.client));
-  const towerName = $derived(nameOf(subject.route.hops['cell-tower']));
-  const coreName = $derived(nameOf(subject.route.hops['mobile-core']));
-  const address = '100.64.12.7';
+  const towerName = $derived(nameOf(start));
+  const coreName = $derived(nameOf(end));
+  const address = $derived(subject.ctx.client.addr ?? '');
   const c0 = $derived(L.cards[0]);
   const c1 = $derived(L.cards[1]);
   const portrait = $derived(view.orient === 'portrait');
@@ -58,8 +62,8 @@
 <path d={`M${st.towerEnd.x} ${L.road.y - 105} Q${(st.towerEnd.x + L.core.x) / 2} ${L.road.y - (portrait ? 255 : compact ? 180 : 210)} ${L.core.x} ${L.road.y - 105}`} fill="none" stroke="var(--paper)" stroke-width="16" stroke-linecap="round" stroke-dasharray="30 25" opacity="0.72" />
 <rect x={L.road.x0} y={L.road.y - 36} width={L.road.x1 - L.road.x0} height="72" rx="36" fill="var(--kraft)" stroke="var(--line)" stroke-width="6" />
 <path d={`M${L.road.x0 + 50} ${L.road.y} H${L.road.x1 - 50}`} stroke="var(--paper)" stroke-width="7" stroke-dasharray="34 30" stroke-linecap="round" />
-<TunnelMouth x={st.towerEnd.x} y={L.road.y - 112} scale={portrait ? 0.78 : 0.82} active={focus === 'cell-tower'} />
-<TunnelMouth x={L.core.x} y={L.road.y - 112} scale={portrait ? 0.78 : 0.82} active={focus === 'mobile-core'} />
+<TunnelMouth x={st.towerEnd.x} y={L.road.y - 112} scale={portrait ? 0.78 : 0.82} active={focus === 'start'} />
+<TunnelMouth x={L.core.x} y={L.road.y - 112} scale={portrait ? 0.78 : 0.82} active={focus === 'end'} />
 
 <!-- cards -->
 <Card x={c0.x} y={c0.y} w={c0.w} h={c0.h} tint="var(--teal)" />
@@ -82,9 +86,9 @@
 <Card x={c1.x} y={c1.y} w={c1.w} h={c1.h} tint="var(--berry)" />
 <Text x={c1.x + 34} y={c1.y + (portrait || compact ? 88 : 72)} text={S('label.handover')} size={T.big} kind="big" anchor="start" />
 <g opacity="0.94">
-  <Node id="cell-tower" x={c1.x + c1.w * 0.22} y={c1.y + c1.h * (portrait ? 0.54 : compact ? 0.56 : 0.55)} size={portrait || compact ? 200 : 180} />
-  <Node id="cell-tower" x={c1.x + c1.w * 0.50} y={c1.y + c1.h * (portrait ? 0.54 : compact ? 0.56 : 0.55)} size={portrait || compact ? 200 : 180} />
-  <Node id="mobile-core" x={c1.x + c1.w * 0.80} y={c1.y + c1.h * (portrait ? 0.53 : compact ? 0.55 : 0.55)} size={portrait || compact ? 205 : 185} />
+  <Node id={start.node.id} x={c1.x + c1.w * 0.22} y={c1.y + c1.h * (portrait ? 0.54 : compact ? 0.56 : 0.55)} size={portrait || compact ? 200 : 180} />
+  <Node id={start.node.id} x={c1.x + c1.w * 0.50} y={c1.y + c1.h * (portrait ? 0.54 : compact ? 0.56 : 0.55)} size={portrait || compact ? 200 : 180} />
+  <Node id={end.node.id} x={c1.x + c1.w * 0.80} y={c1.y + c1.h * (portrait ? 0.53 : compact ? 0.55 : 0.55)} size={portrait || compact ? 205 : 185} />
   <path d={`M${c1.x + c1.w * 0.22} ${c1.y + c1.h * (portrait ? 0.73 : 0.73)} Q${c1.x + c1.w * (0.22 + 0.28 * st.p)} ${c1.y + c1.h * (portrait ? 0.30 : compact ? 0.31 : 0.28)} ${c1.x + c1.w * 0.80} ${c1.y + c1.h * (portrait ? 0.73 : 0.73)}`} fill="none" stroke="var(--teal)" stroke-width={portrait || compact ? 18 : 14} stroke-linecap="round" opacity="0.72" />
   <path d={`M${c1.x + c1.w * 0.22} ${c1.y + c1.h * (portrait ? 0.73 : 0.73)} Q${c1.x + c1.w * (0.22 + 0.28 * st.p)} ${c1.y + c1.h * (portrait ? 0.30 : compact ? 0.31 : 0.28)} ${c1.x + c1.w * 0.80} ${c1.y + c1.h * (portrait ? 0.73 : 0.73)}`} fill="none" stroke="var(--paper)" stroke-width={portrait || compact ? 7 : 5} stroke-linecap="round" stroke-dasharray="22 16" opacity="0.8" />
 </g>
@@ -96,15 +100,15 @@
   <path d={`M${L.phoneA.x} ${L.walk + 20} Q${(L.phoneA.x + L.phoneB.x) / 2} ${L.walk + 70} ${L.phoneB.x} ${L.walk + 20}`} fill="none" stroke="var(--line)" stroke-width="5" stroke-dasharray="10 18" stroke-linecap="round" opacity="0.42" />
   <path d={`M${L.tower.x} ${L.road.y - 120} Q${(L.tower.x + L.nextTower.x) / 2} ${L.road.y - 235} ${L.nextTower.x} ${L.road.y - 120}`} fill="none" stroke="var(--berry)" stroke-width="8" stroke-dasharray="18 14" stroke-linecap="round" opacity="0.7" />
 {/if}
-<Node id="phone" x={st.phone.x} y={st.phone.y} size={st.phone.size} />
-<Node id="cell-tower" x={L.tower.x} y={L.tower.y} size={L.tower.size} focused={focus === 'cell-tower'} />
+<Node id={subject.ctx.client.node.id} x={st.phone.x} y={st.phone.y} size={st.phone.size} />
+<Node id={start.node.id} x={L.tower.x} y={L.tower.y} size={L.tower.size} focused={focus === 'start'} />
 <g opacity={st.phase === 'handover' || st.phase === 'new-up' ? 0.98 : 0.45}>
-  <Node id="cell-tower" x={L.nextTower.x} y={L.nextTower.y} size={L.nextTower.size} />
+  <Node id={start.node.id} x={L.nextTower.x} y={L.nextTower.y} size={L.nextTower.size} />
 </g>
-<Node id="mobile-core" x={L.core.x} y={L.core.y} size={L.core.size} focused={focus === 'mobile-core'} />
+<Node id={end.node.id} x={L.core.x} y={L.core.y} size={L.core.size} focused={focus === 'end'} />
 {#if !portrait && !compact && st.phase !== 'handover' && st.phase !== 'new-up'}<Text x={st.phone.x} y={L.names} text={phoneName} size={T.text} kind="node" />{/if}
-{#if (!portrait && !compact) || focus === 'cell-tower'}<Text x={nameX(L.tower.x, towerName, T.big)} y={L.names} text={towerName} size={focus === 'cell-tower' ? T.big : T.text} kind={focus === 'cell-tower' ? 'big' : 'node'} />{/if}
-{#if (!portrait && !compact) || focus === 'mobile-core'}<Text x={nameX(L.core.x, coreName, T.big)} y={L.names} text={coreName} size={(focus === 'mobile-core' ? T.big : T.text) * (portrait ? 0.86 : 1)} kind={focus === 'mobile-core' ? 'big' : 'node'} />{/if}
+{#if (!portrait && !compact) || focus === 'start'}<Text x={nameX(L.tower.x, towerName, T.big)} y={L.names} text={towerName} size={focus === 'start' ? T.big : T.text} kind={focus === 'start' ? 'big' : 'node'} />{/if}
+{#if (!portrait && !compact) || focus === 'end'}<Text x={nameX(L.core.x, coreName, T.big)} y={L.names} text={coreName} size={(focus === 'end' ? T.big : T.text) * (portrait ? 0.86 : 1)} kind={focus === 'end' ? 'big' : 'node'} />{/if}
 
 <!-- walking tunnel envelope -->
 {#if st.phase !== 'handover'}

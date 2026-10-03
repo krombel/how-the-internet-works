@@ -1,7 +1,8 @@
 import type { Orient, Pt } from '$core/api';
 
 export const LOOP = 12;
-export type Focus = 'tower' | 'phone';
+/** Whose view: the phone's, the tower's, or (in 3G, where RLC ends in the radio controller) the one behind it. */
+export type Focus = 'tower' | 'phone' | 'core';
 export type Phase = 'request' | 'grant' | 'send' | 'nack' | 'combine' | 'ack';
 
 type Spot = Pt & { size: number };
@@ -35,7 +36,7 @@ export function layoutFor(orient: Orient, focus: Focus, vp: { h: number; top: nu
       road: { y: 1385, x0: 30, x1: 870 },
       phone: { x: 150, y: 1280, size: focus === 'phone' ? 245 : 125 },
       tower: { x: 450, y: 1235, size: focus === 'tower' ? 245 : 165 },
-      core: { x: 750, y: 1280, size: 135 },
+      core: { x: 750, y: 1280, size: focus === 'core' ? 245 : 135 },
       cards: [{ x: 60, y: 160, w: 780, h: 600 }, { x: 60, y: 790, w: 780, h: 360 }],
       names: 1490,
       walk: 1355,
@@ -51,7 +52,7 @@ export function layoutFor(orient: Orient, focus: Focus, vp: { h: number; top: nu
       road: { y: 770, x0: 70, x1: 1530 },
       phone: { x: 245, y: 690, size: focus === 'phone' ? 230 : 135 },
       tower: { x: 800, y: 650, size: focus === 'tower' ? 230 : 155 },
-      core: { x: 1345, y: 690, size: 130 },
+      core: { x: 1345, y: 690, size: focus === 'core' ? 230 : 130 },
       cards: [{ x: 60, y: 118, w: 710, h: 440 }, { x: 830, y: 118, w: 710, h: 440 }],
       names: 860,
       walk: 740,
@@ -65,7 +66,7 @@ export function layoutFor(orient: Orient, focus: Focus, vp: { h: number; top: nu
     road: { y: 730, x0: 70, x1: 1530 },
     phone: { x: 245, y: 640, size: focus === 'phone' ? 250 : 150 },
     tower: { x: 800, y: 590, size: focus === 'tower' ? 250 : 170 },
-    core: { x: 1345, y: 640, size: 145 },
+    core: { x: 1345, y: 640, size: focus === 'core' ? 250 : 145 },
     cards: [{ x: 100, y: 140, w: 650, h: 360 }, { x: 850, y: 140, w: 650, h: 360 }],
     names: 835,
     walk: 700,

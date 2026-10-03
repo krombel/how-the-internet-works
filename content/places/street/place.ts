@@ -3,6 +3,7 @@ import { definePlace } from '$core/define';
 // Out on the street: the phone on 5G, a cell tower up the road, and the mobile operator's core network.
 export default definePlace({
   order: 2,
+  era: 'today',
   hops: [
     { at: 'phone', addr: '100.64.12.7' },
     { link: 'nr', km: 0.3 },

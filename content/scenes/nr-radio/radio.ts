@@ -1,13 +1,15 @@
 // The 5G dive's maths (style-agnostic): where things sit per orientation, the beams from the tower's antenna panel to
 // each phone, and a scheduler that hands out seats in a time × frequency grid (OFDMA resource blocks, slowed down a
-// million times: one column here is one 0.5 ms slot).
+// million times: one column here is one 0.5 ms slot). 3G (HSPA) shares the air differently: one wave over the whole
+// sector, and a grid of spreading codes × 2 ms slots, each slot's codes mostly one phone's.
 import type { Orient, Pt } from '$core/api';
 
 export const USERS = 3;
 export const ROWS = 5;
 export const COLS = 11;
-/** Seconds per grid column (one slot). */
-const SLOT = 0.55;
+/** How a radio shares the air, by its technology: beams or one wave for the sector, seconds per grid column (one
+ *  slot, slowed down alike: 0.5 ms in 5G, 2 ms in 3G) and who gets each seat. */
+export interface Mode { beams: boolean; slot: number; owner: (slot: number, row: number) => number }
 
 export interface Layout {
   tower: Pt & { size: number };
@@ -38,19 +40,40 @@ export const LAYOUT: Record<Orient, Layout> = {
   },
 };
 
-/** Who got this seat (0..USERS-1) or -1 for free, fixed per slot + row so the grid doesn't flicker. */
-export function owner(slot: number, row: number): number {
+/** A fixed pseudo-random 0..1 per slot + row, so the grid doesn't flicker. */
+function rnd(slot: number, row: number) {
   const h = Math.sin(slot * 12.9898 + row * 78.233) * 43758.5453;
-  const f = h - Math.floor(h);
-  // "you" (the video) gets the most seats
-  return f < 0.45 ? 0 : f < 0.65 ? 1 : f < 0.85 ? 2 : -1;
+  return h - Math.floor(h);
 }
+/** Who gets a share with chance f (0..USERS-1, or -1 for free): "you" (the video) the most. */
+const pick = (f: number) => (f < 0.45 ? 0 : f < 0.65 ? 1 : f < 0.85 ? 2 : -1);
+
+/** 5G: who got this seat, each resource block on its own. */
+export const owner = (slot: number, row: number) => pick(rnd(slot, row));
+/** 3G: a slot's codes go to one phone, now and then a few of them to a second (HSDPA code multiplexing). */
+function shared(slot: number, row: number) {
+  const u = pick(rnd(slot, 0));
+  return u >= 0 && row >= ROWS - 2 && rnd(slot, 1) < 0.3 ? (u + 1) % USERS : u;
+}
+
+export const MODES: Record<string, Mode> = {
+  nr: { beams: true, slot: 0.55, owner },
+  hspa: { beams: false, slot: 2.2, owner: shared },
+};
 
 /** Grid columns at time t: slot number and x offset in columns (they slide left; the grid clips them). The newest
  *  column slides in on the right; the one before it is "now" (being sent). */
-export function columns(t: number) {
-  const s = t / SLOT, now = Math.floor(s), frac = s - now;
+export function columns(t: number, slot: number) {
+  const s = t / slot, now = Math.floor(s), frac = s - now;
   return Array.from({ length: COLS + 1 }, (_, c) => ({ slot: now - COLS + c, dx: c - frac, now: c === COLS - 1 }));
+}
+
+/** One wide wave from the antenna over every phone (a sector), as an SVG path: a wedge just past the furthest. */
+export function sectorPath(a: Pt, phones: (Pt & { size: number })[]): string {
+  const ang = phones.map((p) => Math.atan2(p.y - a.y, p.x - a.x));
+  const r = Math.max(...phones.map((p) => Math.hypot(p.x - a.x, p.y - a.y) + p.size * 0.6));
+  const at = (t: number) => `${Math.round(a.x + r * Math.cos(t))} ${Math.round(a.y + r * Math.sin(t))}`;
+  return `M${a.x} ${a.y} L${at(Math.min(...ang) - 0.14)} A${Math.round(r)} ${Math.round(r)} 0 0 1 ${at(Math.max(...ang) + 0.14)} Z`;
 }
 
 /** A narrow lobe from the antenna to a phone (a beam), as an SVG path. */

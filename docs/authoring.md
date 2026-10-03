@@ -389,11 +389,12 @@ place of that era, and says so.
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
   start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
   Danish. Optionally `away.<place>` (usually nerd only): what there was at a place with no way online in that era,
-  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where people
-  really did this somewhere else in that era but the trip isn't built yet, `instead.<place>` (kid and nerd) replaces
-  "In 2010 you'd have done this at home. You'll travel there." and must say where you'll go itself (2010's
-  `instead.street`: a phone on 3G, "so here's the one at home"). The era texts load with the dive strings, when the
-  panel opens.
+  said when the time machine goes from there to the era's own trip (1995's `away.street`: GSM data). Where the
+  generic line reads wrong, `instead.<place>` (kid and nerd) replaces "In 1995 you'd have done this at home. You'll
+  travel there." and must say where you'll go itself (1995's `instead.desk`: the PC at home sits at a desk too).
+  Where an era has a member of the place's family, `at.<base place>` (`kid`, `nerd`, `describe.kid`/`.nerd`) takes the
+  place of the era's own words in the panel and the arrival (2010's `at.street`: phones on 3G; `at.desk`: a cable to
+  the DSL modem). The era texts load with the dive strings, when the panel opens.
 - Each base place says where it is, `where` ("at home", "on the street"), for the time machine's "In 1995 you'd have
   done this at home." Validation fails on a base place without it.
 - On the places: `era: '<id>'` in `place.ts`. Validation fails on an unknown era (with "did you mean"), on a family
@@ -410,6 +411,14 @@ place of that era, and says so.
   same depth (`"1995": { "sealed": … }`). A `describe` in a block needs both `kid` and `nerd`. Blocks load lazily
   (dives' with the dive strings, the rest as the small chunk of the words of the past), so they cost the first load
   nothing; write them in English and Danish.
+- **An item that only exists in the past** (a place of 2010, a 3G mast, the RNC) keeps only its required, eager
+  keys at the top (`name`, a place's `access`, a device's `yours`) and puts everything else in its era's block
+  (`"2010": { "kid": …, "nerd": …, "stop": { … } }`): it is only ever shown on that era's routes, so its words load
+  with the words of the past and cost the first load nothing.
+- **A dive that serves an older technology too** (`nr-radio` for 5G and 3G): pick the drawing by the technology
+  (or layer) id inside the scene, as `fibre-light` and `tdm-frames` do (a `MODES` table keyed by id), and the words
+  by the scene's era block; take devices and field values from the route (`subject.ctx`, `subject.route`), not from
+  ids. Keep links that name one technology on that technology or layer, not on the shared scene.
 - **An activity or a segment of an era** (#59): `variantOf: '<base>'` and `era: '<id>'` in its definition make it
   stand in for the base on that era's routes (`watch-video-1995`: a web page over plain HTTP, no TLS). It has the
   same place slots as its base and names base segments (the era picks their variants too). It has no locale files:

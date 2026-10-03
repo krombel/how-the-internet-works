@@ -10,5 +10,11 @@
     "street": {
       "nerd": "Out and about in 1995, GSM could carry data: a 9.6 kbit/s circuit-switched call (CSD) from a phone with a cable to a laptop. Far too slow for video."
     }
+  },
+  "instead": {
+    "desk": {
+      "kid": "In 1995 the computer on the desk was a big beige PC, and it went online through the phone line at home. You’ll travel there.",
+      "nerd": "In 1995 a desk meant a beige PC whose modem dialled the ISP over the home phone line. You’ll travel there."
+    }
   }
 }

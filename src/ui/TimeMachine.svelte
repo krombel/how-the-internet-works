@@ -15,9 +15,9 @@
   import type { Loc } from '../model/location';
   import { resolveRoute } from '../model/resolve';
   import { deviceArt, loadEra, loadRouteArt } from '../render/lazy.svelte';
-  import { fill, themeState, tr, trFirst, trl, view } from '../state.svelte';
+  import { fill, themeState, tr, trFirst, view } from '../state.svelte';
   import Icon from './Icon.svelte';
-  import { elsewhere as elsewhereFrom, landing } from './time';
+  import { eraText, elsewhere as elsewhereFrom, landing } from './time';
 
   let { stops, here, at, onpick, onclose }: {
     stops: EraStop[];
@@ -69,11 +69,11 @@
       </div>
       <!-- each era's text, its radio's description (and the picture's, as the scene would say it) -->
       <div hidden>
-        {#each stops as s (s.era)}<p id="time-d-{s.era}">{elsewhere(s)} {trl(`era.${s.era}`)} {trl(`era.${s.era}.describe`)}</p>{/each}
+        {#each stops as s (s.era)}<p id="time-d-{s.era}">{elsewhere(s)} {eraText(s)} {eraText(s, '.describe')}</p>{/each}
       </div>
     </fieldset>
     {#if stop.instead}<p class="instead" aria-hidden="true"><Icon name="time" />{elsewhere(stop)}</p>{/if}
-    {#if !short}<p class="text" aria-hidden="true">{trl(`era.${chosen}`)}</p>{/if}
+    {#if !short}<p class="text" aria-hidden="true">{eraText(stop)}</p>{/if}
     <button type="submit" class="btn go">
       {chosen === here ? tr('time.stay') : fill(tr('time.go'), { era: tr(`era.${chosen}.name`) })}
     </button>

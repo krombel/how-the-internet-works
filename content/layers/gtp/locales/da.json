@@ -8,6 +8,14 @@
     "nerd": "gNB’en pakker telefonens egen IP-pakke ind i IP/UDP/GTP-U (port 2152) til UPF’en; TEID’en angiver telefonens session."
   },
   "line": "GTP-U, {osrc} → {odst}, TEID {teid}",
+  "value": {
+    "flags": "0x34 (v1, GTP, E)",
+    "seqext": "0 · 0 · næste 0x85",
+    "pdu": {
+      "up": "UL, QFI 9",
+      "down": "DL, QFI 9"
+    }
+  },
   "field": {
     "ovhl": {
       "name": "Ydre version, IHL",
@@ -97,6 +105,34 @@
     "pdu": {
       "name": "PDU session container",
       "about": "Pakkens retning og QoS-flow (QFI), svarende til radiosiden."
+    }
+  },
+  "2010": {
+    "note": {
+      "kid": "Radiostyringen putter din pakke ind i en større, adresseret til mobilselskabets port, så nettet kan finde din telefon, uanset hvor du går.",
+      "nerd": "Med Direct Tunnel pakker RNC’en telefonens egen IP-pakke ind i IP/UDP/GTP-U (port 2152) til GGSN’en; TEID’et navngiver telefonens PDP-kontekst."
+    },
+    "value": {
+      "flags": "0x30 (v1, GTP)",
+      "seqext": "ingen (ingen S, PN, E)",
+      "pdu": {
+        "up": "ingen i 3G",
+        "down": "ingen i 3G"
+      }
+    },
+    "field": {
+      "odst": {
+        "about": "Den anden ende: RNC’en på vej ned, GGSN’en på vej op."
+      },
+      "teid": {
+        "about": "Tunnel endpoint ID: hvilken telefons PDP-kontekst det er. Hver ende vælger det TEID, den vil modtage."
+      },
+      "seqext": {
+        "about": "Valgfrie felter; en 3G-brugerpakke har som regel ingen, så headeren er kun 8 byte (tegnet her i dagens størrelse)."
+      },
+      "pdu": {
+        "about": "5G’s QoS-flow-mærke; 3G havde intet: PDP-konteksten bar selv QoS’en."
+      }
     }
   }
 }

@@ -26,22 +26,45 @@ describe('the time machine’s words', () => {
 
   it('lets an era say its own line for where you are, in place of “you’d have done this at home”', () => {
     state.setLang('en'); state.setLevel('kid');
-    expect(time.elsewhere(stop('street', '2010'), 'street')).toBe('In 2010 you could watch on your phone too, over 3G. That trip isn’t built yet, so here’s the one at home.');
-    expect(time.elsewhere(stop('desk', '2010'), 'desk')).toBe('In 2010 you’d have done this at home. You’ll travel there.');
+    // the desk in 1995 lands on the PC at home, which already sits at a desk (#113)
+    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toBe('In 1995 the computer on the desk was a big beige PC, and it went online through the phone line at home. You’ll travel there.');
     state.setLevel('nerd');
-    expect(time.elsewhere(stop('street', '2010'), 'street')).toMatch(/^In 2010 phones watched too, over 3G \(HSPA\).*360p/);
-    expect(time.landing(stop('street', '2010'), 'street')).toMatch(/^It’s 2010\. In 2010 phones watched too/);
+    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toMatch(/^In 1995 a desk meant a beige PC .* You’ll travel there\.$/);
+    expect(time.landing(stop('desk', '1995'), 'desk')).toMatch(/^It’s 1995\. In 1995 a desk meant a beige PC/);
     state.setLang('da'); state.setLevel('kid');
-    expect(time.elsewhere(stop('street', '2010'), 'street')).toMatch(/^I 2010 kunne du også se video på din telefon/);
+    expect(time.elsewhere(stop('desk', '1995'), 'desk')).toMatch(/^I 1995 var computeren på skrivebordet en stor beige pc/);
     state.setLang('en');
+  });
+
+  it('goes to the street’s and the desk’s own 2010, with nothing to explain (#113)', () => {
+    state.setLang('en'); state.setLevel('kid');
+    expect(time.elsewhere(stop('street', '2010'), 'street')).toBe('');
+    expect(time.elsewhere(stop('desk', '2010'), 'desk')).toBe('');
+    expect(time.landing(stop('street', '2010'), 'street')).toBe('It’s 2010.');
+    expect(time.landing(stop('street-2010', 'today'), 'street-2010')).toBe('Back to today.');
+  });
+
+  it('tells each era as it was where its stop is: the street’s 3G, the desk’s cable, else the era’s home', () => {
+    state.setLang('en'); state.setLevel('kid');
+    expect(time.eraText(stop('street', '2010'))).toMatch(/over 3G/);
+    expect(time.eraText(stop('street', '2010'), '.describe')).toMatch(/^A phone with one round button/);
+    expect(time.eraText(stop('desk', '2010'))).toMatch(/a cable ran from the laptop/);
+    expect(time.eraText(stop('home', '2010'))).toMatch(/sent Wi‑Fi to every room/);
+    expect(time.eraText(stop('street', '1995'))).toBe(time.eraText(stop('home', '1995')));
+    expect(time.eraText(stop('street', 'today'))).toMatch(/5G/);
+    // only the picture differs at the desk today
+    expect(time.eraText(stop('desk', 'today'))).toBe(time.eraText(stop('home', 'today')));
+    expect(time.eraText(stop('desk', 'today'), '.describe')).toMatch(/^A laptop on the desk/);
+    state.setLang('da'); state.setLevel('nerd');
+    expect(time.eraText(stop('street', '2010'))).toMatch(/^3G med HSPA/);
+    state.setLang('en'); state.setLevel('kid');
   });
 
   it('says the era first on landing, and why you are somewhere else', () => {
     state.setLang('en');
     expect(time.landing(stop('home', '1995'), 'home')).toBe('It’s 1995.');
     expect(time.landing(stop('home-dialup', 'today'), 'home-dialup')).toBe('Back to today.');
-    expect(time.landing(stop('desk', '2010'), 'desk')).toBe('It’s 2010. In 2010 you’d have done this at home.');
-    expect(time.landing(stop('street', '2010'), 'street')).toBe('It’s 2010. In 2010 you could watch on your phone too, over 3G. That trip isn’t built yet, so here’s the one at home.');
+    expect(time.landing(stop('street', '1995'), 'street')).toBe('It’s 1995. In 1995 you’d have done this at home.');
     state.setLang('da');
     expect(time.landing(stop('street', '1995'), 'street')).toBe('Nu er det 1995. I 1995 havde du gjort det derhjemme.');
     state.setLang('en');
