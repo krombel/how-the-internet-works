@@ -501,8 +501,7 @@ async function a11y(style) {
     await ctx.close();
   }
   // 3. journeys: focus comes back after "What can I explore?", a door, a catch, letting go, the picker, folding the
-  //    caption away and the time
-  //    machine
+  //    caption away and the time machine
   const { ctx, p } = await open('desktop', url(style, 'en', 'home/watch-video'));
   await still(p);
   const check = async (step) => { const bad = await p.evaluate(focusProblem); if (bad) fail(`journey: ${step}`, bad); };
