@@ -1014,5 +1014,7 @@ Made while building #147 (on the go in 1995):
 - **Accessibility run**: the time machine's journey from the street now lands on `street-1995/phone~tcp`, saying
   "It's 1995." with no line; the street-1995 overview, internet, GSM, Abis and trunk dives are in the label-contrast
   and path-label scenes.
-- **Eager JS: +0.78 kB gz** (100.87 against 100.09 on main, index.html's static imports gzipped), against the ~0.8 kB
+- **Eager JS: +0.77 kB gz** (100.87 against 100.10 on main, index.html's static imports gzipped), against the ~0.8 kB
   estimate.
+- **`tdm-frames` on a phone**: the ends' names stay inside the frame (the trunk's "Telephone exchange" on the right
+  ran off it), and the line's name sits higher, clear of the mast, the tallest end; the PRI and E1 dives move with it.
