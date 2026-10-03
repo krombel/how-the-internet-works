@@ -204,6 +204,9 @@ export const place = segment.extend({
   /** When this way of getting online belongs (issue #59): the time machine switches among a place and its variants
    *  by era. Either every member of a family has one or none does. */
   era: id.optional(),
+  /** A base place's picture in "Where are you?": a node of kind `place` whose art stands for it (the house). Its
+   *  variants show it too. */
+  picture: id.optional(),
 });
 /** An era (1995, 2010, today): a time the time machine can visit. Its strings are its name, kid and nerd (what
  *  getting online was like then) and a describe (what the time machine's picture of it shows). */

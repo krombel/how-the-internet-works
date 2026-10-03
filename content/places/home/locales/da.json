@@ -1,7 +1,7 @@
 {
   "name": "Hjemme",
   "where": "derhjemme",
-  "access": "Fiber til huset",
+  "access": "Wi‑Fi · fiber",
   "kid": "Små pakker med data suser gennem luften, ned ad et kabel og langs en glastråd ud til internettet – og videoen kommer tilbage samme vej!",
   "nerd": "Hjemme forlader pakkerne telefonen via 802.11-Wi-Fi, bliver brokoblet over på Ethernet i adgangspunktet, NAT-oversat af hjemmerouteren og sendt videre over en fiberforbindelse til internetudbyderen.",
   "describe": {

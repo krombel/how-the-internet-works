@@ -1,6 +1,6 @@
 {
   "name": "Hjemme, i en lejlighed",
-  "access": "Fiber til bygningen",
+  "access": "I en lejlighed",
   "kid": "Pakkerne suser gennem luften til wi-fi-boksen, ad et kabel til routeren og så ned ad trappen til kælderen. Derfra tager en glastråd dem til internettet – og videoen kommer tilbage samme vej!",
   "nerd": "En boligblok med fiber til bygningen: Wi‑Fi broet til Ethernet i access pointet, NAT i lejlighedens router, Ethernet ned gennem stigrøret til udbyderens switch i kælderen og derefter en punkt-til-punkt-fiber til udbyderens aggregering.",
   "describe": {

@@ -1,8 +1,10 @@
 import { definePlace } from '$core/define';
 
-// Out on the street: the phone on 5G, a cell tower up the road, and the mobile operator's core network.
+// On the go: the phone on 5G out on the street, a cell tower up the road, and the mobile operator's core network.
 export default definePlace({
   order: 2,
+  // its picture in "Where are you?": a phone on the move
+  picture: 'on-the-go',
   era: 'today',
   hops: [
     { at: 'phone', addr: '100.64.12.7' },

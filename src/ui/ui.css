@@ -280,6 +280,8 @@ button { cursor: pointer; }
 .picker h2 { margin: 6px 0 10px; flex: 1; font-family: var(--heading-font); font-weight: var(--heading-weight); font-size: 20px; color: var(--heading);
   text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
 .picker .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+/* "Where are you?": a few big choices that share the row (at home, on the go) */
+.picker .options.places { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 .picker .option { flex-direction: column; gap: 4px; padding: 10px 8px 12px; border-radius: 18px; font-size: 16px; font-weight: 800;
   border: 3px solid transparent; }
 .picker .option.wide { flex-direction: row; grid-column: span 2; }

@@ -1,6 +1,6 @@
 {
-  "name": "At the desk, on the phone line",
-  "access": "Phone line (DSL)",
+  "name": "At home, at the desk",
+  "access": "Laptop on a cable",
   "2010": {
     "kid": "The laptop sends its parcels down a cable to the router. The router’s modem sings them along the old copper phone line as tiny tones, to a box on your street.",
     "nerd": "Wired, around 2010: Ethernet from the laptop to a DSL modem-router, which NATs the packets and sends them as VDSL2 tones on the copper phone pair to a DSLAM in the street cabinet, then fibre to the ISP.",

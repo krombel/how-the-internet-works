@@ -214,7 +214,7 @@ const A11Y_STATES = [
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
-  // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose street and desk say they are at home
+  // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose "On the go" says it is at home
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
   { name: 'picker-1995', where: 'home-dialup/watch-video', q: '&level=nerd', picker: true, views: ['phone', 'short'] },
   { name: 'dialup', where: 'home-dialup/watch-video/pc-internet', views: ['desktop', 'phone', 'short'] },

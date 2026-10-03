@@ -1,15 +1,11 @@
 // The place picker's choices (PlacePicker.svelte): its places and ways online in the era you are in, and one picture
-// per place, loaded before the picker opens (#91).
+// per place family, loaded before the picker opens (#91).
 import { eraStops, type EraStop } from '../model/era';
 import { basePlace, content as defaultContent, eraOf, placeFamily, placeIds, type Content } from '../model/registry';
 
-/** A place's picture: the first device after the start (Wi-Fi box, cell tower, …). */
-export const iconOf = (id: string) => {
-  const hops = defaultContent.places[id].hops.filter((h) => 'at' in h) as { at: string; node?: string }[];
-  const h = hops[1] ?? hops[0];
-  return h.node ?? h.at;
-};
-/** Every picture the picker may show (one per place). */
+/** A place's picture: its base place's `picture`, a node that stands for it (the house). */
+export const iconOf = (id: string) => defaultContent.places[basePlace(id)].picture!;
+/** Every picture the picker may show (one per place family). */
 export const pictures = () => [...new Set(Object.keys(defaultContent.places).map(iconOf))];
 
 /** The places an activity's slot may be (all, unless the slot says `only`), in order. */

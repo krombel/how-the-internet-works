@@ -1,8 +1,10 @@
 import { definePlace } from '$core/define';
 
-// At the desk at home: a laptop on a network cable straight into the home router, then the same fibre as at home.
+// At home, at the desk: a laptop on a network cable straight into the home router, then the same fibre as at home.
+// Another way online from home, so "How do you get online?" lists it beside the phone on Wi-Fi and the flat.
 export default definePlace({
-  order: 3,
+  variantOf: 'home',
+  order: 1.1,
   era: 'today',
   hops: [
     { at: 'laptop', addr: '192.168.1.40' },

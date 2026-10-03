@@ -15,7 +15,7 @@
         "nerd": "En smartphone fra 2010 på HSPA (3G) til en NodeB, med RNC’en og GGSN’en bagved."
       }
     },
-    "desk": {
+    "desk-2010": {
       "kid": "Telefonlinjen bar internet og telefonsamtaler på samme tid, som toner for høje til at høre. Ved skrivebordet gik et kabel fra den bærbare til kassen med modemmet indeni.",
       "nerd": "DSL: ADSL2+ og siden VDSL2 fra gadeskabe, fra nogle få til flere titals Mbit/s på kobberparret. Den bærbare har et 100 Mbit/s Ethernet-kabel til modemrouteren, der laver NAT.",
       "describe": {
