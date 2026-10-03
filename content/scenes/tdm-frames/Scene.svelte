@@ -1,12 +1,13 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   // A 1990s digital line (tdm.ts): frames of 8-bit timeslots, 8,000 a second each way, run along the wire between its
-  // two ends. One card lays a frame out slot by slot (an ISDN PRI's callers, a leased E1's one pipe, a T1's 24 slots);
-  // the other shows the bits as pulses on the copper, ones alternating up and down.
+  // two ends. One card lays a frame out slot by slot (an ISDN PRI's callers, a leased E1's one pipe, a T1's 24 slots,
+  // a GSM trunk's calls and SS7, the mast's line's calls in quarters); the other shows the bits as pulses on the copper,
+  // ones alternating up and down.
   import { Node, Text, legibleSize, nameOf, strings, view, type LinkSubject } from '$core/api';
   import Card from '../copper-pulses/art/Card.svelte';
   import Slots from './art/Slots.svelte';
-  import { lineCode, modeOf, pulsePath, slotsOf, train, type Kind } from './tdm';
+  import { lineCode, modeOf, pulsePath, quartersOf, slotsOf, train, type Kind, type Mode } from './tdm';
 
   let { subject }: { subject: LinkSubject } = $props();
   const S = strings('scene.tdm-frames');
@@ -26,9 +27,18 @@
   const FILL: Record<Kind, string> = { sync: 'var(--sun)', signal: 'var(--teal)', yours: '', other: 'var(--sky)', idle: 'var(--paper-2)', pipe: '' };
   const fillOf = (k: Kind) => FILL[k] || colour;
   const fills = $derived(kinds.map(fillOf));
-  /** The slots worth naming on the grid (nerd): frame sync, the D channel, your call's slot. */
-  const labels = $derived(nerd ? kinds.map((k, i) => (k === 'sync' ? (mode === 't1' ? 'F' : '0') : k === 'signal' ? 'D' : k === 'yours' ? String(i) : '')) : []);
-  const legend = $derived([...new Set(kinds)].map((k) => ({ k, key: k === 'sync' && mode === 't1' ? 'fbit' : k === 'pipe' && mode === 't1' ? 'pipeT1' : k })));
+  const quarters = $derived(quartersOf(mode).map((q) => q && q.map(fillOf)));
+  /** The signalling slot's letter on the grid: the D channel, SS7, the mast's LAPD. */
+  const SIGNAL: Partial<Record<Mode, string>> = { trunk: 'S', abis: 'L' };
+  /** The slots worth naming on the grid (nerd): frame sync, the signalling, your call's slot. */
+  const labels = $derived(nerd ? kinds.map((k, i) => (k === 'sync' ? (mode === 't1' ? 'F' : '0') : k === 'signal' ? (SIGNAL[mode] ?? 'D') : k === 'yours' ? String(i) : '')) : []);
+  /** The legend's words where a line names a slot its own way. */
+  const KEY: Partial<Record<Mode, Partial<Record<Kind, string>>>> = {
+    t1: { sync: 'fbit', pipe: 'pipeT1' },
+    trunk: { signal: 'ss7', yours: 'circuit', other: 'circuits' },
+    abis: { signal: 'lapd', yours: 'quarter', other: 'quarters' },
+  };
+  const legend = $derived([...new Set(kinds)].map((k) => ({ k, key: KEY[mode]?.[k] ?? k })));
   const cols = $derived(mode === 't1' ? 7 : 8);
   const rows = $derived(Math.ceil(kinds.length / cols));
 
@@ -91,7 +101,7 @@
 <!-- one frame, slot by slot -->
 <Card x={A.x} y={A.y} w={A.w} h={A.h} tint="var(--sun)" />
 <text x={A.x + A.w / 2} y={A.y + 42} text-anchor="middle" font-size={fs(L.head)} font-weight="900" stroke="var(--paper)" stroke-width="6" paint-order="stroke" font-family="var(--label-font)" fill="var(--line)">{S('frameTitle')}</text>
-<Slots x={A.x + 30} y={A.y + 66} {cell} {cols} {fills} {labels} {sweep} size={cell * 0.42} />
+<Slots x={A.x + 30} y={A.y + 66} {cell} {cols} {fills} {quarters} {labels} {sweep} size={cell * 0.42} />
 {#each legend as l, i (l.k)}
   {@const r = fs(L.row)}
   {@const y = A.y + 84 + i * r * 1.7}
