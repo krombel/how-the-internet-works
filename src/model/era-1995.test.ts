@@ -1,10 +1,11 @@
-// The 1995 trip (#59, steps 6 and 7): the maths of its new dives, the way it goes, the server room at its end, and that
-// nothing it says belongs to a later internet (review panel F14–F16: MPLS, 100–400G, coherent optics, leaf–spine and
-// CDNs reached from 1995).
+// The 1995 trips (#59, steps 6 and 7; on the go, #147): the maths of their new dives, the way they go, the server room
+// at their end, and that nothing they say belongs to a later internet (review panel F14–F16: MPLS, 100–400G, coherent
+// optics, leaf–spine and CDNs reached from 1995; on the go: GSM's circuit-switched data, never GPRS or 3G).
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { CELL, PACKET, cellsFor, cellsOnLine, lineBytes, overhead } from '../../content/scenes/atm-cells/atm';
-import { FRAME_S, lineCode, lineRate, modeOf, pulsePath, slotsOf, train } from '../../content/scenes/tdm-frames/tdm';
+import { FRAME_S, QUARTER, lineCode, lineRate, modeOf, pulsePath, quartersOf, slotsOf, train } from '../../content/scenes/tdm-frames/tdm';
+import { FRAME, MODES, ROWS, USERS } from '../../content/scenes/nr-radio/radio';
 import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from '../../content/scenes/copper-pulses/copper';
 import { WORLD_SIZE, bezier } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
@@ -37,6 +38,26 @@ describe('timeslots (tdm-frames)', () => {
     expect(modeOf('t1')).toBe('t1');
     expect(modeOf('pri')).toBe('pri');
     expect(modeOf('submarine-sdh')).toBe('e1');
+  });
+
+  it('frames the GSM network’s E1s (#147): a trunk like a PRI with SS7, the mast’s line in quarter-slots', () => {
+    expect(modeOf('trunk')).toBe('trunk');
+    expect(modeOf('abis')).toBe('abis');
+    const trunk = slotsOf('trunk');
+    expect(trunk).toEqual(slotsOf('pri'));
+    expect(quartersOf('trunk').every((q) => q === null)).toBe(true);
+    const abis = slotsOf('abis');
+    expect(abis[0]).toBe('sync');
+    // the mast's signalling (LAPD) in slot 1, and slot 16 a slot of calls like any other
+    expect(abis[1]).toBe('signal');
+    expect(abis.filter((k) => k === 'signal')).toHaveLength(1);
+    expect(abis[16]).toBe('other');
+    // four 16 kbit/s calls to a slot of calls, one of them yours; whole slots everywhere else
+    const q = quartersOf('abis');
+    abis.forEach((k, i) => expect(q[i]?.length ?? 0, `slot ${i}`).toBe(k === 'yours' || k === 'other' ? 4 : 0));
+    const yours = q.flatMap((s, i) => (s ?? []).map((k, j) => [i, j, k] as const)).filter(([, , k]) => k === 'yours');
+    expect(yours).toEqual([[abis.indexOf('yours'), QUARTER, 'yours']]);
+    expect(lineRate('abis')).toBe(2.048e6);
   });
 
   it('keeps a train of frames on its wire, slot 0 leading', () => {
@@ -125,6 +146,32 @@ describe('10BASE-T (copper-pulses in 1995)', () => {
   });
 });
 
+describe('a GSM data call on the air (nr-radio in 1995, #147)', () => {
+  it('keeps each call’s seat in every 8-slot frame, sent or not, and gives it nobody else', () => {
+    const { gsm } = MODES;
+    expect(gsm.beams).toBe(false);
+    const seats = (u: number) => {
+      const out: [number, number][] = [];
+      for (let slot = 0; slot < FRAME * 4; slot++) for (let row = 0; row < ROWS; row++) if (gsm.owner(slot, row) === u) out.push([row, slot]);
+      return out;
+    };
+    for (let u = 0; u < USERS; u++) {
+      const s = seats(u);
+      // once a frame, on one carrier, in the same slot of every frame
+      expect(s).toHaveLength(4);
+      expect(new Set(s.map(([r]) => r)).size).toBe(1);
+      expect(new Set(s.map(([, t]) => t % FRAME)).size).toBe(1);
+      for (let k = 1; k < s.length; k++) expect(s[k][1] - s[k - 1][1]).toBe(FRAME);
+    }
+    // you (user 0) talk in slot 3 on the middle carrier; the rest of the grid is free (-1)
+    expect(seats(0)[0]).toEqual([2, 3]);
+    expect(gsm.owner(-5, 2)).toBe(0);
+    let free = 0;
+    for (let slot = 0; slot < FRAME; slot++) for (let row = 0; row < ROWS; row++) if (gsm.owner(slot, row) < 0) free++;
+    expect(free).toBe(FRAME * ROWS - USERS);
+  });
+});
+
 describe('inside the 1995 web server (server-inside, tower mode)', () => {
   let server: typeof Server;
   beforeAll(async () => {
@@ -180,13 +227,21 @@ describe('inside the 1995 web server (server-inside, tower mode)', () => {
 
 describe('the 1995 trip', () => {
   beforeAll(loadAllPacks);
-  const trips = () => activityIds().map((activity) => resolveRoute({ activity, places: ['home-dialup'] }));
+  // every 1995 place (the PC at home, and on the go a laptop on a GSM call, #147), for every activity
+  const places = () => Object.keys(content.places).filter((p) => content.places[p].era === '1995');
+  const trips = () => places().flatMap((place) => activityIds().map((activity) => resolveRoute({ activity, places: [place] })));
+  /** How each 1995 place reaches the ISP's modem bank. */
+  const CALL: Record<string, string[]> = {
+    'home-dialup': ['dialup/ppp', 'pri/ppp'],
+    'street-1995': ['gsm/ppp', 'abis/ppp', 'abis/ppp', 'trunk/ppp', 'pri/ppp'],
+  };
 
   it('dials, then rides timeslots, a sea cable and ATM to the server room', () => {
+    expect(places().sort()).toEqual(Object.keys(CALL).sort());
     for (const r of trips()) {
       expect(r.era).toBe('1995');
-      const way = r.links.map((l) => `${l.tech.id}/${l.stack.join('+')}`);
-      expect(way.slice(0, 7)).toEqual(['dialup/ppp', 'pri/ppp', 'ethernet/ethernet', 'e1/hdlc', 'submarine-sdh/hdlc', 'atm/atm', 't1/hdlc']);
+      const way = r.links.map((l) => `${l.tech.id}/${l.stack.join('+')}`), call = CALL[r.slots[0].place];
+      expect(way.slice(0, call.length + 5)).toEqual([...call, 'ethernet/ethernet', 'e1/hdlc', 'submarine-sdh/hdlc', 'atm/atm', 't1/hdlc']);
       expect(r.asides.map((a) => `${a.link.id}/${a.link.tech.id}`)).toContain('core-ixp/e1');
       const steps = scenes(r).map((s) => s.path.at(-1));
       // the layers' own dives: HDLC at the ISP's router, ATM at the backbone's
@@ -213,8 +268,27 @@ describe('the 1995 trip', () => {
     }
   });
 
+  it('is a phone call all the way to the ISP’s modems: nothing on the way has an address or reads IP (#147)', () => {
+    for (const r of trips()) {
+      const upTo = r.chain.findIndex((h) => h.node.id === 'modem-bank');
+      expect(upTo).toBeGreaterThan(0);
+      // the PC's or the laptop's address comes from the ISP over PPP; every device between is a bridge for the call
+      for (const h of r.chain.slice(1, upTo)) {
+        expect(h.addr, `${r.slots[0].place} ${h.id}`).toBeUndefined();
+        expect(h.role, `${r.slots[0].place} ${h.id}`).toBe('bridge');
+      }
+      expect(r.links.slice(0, upTo).every((l) => l.stack.join('+') === 'ppp')).toBe(true);
+    }
+    const gsm = resolveRoute({ activity: 'watch-video', places: ['street-1995'] });
+    expect(gsm.chain.slice(0, 6).map((h) => `${h.id}:${h.node.id}`)).toEqual(['phone:laptop-gsm', 'cell-tower:bts', 'bsc:bsc', 'mobile-core:msc', 'exchange:exchange', 'bng:modem-bank']);
+    // 9.6 kbit/s each way on the air: a third of the PC's modem at home
+    expect(gsm.links[0].rate).toEqual({ down: 9600, up: 9600 });
+    expect(scenes(gsm).find((s) => s.path.join('/') === 'phone-cell-tower')?.dive).toBe('nr-radio');
+    expect(scenes(gsm).filter((s) => s.dive === 'tdm-frames').map((s) => s.path.at(-1))).toEqual(expect.arrayContaining(['cell-tower-bsc', 'mobile-core-exchange', 'exchange-bng']));
+  });
+
   it('runs the phone line from the PC through the modem to the socket on the wall, then out (#137)', () => {
-    const r = trips()[0];
+    const r = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
     for (const o of ['landscape', 'portrait'] as const) {
       const line = pathScene(r, null, o).links.find((l) => l.from === 'pc')!, spots = propSpots(content.places['home-dialup'], o);
       // where along the line (0 at the PC, 1 at the internet) each one is, and how far off it
@@ -232,12 +306,14 @@ describe('the 1995 trip', () => {
 
   it('says nothing of a later internet, unless it says when (review panel F14–F16, #164)', () => {
     const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit/i;
+    // and on the go (#147): GSM's circuit-switched data only, no packet radio
+    const MOBILE = /\b(GPRS|EDGE|HSCSD|HSPA|SGSN|GGSN|GTP|UMTS|[345]G|LTE|NR)\b/;
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;
     // walked, but never shown in 1995: the cache's rooms (1995's server is drawn as a tower: a card, the computer and
     // a disk) and gigabit's PAM-5 card (1995's copper is 10BASE-T's Manchester)
     const UNSHOWN = ['scene.server-inside.ssd.title', 'scene.copper-pulses.tag.speedShort'];
     const bad = new Map<string, string>();
-    for (const r of trips()) for (const [key, s] of routeWords(r)) if (LATER.test(s) && !SAYS_WHEN.test(s)) bad.set(key, s);
+    for (const r of trips()) for (const [key, s] of routeWords(r)) if ((LATER.test(s) || MOBILE.test(s)) && !SAYS_WHEN.test(s)) bad.set(key, s);
     const keyOf = (k: string) => k.split(' ')[2];
     expect([...bad].filter(([k]) => !UNSHOWN.includes(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
     // each excuse still holds: drop an entry once it no longer leaks

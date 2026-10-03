@@ -1,14 +1,15 @@
 // The 5G dive's maths (style-agnostic): where things sit per orientation, the beams from the tower's antenna panel to
 // each phone, and a scheduler that hands out seats in a time × frequency grid (OFDMA resource blocks, slowed down a
 // million times: one column here is one 0.5 ms slot). 3G (HSPA) shares the air differently: one wave over the whole
-// sector, and a grid of spreading codes × 2 ms slots, each slot's codes mostly one phone's.
+// sector, and a grid of spreading codes × 2 ms slots, each slot's codes mostly one phone's. GSM's data call (1995) is a
+// circuit: one wave too, and a grid of carriers × time slots in which each call keeps one seat of every 8-slot frame.
 import type { Orient, Pt } from '$core/api';
 
 export const USERS = 3;
 export const ROWS = 5;
 export const COLS = 11;
 /** How a radio shares the air, by its technology: beams or one wave for the sector, seconds per grid column (one
- *  slot, slowed down alike: 0.5 ms in 5G, 2 ms in 3G) and who gets each seat. */
+ *  slot, slowed down alike: 0.5 ms in 5G, 2 ms in 3G, 0.577 ms in GSM) and who gets each seat. */
 export interface Mode { beams: boolean; slot: number; owner: (slot: number, row: number) => number }
 
 export interface Layout {
@@ -56,9 +57,18 @@ function shared(slot: number, row: number) {
   return u >= 0 && row >= ROWS - 2 && rnd(slot, 1) < 0.3 ? (u + 1) % USERS : u;
 }
 
+/** GSM's TDMA frame: 8 time slots on each carrier. */
+export const FRAME = 8;
+/** Each call's seat, [carrier row, slot of the frame]: you, and two neighbours. */
+const CALLS: [number, number][] = [[2, 3], [3, 6], [0, 1]];
+/** GSM: a call has its seat for as long as it lasts, whether it sends or not, and nobody else gets it. */
+const circuit = (slot: number, row: number) =>
+  CALLS.findIndex(([r, s]) => r === row && s === ((slot % FRAME) + FRAME) % FRAME);
+
 export const MODES: Record<string, Mode> = {
   nr: { beams: true, slot: 0.55, owner },
   hspa: { beams: false, slot: 2.2, owner: shared },
+  gsm: { beams: false, slot: 0.45, owner: circuit },
 };
 
 /** Grid columns while slot `at` (the time in slots, floored) slides in on the right: slot number and column from the

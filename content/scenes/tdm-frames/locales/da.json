@@ -33,6 +33,24 @@
       "nerd": "To routere på en lejet T1. Det ene kort viser rammen: rammebitten og 24 tidsluker samlet til 1,536 Mbit/s. Det andet viser AMI-pulser på kobberet."
     }
   },
+  "abis": {
+    "title": "Fire opkald i hver kasse",
+    "kid": "Fra masten til mobilselskabets central er et GSM-opkald så lille, at fire af dem deler én kasse i hver række: hvert opkald har sin egen fjerdedel, række efter række, så længe det varer. En anden kasse bærer mastens beskeder.",
+    "nerd": "Abis og Ater på en E1: 32 tidsluker × 64 kbit/s. Luke 0 er rammesynkronisering, luke 1 BTS’ens signalering (LAPD); hver trafikluke bærer fire delluker à 16 kbit/s, én GSM-kanal hver. Dit dataopkald er en fjerdedel af luke 7: 12 kbit/s RLP-rammer plus rammer, tilpasset i TRAU’en til en hel luke på 64 kbit/s til MSC’en.",
+    "describe": {
+      "kid": "Masten og styreboksen (eller styreboksen og mobilcentralen), forbundet af en linje fuld af rækker af kasser. Det ene kort viser en række: en gul kasse til takten, en blågrøn til beskeder og kasser delt i fire, hvor en fjerdedel af én kasse er din. Det andet kort viser linjen gå op og ned.",
+      "nerd": "To ender af en Abis- eller Ater-E1. Det ene kort viser de 32 tidsluker: 0 til synkronisering, 1 til LAPD og trafikluker delt i fire delluker à 16 kbit/s, dit opkald i en fjerdedel af luke 7, nogle ledige. Det andet viser HDB3 på kobberet."
+    }
+  },
+  "trunk": {
+    "title": "Tredive opkald mellem to centraler",
+    "kid": "Mobilselskabets central og telefonselskabets central deler en stor linje med 30 opkald: hvert opkald har sin egen kasse i hver række. Din bærbares opkald er et af dem og bipper som et modem. Én kasse bærer centralernes beskeder: et nyt opkald, et læg-på.",
+    "nerd": "En E1-trunk mellem MSC’en og telefonnettet: 32 tidsluker × 64 kbit/s. Luke 0 er rammesynkronisering, luke 16 bærer SS7 (ISUP sætter hvert kredsløb op og ned), og de andre 30 er opkald i A-law PCM. Dit kredsløb bærer IWF’ens V.32-modemtoner, 9,6 kbit/s i en luke på 64 kbit/s.",
+    "describe": {
+      "kid": "Mobilcentralen og telefoncentralen, forbundet af en linje fuld af rækker af kasser. Det ene kort viser en række: en gul kasse til takten, en blågrøn til beskeder, dit opkalds kasse og de andres kasser. Det andet kort viser linjen gå op og ned.",
+      "nerd": "MSC’en og centralen udveksler E1-rammer på en trunk. Det ene kort viser de 32 tidsluker: 0 til synkronisering, 16 til SS7, luke 7 dit kredsløb og resten andre kredsløb, nogle ledige. Det andet viser HDB3 på kobberet."
+    }
+  },
   "wire": {
     "kid": "En række kasser, 8.000 gange i sekundet",
     "nerd": "Én ramme hver 125 µs, hver vej"
@@ -73,6 +91,30 @@
     "pipeT1": {
       "kid": "Ét rør",
       "nerd": "1–24: én kanal"
+    },
+    "ss7": {
+      "kid": "Beskeder",
+      "nerd": "16: SS7"
+    },
+    "circuit": {
+      "kid": "Dit opkald",
+      "nerd": "Dit kredsløb"
+    },
+    "circuits": {
+      "kid": "Andre opkald",
+      "nerd": "Andre kredsløb"
+    },
+    "lapd": {
+      "kid": "Mastens beskeder",
+      "nerd": "1: LAPD"
+    },
+    "quarter": {
+      "kid": "Dit opkald: en fjerdedel",
+      "nerd": "Din 16k-delluke"
+    },
+    "quarters": {
+      "kid": "Opkald, fire pr. kasse",
+      "nerd": "16k-delluker"
     }
   },
   "sum": {

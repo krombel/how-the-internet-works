@@ -47,9 +47,9 @@
     {#each options as o (o.id)}
       {@const icon = iconOf(o.id)}
       {@const art = deviceArt(icon)}
-      {@const line = o.instead && elsewhere?.(o.instead, o.id, o.to !== here, false)}
+      {@const line = o.instead && elsewhere?.(o.instead, o.to !== here)}
       <button class="btn option" class:on={o.on} aria-pressed={o.on} aria-describedby={line ? `pick-i-${o.id}` : undefined}
-        onclick={() => onpick({ places: placesWith(o.to), said: o.instead ? elsewhere?.(o.instead, o.id, false) : undefined })}
+        onclick={() => onpick({ places: placesWith(o.to), said: o.instead ? elsewhere?.(o.instead, false) : undefined })}
         onpointerenter={() => ahead(o.to)} onfocus={() => ahead(o.to)}>
         <svg viewBox="0 0 200 200" aria-hidden="true">
           <A.Device id={icon} Art={art.Art} face={art.face} pending={art.pending} x={100} y={100} size={190} time={view.time} context="dive" focused={false} />
