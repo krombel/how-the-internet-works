@@ -27,7 +27,6 @@ export default defineActivity({
   },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Streaming_media', title: 'Streaming media', level: 'both', lang: 'en' },
-    { url: 'https://en.wikipedia.org/wiki/Adaptive_bitrate_streaming', title: 'Adaptive bitrate streaming', level: 'both', lang: 'en' },
     { url: 'https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP', title: 'MPEG-DASH', level: 'nerd', lang: 'en' },
   ],
 });

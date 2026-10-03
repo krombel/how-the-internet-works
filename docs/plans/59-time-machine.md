@@ -169,7 +169,7 @@ and the top bar shows it.
 | URL | Is |
 |---|---|
 | `#/en/home-dialup/watch-video` | 1995: the PC, dial-up, "open a web page" |
-| `#/en/home-dialup/watch-video/internet/datacentre` | the 1995 server room (same steps as today's data centre) |
+| `#/en/home-dialup/watch-video/internet/datacentre` | the 1995 server room (its router, a hub, the web server; the server keeps today's id, `cdn`, so `…/datacentre/cdn` is its dive in every era) |
 | `#/en/home-dsl/watch-video/internet/datacentre/spine` | 2010: inside the aggregation switch (three-tier) |
 | `#/en/home/watch-video/phone~tcp` → 1995 | `#/en/home-dialup/watch-video/pc~tcp` (the counterpart rule) |
 | `#/en/street/watch-video` → 1995 | `#/en/home-dialup/watch-video` (no street trip then; said so) |
@@ -300,6 +300,12 @@ watch it"). The base activity `watch-video` is today's.
   and Facebook's fabric (2014) for leaf–spine. AS counts: bgp.potaroo.net and cidr-report.org (October 1996: 1,644
   ASes in the table, the earliest series; 2010: about 33,000–36,000; October 2026: about 79,500), so 1995 says "under
   1,700", 2010 "about 35,000" and today "about 80,000".
+- 1995's server room (step 7, checked 2026-10-04): Wikipedia, *NCSA HTTPd* (the most used web server in 1995) and
+  *Apache HTTP Server* (first release April 1995; ahead of NCSA from April 1996); Netcraft, *Web Server Survey*
+  (August 1995: 18,957 sites, NCSA about 57 %); Wikipedia, *Ethernet hub* (a layer-1 repeater, one collision domain,
+  replaced by switches in the late 1990s), *10BASE-T* and IEEE 802.3i (Manchester, 10 Mbit/s, half duplex on a hub),
+  *Web server*, *Web hosting service* and *Server room*; RFC 1945 (HTTP/1.0, 1996, as used since 1992–93: no Host
+  header needed) and RFC 2068 (HTTP/1.1, 1997, which made Host required); Wikipedia, *Akamai Technologies* (1998–99).
 - BBSes and FidoNet: Wikipedia, *Bulletin board system* and *FidoNet* (1984, nightly mail hour); textfiles.com, *BBS
   documentary*. IRC: Wikipedia, *IRC* (Jarkko Oikarinen, Finland, 1988). Messengers: Wikipedia, *MSN Messenger*,
   *Skype*, *Signal Protocol*.
@@ -431,7 +437,7 @@ eager in all**.
 | 4. The street and the desk in 2010 (#113) | ~0.4 kB (a 2010 street place and segment with layouts, a 3G technology, English strings); built: +0.8 kB (two places, four nodes, a technology and a layer, their names, and the art loader's entries) | the places' and new nodes' words (their era blocks, in `virtual:past-strings`); the 3G modes of `nr-radio` and `nr-grant` (their chunks) |
 | 5. How long it takes | ~0.3 kB (rates, sizes, bottleneck, `Intl.NumberFormat` units); built: +1.0 kB (`speed.ts` and the caption's line ~0.58, the rates and the English `takes` words ~0.33, the icon and the pace's wiring ~0.11) | the past's `takes` words (their era blocks, in `virtual:past-strings`) |
 | 6. 1995: the internet | ~1.0 kB (segment + layouts ~0.3, five technologies, a layer and an owner ~0.2, English strings ~0.3, `modem-bank` art ~0.2, or ~0 after #91) | `tdm-frames` and `atm-cells` dives |
-| 7. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91) | `server-inside`'s 1995 mode (its chunk) |
+| 7. 1995: the server room | ~0.7 kB (strings ~0.3, `server-room` art + backdrop and `web-server` art ~0.4, or ~0.05 after #91); built: +0.43 kB (three devices' definitions and names, the segment variant and its layouts, the art loader's four entries) | `server-inside`'s 1995 mode (its chunk); `http-chunk`'s page mode |
 | 8. 2010: the data centre | ~0.5 kB (activity variant layouts, strings, `aggregation` art ~0.2 or ~0 after #91) | `three-tier` dive |
 | 9. The picker and eras | ~0.1 kB | |
 | 10. 1985 | ~0.6 kB (no-IP flows, route without groups, content) | `xmodem-blocks` dive |
@@ -504,7 +510,7 @@ Each is small, leaves main working and says "Part of #59".
    backbone (`atm`), a `t1` to the server room; the `tdm-frames` dive (with `modem-call`'s slot card shared) and the
    `atm` layer with `atm-cells`; 1995 strings for `fibre-light` and `copper-pulses`; owners' words; describes. If it
    grows past one review, split off `atm` and `atm-cells` (the backbone drawn as an `e1`-like circuit until then).
-7. **1995: the server room.** The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
+7. **1995: the server room** (built). The `server-room` group node and backdrop, the hub, the tower `web-server` and the 1995
    mode of `server-inside`; no CDN, no origin.
 8. **2010: the data centre.** The three-tier variant (`aggregation` with its `three-tier` dive), the cache further
    away in words, the 2010 nerd texts.
@@ -781,7 +787,7 @@ Made while building PR 6 (1995: the internet):
 - **The review panel's anachronisms (F14–F16, Appendix B #5)**: the core's 1995 words drop MPLS and 100–400G ("ISP
   router", "Router · 2 × E1"); its 2010 block says MPLS at 10G. Every item a 1995 route reaches has words of its own
   or says it's drawn as today: the server room (`datacentre`, `dc-router`, `load-balancer`, `spine`, `rack-switch`,
-  `origin`, `dc-fibre`, `leaf-spine`, `server-inside`, `http-chunk` at the server) says "drawn as today" until step 7;
+  `origin`, `dc-fibre`, `leaf-spine`, `server-inside`, `http-chunk` at the server) said "drawn as today" until step 7;
   the web host replaces the CDN by name (`owner.cdn`'s 1995 block: "The web site", "Web host"); `ixp-inside`'s 1995
   block is DIX without a CDN; `border-inside`'s 1995 block went (no border router on the 1995 route). The internet
   node's AS count is "about 80,000" today, "about 35,000" in 2010 and "under 1,700" in 1995 (the earliest count,
@@ -802,6 +808,43 @@ Made while building PR 6 (1995: the internet):
   and two layers' definitions with their read-more links, the two devices' and the owner's names, the segment and its
   layouts, the two dives' loader entries. The words of the past grew from about 4.5 to 8.2 kB gz (lazy), the dive
   strings from 37.1 to 42.5 kB gz (lazy).
+
+Made while building PR 7 (1995: the server room):
+- **The way**: the T1 ends on the site's router (`dc-router`, "Router" in 1995), then 10BASE-T (`ethernet` at
+  10 Mbit/s) to an eight-port `hub` (new device) and on to the `web-server` (new device: a beige tower), all the web
+  host's (`owner.cdn`). The segment variant `datacentre-1995` (its own landscape and portrait layouts) stands in for
+  `datacentre` on `watch-video-1995`, whose group `{ id: 'datacentre', in: 'internet', node: 'server-room' }` is the
+  first caller of a group's `node`. Instance ids stay (`datacentre`, `dc-router`, `cdn`), so `…/datacentre/cdn` is the
+  web server's dive in 1995 and the video server's today. The hub is `passive` (a repeater reads nothing), so router →
+  hub → server is one stretch, `dc-router-hub`, whose dive is `copper-pulses` at 10 Mbit/s (Manchester, as in step 6).
+- **`server-room`** (new network node): its art is a beige tower on a shelf; its backdrop three faint shelves of
+  towers whose power lights blink (lit when still). No load balancer, spine, rack switch, origin or cloud on the way.
+- **`server-inside` in 1995 (tower mode)**, chosen by node id (`modeOf`: `web-server` → tower, else cache), like the
+  other dives' modes by technology id. `Scene.svelte` is now the switch; today's drawing moved to `Cache.svelte`, the
+  tower is `Tower.svelte` (lazy, with the dive). Three rooms in a beige case: the network card (shared with the cache
+  as `art/Nic.svelte`), the computer with one web program and an empty slot (no VMs, no containers), and a hard disk
+  whose arm reads when the request arrives (`art/Disk.svelte`). Odd cycles fetch the page, even ones its picture;
+  the status card says "Here's the page!" (nerds: "GET /index.html → 200 OK"), then the picture. Under reduced motion: the page leaving the program,
+  card up. The CDN, cache, VM and OS-level links moved from the scene to `nodes/cdn` (today's video server), so the
+  1995 dive reads "Server" and "Web server".
+- **`http-chunk` in a page mode**, keyed on the flow (a `page` packet kind), not the era: a slip "GET /index.html
+  HTTP/1.0" with an Accept line and no quality meter, a disk shelf with the page and the picture and no cloud, a page
+  and a picture walking back. Its "Adaptive bitrate streaming" link went (MPEG-DASH stays on today's activity for
+  nerds): a 1995 page fetch showed it.
+- **Dive words are keyed by node, not hop**: a layer dive at the server looks up `at.web-server` in 1995, not
+  `at.cdn`, so `http-chunk`'s and `tcp-pieces`' 1995 `at.cdn` blocks were never read; both are `at.web-server` now. A
+  test fails on a dive's 1995 `at.<node>` naming a node no 1995 route reaches.
+- **Unreachable 1995 blocks removed** (now that the route has no data-centre hall): `datacentre`, `load-balancer`,
+  `origin`, `rack-switch`, `spine`, `owners/cloud`, `leaf-spine`, `dc-fibre`, `backbone` and `fibre-light`'s
+  `dc-fibre` mode; `nodes/cdn`'s 1995 block too (the web server has its own words). `ixp-inside` keeps its "drawn as
+  today" (DIX's switch, step 6's scope).
+- **`era-1995.test.ts`** covers the room: the route's shape (router → hub → web server, no CDN, no origin), nothing
+  in it says "drawn as today", no NVMe, SSD or container, and the tower's maths (layout inside the world, paths,
+  page then picture, the still pose).
+- **Left as is**: the sealed middle hops' sizes in `http-chunk` ("big then smaller", 750 kB / 200 kB for nerds) are
+  today's in 1995 too (a follow-up for the page's real sizes).
+- **Eager JS: +0.43 kB gz** (98.54 against 98.11 on main, index.html's static imports gzipped), under the ~0.7 kB
+  estimate: the three devices' definitions and names, the segment variant and its layouts, the art loader's entries.
 
 Made while building PR 9 (the picker stays in the era, #146):
 - **One rule**: `placeOptions` (`ui/picker.ts`) takes each place family's stop of the route's era from `eraStops`,
