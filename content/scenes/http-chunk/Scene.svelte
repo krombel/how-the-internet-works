@@ -183,9 +183,9 @@
 {#if names}
   <Text x={clientSpot.x} y={L.names} text={nameOf(ctx.client)} size={T.text} kind={where === 'client' ? 'big' : 'node'} fit />
   <Text x={serverSpot.x} y={L.names} text={nameOf(ctx.server)} size={T.text} kind={where === 'server' ? 'big' : 'node'} fit />
-  {#if where === 'middle'}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" />{/if}
+  {#if where === 'middle'}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" fit />{/if}
 {:else}
-  <Text x={focusedSpot.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" />
+  <Text x={focusedSpot.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" fit />
 {/if}
 
 {#if walker}

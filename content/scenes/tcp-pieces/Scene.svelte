@@ -111,7 +111,7 @@
     <Text x={clientSpot.x} y={L.names} text={nameOf(ctx.client)} size={L.text.label} kind="node" fit />
     <Text x={serverSpot.x} y={L.names} text={nameOf(ctx.server)} size={L.text.label} kind="node" fit />
   {/if}
-  {#if hopSpot}<Text x={hopSpot.x} y={L.names} text={nameOf(ctx.to)} size={L.text.title} kind="big" />{:else if !L.endNames}<Text x={ctx.to.id === ctx.server.id ? serverSpot.x : clientSpot.x} y={L.names} text={nameOf(ctx.to)} size={L.text.title} kind="big" />{/if}
+  {#if hopSpot}<Text x={hopSpot.x} y={L.names} text={nameOf(ctx.to)} size={L.text.title} kind="big" fit />{:else if !L.endNames}<Text x={ctx.to.id === ctx.server.id ? serverSpot.x : clientSpot.x} y={L.names} text={nameOf(ctx.to)} size={L.text.title} kind="big" fit />{/if}
 {/if}
 
 {#if beat !== 'handshake' && ack.x !== null && !compact}

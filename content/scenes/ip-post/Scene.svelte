@@ -228,7 +228,7 @@
   {#if L.endNames}<Text x={e.x} y={L.names} text={nameOf(endIds[i])} size={T.text} kind="node" fit />{/if}
 {/each}
 <Node id={ctx.to.node.id} x={hopSpot.x} y={hopSpot.y} size={hopSpot.size} focused />
-<Text x={hopSpot.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" />
+<Text x={hopSpot.x} y={L.names} text={nameOf(ctx.to)} size={T.big} kind="big" fit />
 
 {#if x !== null}
   <g transform="translate({x} {L.walk}) scale({L.parcel}) translate({-x} {-L.walk})">
