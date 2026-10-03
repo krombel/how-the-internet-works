@@ -439,7 +439,10 @@ From `$core/api` they read `view` (time, orientation, level, mode), `strings('sc
 ```ts
 { flow, kind, dir: 'up' | 'down', link, from, to, role /* of `to`, the reader */, client, server,
   src, dst, sport, dport /* as seen on this link, after any NAT */,
-  nat: { inside, outside, insidePort, outsidePort } | null, ttl, level }
+  nat: { inside, outside, insidePort, outsidePort } | null, ttl,
+  frame: { src, dst } /* the hops whose MACs the arriving frame carries: bridges pass frames on */,
+  next /* the next hop on the way out (what a router ARPs for), null at the end */,
+  macs /* whether the links either side carry MAC addresses */, level }
 ```
 
 The stack on a link is `link.stack ?? tech.stack` (outermost first), followed by `flow.stack`. Examples:

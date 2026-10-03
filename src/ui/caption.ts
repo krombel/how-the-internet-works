@@ -9,8 +9,9 @@ import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
 import { eraStops, eraYear } from '../model/era';
 import { carriedBy } from '../model/ladder';
 import { pathScene, type PathScene } from '../model/layout';
-import type { Route } from '../model/resolve';
+import type { Hop, Route } from '../model/resolve';
 import { formatBytes, formatDuration, formatRate, formatTimes, howLong } from '../model/speed';
+import { layerCtx } from '../model/stack';
 import { diveRuns, diveSubject, downFrom, nodeDive, parentPath, runOf, sceneRef, type SceneRef } from '../model/tree';
 import { formatKm, formatLight, groupKm, kmTo, ownersOf, tripKm } from '../model/trip';
 import { fill, loc, nameOf, nameW, reading, routeKeys, tr, trActivity, trFirst, trl, view, yours } from '../state.svelte';
@@ -51,9 +52,13 @@ function captionDoors(r: Route, ps: PathScene, o: Orient, root: boolean, stop: s
   return out;
 }
 
-/** What a layer dive's text can fill in: {hop}, {yours} and {layer}. */
-const layerVars = (r: Route, ref: SceneRef) =>
-  ({ hop: nameOf(r.hops[ref.at!.hop]), yours: yours(r.chain[0]), layer: trl(`layer.${ref.at!.layer}.name`) });
+/** What a layer dive's text can fill in: {hop}, {yours}, {layer}, and from the link frame {sender} (who wrote it)
+ *  and {next} (the next hop that reads the packet, which a router ARPs for). */
+function layerVars(r: Route, ref: SceneRef) {
+  const at = ref.at!, c = layerCtx(r, at.link, at.flow, at.kind, at.dir, loc.level);
+  const who = (h: Hop | null) => (!h ? '' : h === c.client ? yours(h) : nameOf(h));
+  return { hop: nameOf(r.hops[at.hop]), yours: yours(c.client), layer: trl(`layer.${at.layer}.name`), sender: who(c.frame.src), next: who(c.next) };
+}
 
 /** A layer dive's text, most specific first (`layerKeys`), filled in. */
 function layerText(r: Route, ref: SceneRef, suffix: string, level?: Level) {
