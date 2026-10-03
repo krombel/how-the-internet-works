@@ -20,13 +20,13 @@
   import { eraOf } from './model/registry';
   import type { Route } from './model/resolve';
   import { paceOf } from './model/speed';
-  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, type Chain, type Frame, type SceneRef } from './model/tree';
+  import { chainAt, chainItemAt, chainNear, chainOf, chainWarp, childrenOf, diveRuns, hopScenePath, parentPath, rectToRoot, sceneRef, sideways, stopRectLocal, toLocal, toRoot, travelOf, validPrefix, walkStep, type Chain, type Frame, type SceneRef } from './model/tree';
   import type { Mounted } from './render/ctx';
   import { drawnDoors } from './render/drawn.svelte';
   import { artLoading, loadDevices, loadRouteArt } from './render/lazy.svelte';
   import World from './render/World.svelte';
   import { go, onNavigate, startRouter } from './router';
-  import { loadDiveStrings, loadPastStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trActivity, trCount, view } from './state.svelte';
+  import { fill, loadDiveStrings, loadPastStrings, loadTheme, loc, nameW, nav, readAloud, reading, setPaused, settings, themeState, tr, trActivity, trCount, view } from './state.svelte';
   import { announce, arrival } from './ui/announce.svelte';
   import Announcer from './ui/Announcer.svelte';
   import Caption from './ui/Caption.svelte';
@@ -264,12 +264,20 @@
   const below = $derived(belowOf(route, here.path, view.orient, untrack(() => via)));
   $effect(() => { via = below?.kind === 'stack' ? below.link : null; });
   const ladder = $derived(stepInfo.kind === 'layer' && below?.kind === 'stack' ? below : null);
+  /** In a path scene ◀ ▶ walk the whole trip (#169): into a group and back out at either end of its stops. */
+  const walk = $derived(stepInfo.kind === 'stop' ? ([-1, 1] as const).map((d) => walkStep(route, here.path, here.stop, d, view.orient)) : null);
+  const crossing = $derived(walk?.map((w) => (w?.cross ? fill(tr(`nav.${w.cross.kind}`), { name: tr(`node.${w.cross.node.node.id}.name`) }) : null)) ?? [null, null]);
   function step(d: -1 | 1) {
     if (caught) return stepCaught(hopStepFor(caught.dir, d));
-    const { kind, steps, i, min } = stepInfo, ni = ladder ? ladder.here - d : i + d;
-    if (ladder ? ni < 0 || ni >= ladder.rungs.length : ni < min || ni >= steps.length) { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; return; }
+    const bump = () => { sfx.bump(); nudge = { dir: d, n: nudge.n + 1 }; };
+    if (walk) {
+      const to = walk[d < 0 ? 0 : 1];
+      if (!to) return bump();
+      return to.cross ? go({ path: to.path, stop: to.stop }) : go({ stop: to.stop }, true);
+    }
+    const { steps, i } = stepInfo, ni = ladder ? ladder.here - d : i + d;
+    if (ni < 0 || ni >= (ladder ? ladder.rungs.length : steps.length)) return bump();
     if (ladder) go({ path: ladder.rungs[ni].path });
-    else if (kind === 'stop') go({ stop: ni < 0 ? null : steps[ni] }, true);
     else go({ path: [...parentPath(here.path), steps[ni]] });
   }
   function up() {
@@ -962,8 +970,8 @@
     <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={explore && !exploreIn} catches={catchable} oncatch={catchKind}
       ondoor={(d) => { if (d.path) return go({ path: d.path }); const k = hereDoors.find((k) => k.id === d.id); if (k) openDoor(k); }} onhot={(id) => (chipHot = id)} onread={readAgain} hidden={!showCaption || peekOpen} {fold} bind:el={captionEl} />
     {#if !peekOpen}
-      <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > stepInfo.min}
-        canNext={ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} onstep={step} {nudge} />
+      <StepButtons {portrait} layer={stepInfo.kind === 'layer'} canPrev={walk ? !!walk[0] : ladder ? ladder.here < ladder.rungs.length - 1 : stepInfo.i > 0}
+        canNext={walk ? !!walk[1] : ladder ? ladder.here > 0 : stepInfo.i < stepInfo.steps.length - 1} {crossing} onstep={step} {nudge} />
     {/if}
     {#if trip}
       <div class="trip" aria-hidden="true"><span class:now={!trip.past}>{trip.from}</span><span class="arrow">→</span><span class:now={trip.past}>{trip.to}</span></div>
