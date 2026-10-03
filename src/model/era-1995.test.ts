@@ -10,12 +10,13 @@ import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from 
 import { WORLD_SIZE, bezier } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
 import type * as Server from '../../content/scenes/server-inside/server';
+import { captionKeys, routeWords, scenes } from '../test/era-walk';
 import { sceneKeys } from './describe';
 import { pathScene, propSpots } from './layout';
 import { activityIds, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
-import { resolveRoute, stringSources, type Route } from './resolve';
-import { childrenOf, diveSubject, sceneRef, type SceneRef } from './tree';
+import { resolveRoute } from './resolve';
+import { diveSubject } from './tree';
 
 describe('timeslots (tdm-frames)', () => {
   it('frames a PRI, a leased E1 and a T1 as the standards do', () => {
@@ -171,19 +172,6 @@ describe('a GSM data call on the air (nr-radio in 1995, #147)', () => {
   });
 });
 
-/** Every reachable scene of a route, in both orientations. */
-function scenes(r: Route): SceneRef[] {
-  const out = new Map<string, SceneRef>();
-  for (const o of ['landscape', 'portrait'] as const) {
-    const walk = (ref: SceneRef): void => {
-      out.set(ref.path.join('/'), ref);
-      for (const c of childrenOf(r, ref, o)) walk(sceneRef(r, [...ref.path, c.step], o)!);
-    };
-    walk(sceneRef(r, [], o)!);
-  }
-  return [...out.values()];
-}
-
 describe('inside the 1995 web server (server-inside, tower mode)', () => {
   let server: typeof Server;
   beforeAll(async () => {
@@ -323,26 +311,9 @@ describe('the 1995 trip', () => {
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;
     const bad = new Set<string>();
     for (const r of trips()) {
-      const era = (keys: string[]) => withEra(keys, r.era);
-      const src = stringSources(r);
-      const lists: string[][] = [];
-      for (const ref of scenes(r)) {
-        for (const keys of sceneKeys(r, ref)) for (const s of ['', '.describe', '.extra', '.title']) lists.push(keys.map((k) => k + s));
-        if (ref.kind === 'dive') lists.push(...['kid', 'nerd', 'title'].map((k) => [`scene.${ref.dive}.${diveSubject(ref)}.${k}`]));
-      }
-      for (const h of Object.values(r.hops)) {
-        lists.push([...src.map((s) => `${s}.stop.${h.id}`), `node.${h.node.id}`], [`node.${h.node.id}.name`]);
-        lists.push([...src.map((s) => `${s}.tag.${h.id}`), `node.${h.node.id}.tag`]);
-        if (h.owner) lists.push([`owner.${h.owner}.name`]);
-      }
-      for (const l of [...r.links, ...r.asides.map((a) => a.link)]) {
-        lists.push([...src.map((s) => `${s}.stop.${l.id}`), `tech.${l.tech.id}`], [`tech.${l.tech.id}.name`]);
-        lists.push([...src.map((s) => `${s}.tag.${l.id}`), `tech.${l.tech.id}.tag`]);
-      }
-      for (const keys of lists) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
-        const s = firstOf(lang, era(keys), level);
-        if (s && (LATER.test(s) || MOBILE.test(s)) && !SAYS_WHEN.test(s)) bad.add(`${lang} ${level} ${keys[0]}: ${s}`);
-      }
+      for (const [key, s] of routeWords(r, captionKeys(r))) if (LATER.test(s) && !SAYS_WHEN.test(s)) bad.add(`${key}: ${s}`);
+      // every word of the route, a dive's labels too
+      for (const [key, s] of routeWords(r)) if (MOBILE.test(s) && !SAYS_WHEN.test(s)) bad.add(`${key}: ${s}`);
     }
     expect([...bad]).toEqual([]);
   });

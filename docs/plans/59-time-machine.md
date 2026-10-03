@@ -965,3 +965,30 @@ Made while building PR 9 (the picker stays in the era, #146):
   picker, which used to reach DSL and dial-up through its chips, would have no way to other years. About 90 bytes gz.
 - **Loading**: `ui/time.ts` stays lazy (with the panel): the picker loads it, and the dive strings (the era's own
   lines), before it opens when a place would go to the era's trip. Importing it eagerly cost 0.35 kB more.
+
+Made while fixing 2010's leaks (#135):
+- **Already fixed by #157** (the #134 sweep): the access point's and the router's 802.11n, the era's words for the
+  separate AP, the core's 10–40G, the AS counts (kept as merged: about 35,000 in 2010, under 1,700 in 1995) and
+  `fibre-light`'s backbone.
+- **2010 blocks**: `metro-fibre` and `cross-connect` at 1–10G, `copper-pulses`' extra (PoE to 802.3at, 10GBASE-T
+  for servers), `http-chunk`'s HLS playlist (M3U8, 2009) instead of DASH's MPD (2012), the GTP field that says when
+  5G came, and `ip-post` at the GGSN.
+- **The exchange's cross-connects in one colour** (Thomas, 3 Oct): `fibre-light` draws `cross-connect` in 2010 as
+  `dc-fibre` (`ONE_COLOUR_IN`): one 1310 nm laser, no mux or demux, the tag "10GBASE-LR · 1310 nm · SMF", its own kid,
+  nerd and describe; today's stays 100GBASE-LR4 on four LAN-WDM lanes. The 1995 trip has no cross-connect (E1 and T1).
+- **The GGSN's NAT is a carrier's**: `carrierNat` takes 10.0.0.0/8 too (the street-2010 phone is 10.152.33.7), so
+  2010's GGSN draws neighbouring phones and says "10.0.0.0/8 → public" instead of a home's 192.168.x.x; its words say
+  the shared 100.64.0.0/10 came in 2012.
+- **Left as is** (era-neutral and true in 2010): `border-inside` and `ixp-inside` (MPLS, PHP, route servers, a CDN's
+  port), `fibre-light`'s submarine.
+- **`era-2010.test.ts`** reads every word a 2010 route can show (`routeWords` in `src/test/era-walk.ts`: the captions
+  plus every label, tag and layer field of the route's items) and fails on a later technology unless it says when
+  ("the early 2010s" counts). It joined step 8's file of that name, which keeps its stricter look at the hall; step 8
+  landed first, so the data centre needed no temporary list of expected leaks. One key is excused as never shown in
+  2010 (`router-inside`'s ONT line; the test fails if it stops leaking).
+- **The sweep's leftovers** (not shown as words, or a drawing of its own): the 2010 Ethernet to the router draws
+  1000BASE-T (PAM-5, four pairs) while the router's ports say 100 Mbit/s (a 100BASE-TX mode for `copper-pulses`, as
+  the 1995 one); the shared segments' link rates (backbone, sea cable, cross-connect at 100G) only feed the
+  bottleneck, which is the DSL or 3G line.
+- **Follow-up for 1995**: the same full walk on 1995 also finds MPLS in two layer fields (`ethernet`'s type, `ip`'s
+  TTL) and NVMe in `server-inside`'s SSD title, so `era-1995.test.ts` still reads captions only.

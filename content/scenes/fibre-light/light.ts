@@ -11,10 +11,11 @@ const MODES: Record<string, Mode> = { gpon: 'access', fttb: 'building', backbone
 export const modeOf = (tech: string): Mode => MODES[tech] ?? 'metro';
 /** Before DWDM (1996) a long thread carried one colour: 1995's American backbone (SONET under ATM) and CANTAT-3 (SDH).
  *  They have their own words, under their technology's id; today's long haul and sea cable use `backbone` and
- *  `submarine`. A technology can also carry one colour in an era only: a data centre's links in 2010 were 10GBASE-SR,
- *  one 850 nm laser per fibre, before four-colour optics (its words and tag are in the era's block). */
+ *  `submarine`. A technology can also carry one colour in an era only: in 2010 a data centre's links were 10GBASE-SR
+ *  (one 850 nm laser per fibre) and an exchange's cross-connects 10GBASE-LR (one at 1310 nm), before four-colour
+ *  optics (their words and tags are in the era's block). */
 const ONE_COLOUR = new Set(['atm', 'submarine-sdh']);
-const ONE_COLOUR_IN: Record<string, string[]> = { '2010': ['dc-fibre'] };
+const ONE_COLOUR_IN: Record<string, string[]> = { '2010': ['dc-fibre', 'cross-connect'] };
 export const oneColour = (tech: string, era?: string) => ONE_COLOUR.has(tech) || !!(era && ONE_COLOUR_IN[era]?.includes(tech));
 export const wordsOf = (tech: string, today: string) => (ONE_COLOUR.has(tech) ? tech : today);
 /** The nerd tag of a metro-told thread: a cross-connect's optic puts its few colours close together (LAN-WDM), a

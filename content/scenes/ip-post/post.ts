@@ -148,10 +148,11 @@ export function parcelX(m: Moment, L: Layout, mode: Mode, atServer: boolean): nu
 /** A little bob while walking. */
 export const bob = (t: number, walking: boolean) => (walking ? -Math.abs(Math.sin(t * 7)) * 12 : 0);
 
-/** An address inside the 100.64.0.0/10 shared space means the NAT is a carrier's (CGNAT), not a home router. */
+/** An address inside the 100.64.0.0/10 shared space (2012), or in 10.0.0.0/8 as carriers used before it, means the
+ *  NAT is a carrier's (CGNAT), not a home router: homes here sit on 192.168.x.x. */
 export function carrierNat(inside: string): boolean {
   const [a, b] = inside.split('.').map(Number);
-  return a === 100 && b >= 64 && b < 128;
+  return a === 10 || (a === 100 && b >= 64 && b < 128);
 }
 
 /** A neighbour's address near `addr` (same network, a different host). */

@@ -224,7 +224,8 @@
       }
     },
     "tag": {
-      "length": "No TLS: all in the clear"
+      "length": "No TLS: all in the clear",
+      "mpd": "M3U8: 1080p · 720p · 360p"
     }
   }
 }

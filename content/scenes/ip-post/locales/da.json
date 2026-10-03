@@ -123,5 +123,20 @@
         }
       }
     }
+  },
+  "2010": {
+    "tag": {
+      "cgnat": "10.0.0.0/8 → offentlig"
+    },
+    "at": {
+      "mobile-core": {
+        "kid": "Telefoner på mobilnettet får ikke deres egen internetadresse. Mobilporten bytter afsender-mærkatet på en masse telefoner ud med den samme ene adresse og giver hver sit eget billetnummer i sin notesbog.",
+        "nerd": "Carrier-grade NAT i GGSN’en: telefonerne får private adresser, her fra 10.0.0.0/8, og typisk fra et par dusin til et par hundrede deler én offentlig IPv4-adresse med hver sin blok af porte. Et delt område kun til dette, 100.64.0.0/10, kom senere (RFC 6598, 2012). Det er en stor grund til IPv6.",
+        "describe": {
+          "kid": "Vejen viser flere telefoner, der deler en mobilport på turen til videoserveren. Adressekortet ændrer Fra til mobilporten. Byttebogen er fuld af naboer med numre. En pakke stopper i porten, får skiftet mærkatet og går videre. Svarene bruger bogen til at finde den rigtige telefon.",
+          "nerd": "Det er NAT-varianten for carrier-grade NAT. Kortet omskriver en privat kilde fra 10.0.0.0/8 til operatørens offentlige adresse. Tabellen kobler flere indvendige adresser og porte til udvendige porte. Pakken holder pause for omskrivningen, TTL falder, og videresendelsen fortsætter."
+        }
+      }
+    }
   }
 }

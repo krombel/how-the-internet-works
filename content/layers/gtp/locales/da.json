@@ -131,7 +131,7 @@
         "about": "Valgfrie felter; en 3G-brugerpakke har som regel ingen, så headeren er kun 8 byte (tegnet her i dagens størrelse)."
       },
       "pdu": {
-        "about": "5G’s QoS-flow-mærke; 3G havde intet: PDP-konteksten bar selv QoS’en."
+        "about": "5G’s QoS-flow-mærke (5G kom i 2019); 3G havde intet: PDP-konteksten bar selv QoS’en."
       }
     }
   }
