@@ -4,7 +4,7 @@
   // uplink: the fibre ONT, the modem for the phone line, or a cable socket of its own. A parcel comes in on the link
   // before (electric pushes on a cable), is plain bits inside, has its sender swapped by the brain and leaves on the
   // link after (as light on the fibre, tones on the phone line): the rooms it uses follow those links.
-  import { Node, Text, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
+  import { Node, Text, clientAt, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
   import { centre, formFor, parcelAt, roomFor, routerLayout, tripPath, uplinkOf } from './router';
   import type { Look, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
@@ -37,8 +37,13 @@
   const onLink = $derived(parcel.stage === 'in' ? inLink : parcel.stage === 'out' ? outLink : null);
 
   const client = $derived(subject.route.chain[0]);
+  // NAPT swaps the address and the port: the sender as it arrives, and as it leaves
+  const sender = (i: number) => {
+    const c = clientAt(subject.route, i, subject.route.activity.flows[0]);
+    return c.port ? `${c.addr.text}:${c.port}` : c.addr.text;
+  };
   const stickers = $derived(S('mode') === 'nerd'
-    ? [client.addr ?? '', subject.hop.natTo ?? subject.hop.addr ?? '']
+    ? subject.hop.natTo ? [sender(subject.hop.index - 1), sender(subject.hop.index)] : [client.addr ?? '', subject.hop.addr ?? '']
     : [nameOf(client), S('outside')].map((who) => fill(S('from'), { who })));
   const used = (r: RoomId) => r === 'brain' || r === inRoom || r === outRoom;
   const key = (r: RoomId) => (r === 'ont' ? uplink : r);

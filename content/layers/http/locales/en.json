@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "The message itself, inside the locked box.",
-    "nerd": "The application message: a request for the next video segment, or a piece of the response."
+    "nerd": "The application message: a request for the next video segment, or a piece of the response. Shown in HTTP/1.1’s text form; most video today travels as HTTP/2 or HTTP/3 (over QUIC), which carry the same fields in binary frames."
   },
   "line": "Hypertext Transfer Protocol: {start}",
   "value": {

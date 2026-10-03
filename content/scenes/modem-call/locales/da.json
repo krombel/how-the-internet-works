@@ -5,7 +5,7 @@
   },
   "title": "Ring op til internettet",
   "kid": "Før bredbånd ringede computeren op til internettet. Dens modem tastede et nummer, og når internetselskabets modem svarede, fløjtede og skreg de to ad hinanden, til de var enige om, hvordan de skulle tale. Så gik dine pakker ned ad telefonlinjen som lyde, meget langsomt, og ingen andre kunne bruge telefonen.",
-  "nerd": "Et V.34-modemopkald: DTMF-opkald, svartonen, V.8-forhandling og linjeprøvning, derefter op til 28,8 kbit/s hver vej, mindre på en støjende linje. Centralen kobler et 64 kbit/s-kredsløb, én tidsplads på dens trunk, i hele opkaldet. PPP kører ovenpå for at logge dig ind og uddele en adresse.",
+  "nerd": "Et V.34-modemopkald: DTMF-tonevalg, svartonen, V.8-forhandling og linjeprøvning, derefter op til 28,8 kbit/s hver vej, mindre på en støjende linje. Centralen kobler et 64 kbit/s-kredsløb, én tidsluke på dens trunk, i hele opkaldet. PPP kører ovenpå for at logge dig ind og uddele en adresse.",
   "describe": {
     "kid": "En telefonlinje går fra computeren til telefoncentralen og videre til internetselskabets modemer. En taleboble siger lydene: bip, en ringetone, et langt fløjt og et skrig, og så forbundet. Kort viser trinnene, et foto, der kommer linje for linje, og at telefonen er optaget.",
     "nerd": "Opkaldet går som kobber til centralen og så som et 64 kbit/s-kredsløb til udbyderens modembank. Bølger viser DTMF, svartonen, V.34-træning og så langsomme data. Kort viser håndtrykkets trin, et foto på 30 kB, der tager omkring 8 sekunder, og opkaldet, der holder plads 7 af 32 på trunken."

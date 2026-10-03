@@ -157,7 +157,7 @@
     </g>
   {/if}
   {#if !nerd}
-    <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - (portrait || compact ? 46 : 28)} text={S(st.phase === 'combine' ? 'label.combine' : st.phase === 'nack' ? 'label.nack' : st.phase === 'ack' ? 'label.ack' : 'label.check')} size={T.small} kind="big" colour={st.phase === 'nack' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
+    <Text x={c1.x + c1.w / 2} y={c1.y + c1.h - (portrait || compact ? 46 : 28)} text={S(st.phase === 'combine' ? 'label.combine' : st.phase === 'nack' ? (focus === 'phone' ? 'label.nack' : 'label.regrant') : st.phase === 'ack' ? 'label.ack' : 'label.check')} size={T.small} kind="big" colour={st.phase === 'nack' ? 'var(--berry-ink)' : 'var(--teal-ink)'} />
   {/if}
 </g>
 

@@ -1,7 +1,7 @@
 {
   "title": "The tunnel envelope",
   "kid": "The mobile network makes a private tunnel between the tower and the mobile core. Your parcel keeps the same phone address while the big tunnel envelope changes around it.",
-  "nerd": "GTP-U carries the UE IP packet through the operator network. The gNB and UPF/PGW use outer IP plus UDP/2152 with a TEID, one per direction, each chosen by the end that receives on it (3GPP TS 29.281).",
+  "nerd": "GTP-U carries the UE IP packet through the operator network. The gNB and UPF/PGW use outer IP plus UDP/2152 with a TEID, one per direction, each chosen by the end that receives on it, and a PDU Session Container extension header carrying QFI 9 (3GPP TS 29.281, 38.415).",
   "label": {
     "sameAddress": "Same address!",
     "walk": "you can walk",

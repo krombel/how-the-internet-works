@@ -1,7 +1,7 @@
 {
   "title": "Tunnel-kuverten",
   "kid": "Mobilnettet laver en privat tunnel mellem masten og mobilkernen. Din pakke beholder den samme telefonadresse, mens den store tunnel-kuvert skifter omkring den.",
-  "nerd": "GTP-U bærer UE'ens IP-pakke gennem operatørens net. gNB og UPF/PGW bruger ydre IP plus UDP/2152 med en TEID, én pr. retning, hver valgt af den ende, der modtager på den (3GPP TS 29.281).",
+  "nerd": "GTP-U bærer UE'ens IP-pakke gennem operatørens net. gNB og UPF/PGW bruger ydre IP plus UDP/2152 med en TEID, én pr. retning, hver valgt af den ende, der modtager på den, og en PDU Session Container-udvidelsesheader med QFI 9 (3GPP TS 29.281, 38.415).",
   "label": {
     "sameAddress": "Samme adresse!",
     "walk": "du kan gå",

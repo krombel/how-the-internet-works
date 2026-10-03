@@ -2,7 +2,7 @@
   "name": "Netværkskabel",
   "kid": "Et kobberkabel bærer pakken som bittesmå elektriske signaler.",
   "nerd": "Gigabit-Ethernet over fire snoede par (1000BASE-T, PAM-5).",
-  "tag": "1000BASE-T · Cat 6",
+  "tag": "1000BASE-T · Cat 5e/6",
   "1995": {
     "nerd": "10 Mbit/s Ethernet over to snoede par (10BASE-T, Manchester-kode).",
     "tag": "10BASE-T · Cat 3"

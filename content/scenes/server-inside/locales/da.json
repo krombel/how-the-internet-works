@@ -5,10 +5,10 @@
   },
   "title": "Inde i videoserveren",
   "kid": "Videoserveren er en computer, der gemmer populære videoer tæt på dig. Lyset fra datacenterets forbindelse bliver til bits på netkortet. Video-appen kigger på hylderne; hvis stykket er der, sender den det straks tilbage. Hvis ikke, spørger den hovedkopien langt væk, gemmer en kopi og sender så din.",
-  "nerd": "En CDN-cache-server tager fiberen ind på et NIC, og forespørgslen lander hos videotjenesten i VM'er eller containere på en hypervisor, ofte planlagt som k8s-pods. Appen slår op i hot RAM og NVMe-SSD-cache. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
+  "nerd": "En CDN-cache-server tager fiberen ind på et NIC, og cachesoftwaren kører som regel direkte på hardwaren (fx FreeBSD + NGINX) og sender varme objekter fra RAM og NVMe direkte til NIC’et. Appen slår først op i RAM-cachen, så på NVMe-SSD’erne. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
   "describe": {
-    "kid": "Et åbent serverkabinet viser netkort, små computere, hukommelse og videohylder. En forespørgsel kommer ind som lys og når video-appen. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
-    "nerd": "Den åbne cache-server viser NIC, VM/container-vært, RAM og NVMe-SSD-cache. Forespørgslen kommer ind på fiber og når den markerede app. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
+    "kid": "Et åbent serverkabinet viser netkort, computeren, hukommelse og videohylder. En forespørgsel kommer ind som lys og når video-appen. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
+    "nerd": "Den åbne cache-server viser NIC, host-CPU med cache-appen på bart metal, RAM og NVMe-SSD-cache. Forespørgslen kommer ind på fiber og når den markerede app. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
   },
   "app": "Video-app",
   "hit": {
@@ -36,11 +36,11 @@
   "compute": {
     "title": {
       "kid": "Computeren",
-      "nerd": "Host-compute"
+      "nerd": "Host-CPU"
     },
     "line": {
-      "kid": "Små computere indeni",
-      "nerd": "KVM · containere · k8s-pods"
+      "kid": "Kører video-appen",
+      "nerd": "Cache-app på bart metal"
     }
   },
   "memory": {
@@ -108,6 +108,26 @@
       "picture": {
         "kid": "Og her er billedet!",
         "nerd": "GET /picture.gif → 200 OK"
+      }
+    }
+  },
+  "2010": {
+    "nerd": "En cache-server i 2010 tager en 10G-forbindelse ind på sit NIC; cachesoftwaren kører direkte på hardwaren og sender varme objekter fra RAM, resten fra roterende diske og de første SSD’er. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
+    "describe": {
+      "kid": "Et åbent serverkabinet viser netkort, computeren, hukommelse og videohylder. En forespørgsel kommer ind som lys og når video-appen. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
+      "nerd": "Den åbne cache-server viser NIC, host-CPU med cache-appen, RAM og diskcache. Forespørgslen kommer ind på fiber og når den markerede app. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
+    },
+    "nic": {
+      "title": {
+        "nerd": "NIC 2×10G"
+      }
+    },
+    "ssd": {
+      "title": {
+        "nerd": "Diskcache"
+      },
+      "line": {
+        "nerd": "Harddiske og tidlige SSD’er"
       }
     }
   }

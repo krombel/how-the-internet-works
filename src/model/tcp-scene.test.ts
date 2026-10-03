@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardLabels, helloSpot, layoutFor, type Layout, type Spot } from '../../content/scenes/tcp-pieces/tcp';
+import { LOOP, ackTicket, cardLabels, dupAcks, helloSpot, layoutFor, shelfFilled, travellingBox, windowStart, type Layout, type Spot } from '../../content/scenes/tcp-pieces/tcp';
 import en from '../../content/scenes/tcp-pieces/locales/en.json';
 import da from '../../content/scenes/tcp-pieces/locales/da.json';
 
@@ -13,10 +13,36 @@ describe('the TCP dive (tcp-pieces)', () => {
     const at = (t: number) => cardLabels(t);
     expect(at(1.5)).toEqual({ server: null, shelf: null });
     expect(at(5)).toEqual({ server: 'window', shelf: null });
-    expect(at(9.5)).toEqual({ server: 'window', shelf: 'lost' });
-    expect(at(12)).toEqual({ server: 'resend', shelf: 'gap' });
-    expect(at(13.5)).toEqual({ server: 'resend', shelf: null });
+    expect(at(11)).toEqual({ server: 'window', shelf: 'lost' });
+    expect(at(13.5)).toEqual({ server: 'resend', shelf: 'gap' });
+    expect(at(15)).toEqual({ server: 'resend', shelf: null });
     expect(at(16)).toEqual({ server: 'done', shelf: 'ready' });
+  });
+
+  // #134: ACKs name the next byte expected, and fast retransmit needs three duplicates, so 6, 7 and 8 must all arrive
+  it('tells a fast retransmit that adds up: ACK=5, three duplicate ACK=5s, then 5 again and ACK=9', () => {
+    const steps = Array.from({ length: LOOP * 20 }, (_, i) => i / 20);
+    const first = (p: (t: number) => boolean) => steps.find(p)!;
+    // every box crosses the road before the shelf shows it, and 7 crosses too
+    for (let n = 1; n <= 8; n++) {
+      const arrives = first((t) => shelfFilled(t, n));
+      const crossing = steps.filter((t) => t < arrives && travellingBox(t).n === n && !travellingBox(t).lost);
+      expect(crossing.length, `box ${n}`).toBeGreaterThan(0);
+    }
+    // ACK=5 ("got 4") comes back for 1–4 and slides the window to 5–8
+    const got4 = first((t) => ackTicket(t).text === 'got4' && ackTicket(t).x !== null);
+    expect([1, 2, 3, 4].every((n) => shelfFilled(got4, n))).toBe(true);
+    expect(windowStart(got4)).toBe(1);
+    expect(windowStart(first((t) => t > got4 && travellingBox(t).n === 5))).toBe(5);
+    // three duplicates before 5 is sent again, none after
+    const resend = first((t) => travellingBox(t).n === 5 && !!travellingBox(t).glow);
+    expect(dupAcks(resend)).toBe(3);
+    expect(Math.max(...steps.filter((t) => t < resend).map(dupAcks))).toBe(3);
+    expect(shelfFilled(resend, 5)).toBe(false);
+    // then everything is in, and "got 8" (ACK=9) goes back
+    const got8 = first((t) => ackTicket(t).text === 'got8' && ackTicket(t).x !== null);
+    expect(got8).toBeGreaterThan(resend);
+    expect([1, 2, 3, 4, 5, 6, 7, 8].every((n) => shelfFilled(got8, n))).toBe(true);
   });
 
   it('puts the hello label on the road, clear of the cards, the devices and the names under the road', () => {

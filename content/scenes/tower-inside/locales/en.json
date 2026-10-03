@@ -5,7 +5,7 @@
   },
   "title": "Inside the cell tower",
   "kid": "The tower is four little rooms: two up the mast, two in the cabinet at its foot. Antennas catch your radio wave, the radio unit turns it into bits, the sorter puts your parcel in a tunnel envelope, and fibre sends it on as light.",
-  "nerd": "A 5G gNB is split in two: antennas and an RU on the mast, DU/CU baseband in the cabinet. The packet is wrapped in GTP-U to the mobile core, then leaves on metro fibre.",
+  "nerd": "A 5G gNB is split in two: an active antenna unit on the mast (the massive-MIMO antennas and the RU in one box, drawn here as two rooms), DU/CU baseband in the cabinet. The packet is wrapped in GTP-U to the mobile core, then leaves on metro fibre.",
   "describe": {
     "kid": "The cell tower is opened like a tall box, with rooms on the mast and in the cabinet. A wiggly radio wave reaches the antennas and turns into bits in the radio room. The sorter adds a tunnel envelope. Then the packet leaves through fibre as moving light.",
     "nerd": "The gNB cutaway shows antenna panels and RU on the mast, with baseband DU, CU and fibre in the cabinet. The animated packet changes from an NR radio wave to bits, gets a GTP-U tunnel label in baseband, then exits as metro-fibre light."

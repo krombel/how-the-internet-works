@@ -7,10 +7,10 @@
     "bridge": {
       "title": "Radioramme, kabelramme",
       "kid": "Ved adgangspunktet kommer Wi-Fi-kuverten af. “Videre til”-mærket bliver kabelkuvertens “til”-mærke, men pakken siger stadig, at den kom fra {yours}. Nedenunder rejser kuverten som radiobølger.",
-      "nerd": "I bridgen har uplinkets 802.11 QoS-dataramme RA=AP, TA=STA og adr. 3=destinationen i distributionssystemet. AP’et decapsulerer den, tjekker CCMP/FCS og sender en Ethernet-ramme mod routeren; IP-pakken røres ikke.",
+      "nerd": "I bridgen har uplinkets 802.11 QoS-dataramme RA=AP, TA=STA og adr. 3=destinationen i distributionssystemet. AP’et dekapsulerer den, tjekker CCMP/FCS og sender en Ethernet-ramme mod routeren; IP-pakken røres ikke.",
       "describe": {
         "kid": "På vejen står {yours}, adgangspunktet og routeren. Papirkort viser adresser og turtagning. En radiokuvert går fra {yours} til adgangspunktet. Dér åbner den og bliver til en kabelkuvert mod routeren. Turtagningen viser lyt, vent, bump, nyt forsøg og “Modtaget!”.",
-        "nerd": "Adressekortet viser uplinkets 802.11-ramme ved siden af Ethernet-rammen. Det viser To DS, addr1 AP, addr2 STA og addr3 router, derefter DA og SA på kabel. Sendetidsstriben animerer DIFS, backoff, data, ingen ACK, nyt forsøg, SIFS plus ACK samt sekvens, nyt forsøg og CCMP."
+        "nerd": "Adressekortet viser uplinkets 802.11-ramme ved siden af Ethernet-rammen. Det viser To DS, addr1 AP, addr2 STA og addr3 router, derefter DA og SA på kabel. Sendetidsstriben animerer AIFS, backoff, data, ingen ACK, nyt forsøg, SIFS plus ACK samt sekvens, nyt forsøg og CCMP."
       }
     },
     "endpoint": {
@@ -41,7 +41,7 @@
     "radioToAp": "til AP’et",
     "listen": "lyt",
     "backoff": "backoff",
-    "difs": "DIFS",
+    "aifs": "AIFS",
     "data": "data",
     "sifsAck": "SIFS+ACK",
     "listenKid": "lyt",
@@ -70,7 +70,7 @@
     "fromDs": "From DS = 1",
     "csma": "CSMA/CA · tilfældig backoff",
     "encrypt": "WPA3/CCMP skjuler indholdet",
-    "sequence": "SIFS 16 µs · ACK · retry-bit",
+    "sequence": "SIFS 16 µs (5 GHz) · ACK · retry-bit",
     "everyone": "alle hører den",
     "gotIt": "modtageren siger “Modtaget!”",
     "noAck": "ingen ACK"

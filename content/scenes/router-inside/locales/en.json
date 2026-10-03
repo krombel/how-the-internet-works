@@ -5,7 +5,7 @@
   },
   "title": "Inside the home router",
   "kid": "The home router is four little rooms in one box. Your parcel comes in through a socket, and the brain swaps your device’s name on it for your home’s, so the answer finds its way back. Then the light box turns the bits into flashes of light for the glass thread up the street.",
-  "nerd": "A home gateway is several boxes in one: an Ethernet switch, a Wi‑Fi radio, a router doing NAT (it swaps the private source address and port for its one public address, and remembers the pair so replies get back in) and an ONT that sends the frames upstream as XGS-PON bursts of light in its time slots.",
+  "nerd": "A home gateway is several boxes in one: an Ethernet switch, a Wi‑Fi radio, a router doing NAT (it swaps the private source address and port for its public address and a port of its own, and remembers the pair so replies get back in) and an ONT that sends the frames upstream as XGS-PON bursts of light in its time slots.",
   "describe": {
     "kid": "An opened router box is split into four small rooms: cable sockets, Wi‑Fi radio, brain and light box. One cable socket glows where the parcel comes in. The parcel walks through the brain, its sender sticker changes, and it leaves as flashing light.",
     "nerd": "The cutaway gateway shows switch, Wi‑Fi radio, router with NAT and ONT rooms. Only the rooms used on this trip are lit. The packet enters on the active copper link, passes through the NAT rewrite as bits, and leaves the ONT as XGS-PON light bursts."
