@@ -17,7 +17,7 @@
   import { loc, nameOf, nameW, routeKeys, themeState, tr, trFirst, trl, view } from '../state.svelte';
   import { untrack } from 'svelte';
   import { getScene, getWorld, legibleSize, tagSize } from './ctx';
-  import { drawDoors } from './drawn.svelte';
+  import { publishDoors } from './drawn.svelte';
   import { deviceArt, eraArt, groupBackdrop, placeBackdrop } from './lazy.svelte';
   import Arrive from './Arrive.svelte';
   import TagAt from './TagAt.svelte';
@@ -83,8 +83,7 @@
   });
   // lit labels keep off the scene's text (#137); the hit test and the coach cards read the badges as drawn
   const boxes = $derived(layoutDoors(doors, doorPx, lit, hot, labelW, { texts: texts.texts, arts: texts.arts, W }));
-  $effect(() => drawDoors(ps.key, { doors, badges: boxes, size: doorPx }));
-  $effect(() => { const key = ps.key; return () => drawDoors(key, null); });
+  publishDoors(() => ps.key, () => ({ doors, badges: boxes, size: doorPx }));
   const doorTarget = (d: Door) => {
     if (d.links.length) return { d: d.links.map((id) => curvePath(ps.links.find((k) => k.id === id)!)).join(' ') };
     const n = ps.nodes.find((k) => k.id === d.id)!;
