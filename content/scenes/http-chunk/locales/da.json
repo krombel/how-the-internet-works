@@ -18,7 +18,7 @@
     }
   },
   "sealed": {
-    "title": "{hop} ser kun størrelser",
+    "title": "{hop} ser kun ydersiden",
     "kid": "{hop} bærer sedlerne og filmkasserne, men de er låst inde i det hemmelige håndtryks kasse. Den kan ikke læse, hvilket stykke der bedes om, eller hvad svaret siger. Den kan kun se, hvilken vej hver kasse går, og hvor stor den er.",
     "nerd": "Ved {hop} er HTTP forseglet inde i TLS: stien, Host, status og indhold er krypteret. Det, der slipper ud, er servernavnet (SNI i ClientHello, medmindre ECH bruges), adresserne, retning, timing og recordlængde: en forespørgsel på ~400 B, et svar på ~750 kB og så et på ~200 kB, hvilket antyder, at afspilleren er gået ned i bitrate.",
     "describe": {
@@ -37,7 +37,7 @@
     },
     "seen": {
       "kid": "Alt den kan se",
-      "nerd": "Kun størrelser"
+      "nerd": "Kun ydersiden"
     },
     "locked": {
       "kid": "Brevet indeni",

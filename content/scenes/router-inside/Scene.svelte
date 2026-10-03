@@ -4,7 +4,7 @@
   // uplink: the fibre ONT, the modem for the phone line, or a cable socket of its own. A parcel comes in on the link
   // before (electric pushes on a cable), is plain bits inside, has its sender swapped by the brain and leaves on the
   // link after (as light on the fibre, tones on the phone line): the rooms it uses follow those links.
-  import { Node, Text, clientAt, fill, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
+  import { Node, Text, clientAt, fill, legibleSize, nameOf, strings, textBox, view, type NodeSubject } from '$core/api';
   import { centre, formFor, parcelAt, roomFor, routerLayout, tripPath, uplinkOf } from './router';
   import type { Look, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
@@ -40,11 +40,20 @@
   // NAPT swaps the address and the port: the sender as it arrives, and as it leaves
   const sender = (i: number) => {
     const c = clientAt(subject.route, i, subject.route.activity.flows[0]);
-    return c.port ? `${c.addr.text}:${c.port}` : c.addr.text;
+    return { full: c.port ? `${c.addr.text}:${c.port}` : c.addr.text, short: c.addr.text };
   };
   const stickers = $derived(S('mode') === 'nerd'
-    ? subject.hop.natTo ? [sender(subject.hop.index - 1), sender(subject.hop.index)] : [client.addr ?? '', subject.hop.addr ?? '']
-    : [nameOf(client), S('outside')].map((who) => fill(S('from'), { who })));
+    ? subject.hop.natTo ? [sender(subject.hop.index - 1), sender(subject.hop.index)] : [client.addr ?? '', subject.hop.addr ?? ''].map((a) => ({ full: a, short: a }))
+    : [nameOf(client), S('outside')].map((who) => fill(S('from'), { who })).map((s) => ({ full: s, short: s })));
+  /** The stickers' words in a room `w` wide: address:port where it fits (shrunk to no less than 80 %, and not at all
+   *  in compact layouts, which keep their legible size), else the address alone. */
+  function fitStickers(w: number) {
+    const full = stickers.map((s) => s.full);
+    if (stickers.every((s) => s.full === s.short)) return { texts: full, size: T.sticker };
+    const widest = Math.max(...full.map((t) => textBox(t, T.sticker, 'middle').w));
+    const size = widest <= w ? T.sticker : compact ? 0 : (T.sticker * w) / widest;
+    return size >= T.sticker * 0.8 ? { texts: full, size } : { texts: stickers.map((s) => s.short), size: T.sticker };
+  }
   const used = (r: RoomId) => r === 'brain' || r === inRoom || r === outRoom;
   const key = (r: RoomId) => (r === 'ont' ? uplink : r);
   const line = (r: RoomId) => (compact ? '' : S(`${key(r)}.${used(r) ? 'line' : 'idle'}`));
@@ -89,11 +98,12 @@
         <circle cx={c.x} cy={mid + 18} r="9" fill="var(--line)" />
       {:else if r === 'brain'}
         <!-- the sender's sticker, before and after the brain swaps it -->
-        {#each stickers as s, k (k)}
+        {@const fit = fitStickers(b.w - 52)}
+        {#each fit.texts as s, k (k)}
           {@const sy = mid + (k ? 1 : -1) * T.sticker * 1.25}
           {@const on = k === 1 ? parcel.swapped : !parcel.swapped}
           <rect x={b.x + 18} y={sy - T.sticker * 0.85} width={b.w - 36} height={T.sticker * 1.7} rx="8" fill={on ? 'var(--kraft)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width="4" />
-          <text x={c.x} y={sy + T.sticker * 0.36} text-anchor="middle" font-family={S('mode') === 'nerd' ? 'var(--tag-font)' : 'var(--label-font)'} font-size={T.sticker} font-weight="800" fill="var(--line)" text-decoration={k === 0 && parcel.swapped ? 'line-through' : undefined}>{s}</text>
+          <text x={c.x} y={sy + T.sticker * 0.36} text-anchor="middle" font-family={S('mode') === 'nerd' ? 'var(--tag-font)' : 'var(--label-font)'} font-size={fit.size} font-weight="800" fill="var(--line)" text-decoration={k === 0 && parcel.swapped ? 'line-through' : undefined}>{s}</text>
         {/each}
       {:else if uplink === 'wan'}
         <!-- one cable socket of its own, for the cable out of the home; lit, as it's the way out -->

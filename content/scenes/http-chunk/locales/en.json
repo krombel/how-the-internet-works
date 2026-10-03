@@ -18,7 +18,7 @@
     }
   },
   "sealed": {
-    "title": "{hop} sees only sizes",
+    "title": "{hop} sees only the outside",
     "kid": "{hop} carries the slips and the film boxes, but they are locked inside the secret handshake's box. It can't read which chunk is asked for or what the answer says. All it can tell is which way each box goes and how big it is.",
     "nerd": "At {hop}, HTTP is sealed inside TLS: the path, Host, status and body are ciphertext. What leaks is the server name (SNI in the ClientHello, unless ECH is used), the addresses, direction, timing and record length: a ~400 B request, a ~750 kB response, then a ~200 kB one, which hints that the player dropped to a lower bitrate.",
     "describe": {
@@ -37,7 +37,7 @@
     },
     "seen": {
       "kid": "All it can see",
-      "nerd": "Only sizes"
+      "nerd": "Only the outside"
     },
     "locked": {
       "kid": "The letter inside",
