@@ -1,6 +1,6 @@
 {
   "title": "Light in a glass thread",
-  "kid": "Fibre is a glass thread thinner than a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
+  "kid": "Fibre is a glass thread about as thin as a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
   "nerd": "Light is confined to the core by total internal reflection at the core/cladding boundary. DWDM multiplexes dozens of wavelengths around 1550 nm onto one fibre, each an independent channel of 100–800 Gbit/s.",
   "core": "Core",
   "cladding": "Cladding",

@@ -1,6 +1,6 @@
 {
   "title": "Lys i en glastråd",
-  "kid": "En fiber er en glastråd, der er tyndere end et hår. Lysglimt hopper frem inde i den. Forskellige farver kan dele den samme tråd uden at blive blandet sammen!",
+  "kid": "En fiber er en glastråd, omtrent lige så tynd som et hår. Lysglimt hopper frem inde i den. Forskellige farver kan dele den samme tråd uden at blive blandet sammen!",
   "nerd": "Lyset holdes inde i kernen af total intern refleksion ved grænsen mellem kerne og kappe. DWDM multiplekser snesevis af bølgelængder omkring 1550 nm på én fiber, hver en uafhængig kanal på 100–800 Gbit/s.",
   "core": "Kerne",
   "cladding": "Kappe",

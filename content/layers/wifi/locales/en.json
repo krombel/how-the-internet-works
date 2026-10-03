@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Sent through the air. Only the access point and {yours} listen for it.",
-    "nerd": "The AP acknowledges every frame and resends lost ones. The payload is encrypted (WPA3)."
+    "nerd": "Every frame is acknowledged by the receiver (often in blocks), and lost ones are resent. The payload is encrypted (WPA3)."
   },
   "line": "IEEE 802.11 QoS Data, RA: {addr1}, TA: {addr2}",
   "field": {
@@ -58,7 +58,7 @@
   },
   "2010": {
     "note": {
-      "nerd": "The AP acknowledges every frame and resends lost ones. The payload is encrypted (WPA2)."
+      "nerd": "Every frame is acknowledged by the receiver (often in blocks), and lost ones are resent. The payload is encrypted (WPA2)."
     },
     "field": {
       "ccmp": {

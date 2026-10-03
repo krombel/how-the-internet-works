@@ -4,8 +4,8 @@
     "nerd": "PPP frame"
   },
   "note": {
-    "kid": "The modem puts the parcel in a simple envelope for the phone call. Only the two modems open it.",
-    "nerd": "PPP in HDLC-like framing: no addresses, as a call has only two ends. LCP, CHAP and IPCP set it up when the call starts."
+    "kid": "The computer puts the parcel in a simple envelope for the phone call. Only your computer and the internet company open it.",
+    "nerd": "PPP in HDLC-like framing: no addresses, as a call has only two ends. LCP, a login (PAP or CHAP) and IPCP set it up when the call starts."
   },
   "line": "PPP, protocol {proto}",
   "value": {
@@ -32,7 +32,7 @@
         "kid": "What’s inside",
         "nerd": "Protocol"
       },
-      "about": "What the frame carries: 0x0021 is an IPv4 packet; LCP, CHAP and IPCP have numbers of their own."
+      "about": "What the frame carries: 0x0021 is an IPv4 packet; LCP, PAP, CHAP and IPCP have numbers of their own."
     },
     "fcs": {
       "name": "FCS",

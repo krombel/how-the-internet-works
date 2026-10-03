@@ -37,7 +37,7 @@
   },
   "1995": {
     "note": {
-      "kid": "The message itself, in plain writing: nobody locked it in 1995.",
+      "kid": "The message itself, in plain writing: ordinary pages weren’t locked in 1995.",
       "nerd": "The application message in plain HTTP/1.0: a request for the page or its picture, or a piece of the answer."
     },
     "value": {

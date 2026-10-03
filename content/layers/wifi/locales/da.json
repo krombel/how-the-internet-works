@@ -5,7 +5,7 @@
   },
   "note": {
     "kid": "Sendes gennem luften. Kun adgangspunktet og {yours} lytter efter den.",
-    "nerd": "Adgangspunktet kvitterer for hver ramme og sender tabte rammer igen. Indholdet er krypteret (WPA3)."
+    "nerd": "Hver ramme kvitteres af modtageren (ofte samlet), og tabte sendes igen. Indholdet er krypteret (WPA3)."
   },
   "line": "IEEE 802.11 QoS-data, RA: {addr1}, TA: {addr2}",
   "field": {
@@ -58,7 +58,7 @@
   },
   "2010": {
     "note": {
-      "nerd": "Adgangspunktet kvitterer for hver ramme og sender tabte rammer igen. Indholdet er krypteret (WPA2)."
+      "nerd": "Hver ramme kvitteres af modtageren (ofte samlet), og tabte sendes igen. Indholdet er krypteret (WPA2)."
     },
     "field": {
       "ccmp": {
