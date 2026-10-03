@@ -1,7 +1,7 @@
 {
   "title": "Radio beams",
   "kid": "The tower has lots of tiny antennas. Together they aim a beam right at each phone. And every phone gets its own seats in time and in radio colours, like seats on a bus, so they never talk over each other.",
-  "nerd": "A massive-MIMO panel beamforms a separate beam per user. Each 0.5 ms slot (30 kHz sub-carrier spacing) the scheduler hands out resource blocks: OFDMA shares time and frequency between users, so dozens of phones use the same 100 MHz at once.",
+  "nerd": "A massive-MIMO panel beamforms a separate beam per user. Each 0.5 ms slot (30 kHz sub-carrier spacing) the scheduler hands out resource blocks: OFDMA shares time and frequency between users, so dozens of phones use the same 100 MHz at once, and MU-MIMO lets several beams reuse the same resource blocks at the same time.",
   "describe": {
     "kid": "A cell tower points glowing beams at three phones, and your phone has a label. Beside them, a grid of tiny seats slides by for time and radio colours. Coloured seats light up for each phone. The matching beam glows when that phone gets a turn.",
     "nerd": "The gNB panel beamforms three users while a time-frequency grid scrolls beside it. Coloured resource blocks mark OFDMA allocations. The current slot makes the matching beam brighten. Labels call out 64T64R beamforming, 30 kHz spacing and 0.5 ms slots."

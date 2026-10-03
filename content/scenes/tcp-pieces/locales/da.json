@@ -1,9 +1,9 @@
 {
   "title": "TCP holder styr på stykkerne",
   "kid": "Videoserveren og {yours} giver hvert lille stykke et nummer. Hvis et stykke falder i et hul, bliver {yours} ved med at pege på hullet, indtil serveren sender stykket igen.",
-  "nerd": "TCP er ende-til-ende (RFC 9293): et 3-vejs-handshake (SYN, SYN-ACK, ACK) opretter sekvensrum. Afsenderen holder et vindue på fire segmenter, ACKs flytter det frem, og tre duplikerede ACKs for segment 5 udløser fast retransmit; appen får først bytes i rækkefølge.",
+  "nerd": "TCP er ende-til-ende (RFC 9293): et 3-vejs-handshake (SYN, SYN-ACK, ACK) aftaler startsekvensnumre i begge retninger. Afsenderen holder et vindue på fire segmenter (forenklet: rigtige vinduer tælles i bytes og starter ved ca. 10 segmenter). ACK=5 nævner den næste byte, der ventes, og flytter vinduet til 5–8; 6, 7 og 8 giver hver et duplikeret ACK=5, og det tredje udløser fast retransmit; appen får først bytes i rækkefølge.",
   "describe": {
-    "kid": "En vej forbinder {yours} og videoserveren, med kort for Server og Hylde. Nummererede kasser 1 til 8 står på række. Fire ad gangen må rejse. Talebobler siger hej eller “fik 3”. Kasse 5 falder i hullet, hylden lader et hul stå, så går 5 igen, og rækken fyldes.",
+    "kid": "En vej forbinder {yours} og videoserveren, med kort for Server og Hylde. Nummererede kasser 1 til 8 står på række. Fire ad gangen må rejse. Talebobler siger hej, “fik 4” og “fik 8”. Kasse 5 falder i hullet, hylden lader et hul stå og bliver ved med at sige “mangler 5”, så går 5 igen, og rækken fyldes.",
     "nerd": "Kortene viser TCP’s send-vindue og modtagerens buffer i rækkefølge. SYN, SYN-ACK og ACK-sedler starter løkken. Datasegmenter går over vejen, ACK-sedler går tilbage, og gentaget ACK 5 holder hullet åbent. Segment 5 sendes hurtigt igen med fast retransmit, vinduet flyttes, og bytes leveres først i orden."
   },
   "at": {
@@ -47,8 +47,9 @@
     "phone": "Hylde"
   },
   "ack": {
-    "got3": "fik 3!",
-    "wait5": "mangler 5!"
+    "got4": "fik 4!",
+    "wait5": "mangler 5!",
+    "got8": "fik 8!"
   },
   "label": {
     "window": "4 ad gangen",
@@ -64,7 +65,7 @@
   "tag": {
     "syn": "SYN seq=1000",
     "window": "vindue=4",
-    "dupAck": "dup ACK=5",
+    "dupAck": "dup ACK=5 ×{n}",
     "fast": "3 dup ACKs → #5",
     "order": "bytes i rækkefølge",
     "seal": "TCP forseglet",
@@ -73,7 +74,7 @@
   "1995": {
     "kid": "Serveren og {yours} giver hvert lille stykke af siden et nummer. Hvis et stykke falder i et hul, bliver {yours} ved med at pege på hullet, indtil serveren sender stykket igen.",
     "describe": {
-      "kid": "En vej forbinder {yours} og serveren, med kort for Server og Hylde. Nummererede kasser 1 til 8 står på række. Fire ad gangen må rejse. Talebobler siger hej eller “fik 3”. Kasse 5 falder i hullet, hylden lader et hul stå, så går 5 igen, og rækken fyldes.",
+      "kid": "En vej forbinder {yours} og serveren, med kort for Server og Hylde. Nummererede kasser 1 til 8 står på række. Fire ad gangen må rejse. Talebobler siger hej, “fik 4” og “fik 8”. Kasse 5 falder i hullet, hylden lader et hul stå og bliver ved med at sige “mangler 5”, så går 5 igen, og rækken fyldes.",
       "nerd": "Kortene viser TCP’s send-vindue og modtagerens buffer i rækkefølge. SYN, SYN-ACK og ACK-sedler starter løkken. Datasegmenter går over vejen, ACK-sedler går tilbage, og gentaget ACK 5 holder hullet åbent. Segment 5 sendes hurtigt igen med fast retransmit, vinduet flyttes, og bytes leveres først i orden."
     },
     "at": {

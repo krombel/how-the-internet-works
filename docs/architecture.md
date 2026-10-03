@@ -221,14 +221,15 @@ hop. A layer's `fields` hold value templates with facts from the route:
 | Fact | On a link, in the packet's direction |
 |---|---|
 | `{src}` `{dst}` `{sport}` `{dport}` | The client's address and port after every NAT passed (`natTo: 'addr:port'` on a hop), the server's from its `addr` and the flow's `ports` |
-| `{ttl}` | 64 at the sender, minus one per `router` or `nat` passed |
+| `{ttl}` | 64 at the sender, minus one per `router` or `nat` passed. In a `switched` layer (MPLS) that is its own TTL; the packet's own skips the routers that only switched its label and catches up when the label comes off (RFC 3443's uniform model) |
 | `{mac.src}` `{mac.dst}` | The nearest L2 ends: the hops either side that aren't bridges or passive (a bridge passes the frame on, a splitter just the light) or where a tunnel starts or ends |
 | `{mac.tx}` `{mac.rx}` | The link's own two ends (radio transmitter and receiver) |
 | `{tunnel.src}` `{tunnel.dst}` | The ends of the run of links carrying the `tunnel` layer |
 | `{len}` `{payload}` (`{payload+8}`) | This layer and all inside it / only what's inside, in bytes (from `bits` and `bytes`) |
-| `{sum}` `{crc}` | Stable fake checksums that change whenever what they cover changes |
+| `{sum}` `{crc}` | Stable fake checksums that change whenever what they cover changes (`{crc}` as wide as its field) |
 | `{label}` | A stable fake MPLS label, the one the receiving hop asked for (so it is swapped at every label-switching hop and gone where the next link has no MPLS) |
 | `{inner.<code>}` | How this layer names the next one inside (`code` on that layer: EtherType, IP protocol) |
+| `{ack}` | The other direction's `seq` value in this layer plus the bytes it carried inside it: the next byte expected (TCP) |
 
 `packetOn(route, flow, link, dir)` resolves the stack on one link, inside-out (lengths and checksums cover inner
 layers). Values carry who they belong to (`who`: a hop), so kids see "your phone" where nerds see `192.168.1.23`.
@@ -237,6 +238,8 @@ layers). Values carry who they belong to (`who`: a hop), so kids see "your phone
 layers are **kept**, **added** or **removed**, like a tunnel or a new link frame). For each layer:
 - **sealed**: inside a `seals` layer (TLS) this hop doesn't open
 - **closed**: not in the layer's `openAt` for this hop's role (TCP at a router): readable, not its business
+- at a hop that only switches a label (`labelSwitched`: a router between two links that carry the same `switched`
+  layer), nothing inside that layer is used: the MPLS core router doesn't read the IP header
 - **open**: everything else
 
 Each field is **used** when the hop's role is in its `use` (or `use: true`), and **changed** (with the value `before`)
@@ -245,7 +248,7 @@ port rewritten, checksums fixed; the cell tower: NR off, Ethernet and a GTP‑U 
 
 ### The peek (`ui/PeekPanel.svelte`)
 
-The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`), chips for what changed,
+The hop's name and "3 of 9", what it does (`node.<id>.peek.<dir>`, else `peek.role.<role>`, with `switched` for a router that only swaps a label), chips for what changed,
 the envelopes taken off here, then the packet as it leaves as nested envelopes (`ui/Envelope.svelte`), and below them
 **How it travels: Light in a glass thread**, down to the dive of the link it leaves on (at its last hop, the one it
 arrived on; the catch is let go and the camera flies there). Kids see only
@@ -439,7 +442,7 @@ mark (`mark`) to draw inside its own shape, so up and down still differ by shape
   (and `….title` likewise);
 - layer dives: `subject.layer`, `subject.ctx` (the hop's `LayerCtx`, below, at the current level), `subject.open`
   (whether the hop reads the layer, else it's sealed there) and `subject.route`. Captions look up
-  `scene.<id>.at.<node>`, then `.role.<role>`, then `.sealed`, then the plain strings; each first under the layer
+  `scene.<id>.at.<node>`, then `.role.<role>` (`.role.switched` first at a label-switching router), then `.sealed`, then the plain strings; each first under the layer
   (`scene.<id>.<layer>.at.<node>` … `scene.<id>.<layer>`), for a scene serving several layers.
 
 Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour and the device art): a scene's chunk is

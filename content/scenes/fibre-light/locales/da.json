@@ -1,6 +1,6 @@
 {
   "title": "Lys i en glastråd",
-  "kid": "En fiber er en glastråd, der er tyndere end et hår. Lysglimt hopper frem inde i den. Forskellige farver kan dele den samme tråd uden at blive blandet sammen!",
+  "kid": "En fiber er en glastråd, omtrent lige så tynd som et hår. Lysglimt hopper frem inde i den. Forskellige farver kan dele den samme tråd uden at blive blandet sammen!",
   "nerd": "Lyset holdes inde i kernen af total intern refleksion ved grænsen mellem kerne og kappe. DWDM multiplekser snesevis af bølgelængder omkring 1550 nm på én fiber, hver en uafhængig kanal på 100–800 Gbit/s.",
   "core": "Kerne",
   "cladding": "Kappe",
@@ -87,7 +87,7 @@
   "submarine": {
     "title": "Lys under havet",
     "kid": "Her krydser internettet havet! Glastrådene ligger i et kabel, så tykt som en haveslange, helt nede på havbunden. Strøm løber gennem kablet fra land ud til forstærkerne, som gør lyset klart igen på vejen over.",
-    "nerd": "Et søkabel: nogle få fiberpar i et stålrør, omviklet med kobber og polyethylen, armeret og nedgravet nær kysten mod ankre og trawl. Landingsstationerne sender flere kV jævnstrøm gennem kobberet til repeaterne (EDFA’er) for hver 60–80 km.",
+    "nerd": "Et søkabel: nogle få fiberpar i et stålrør, omviklet med kobber og polyethylen, armeret og nedgravet nær kysten mod ankre og trawl. Landingsstationerne sender flere kV jævnstrøm gennem kobberet til repeaterne (EDFA’er), én for omtrent hver 50–80 km på lange kabler; en så kort overfart bygges ofte helt uden.",
     "describe": {
       "kid": "Et kig fra siden ned i havet mellem to landingsstationer på kysten. Et kabel løber ned ad skrænten og hen ad havbunden med forstærkere på. Farvede lysglimt og små gule gnister af strøm farer langs kablet, et rødt tal tæller kilometerne, og en haj svømmer forbi. En cirkel viser kablet skåret over.",
       "nerd": "Et kig fra siden på et søkabel mellem to landingsstationer. Kablet er nedgravet nær kysten og ligger på havbunden med en repeater for hver strækning på op til 60 km. Fire bølgelængder krydser og dæmpes over hver strækning; gnister viser jævnstrøm fra land. Et tværsnit viser fibre i et rør, kobber og stålarmering. En tæller følger λ1 i km."
@@ -153,6 +153,9 @@
     },
     "tag": {
       "backbone": "40–80 λ · EDFA / 80 km"
+    },
+    "dc-fibre": {
+      "nerd": "Datacenteroptik i 2010: mest 10G, på korte multimode-forbindelser (10GBASE-SR) eller single-mode (10GBASE-LR); den nye 40GBASE-LR4 lægger fire 10G-baner på fire CWDM-bølgelængder (1271–1331 nm) over ét single-mode-par. De sidste meter ind til en server er ofte kobber. Hver forbindelse er ét hop i fabric’en."
     }
   }
 }

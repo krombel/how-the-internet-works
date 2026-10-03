@@ -5,10 +5,10 @@
   },
   "title": "Inside the video server",
   "kid": "The video server is a computer that keeps popular videos close to you. Light from the data-centre link becomes bits on the network card. The video app looks on the shelves; if the piece is there, it sends it straight back. If not, it asks the main copy far away, saves a copy, and then sends yours.",
-  "nerd": "A CDN cache server terminates the fibre on a NIC, then the request reaches the video service running in VMs or containers on a hypervisor, often scheduled as k8s pods. The app checks hot RAM and NVMe SSD cache. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
+  "nerd": "A CDN cache server terminates the fibre on a NIC, and the cache software usually runs on bare metal (e.g. FreeBSD + NGINX), streaming hot objects from RAM and NVMe straight to the NIC. The app checks the RAM cache, then the NVMe SSDs. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
   "describe": {
-    "kid": "An open server case shows a network card, little computers, memory and video shelves. A request comes in as light, reaches the video app, then the shelf either sends a film piece back or asks the far-away main copy first.",
-    "nerd": "The cutaway cache server shows NIC, VM/container host, RAM and NVMe SSD cache. The request enters on fibre and reaches the highlighted app. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
+    "kid": "An open server case shows a network card, the computer, memory and video shelves. A request comes in as light, reaches the video app, then the shelf either sends a film piece back or asks the far-away main copy first.",
+    "nerd": "The cutaway cache server shows NIC, host CPU running the bare-metal cache app, RAM and NVMe SSD cache. The request enters on fibre and reaches the highlighted app. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
   },
   "app": "Video app",
   "hit": {
@@ -36,11 +36,11 @@
   "compute": {
     "title": {
       "kid": "The computer",
-      "nerd": "Host compute"
+      "nerd": "Host CPU"
     },
     "line": {
-      "kid": "Little computers inside",
-      "nerd": "KVM · containers · k8s pods"
+      "kid": "Runs the video app",
+      "nerd": "Bare-metal cache app"
     }
   },
   "memory": {
@@ -108,6 +108,26 @@
       "picture": {
         "kid": "And here’s the picture!",
         "nerd": "GET /picture.gif → 200 OK"
+      }
+    }
+  },
+  "2010": {
+    "nerd": "A 2010 cache server terminates a 10G link on its NIC; the cache software runs on bare metal and serves hot objects from RAM, the rest from spinning disks and the first SSDs. A HIT is served locally; a MISS fetches from origin, stores a copy according to cache-control and TTL, then replies.",
+    "describe": {
+      "kid": "An open server case shows a network card, the computer, memory and video shelves. A request comes in as light, reaches the video app, then the shelf either sends a film piece back or asks the far-away main copy first.",
+      "nerd": "The cutaway cache server shows NIC, host CPU running the cache app, RAM and disk cache. The request enters on fibre and reaches the highlighted app. Hit cycles return a video segment from cache; miss cycles go to origin, store a copy, then return."
+    },
+    "nic": {
+      "title": {
+        "nerd": "NIC 2×10G"
+      }
+    },
+    "ssd": {
+      "title": {
+        "nerd": "Disk cache"
+      },
+      "line": {
+        "nerd": "HDDs and early SSDs"
       }
     }
   }

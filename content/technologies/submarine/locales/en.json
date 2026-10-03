@@ -1,5 +1,5 @@
 {
   "name": "Undersea cable",
   "kid": "A cable lying on the sea floor, full of glass threads, joining two coasts.",
-  "nerd": "A submarine fibre cable between two landing stations, with optical repeaters powered through the cable. Here it carries the ISP's MPLS backbone across the sea."
+  "nerd": "A submarine fibre cable between two landing stations, short ones without repeaters, long ones with optical repeaters powered through the cable. Here it carries the ISP's MPLS backbone across the sea."
 }

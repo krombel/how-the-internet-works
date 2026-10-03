@@ -1,6 +1,6 @@
 {
   "name": "Load balancer",
   "kid": "A traffic warden. Lots of computers could answer, so it picks one that isn’t busy, and sends every parcel of your video to that same one.",
-  "nerd": "An L4 load balancer holds the service address (VIP). It hashes each connection’s 5-tuple onto a healthy backend (consistent hashing, as in Maglev), so every packet of one TCP connection reaches the same server; health checks take broken servers out.",
+  "nerd": "An L4 load balancer holds the service address (VIP). It hashes each connection’s 5-tuple onto a healthy backend (consistent hashing), so every packet of one TCP connection reaches the same server; health checks take broken servers out.",
   "tag": "L4 · VIP · consistent hash"
 }

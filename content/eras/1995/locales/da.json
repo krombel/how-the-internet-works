@@ -1,7 +1,7 @@
 {
   "name": "1995",
   "kid": "Internet derhjemme var et telefonopkald. Computerens modem ringede op til internetfirmaet med bip og hvin, og mens man var på nettet, kunne ingen bruge telefonen.",
-  "nerd": "Opkaldsforbindelse: et modem på 28,8 kbit/s (56k kom i 1998) ringer til udbyderens modembank, og PPP giver pc’en sin egen offentlige adresse. Ingen Wi‑Fi, ingen router, ingen NAT.",
+  "nerd": "Opkaldsforbindelse: et modem på 28,8 kbit/s (56k kom i 1997; V.90 i 1998) ringer til udbyderens modembank, og PPP giver pc’en sin egen offentlige adresse. Ingen Wi‑Fi, ingen router, ingen NAT.",
   "describe": {
     "kid": "En stor beige computer med en dyb skærm og et tastatur i en ledning. Modemmet står blinkende på en hylde og ringer op til internetfirmaet.",
     "nerd": "En stationær pc: dens eksterne modem ringer op til udbyderen på telefonlinjen, uden nogen router imellem."

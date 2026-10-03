@@ -49,7 +49,7 @@
         "kid": "Steps left",
         "nerd": "Time to live"
       },
-      "about": "Every router takes one off and drops the packet at 0, so a routing loop can’t keep it forever."
+      "about": "Every router takes one off and drops the packet at 0, so a routing loop can’t keep it forever. Inside an MPLS core, the label’s TTL is counted instead and copied back here at the edge."
     },
     "proto": {
       "name": "Protocol",
@@ -57,7 +57,7 @@
     },
     "checksum": {
       "name": "Header checksum",
-      "about": "Checked by every router, and rewritten because the TTL changed."
+      "about": "Checked by every router that reads the header, and rewritten because the TTL changed."
     },
     "src": {
       "name": {

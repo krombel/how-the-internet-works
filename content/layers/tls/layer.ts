@@ -5,10 +5,10 @@ export default defineLayer({
   fields: [
     { id: 'type', bits: 8, value: '23 (application data)', use: ['endpoint'] },
     { id: 'version', bits: 16, value: '0x0303', use: ['endpoint'] },
-    { id: 'length', bits: 16, value: '{payload+16}', use: ['endpoint'] },
+    { id: 'length', bits: 16, value: '{payload+17}', use: ['endpoint'] },
   ],
-  // the authentication tag after the ciphertext
-  bytes: { up: 16, down: 16 },
+  // after the ciphertext of the payload: TLS 1.3's inner content type (1 byte) and the authentication tag (16)
+  bytes: { up: 17, down: 17 },
   openAt: ['endpoint'],
   dive: 'tls-lock',
   learnMore: [

@@ -68,7 +68,7 @@
   "mpls": {
     "title": "Motorvejsnumre",
     "kid": "Inde i udbyderens net er mærkaten et motorvejsnummer. Et kryds bytter det til det nummer, det næste kryds bad om, og sender pakken ud ad dør 3 uden at læse den lange adresse. Nedenunder rejser den som lysglimt i fiber.",
-    "nerd": "MPLS-routere bruger en LFIB: en indgående label peger på et udgående interface og den label, den næste router annoncerede. Indgangskanten pusher en label, LSR'er i midten swapper den, udgangskanten popper den (eller hoppet før, med penultimate-hop popping).",
+    "nerd": "MPLS-routere bruger en LFIB: en indgående label peger på et udgående interface og den label, den næste router annoncerede. Indgangskanten pusher en label, LSR'er i midten swapper den, udgangskanten popper den (eller, som standard, hoppet før: penultimate-hop popping).",
     "describe": {
       "kid": "En bred vej går gennem et kryds med fire døre, og den gående pakke bærer et stort motorvejsnummer. Label-kortet viser IP, der får et nyt nummer, eller ét nummer der bliver til et andet. Labelbogen viser, hvilken dør der skal bruges, dør 3 lyser, og pakken går videre.",
       "nerd": "MPLS-pakken står ved en fireports LSR, hvor dør 3 er markeret. Handlingskortet viser enten IP, der får en udgående label, eller en indgående label, der skiftes til næste label. LFIB-kortet viser samme mapping. Pakken med label bevæger sig videre mellem noderne."
@@ -77,7 +77,7 @@
       "border": {
         "title": "Af motorvejen",
         "kid": "Grænserouteren er det sidste kryds i dit internetfirmas net. Den tager motorvejsmærkaten af, så knudepunktet og det næste net kan læse den normale adresse igen. Nedenunder rejser den som lysglimt i fiber.",
-        "nerd": "Egress-PE’en popper labelen før det Ethernet-only peering-LAN på IXP’et og sender videre på IP-headeren mod eBGP-næste hop. Med penultimate-hop popping ville kernen i stedet poppe den et hop tidligere. TC-bits bærer klasse, og TTL kopieres fra IP og tælles ned.",
+        "nerd": "Egress-PE’en popper labelen før det Ethernet-only peering-LAN på IXP’et og sender videre på IP-headeren mod eBGP-næste hop. Som regel har kernerouteren før den allerede poppet den (penultimate-hop popping, standarden); her popper grænserouteren den selv. TC-bits bærer klasse; ved pop kopieres den nedtalte MPLS-TTL tilbage til IP-headeren (den uniforme model; pipe-modellen lader IP-TTL’en være).",
         "describe": {
           "kid": "Ved det sidste kryds med fire døre kommer pakken med en motorvejsmærkat på. Label-kortet viser, at nummeret bliver til IP igen, med et lille pop-skilt imellem. Labelbogen siger, at mærkaten skal af, dør 3 lyser, og pakken går videre som en pakke med almindelig adresse.",
           "nerd": "Egress-routeren er markeret på vejen med den MPLS-mærkede pakke ved dørene. Handlingskortet viser den indgående label ændret tilbage til IP og markeret pop. LFIB-kortet viser labelen med pop og siger, at IP skal læses bagefter. Den aktive udgangsdør lyser, mens pakken fortsætter uden MPLS-label."

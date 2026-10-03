@@ -74,9 +74,19 @@ export function clock(time: number): number {
   return ((time % LOOP) + LOOP) % LOOP;
 }
 
+/** The story, in seconds of the loop: 1–4 cross one by one and are ACKed together (ACK=5), the window slides to
+ *  5–8, 5 falls in the hole, and 6, 7 and 8 each draw a duplicate ACK=5. After the third, 5 is sent again; ACK=9. */
+const T = { send: 3.2, trip: 1, ack: 7.2, slide: 8.3, lost: 8.3, after: 9.6, resend: 13, back: 14.4, ready: 15.5 };
+/** When box `n` leaves the server, and when it reaches the shelf (5: the second time). */
+function trip(n: number): [number, number] {
+  if (n <= 4) return [T.send + (n - 1) * T.trip, T.send + n * T.trip];
+  if (n === 5) return [T.resend, T.back];
+  return [T.after + (n - 6) * T.trip, T.after + (n - 5) * T.trip];
+}
+
 export function phase(time: number): Phase {
   const t = clock(time);
-  return t < 3.2 ? 'handshake' : t < 7.2 ? 'send' : t < 10.2 ? 'loss' : t < 14 ? 'resend' : 'ready';
+  return t < T.send ? 'handshake' : t < T.slide ? 'send' : t < T.resend ? 'loss' : t < T.ready ? 'resend' : 'ready';
 }
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
@@ -111,38 +121,37 @@ export function cardGap(card: Box, portrait: boolean): number {
   return portrait ? 88 : card.w > 650 ? 82 : 70;
 }
 
+/** The first box of the send window: 1–4 until ACK=5 reaches the server, then 5–8. */
 export function windowStart(time: number): number {
-  const t = clock(time);
-  if (t < 7.2) return 1;
-  if (t < 10.2) return 3;
-  if (t < 14) return 5;
-  return 5;
+  return clock(time) < T.slide ? 1 : 5;
 }
 
 export function shelfFilled(time: number, n: number): boolean {
-  const t = clock(time);
-  if (n <= 4) return t >= 5.0;
-  if (n === 5) return t >= 13.2;
-  if (n <= 7) return t >= 8.1;
-  return t >= 14.4;
+  return clock(time) >= trip(n)[1];
 }
 
 export function travellingBox(time: number): { n: number; x: number | null; lost?: boolean; glow?: boolean } {
   const t = clock(time);
-  if (t < 3.2) return { n: 0, x: null };
-  if (t < 7.2) return { n: Math.min(4, Math.max(1, Math.floor((t - 3.2) / 0.9) + 1)), x: ramp(time, 3.2, 7.2) };
-  if (t < 9.2) return { n: 5, x: ramp(time, 7.2, 9.2), lost: t > 8.35 };
-  if (t < 11.1) return { n: 6, x: ramp(time, 9.2, 11.1) };
-  if (t < 13.4) return { n: 5, x: ramp(time, 11.1, 13.4), glow: true };
-  if (t < 15.8) return { n: 8, x: ramp(time, 13.8, 15.8) };
+  if (t >= T.lost && t < T.after) return { n: 5, x: ramp(time, T.lost, T.after), lost: ramp(time, T.lost, T.after) > 0.52 };
+  for (const n of [1, 2, 3, 4, 6, 7, 8, 5]) {
+    const [a, b] = trip(n);
+    if (t >= a && t < b) return { n, x: ramp(time, a, b), glow: n === 5 };
+  }
   return { n: 0, x: null };
 }
 
-export function ackTicket(time: number): { text: 'got' | 'missing'; x: number | null } {
-  const t = clock(time);
-  if (t >= 5.4 && t < 6.8) return { text: 'got', x: ramp(time, 5.4, 6.8) };
-  if (t >= 9.0 && t < 12.1) return { text: 'missing', x: ramp(time, 9.0, 12.1) };
-  return { text: 'got', x: null };
+/** How many duplicate ACK=5s the shelf has sent: one for each of 6, 7 and 8 that arrived while 5 was missing. */
+export function dupAcks(time: number): number {
+  return shelfFilled(time, 5) ? 0 : [6, 7, 8].filter((n) => shelfFilled(time, n)).length;
+}
+
+/** The ACK on its way back: "got 4" (ACK=5), "waiting for 5" while the duplicates go back, then "got 8" (ACK=9). */
+export function ackTicket(time: number): { text: 'got4' | 'wait5' | 'got8'; x: number | null } {
+  const t = clock(time), first = trip(6)[1];
+  if (t >= T.ack && t < T.slide) return { text: 'got4', x: ramp(time, T.ack, T.slide) };
+  if (t >= first && t < T.resend) return { text: 'wait5', x: ramp(time, first, T.resend) };
+  if (t >= T.back && t < T.ready) return { text: 'got8', x: ramp(time, T.back, T.ready) };
+  return { text: 'got4', x: null };
 }
 
 export function handshakeTicket(time: number): { key: 'hi' | 'yes' | 'great'; x: number; back: boolean; on: boolean }[] {

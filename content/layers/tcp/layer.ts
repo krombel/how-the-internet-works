@@ -7,10 +7,12 @@ export default defineLayer({
     { id: 'sport', bits: 16, value: '{sport}', use: ['router', 'nat', 'endpoint'] },
     { id: 'dport', bits: 16, value: '{dport}', use: ['router', 'nat', 'endpoint'] },
     { id: 'seq', bits: 32, value: { up: '3920417111', down: '1120598433' }, use: ['endpoint'], kid: { up: '1', down: '42' } },
-    { id: 'ack', bits: 32, value: { up: '1120598433', down: '3920417491' }, use: ['endpoint'] },
+    // the server acknowledges the whole request: its seq plus the bytes it carried
+    { id: 'ack', bits: 32, value: { up: '1120598433', down: '{ack}' }, use: ['endpoint'] },
     { id: 'offset', bits: 4, value: '5 (20 bytes)' },
-    { id: 'reserved', bits: 3, value: '0' },
-    { id: 'flags', bits: 9, value: { up: 'PSH, ACK', down: 'ACK' }, use: ['endpoint'] },
+    // RFC 9293: 4 reserved bits and 8 control bits (the old NS bit is historic, RFC 8311)
+    { id: 'reserved', bits: 4, value: '0' },
+    { id: 'flags', bits: 8, value: { up: 'PSH, ACK', down: 'ACK' }, use: ['endpoint'] },
     { id: 'window', bits: 16, value: { up: '2048', down: '501' }, use: ['endpoint'] },
     // covers the addresses and ports too, so a NAT has to fix it
     { id: 'checksum', bits: 16, value: '{sum}', use: ['nat', 'endpoint'] },

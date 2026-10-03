@@ -1,9 +1,9 @@
 {
   "title": "TCP keeps the pieces in order",
   "kid": "The video server and {yours} number every little piece. If one falls in a hole, {yours} keeps pointing at the gap until the server sends that piece again.",
-  "nerd": "TCP is end-to-end (RFC 9293): a 3-way handshake (SYN, SYN-ACK, ACK) establishes sequence spaces. The sender keeps a four-segment window, ACKs advance it, and three duplicate ACKs for segment 5 trigger fast retransmit; delivery to the app waits for in-order bytes.",
+  "nerd": "TCP is end-to-end (RFC 9293): a 3-way handshake (SYN, SYN-ACK, ACK) agrees the starting sequence numbers both ways. The sender keeps a four-segment window (simplified: real windows are in bytes and start at about 10 segments). ACK=5 names the next byte expected and slides the window to 5–8; 6, 7 and 8 each draw a duplicate ACK=5, and the third triggers fast retransmit; delivery to the app waits for in-order bytes.",
   "describe": {
-    "kid": "A road links {yours} and the video server, with cards for Server and Shelf. Numbered boxes 1 to 8 line up. Four at a time can travel. Speech tickets say hello or “got 3”. Box 5 falls into the pothole, the shelf leaves a gap, then 5 walks again and the row fills.",
+    "kid": "A road links {yours} and the video server, with cards for Server and Shelf. Numbered boxes 1 to 8 line up. Four at a time can travel. Speech tickets say hello, “got 4” and “got 8”. Box 5 falls into the pothole, the shelf leaves a gap and keeps saying “waiting for 5”, then 5 walks again and the row fills.",
     "nerd": "The cards show the TCP send window and the receiver’s in-order buffer. SYN, SYN-ACK and ACK tickets start the loop. Data segments cross the road, ACK tickets travel back, and duplicate ACK 5 keeps the gap. Segment 5 is fast retransmitted, the window slides, and delivery waits for ordered bytes."
   },
   "at": {
@@ -47,8 +47,9 @@
     "phone": "Shelf"
   },
   "ack": {
-    "got3": "got 3!",
-    "wait5": "waiting for 5!"
+    "got4": "got 4!",
+    "wait5": "waiting for 5!",
+    "got8": "got 8!"
   },
   "label": {
     "window": "4 at once",
@@ -64,7 +65,7 @@
   "tag": {
     "syn": "SYN seq=1000",
     "window": "win=4",
-    "dupAck": "dup ACK=5",
+    "dupAck": "dup ACK=5 ×{n}",
     "fast": "3 dup ACKs → #5",
     "order": "in-order bytes",
     "seal": "TCP sealed",
@@ -73,7 +74,7 @@
   "1995": {
     "kid": "The server and {yours} number every little piece of the page. If one falls in a hole, {yours} keeps pointing at the gap until the server sends that piece again.",
     "describe": {
-      "kid": "A road links {yours} and the server, with cards for Server and Shelf. Numbered boxes 1 to 8 line up. Four at a time can travel. Speech tickets say hello or “got 3”. Box 5 falls into the pothole, the shelf leaves a gap, then 5 walks again and the row fills.",
+      "kid": "A road links {yours} and the server, with cards for Server and Shelf. Numbered boxes 1 to 8 line up. Four at a time can travel. Speech tickets say hello, “got 4” and “got 8”. Box 5 falls into the pothole, the shelf leaves a gap and keeps saying “waiting for 5”, then 5 walks again and the row fills.",
       "nerd": "The cards show the TCP send window and the receiver’s in-order buffer. SYN, SYN-ACK and ACK tickets start the loop. Data segments cross the road, ACK tickets travel back, and duplicate ACK 5 keeps the gap. Segment 5 is fast retransmitted, the window slides, and delivery waits for ordered bytes."
     },
     "at": {

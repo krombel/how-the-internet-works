@@ -8,8 +8,8 @@
     "kid": "Inde i internetknudepunktet",
     "nerd": "IXP peering-LAN"
   },
-  "kid": "Et internetknudepunkt er et mødested for netværk. Hjælperen deler sedler om, hvem der kan nå hvad. Så bytter din pakke lige over den fælles switch, uden at betale et teleselskab eller besøge hjælperen.",
-  "nerd": "IXP'en er et fælles Ethernet-net. Medlemmer peerer med BGP, ofte gennem en route server, der spejler ruter, men ikke sender trafik videre. Din pakke tager ét data-plane-hop over peering-LAN'et fra udbyderens port til CDN-porten.",
+  "kid": "Et internetknudepunkt er et mødested for netværk. Hjælperen deler sedler om, hvem der kan nå hvad. Så bytter din pakke lige over den fælles switch, uden at betale pr. pakke eller besøge hjælperen.",
+  "nerd": "IXP'en er et fælles Ethernet-net. Medlemmer peerer med BGP, ofte gennem en route server, der videregiver ruter, men ikke sender trafik videre. Din pakke tager ét data-plane-hop over peering-LAN'et fra udbyderens port til CDN-porten.",
   "describe": {
     "kid": "En lang fælles switch står i midten. Dit internetfirmas router sidder i den ene ende og videofirmaets i den anden. Fire andre net er også sat til. En hjælperkasse har sit eget kabel. Små sedler kører over switchen til hjælperen og tilbage. Så kører din pakke lige over switchen til videofirmaet.",
     "nerd": "Et peering-LAN med seks medlemsporte. Route serveren har sin egen port. BGP UPDATE-sedler krydser switchen til route serveren og tilbage til alle medlemmer. Så krydser pakken switchen i ét hop, fra ISP'ens grænseport til CDN'ens port. Den kommer aldrig forbi route serveren."

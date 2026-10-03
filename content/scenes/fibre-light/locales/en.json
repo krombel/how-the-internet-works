@@ -1,6 +1,6 @@
 {
   "title": "Light in a glass thread",
-  "kid": "Fibre is a glass thread thinner than a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
+  "kid": "Fibre is a glass thread about as thin as a hair. Flashes of light bounce along inside it. Different colours can share the same thread without getting mixed up!",
   "nerd": "Light is confined to the core by total internal reflection at the core/cladding boundary. DWDM multiplexes dozens of wavelengths around 1550 nm onto one fibre, each an independent channel of 100–800 Gbit/s.",
   "core": "Core",
   "cladding": "Cladding",
@@ -87,7 +87,7 @@
   "submarine": {
     "title": "Light under the sea",
     "kid": "Here the internet crosses the sea! The glass threads lie inside a cable as thick as a garden hose, right on the sea floor. Electricity runs through the cable from the shore to power the boosters, which make the light bright again on the way across.",
-    "nerd": "A submarine cable: a few fibre pairs in a steel tube, wrapped in copper and polyethylene, armoured and buried near the shore against anchors and trawls. The landing stations feed several kV of DC through the copper to power the repeaters (EDFAs) every 60–80 km.",
+    "nerd": "A submarine cable: a few fibre pairs in a steel tube, wrapped in copper and polyethylene, armoured and buried near the shore against anchors and trawls. The landing stations feed several kV of DC through the copper to power the repeaters (EDFAs), one about every 50–80 km on long cables; a crossing this short is often built without any.",
     "describe": {
       "kid": "A side view of the sea between two landing stations on the shore. A cable runs down the slope and along the sea floor, with boosters on it. Coloured flashes of light and little yellow sparks of electricity travel along the cable, a red number counts the kilometres, and a shark swims by. A circle shows the cable cut open.",
       "nerd": "A side view of a submarine cable between two landing stations. The cable is buried near the shore and lies on the sea floor, with a repeater every span of up to 60 km. Four wavelengths cross, fading over each span; sparks show DC power from the shore. A cross-section shows fibres in a tube, copper and steel armour. A counter follows λ1 in km."
@@ -153,6 +153,9 @@
     },
     "tag": {
       "backbone": "40–80 λ · EDFA / 80 km"
+    },
+    "dc-fibre": {
+      "nerd": "Data-centre optics in 2010: mostly 10G, on short multimode runs (10GBASE-SR) or single-mode (10GBASE-LR); the new 40GBASE-LR4 puts four 10G lanes on four CWDM wavelengths (1271–1331 nm) over one single-mode pair. The last metres to a server are often copper. Each link is one hop of the fabric."
     }
   }
 }

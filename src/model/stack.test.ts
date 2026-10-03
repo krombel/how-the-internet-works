@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { layerKeys } from './describe';
 import { resolveRoute } from './resolve';
 import { layerCtx } from './stack';
 import { firstOf, loadPack, lookupLevel, packs } from './strings';
+import type { SceneRef } from './tree';
 
 const home = resolveRoute({ activity: 'watch-video', places: ['home'] });
 const street = resolveRoute({ activity: 'watch-video', places: ['street'] });
@@ -29,10 +31,20 @@ describe('addresses', () => {
     expect([back.dst, back.dport, back.sport]).toEqual(['192.0.2.44', 20517, 443]);
   });
 
-  it('counts down the TTL at each router', () => {
-    expect(layerCtx(home, link(home, 'phone-ap'), 'video', 'request', 'up', 'kid').ttl).toBe(64);
-    expect(layerCtx(home, link(home, 'router-cabinet'), 'video', 'request', 'up', 'kid').ttl).toBe(63);
-    expect(layerCtx(home, link(home, 'ixp-dc-router'), 'video', 'request', 'up', 'kid').ttl).toBeLessThan(63);
+  it('knows when the next hop only switches a label (#134)', () => {
+    const at = (l: string, dir: 'up' | 'down') => layerCtx(home, link(home, l), 'video', 'request', dir, 'nerd').switched;
+    expect(at('bng-core', 'up')).toBe(true);
+    expect(at('core-border', 'down')).toBe(true);
+    // the edges push and pop: they read the packet
+    expect(at('olt-bng', 'up')).toBe(false);
+    expect(at('core-border', 'up')).toBe(false);
+    expect(at('phone-ap', 'up')).toBe(false);
+  });
+
+  it('looks up a label-switching router’s own role text before the router’s', () => {
+    const keys = (hop: string) => layerKeys(home, { kind: 'layer', dive: 'ip-post', at: { hop, layer: 'ip' } } as SceneRef);
+    expect(keys('core').slice(0, 3)).toEqual(['scene.ip-post.ip.at.core', 'scene.ip-post.ip.role.switched', 'scene.ip-post.ip.role.router']);
+    expect(keys('border')).not.toContain('scene.ip-post.role.switched');
   });
 });
 

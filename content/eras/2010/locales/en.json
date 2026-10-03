@@ -1,7 +1,7 @@
 {
   "name": "2010",
   "kid": "The phone line carried the internet and phone calls at the same time, as tones too high to hear. A box with a modem inside sent Wi‑Fi to every room.",
-  "nerd": "DSL: ADSL2+ and then VDSL2 from street cabinets, from a few to tens of Mbit/s on the copper pair. A modem-router at home does NAT and 802.11n Wi‑Fi.",
+  "nerd": "DSL: ADSL2+ and then VDSL2 from street cabinets, from a few to tens of Mbit/s on the copper pair. A modem-router at home does NAT, with an 802.11n access point.",
   "describe": {
     "kid": "A laptop, open on the table. It’s on Wi‑Fi, with no cable: the box with the modem inside sings down the phone line.",
     "nerd": "A laptop on 802.11n Wi‑Fi to a DSL modem-router, which does NAT and sends DMT tones down the phone pair."

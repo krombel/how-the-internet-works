@@ -6,7 +6,7 @@
   // unwraps it, and handover swings the tunnel to the next tower while the phone address stays. FIRST VIEWPORT: focused
   // reader hop on the road, cards explain tunnel label and handover. FORM: IP-dive family staging with a deterministic
   // 16 s loop.
-  import { Node, TagAt, Text, nameOf, strings, view, type LayerSubject } from '$core/api';
+  import { Node, TagAt, Text, fill, nameOf, strings, view, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import Parcel from './art/Parcel.svelte';
   import TunnelEnvelope from './art/TunnelEnvelope.svelte';
@@ -31,7 +31,13 @@
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!!L.compact);
   const cardEnvScale = $derived(compact ? 1.25 : portrait ? 1.4 : 1.35);
-  const tagTexts = $derived(compact ? [] : portrait ? [S('tag.tunnel')] : [S('tag.tunnel'), S('tag.anchor')]);
+  // the TEID this end receives on: each end picks its own (the layer's header has both)
+  const teid = $derived.by(() => {
+    const v = subject.route.content.layers[subject.layer]?.fields.find((f) => f.id === 'teid')?.value;
+    return typeof v === 'object' ? v[subject.ctx.dir] : v ?? '';
+  });
+  const tunnelTag = $derived(fill(S('tag.tunnel'), { teid }));
+  const tagTexts = $derived(compact ? [] : portrait ? [tunnelTag] : [tunnelTag, S('tag.anchor')]);
   const statusSize = $derived(portrait ? 44 : compact ? 40 : 32);
   const statusY = $derived(c1.y + c1.h - (portrait ? 34 : compact ? 36 : 24));
   const statusW = $derived(portrait ? 410 : compact ? 380 : 330);
