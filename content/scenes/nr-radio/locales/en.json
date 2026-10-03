@@ -30,5 +30,21 @@
       "beams": "sector · 5 MHz · no beams",
       "grid": "HSDPA · 15 codes · 2 ms TTI"
     }
+  },
+  "1995": {
+    "title": "Your own seat, every time",
+    "kid": "The mast sends one wide wave over everyone nearby. Its time is cut into eight turns, over and over, and your call owns one of them, the same one every time, until you hang up. Even when the laptop has nothing to send, nobody else may use your seat.",
+    "nerd": "GSM TDMA: each 200 kHz carrier is cut into frames of 8 time slots (577 µs each, 4.615 ms a frame). A data call (TCH/F9.6) holds one slot of every frame for the whole call, used or not: a circuit, like the phone line at home. That is why it was billed per minute. GPRS (from 2000) let phones share slots by the packet.",
+    "describe": {
+      "kid": "A tall metal mast sends one wide wave over your laptop and two other callers, and your laptop has a label. Beside them, a grid of tiny seats slides by: rows of radio carriers, columns of turns. Every eighth turn, the same seat lights up for each call.",
+      "nerd": "The BTS covers three calls with one sector. A carrier × time-slot grid scrolls beside it: each call keeps one slot of every 8-slot TDMA frame, on the same carrier, used or not. Labels give GSM 900, 200 kHz carriers and the 4.615 ms frame."
+    },
+    "beams": "One wave for every caller",
+    "grid": "Each call keeps its seat",
+    "frequency": "carriers →",
+    "tag": {
+      "beams": "GSM 900 · 200 kHz · no beams",
+      "grid": "TDMA · 8 slots · 4.615 ms"
+    }
   }
 }

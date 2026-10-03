@@ -30,5 +30,21 @@
       "beams": "sektor · 5 MHz · ingen stråler",
       "grid": "HSDPA · 15 koder · 2 ms TTI"
     }
+  },
+  "1995": {
+    "title": "Din egen plads, hver gang",
+    "kid": "Masten sender én bred bølge ud over alle i nærheden. Dens tid er delt i otte ture, igen og igen, og dit opkald ejer én af dem, den samme hver gang, til du lægger på. Selv når den bærbare ikke har noget at sende, må ingen andre bruge din plads.",
+    "nerd": "GSM-TDMA: hver 200 kHz-bærebølge er delt i rammer af 8 tidsslots (577 µs hver, 4,615 ms pr. ramme). Et dataopkald (TCH/F9.6) holder én slot i hver ramme, så længe opkaldet varer, brugt eller ej: et kredsløb, som telefonlinjen derhjemme. Derfor betalte man pr. minut. GPRS (fra 2000) lod telefoner dele slots pakke for pakke.",
+    "describe": {
+      "kid": "En høj metalmast sender én bred bølge ud over din bærbare og to andre, der ringer, og din bærbare har et mærke. Ved siden af glider et gitter af små sæder forbi: rækker af radiobærebølger, kolonner af ture. Hver ottende tur lyser det samme sæde for hvert opkald.",
+      "nerd": "BTS’en dækker tre opkald med én sektor. Et gitter af bærebølger × tidsslots ruller ved siden af: hvert opkald beholder én slot i hver TDMA-ramme på 8 slots, på samme bærebølge, brugt eller ej. Mærker viser GSM 900, 200 kHz-bærebølger og rammen på 4,615 ms."
+    },
+    "beams": "Én bølge til alle, der ringer",
+    "grid": "Hvert opkald beholder sin plads",
+    "frequency": "bærebølger →",
+    "tag": {
+      "beams": "GSM 900 · 200 kHz · ingen stråler",
+      "grid": "TDMA · 8 slots · 4,615 ms"
+    }
   }
 }

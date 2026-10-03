@@ -241,13 +241,13 @@ describe('validation messages', () => {
     expect(placeFamily('home-dsl')).toEqual(['home', 'desk', 'home-fttb', 'home-dsl', 'desk-2010', 'home-dialup']);
     expect(placeFamily('desk-2010')).toEqual(placeFamily('home'));
     expect(placeFamily('home', ['home-dsl', 'street', 'home'])).toEqual(['home-dsl', 'home']);
-    expect(placeFamily('street-2010')).toEqual(['street', 'street-2010']);
+    expect(placeFamily('street-2010')).toEqual(['street', 'street-2010', 'street-1995']);
   });
 
   it('checks eras (#59): known, named and described, and two of them or none in a family', () => {
     expect(broken((c) => { c.places['home-dsl'].era = '2001'; })).toContain('home-dsl/place.ts › era: "2001" is not an era. Did you mean "2010"?');
     expect(broken((c) => { delete c.places['home-fttb'].era; })).toContain('home-fttb/place.ts › era: "home" and its ways of getting online have eras, so this needs one too.');
-    expect(broken((c) => { c.places.street.era = '2010'; }))
+    expect(broken((c) => { c.places.street.era = '2010'; c.places['street-1995'].era = '2010'; }))
       .toContain('street/place.ts › era: every way of getting online from "street" is in the era "2010"; a time machine needs two eras at least');
     const msg = broken((c) => { c.eras['1985'] = { year: 1985.5, id: '1985', file: 'content/eras/1985/era.ts' }; });
     expect(msg).toContain('content/eras/1985/era.ts › year:');

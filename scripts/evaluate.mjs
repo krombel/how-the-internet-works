@@ -214,12 +214,12 @@ const A11Y_STATES = [
   { name: 'caught', where: 'home/watch-video', catch: 'video', at: ['router'], views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'caught-detail', where: 'home/watch-video', q: '&level=nerd', catch: 'video', at: ['router'], detail: true, views: ['desktop'] },
   { name: 'picker', where: 'home/watch-video', picker: true, views: ['desktop', 'phone', 'zoom'] },
-  // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose "On the go" says it is at home
+  // another way online (#3): the phone line's dive; the picker in 1995 (#59), whose "On the go" is a laptop on GSM (#147)
   { name: 'dsl', where: 'home-dsl/watch-video/internet/home-cabinet', views: ['desktop', 'phone', 'short'] },
   { name: 'picker-1995', where: 'home-dialup/watch-video', q: '&level=nerd', picker: true, views: ['phone', 'short'] },
   { name: 'dialup', where: 'home-dialup/watch-video/pc-internet', views: ['desktop', 'phone', 'short'] },
-  // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, which is the era's own
-  // trip at home (`timeTo`: how many eras back), said in a line; from its chip on the 2010 overview
+  // the time machine (#59): its panel from the top bar, on today's home; from the street on 1995, a laptop on a GSM
+  // call (#147; `timeTo`: how many eras back); from its chip on the 2010 overview
   { name: 'time', where: 'home/watch-video', time: true, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'time-street', where: 'street/watch-video/phone~tcp', q: '&level=nerd', time: true, timeTo: 2, views: ['desktop', 'phone', 'short', 'zoom'] },
   { name: 'time-chip', where: 'home-dsl/watch-video', lang: 'da', time: 'chip', views: ['desktop', 'phone'] },
@@ -322,7 +322,10 @@ const LABEL_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-vide
   'home-fttb/watch-video/internet/basement-backhaul',
   // and dial-up: the call, its PPP envelope at both ends, and the telephone exchange on the way
   'home-dialup/watch-video', 'home-dialup/watch-video/pc-internet', 'home-dialup/watch-video/internet',
-  'home-dialup/watch-video/pc~ppp', 'home-dialup/watch-video/internet/bng~ppp'];
+  'home-dialup/watch-video/pc~ppp', 'home-dialup/watch-video/internet/bng~ppp',
+  // and on the go in 1995 (#147): GSM's slots on the air, the Abis quarters and the trunk between the switches
+  'street-1995/watch-video', 'street-1995/watch-video/phone-cell-tower', 'street-1995/watch-video/internet',
+  'street-1995/watch-video/internet/cell-tower-bsc', 'street-1995/watch-video/internet/mobile-core-exchange'];
 /** In the page: the scene's text you can see (not faded, not under the chrome or under art drawn after it), each with
  *  its colour, its halo (a stroke painted under it) if it has one, its box on screen and the contrast it needs (3:1
  *  when large: 24 px, or 18.7 px bold). */
@@ -406,7 +409,7 @@ function textEscapes() {
 // the path scenes, where labels grow the most on small screens and the nerd tags are long, in both languages (#90)
 const PATH_SCENES = ['home/watch-video', 'street/watch-video', 'home/watch-video/internet', 'street/watch-video/internet',
   'home/watch-video/internet/datacentre', 'home-dsl/watch-video', 'home-dsl/watch-video/internet/datacentre', 'home-fttb/watch-video', 'home-fttb/watch-video/internet',
-  'home-dialup/watch-video', 'home-dialup/watch-video/internet'];
+  'home-dialup/watch-video', 'home-dialup/watch-video/internet', 'street-1995/watch-video', 'street-1995/watch-video/internet'];
 const PATH_VIEWS = [['phone', 'en', '&level=nerd'], ['phone', 'da', ''], ['short', 'en', ''], ['short', 'da', '&level=nerd'], ['desktop', 'da', '&level=nerd']];
 async function labelContrast(style, fail) {
   for (const where of LABEL_SCENES)
@@ -561,9 +564,9 @@ async function a11y(style) {
   await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight'); await p.keyboard.press('Enter'); await still(p);
   if ((await p.evaluate(() => window.__app.loc().places[0])) !== 'home') fail('journey: time machine', 'it does not come back to today');
   // from the top bar, inside a dive: the PC's TCP in 1995, focus on the caption's title, and the announcer names the
-  // era first; from the street, also why you are at home now. Esc gives focus back to the button.
+  // era first; from the street, the street's own 1995 (#147). Esc gives focus back to the button.
   const told1st = () => p.waitForFunction(() => document.querySelector('[role=status]')?.textContent?.trim(), null, { timeout: 3000 }).then((h) => h.jsonValue(), () => '');
-  for (const [from, says] of [['home', 'It’s 1995. '], ['street', 'It’s 1995. In 1995 you’d have done this at home. ']]) {
+  for (const [from, says, to] of [['home', 'It’s 1995. ', 'home-dialup/pc~tcp'], ['street', 'It’s 1995. ', 'street-1995/phone~tcp']]) {
     await p.evaluate((f) => window.__app.go({ places: [f], path: ['phone~tcp'] }), from); await still(p);
     await p.focus('.time-btn'); await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
     if (!(await p.evaluate(() => document.querySelector('.time-btn')?.getAttribute('aria-expanded') === 'true'))) fail('journey: time machine', 'its top-bar button is not expanded');
@@ -572,7 +575,7 @@ async function a11y(style) {
     await p.keyboard.press('Enter'); await p.waitForSelector('.picker.time'); await still(p);
     await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowLeft'); await p.keyboard.press('Enter'); await still(p);
     const l = await p.evaluate(() => window.__app.loc());
-    if (`${l.places[0]}/${l.path.join('/')}` !== 'home-dialup/pc~tcp') fail('journey: time machine', `from the ${from}'s TCP, 1995 is ${l.places[0]}/${l.path.join('/')}`);
+    if (`${l.places[0]}/${l.path.join('/')}` !== to) fail('journey: time machine', `from the ${from}'s TCP, 1995 is ${l.places[0]}/${l.path.join('/')}`);
     if (!(await p.evaluate(() => document.activeElement?.matches('.caption h2')))) fail('journey: time machine', `from the ${from}, focus is not on the caption after the trip`);
     const heard = await told1st();
     if (!heard.startsWith(says) || heard.length < says.length + 40) fail('journey: time machine', `from the ${from}, the announcer says "${heard}"`);
