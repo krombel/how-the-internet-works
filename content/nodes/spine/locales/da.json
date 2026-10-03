@@ -2,10 +2,5 @@
   "name": "Spine-switch",
   "kid": "Et af de store vejkryds midt i hallen. Hvert skab har en vej til hvert vejkryds, så der er masser af lige gode veje, og ingen af dem går i stå.",
   "nerd": "En spine i en leaf–spine-fabric (Clos): hver leaf er forbundet til hver spine, så to racks altid er to hop fra hinanden over mange lige dyre veje. ECMP hasher hvert flow ind på én af dem.",
-  "tag": "Clos · ECMP · 400G",
-  "1995": {
-    "kid": "Tegnet som i dag. I 1995 havde et serverrum én lille hub, ikke store vejkryds.",
-    "nerd": "Tegnet som i dag: leaf–spine-fabrics (Clos) blev normen i datacentre i 2010’erne. Et serverrum i 1995 havde en 10 Mbit/s-hub eller en af de første Ethernet-switche.",
-    "tag": "Tegnet som i dag"
-  }
+  "tag": "Clos · ECMP · 400G"
 }

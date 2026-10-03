@@ -1,10 +1,14 @@
-// The 1995 trip (#59, step 6): the maths of its new dives, the way it goes, and that nothing it says belongs to a later
-// internet (review panel F14–F16: MPLS, 100–400G, coherent optics, leaf–spine and CDNs reached from 1995).
+// The 1995 trip (#59, steps 6 and 7): the maths of its new dives, the way it goes, the server room at its end, and that
+// nothing it says belongs to a later internet (review panel F14–F16: MPLS, 100–400G, coherent optics, leaf–spine and
+// CDNs reached from 1995).
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Level } from '../define';
 import { CELL, PACKET, cellsFor, cellsOnLine, lineBytes, overhead } from '../../content/scenes/atm-cells/atm';
 import { FRAME_S, lineCode, lineRate, modeOf, pulsePath, slotsOf, train } from '../../content/scenes/tdm-frames/tdm';
 import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from '../../content/scenes/copper-pulses/copper';
+import { WORLD_SIZE } from '../engine/geometry';
+import { stubBrowser } from '../test/stub-browser';
+import type * as Server from '../../content/scenes/server-inside/server';
 import { sceneKeys } from './describe';
 import { activityIds, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
@@ -132,6 +136,59 @@ function scenes(r: Route): SceneRef[] {
   return [...out.values()];
 }
 
+describe('inside the 1995 web server (server-inside, tower mode)', () => {
+  let server: typeof Server;
+  beforeAll(async () => {
+    stubBrowser();
+    server = await import('../../content/scenes/server-inside/server');
+  });
+  type Box = { x: number; y: number; w: number; h: number };
+  const inside = (a: Box, b: Box) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
+  const apart = (a: Box, b: Box) => a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
+  const at = (p: { x: number; y: number }, b: Box) => p.x >= b.x && p.y >= b.y && p.x <= b.x + b.w && p.y <= b.y + b.h;
+
+  it('draws the web server as a tower and every other server as a cache', () => {
+    expect(server.modeOf('web-server')).toBe('tower');
+    expect(server.modeOf('cdn')).toBe('cache');
+  });
+
+  it('lays out a network card, the computer and a disk in the case, and the hub outside it', () => {
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = server.towerLayout(o, compact), W = { x: 0, y: 0, ...WORLD_SIZE[o] }, rooms = Object.values(L.rooms);
+      expect(Object.keys(L.rooms).sort()).toEqual(['compute', 'disk', 'nic']);
+      expect(inside(L.case, W)).toBe(true);
+      expect(at(L.inNode, W) && !at(L.inNode, L.case)).toBe(true);
+      expect(at(L.statusTag, W)).toBe(true);
+      for (const [i, r] of rooms.entries()) {
+        expect(inside(r, L.case)).toBe(true);
+        for (const q of rooms.slice(i + 1)) expect(apart(r, q)).toBe(true);
+      }
+    }
+  });
+
+  it('asks the disk through the card and the program, and sends the page, then its picture, back the same way', () => {
+    const L = server.towerLayout('landscape');
+    expect(server.askPath(L)).toEqual([...server.filePath(L)].reverse());
+    expect(server.askPath(L).slice(-3)).toEqual([server.centre(L.rooms.nic), server.programPoint(L), server.diskPoint(L)]);
+    const moment = (t: number) => server.towerAt(t * server.PERIOD, false, L);
+    expect([moment(0.2).file, moment(1.2).file, moment(2.2).file]).toEqual(['page', 'picture', 'page']);
+    expect(moment(0.1).request.stage).toBe('in');
+    expect(moment(0.45)).toMatchObject({ reading: 1 });
+    expect(moment(0.7).reply).toMatchObject({ stage: 'out', alpha: 1 });
+    // the card is up only while the file goes back
+    expect([moment(0.3).statusAlpha, moment(0.75).statusAlpha, moment(0.995).statusAlpha]).toEqual([0, 1, 0]);
+    for (const [o, compact] of [['landscape', false], ['portrait', false], ['landscape', true]] as const) {
+      const L = server.towerLayout(o, compact), W = { x: 0, y: 0, ...WORLD_SIZE[o] };
+      for (let i = 0; i < 120; i++) {
+        const s = server.towerAt((i / 60) * server.PERIOD, false, L);
+        for (const c of [s.request, s.reply]) if (c.alpha > 0.02) expect(at(c.p, W)).toBe(true);
+      }
+    }
+    // held still: the page on its way out, its card up
+    expect(server.towerAt(42, true, L)).toMatchObject({ file: 'page', reply: { stage: 'out', alpha: 1 }, statusAlpha: 1 });
+  });
+});
+
 describe('the 1995 trip', () => {
   beforeAll(loadAllPacks);
   const trips = () => activityIds().map((activity) => resolveRoute({ activity, places: ['home-dialup'] }));
@@ -150,8 +207,25 @@ describe('the 1995 trip', () => {
     }
   });
 
+  it('ends in a small server room: its router, a 10 Mbit/s hub and one web server, no data centre (step 7)', () => {
+    for (const r of trips()) {
+      expect(r.groups.find((g) => g.id === 'datacentre')?.node.id).toBe('server-room');
+      const room = r.chain.filter((h) => h.group === 'datacentre');
+      expect(room.map((h) => `${h.id}:${h.node.id}`)).toEqual(['dc-router:dc-router', 'hub:hub', 'cdn:web-server']);
+      expect(r.hops.hub.role).toBe('passive');
+      const inRoom = r.links.filter((l) => r.hops[l.to].group === 'datacentre');
+      expect(inRoom.map((l) => l.tech.id)).toEqual(['t1', 'ethernet', 'ethernet']);
+      expect(inRoom.filter((l) => l.tech.id === 'ethernet').every((l) => l.rate.down === 10e6 && l.rate.up === 10e6)).toBe(true);
+      // no cache's way back to an origin
+      expect(r.asides.filter((a) => a.hop.group === 'datacentre')).toEqual([]);
+      const dives = scenes(r).filter((s) => s.path[1] === 'datacentre').map((s) => s.dive);
+      expect(dives).toContain('server-inside');
+      expect(dives).not.toContain('leaf-spine');
+    }
+  });
+
   it('says nothing of a later internet, unless it says when (review panel F14–F16)', () => {
-    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000/i;
+    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container/i;
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;
     const bad = new Set<string>();
     for (const r of trips()) {
@@ -174,6 +248,30 @@ describe('the 1995 trip', () => {
       for (const keys of lists) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
         const s = firstOf(lang, era(keys), level);
         if (s && LATER.test(s) && !SAYS_WHEN.test(s)) bad.add(`${lang} ${level} ${keys[0]}: ${s}`);
+      }
+    }
+    expect([...bad]).toEqual([]);
+  });
+
+  it('keeps a dive’s 1995 words for a device to the devices a 1995 route reaches', () => {
+    const reached = new Set(trips().flatMap((r) => Object.values(r.hops).map((h) => h.node.id)));
+    const at = Object.keys(packs.en.strings).flatMap((k) => k.match(/^scene\.[^.]+\.1995\.(?:[^.]+\.)?at\.([^.]+)\./)?.[1] ?? []);
+    expect(at.length).toBeGreaterThan(0);
+    expect([...new Set(at)].filter((n) => !reached.has(n))).toEqual([]);
+  });
+
+  it('draws the server room as it was: nothing on the way says it is drawn as today (step 7)', () => {
+    const TODAY = /drawn as today|tegnet som i dag/i;
+    const bad = new Set<string>();
+    for (const r of trips()) {
+      const room = scenes(r).filter((s) => s.path[1] === 'datacentre');
+      const keys = room.flatMap((ref) => [
+        ...sceneKeys(r, ref).flatMap((k) => ['', '.describe', '.extra', '.title'].map((x) => k.map((y) => y + x))),
+        ...(ref.kind === 'dive' ? ['kid', 'nerd', 'title'].map((k) => [`scene.${ref.dive}.${diveSubject(ref)}.${k}`]) : []),
+      ]);
+      for (const k of keys) for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
+        const s = firstOf(lang, withEra(k, r.era), level);
+        if (s && TODAY.test(s)) bad.add(`${lang} ${level} ${k[0]}: ${s}`);
       }
     }
     expect([...bad]).toEqual([]);

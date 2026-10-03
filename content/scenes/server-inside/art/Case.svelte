@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
   import type { CaseProps } from '../types';
-  let { box, time, night }: CaseProps = $props();
+  let { box, time, night, fill = 'var(--stone)' }: CaseProps = $props();
   const { x, y, w, h } = $derived(box);
   const leds = $derived([0, 1, 2, 3].map((i) => ({
     x: x + 70 + i * 38,
@@ -12,7 +12,7 @@
 </script>
 
 <rect x={x + 12} y={y + 16} width={w} height={h} rx="42" fill="var(--shade)" opacity="0.14" />
-<rect {x} {y} width={w} height={h} rx="42" fill="var(--stone)" stroke="var(--line)" stroke-width="9" />
+<rect {x} {y} width={w} height={h} rx="42" {fill} stroke="var(--line)" stroke-width="9" />
 <rect x={x + 18} y={y + 18} width={w - 36} height={h - 36} rx="30" fill="var(--paper-2)" stroke="var(--line)" stroke-width="3" stroke-dasharray="15 13" opacity="0.82" />
 <path d={`M${x + w - 54} ${y + 95} V${y + h - 95} M${x + 54} ${y + 95} V${y + h - 95}`} stroke="var(--line)" stroke-width="7" stroke-linecap="round" opacity="0.42" />
 {#each leds as l, i (i)}

@@ -36,10 +36,5 @@ export default defineSegment({
         owners: { isp: [213, 1009], transit: [751, 817], 'us-backbone': [366, 304], cdn: [641, 60] },
       },
     },
-    // the server room's way in: the backbone's PoP, where its T1 starts
-    datacentre: {
-      landscape: { nodes: { pop: [260, 770, 120] } },
-      portrait: { nodes: { pop: [200, 1450, 130] } },
-    },
   },
 });

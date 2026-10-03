@@ -1,11 +1,15 @@
 // Inside the video server: light from the rack switch reaches the NIC, bits enter the video app running in a container,
-// and the cache either serves the video piece immediately or fetches it from the origin and stores a copy. Pure maths for
-// the Svelte scene and tests.
+// and the cache either serves the video piece immediately or fetches it from the origin and stores a copy. In 1995 (#59)
+// the server is a tower instead: the request comes off the hub's cable, the one web program reads the file from its hard
+// disk, and the page or its picture goes back. Pure maths for the Svelte scene and tests.
 import { along, lengths, type Orient } from '$core/api';
-import type { Box, Form, Moving, Pt, RequestStage, Room, ServerLayout, ServerState, VideoStage } from './types';
+import type { Box, FileStage, Form, Moving, Pt, RequestStage, Room, ServerLayout, ServerState, TowerLayout, TowerRoom, TowerState, VideoStage } from './types';
 
 const box = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h });
 export const centre = (b: Box): Pt => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
+
+/** How the server is drawn, by its node: the 1995 web server is a tower with one disk; anything else is a cache. */
+export const modeOf = (node: string): 'tower' | 'cache' => (node === 'web-server' ? 'tower' : 'cache');
 
 /** Seconds per cache cycle. Odd human-counted cycles are hits, the next ones are misses. */
 export const PERIOD = 8.5;
@@ -148,4 +152,82 @@ export const roomOrder: Room[] = ['nic', 'compute', 'memory', 'ssd'];
 
 export function internalPath(L: ServerLayout): Pt[] {
   return [mouth(L.rooms.nic, L.inNode), centre(L.rooms.nic), appPoint(L), centre(L.rooms.memory), centre(L.rooms.ssd)];
+}
+
+/** The tower (1995): the hub on the left, or below in portrait; the disk at the top of the case, the network card at
+ *  the bottom. Compact landscape gives every room enough width for 14 px screen text on a short phone. */
+export function towerLayout(o: Orient, compact = false): TowerLayout {
+  if (o === 'portrait') return {
+    case: box(110, 250, 680, 1040),
+    rooms: {
+      disk: box(160, 305, 580, 290),
+      compute: box(160, 635, 580, 290),
+      nic: box(160, 965, 580, 270),
+    },
+    inNode: { x: 450, y: 1450 }, nodeSize: 160,
+    inLabel: { x: 450, y: 1565, anchor: 'middle' }, inTag: { x: 478, y: 1345, anchor: 'start' },
+    statusTag: { x: 450, y: 180 },
+  };
+  if (compact) return {
+    case: box(260, 200, 1080, 600),
+    rooms: {
+      nic: box(290, 460, 300, 300),
+      compute: box(620, 460, 340, 300),
+      disk: box(990, 245, 320, 515),
+    },
+    inNode: { x: 105, y: 610 }, nodeSize: 140,
+    inLabel: { x: 105, y: 745, anchor: 'middle' }, inTag: { x: 250, y: 550, anchor: 'end' },
+    statusTag: { x: 625, y: 355 },
+  };
+  return {
+    case: box(380, 160, 860, 640),
+    rooms: {
+      nic: box(415, 330, 250, 300),
+      compute: box(695, 475, 510, 290),
+      disk: box(695, 200, 510, 245),
+    },
+    inNode: { x: 170, y: 480 }, nodeSize: 165,
+    inLabel: { x: 170, y: 620, anchor: 'middle' }, inTag: { x: 170, y: 375, anchor: 'middle' },
+    statusTag: { x: 810, y: 850 },
+  };
+}
+
+/** Where the web program sits in the computer, and where the head reads the disk. */
+export const programPoint = (L: TowerLayout): Pt => centre(L.rooms.compute);
+export const diskPoint = (L: TowerLayout): Pt => centre(L.rooms.disk);
+
+/** In from the hub, through the card to the program, which asks the disk. */
+export function askPath(L: TowerLayout): Pt[] {
+  return [L.inNode, mouth(L.rooms.nic, L.inNode), centre(L.rooms.nic), programPoint(L), diskPoint(L)];
+}
+
+/** The file off the disk, through the program and the card, back to the hub. */
+export function filePath(L: TowerLayout): Pt[] {
+  return [diskPoint(L), programPoint(L), centre(L.rooms.nic), mouth(L.rooms.nic, L.inNode), L.inNode];
+}
+
+export const towerRooms: TowerRoom[] = ['nic', 'compute', 'disk'];
+
+/** The carriers for this frame: odd human-counted cycles fetch the page, the next ones its picture. With reduced
+ *  motion, hold the page leaving the program, with its status card up. */
+export function towerAt(t: number, still: boolean, L: TowerLayout): TowerState {
+  if (still) return {
+    file: 'page',
+    request: { p: programPoint(L), stage: 'hidden', alpha: 0 },
+    reply: { p: along(filePath(L), 0.38).p, stage: 'out', alpha: 1 },
+    reading: 0,
+    statusAlpha: 1,
+  };
+  const raw = t / PERIOD;
+  const phase = ((raw % 1) + 1) % 1;
+  const file = Math.floor(raw) % 2 === 0 ? 'page' : 'picture';
+  const request = move(askPath(L), phase, 0.03, 0.4, (seg): RequestStage => (seg < 2 ? 'in' : seg < 3 ? 'app' : 'disk'));
+  const reply = move(filePath(L), phase, 0.5, 0.96, (seg): FileStage => (seg < 1 ? 'disk' : 'out'));
+  return {
+    file,
+    request: request ?? { p: L.inNode, stage: 'hidden', alpha: 0 },
+    reply: reply ?? { p: diskPoint(L), stage: 'hidden', alpha: 0 },
+    reading: Math.max(0, Math.min(1, (phase - 0.36) / 0.04, (0.56 - phase) / 0.04)),
+    statusAlpha: Math.min(1, Math.max(0, Math.min((phase - 0.5) / 0.08, (0.98 - phase) / 0.08))),
+  };
 }

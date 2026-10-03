@@ -143,12 +143,6 @@
       "nerd": "Fibre pairs"
     }
   },
-  "1995": {
-    "dc-fibre": {
-      "kid": "This is today’s data centre, drawn as it is now. In 1995 the web site lived on one computer in a small server room, joined to the others by thin copper cables, not glass.",
-      "nerd": "Drawn as today: 400GBASE-FR4 is from 2017. In 1995 a server room ran 10 Mbit/s Ethernet on copper (10BASE-T, often one shared hub), and the T1 from the backbone, 1.5 Mbit/s, was its whole way to the internet."
-    }
-  },
   "2010": {
     "backbone": {
       "nerd": "Long-haul DWDM in 2010: 40–80 wavelengths in the C-band, mostly 10 or 40 Gbit/s each; the first 100G coherent channels were just arriving. Erbium-doped fibre amplifiers (EDFAs) about every 80 km boost all the colours at once; a short stretch needs none.",

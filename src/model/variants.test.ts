@@ -59,8 +59,8 @@ describe('era variants (#59)', () => {
   });
 
   it('keeps the words of the past out of the eager English (`eraBlocks` in vite.config.ts)', async () => {
-    const now = import.meta.glob<Record<string, unknown>>('/content/nodes/cdn/locales/en.json', { eager: true, import: 'default', query: '?now' });
-    const past = import.meta.glob<Record<string, unknown>>('/content/nodes/cdn/locales/en.json', { eager: true, import: 'default', query: '?eras' });
+    const now = import.meta.glob<Record<string, unknown>>('/content/nodes/dc-router/locales/en.json', { eager: true, import: 'default', query: '?now' });
+    const past = import.meta.glob<Record<string, unknown>>('/content/nodes/dc-router/locales/en.json', { eager: true, import: 'default', query: '?eras' });
     const [today] = Object.values(now), [then] = Object.values(past);
     expect(today.name).toBeTruthy();
     expect(Object.keys(today).filter((k) => /^\d+$/.test(k))).toEqual([]);
@@ -68,7 +68,7 @@ describe('era variants (#59)', () => {
     // and the lazy chunk brings them in
     const { folders } = await import('virtual:past-strings');
     expect(Object.values(folders).flatMap(Object.keys).every((k) => /^\d+$/.test(k))).toBe(true);
-    expect(firstOf('en', ['node.cdn.1995.name'])).toBe('Web server');
+    expect(firstOf('en', ['node.dc-router.1995.name'])).toBe('Router');
   });
 
   it('cross-fades a hop whose node changes between the two routes', () => {

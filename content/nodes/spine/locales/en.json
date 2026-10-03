@@ -2,10 +2,5 @@
   "name": "Spine switch",
   "kid": "One of the big crossroads in the middle of the hall. Every cupboard has a road to every crossroad, so there are lots of equal roads and none of them gets jammed.",
   "nerd": "A spine of a leaf–spine (Clos) fabric: every leaf connects to every spine, so any two racks are two hops apart over many equal-cost paths. ECMP hashes each flow onto one of them.",
-  "tag": "Clos · ECMP · 400G",
-  "1995": {
-    "kid": "Drawn as today. In 1995 a server room had one small hub, not big crossroads.",
-    "nerd": "Drawn as today: leaf–spine (Clos) fabrics became the norm in data centres in the 2010s. A 1995 server room had a 10 Mbit/s hub, or one of the first Ethernet switches.",
-    "tag": "Drawn as today"
-  }
+  "tag": "Clos · ECMP · 400G"
 }
