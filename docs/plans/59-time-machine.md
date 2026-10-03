@@ -865,7 +865,7 @@ Made while building PR 8 (2010: the data centre):
   / "Standby (HSRP)") and three access switches, each with an uplink to both; spanning tree blocks the uplinks to the
   standby (dashed, a no-entry sign at the rack's end). Your parcel comes from the load balancer through the active
   switch to your rack; other racks' traffic goes up to the core, down or across, always through the active switch.
-  The sticker says it: one road open, one closed ("STP: uplink 2 blocked", "48 × 1G ↓ · 10G ↑": 4.8 : 1
+  The sticker says it: one road open, one closed ("Uplink 2: blocked", "48×1G ↓ 10G ↑": 4.8 : 1
   oversubscribed). Its `extra` says when leaf–spine came. It reuses `leaf-spine`'s switch and rack art. Not reached
   today; `leaf-spine` is not reached in 2010, which covers #135's leaf-spine item (no 2010 keys needed there).
 - **`fibre-light` in one colour in 2010**: `ONE_COLOUR_IN` (`light.ts`) makes `dc-fibre` one colour in 2010 (the

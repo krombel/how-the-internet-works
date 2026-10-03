@@ -32,13 +32,13 @@ export function tierLayout(o: Orient, compact = false): TierLayout {
   if (o === 'portrait') {
     const racks = { other1: { x: 170, y: 1030 }, other2: { x: 440, y: 1030 }, after: { x: 720, y: 1030 } };
     return {
-      cores: [{ x: 400, y: 420 }, { x: 720, y: 420 }], coreSize: { w: 150, h: 84 },
-      aggs: [{ x: 400, y: 720 }, { x: 720, y: 720 }], aggSize: { w: 160, h: 92 },
-      before: { x: 130, y: 720 }, beforeBox: around({ x: 130, y: 720 }, 130, 110),
+      cores: [{ x: 380, y: 420 }, { x: 730, y: 420 }], coreSize: { w: 150, h: 84 },
+      aggs: [{ x: 380, y: 720 }, { x: 730, y: 720 }], aggSize: { w: 160, h: 92 },
+      before: { x: 175, y: 720 }, beforeBox: around({ x: 175, y: 720 }, 130, 110),
       racks, rackBoxes: boxes(racks, 140, 170, 110), nodeSize: 130,
-      inPort: { x: 130, y: 280 }, outPort: { x: 865, y: 1180 },
-      tag: { x: 620, y: 1290, anchor: 'middle' },
-      sticker: box(48, 1238, 330, 82),
+      inPort: { x: 175, y: 280 }, outPort: { x: 865, y: 1180 },
+      tag: { x: 690, y: 1290, anchor: 'middle' },
+      sticker: box(48, 1228, 420, 96),
     };
   }
   if (compact) {
@@ -50,7 +50,7 @@ export function tierLayout(o: Orient, compact = false): TierLayout {
       racks, rackBoxes: boxes(racks, 132, 180, 105), nodeSize: 132,
       inPort: { x: 45, y: 450 }, outPort: { x: 1555, y: 640 },
       tag: { x: 800, y: 790, anchor: 'middle' },
-      sticker: box(38, 738, 420, 92),
+      sticker: box(38, 712, 560, 118),
     };
   }
   const racks = { other1: { x: 450, y: 730 }, other2: { x: 830, y: 730 }, after: { x: 1210, y: 730 } };
@@ -100,9 +100,13 @@ export function flowPath(L: TierLayout, f: FlowSpec): Pt[] {
 
 function fade(f: number, peak = 1) { return Math.min(peak, f / 0.055, (1 - f) / 0.055); }
 
-/** Your parcel this frame; with reduced motion, held on its way down from this switch to the rack. */
+/** Your parcel this frame; with reduced motion, held on its way down from this switch to the rack, clear of the signs. */
 export function parcelAt(t: number, still: boolean, L: TierLayout): Flow {
-  const f = still ? 0.56 : (t / PERIOD) % 1;
+  if (still) {
+    const a = aggBottom(L, ACTIVE), b = rackTop(L, 'after');
+    return { p: { x: a.x + (b.x - a.x) * 0.75, y: a.y + (b.y - a.y) * 0.75 }, alpha: 1 };
+  }
+  const f = (t / PERIOD) % 1;
   return { p: along(tripPath(L), f).p, alpha: fade(f) };
 }
 

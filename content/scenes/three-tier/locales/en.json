@@ -1,4 +1,8 @@
 {
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
   "title": "The data centre's tree",
   "heading": {
     "kid": "Three floors of switches",
@@ -26,7 +30,7 @@
   },
   "sticker": {
     "kid": "One road open, one closed",
-    "nerd": "STP: uplink 2 blocked",
-    "rate": "48 × 1G ↓ · 10G ↑"
+    "nerd": "Uplink 2: blocked",
+    "rate": "48×1G ↓ 10G ↑"
   }
 }

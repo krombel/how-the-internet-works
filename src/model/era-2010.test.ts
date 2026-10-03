@@ -101,6 +101,11 @@ describe('the three-tier tree (three-tier)', () => {
     expect(a.p.y).toBeGreaterThan(agg.y);
     expect(a.p.y).toBeLessThan(rack.y);
     for (const f of tier.OTHER_FLOWS) expect(same(tier.otherFlowAt(0, true, L, f).p, tier.otherFlowAt(99, true, L, f).p)).toBe(true);
+    // clear of the no-entry signs, in every orientation
+    for (const [o, compact] of ORIENTS) {
+      const M = tier.tierLayout(o, compact), p = tier.parcelAt(0, true, M).p;
+      for (const u of tier.uplinks(M).filter((x) => x.blocked)) expect(Math.hypot(p.x - tier.blockAt(u).x, p.y - tier.blockAt(u).y)).toBeGreaterThan(80);
+    }
   });
 });
 

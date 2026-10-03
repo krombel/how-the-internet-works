@@ -1,4 +1,8 @@
 {
+  "mode": {
+    "kid": "kid",
+    "nerd": "nerd"
+  },
   "title": "Datacentrets træ",
   "heading": {
     "kid": "Switches i tre etager",
@@ -26,7 +30,7 @@
   },
   "sticker": {
     "kid": "Én vej åben, én lukket",
-    "nerd": "STP: uplink 2 blokeret",
-    "rate": "48 × 1G ↓ · 10G ↑"
+    "nerd": "Uplink 2: spærret",
+    "rate": "48×1G ↓ 10G ↑"
   }
 }

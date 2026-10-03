@@ -14,7 +14,7 @@
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
   const night = $derived(view.mode === 'night');
-  const nerd = $derived(view.level === 'nerd');
+  const nerd = $derived(S('mode') === 'nerd');
   const L = $derived(tierLayout(view.orient, compact));
   const legible = legibleSize();
   const T = $derived(portrait
