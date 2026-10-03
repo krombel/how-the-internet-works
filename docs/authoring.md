@@ -440,9 +440,9 @@ call), so this is for a family added later.
   the era's. A dive's words for one device are keyed by its node, not its hop (`"1995": { "at": { "web-server": … } }`,
   not `at.cdn`). A test per era walks its routes and fails on a later technology unless the line says when it came,
   and on a dive's `at.<node>` words for a node no route of that era reaches: both read every word a route of their era can
-  show: captions, names, tags, dives, labels and layer fields, and the one rate shown (the slowest link's, so the
+  show: captions, names, tags, dives, labels and layer fields, what the peek says each hop does, and the one rate shown (the slowest link's, so the
   core's 100G, shared with today, never shows on a 2010 or 1995 route). `era-1995.test.ts` fails on MPLS, DWDM, 100G,
-  VLANs, gigabit, NVMe, leaf–spine, a CDN…; `era-2010.test.ts` on Wi‑Fi 5 and up, 4G/5G, 100G without "new in
+  VLANs, gigabit, NVMe, leaf–spine, a CDN, DSCP, ECN, ECMP…; `era-2010.test.ts` on Wi‑Fi 5 and up, 4G/5G, 100G without "new in
   2010", 100.64/10…, and the data centre's more strictly (leaf–spine, ECMP, 25–400G, k8s, NVMe…). Both walk with
   `src/test/era-walk.ts`, which reads every key of a dive the route reaches, so a word of a mode the era never draws
   (gigabit's PAM-5 card on 1995's copper) goes on the test's `UNSHOWN` list, with why.

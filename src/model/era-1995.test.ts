@@ -304,8 +304,9 @@ describe('the 1995 trip', () => {
     }
   });
 
-  it('says nothing of a later internet, unless it says when (review panel F14–F16, #164)', () => {
-    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit/i;
+  it('says nothing of a later internet, unless it says when (review panel F14–F16, #164, #174)', () => {
+    // DiffServ's DSCP came in 1998 and ECN in 2001: 1995's IP header has a type-of-service byte (#174)
+    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit|\bDSCP\b|\bECN\b|DiffServ|ECMP/i;
     // and on the go (#147): GSM's circuit-switched data only, no packet radio
     const MOBILE = /\b(GPRS|EDGE|HSCSD|HSPA|SGSN|GGSN|GTP|UMTS|[345]G|LTE|NR)\b/;
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;

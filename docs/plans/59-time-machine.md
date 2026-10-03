@@ -1032,6 +1032,8 @@ Made while building #164 (the sweep's leftovers):
   shown in 1995 (the cache's SSD room in `server-inside`, gigabit's PAM-5 card in `copper-pulses`).
 - **The 100G rates** stay today's: a route shows one rate, its slowest link's, and the walk reads that one too
   (`{rate}`), so a 100G core link would fail the 2010 test the day it set the pace.
-- **Found, not fixed**: 1995's IP header still names DSCP and ECN (1998, 2001; 1995's was the ToS byte), and IP's
-  protocol field and the routing line speak of ECMP over the 5-tuple. A follow-up: they need 1995 field names, not
-  only words.
+- **Found, then fixed (#174)**: 1995's IP header named DSCP and ECN (1998, 2001), and IP's protocol field and the
+  routing line spoke of ECMP over the 5-tuple. RFC 791's type-of-service byte splits as ours does, 6 bits and 2, so
+  1995's words rename the two fields (Type of service: precedence and delay/throughput/reliability; Reserved), the
+  protocol field drops ECMP, and the era's `peek.role.router` (read first by `peekKeys`, and walked) drops its hash.
+  `era-1995.test.ts` now fails on DSCP, ECN, DiffServ and ECMP.
