@@ -1,7 +1,7 @@
 <svelte:options namespace="svg" />
 <script lang="ts">
-  // GPON as a layer frame, not as light: a shared paper road where downstream envelopes are heard by every house and
-  // upstream bursts fit into OLT-granted time slots.
+  // XGS-PON as a layer frame, not as light: a shared paper road where downstream envelopes are heard by every house
+  // and upstream bursts fit into OLT-granted time slots.
   import { Node, TagAt, Text, fill, nameOf, strings, view, type LayerSubject } from '$core/api';
   import Card from './art/Card.svelte';
   import FrameEnvelope from './art/FrameEnvelope.svelte';
@@ -28,12 +28,15 @@
         : [S('label.keeps'), S('label.yourTurn')]
   );
   const houseNumbers = ['884', '231', '1127', '640'];
+  // the XGEM header, one row a field (the Port-ID row lit)
   const fieldRows = $derived([
     fill(S('field.pli'), { value: '424' }),
+    S('field.keyidx'),
     S(nerd ? 'field.portNerd' : 'field.portKid'),
-    S('field.pti'),
+    S('field.optlf'),
     fill(S('field.hec'), { value: '0x1c2' }),
   ]);
+  const portRow = 2;
   const slotLabels = $derived(nerd ? ['0x21', '0x8A', '0x467', '0x133'] : ['1', '2', '3', '4']);
   const yourSlot = 2;
   const mix = (a: number, b: number, k: number) => a + (b - a) * k;
@@ -41,7 +44,7 @@
     const fieldW = nerd && !compact && !portrait ? Math.min(270, c0.w * 0.42) : 0;
     const x0 = c0.x + (fieldW ? fieldW + 50 : compact ? 42 : 52);
     const w = c0.w - (fieldW ? fieldW + 82 : compact ? 84 : 104);
-    const cab = { x: x0 + w / 2, y: c0.y + (portrait ? 145 : compact ? 118 : 118) };
+    const olt = { x: x0 + w / 2, y: c0.y + (portrait ? 145 : compact ? 118 : 118) };
     const splitter = { x: x0 + w / 2, y: c0.y + (portrait ? 280 : compact ? 218 : 218) };
     const houseY = c0.y + c0.h - (portrait ? 110 : compact ? 78 : 92);
     const houseSize = portrait ? 76 : compact ? 48 : 60;
@@ -50,7 +53,7 @@
       y: houseY,
       size: i === 2 ? houseSize * 1.08 : houseSize,
     }));
-    return { fieldW, x0, w, cab, splitter, houses, houseSize };
+    return { fieldW, x0, w, olt, splitter, houses, houseSize };
   });
   const up = $derived.by(() => {
     const strip = {
@@ -77,7 +80,7 @@
     const p = Math.max(0, Math.min(1, progress));
     if (p < 0.45) {
       const k = p / 0.45;
-      return { x: mix(down.cab.x, down.splitter.x, k), y: mix(down.cab.y + 36, down.splitter.y, k) };
+      return { x: mix(down.olt.x, down.splitter.x, k), y: mix(down.olt.y + 36, down.splitter.y, k) };
     }
     const k = (p - 0.45) / 0.55;
     return { x: mix(down.splitter.x, h.x, k), y: mix(down.splitter.y, h.y - h.size * 0.66, k) };
@@ -111,12 +114,12 @@
   {#if nerd && !compact && !portrait}
     <Text x={c0.x + 34} y={c0.y + 116} text={S('label.header')} size={T.text * 0.76} kind="small" anchor="start" />
     {#each fieldRows as row, i}
-      <rect x={c0.x + 28} y={c0.y + 134 + i * 47} width={down.fieldW - 34} height="38" rx="10" fill={i === 1 ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === 1 ? 4 : 2.5} />
-      <Text x={c0.x + 44} y={c0.y + 161 + i * 47} text={row} size={T.text * 0.7} kind={i === 1 ? 'node' : 'small'} anchor="start" colour={i === 1 ? 'var(--face)' : undefined} on={i === 1 ? 'var(--sun)' : undefined} />
+      <rect x={c0.x + 28} y={c0.y + 130 + i * 40} width={down.fieldW - 34} height="34" rx="10" fill={i === portRow ? 'var(--sun)' : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === portRow ? 4 : 2.5} />
+      <Text x={c0.x + 44} y={c0.y + 154 + i * 40} text={row} size={T.text * 0.7} kind={i === portRow ? 'node' : 'small'} anchor="start" colour={i === portRow ? 'var(--face)' : undefined} on={i === portRow ? 'var(--sun)' : undefined} />
     {/each}
   {/if}
-  <Node id="cabinet" x={down.cab.x} y={down.cab.y} size={portrait ? 78 : compact ? 54 : 60} />
-  <path d={`M${down.cab.x} ${down.cab.y + (portrait ? 38 : 30)} L${down.splitter.x} ${down.splitter.y - 18}`} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.85" />
+  <Node id="olt" x={down.olt.x} y={down.olt.y} size={portrait ? 78 : compact ? 54 : 60} />
+  <path d={`M${down.olt.x} ${down.olt.y + (portrait ? 38 : 30)} L${down.splitter.x} ${down.splitter.y - 18}`} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.85" />
   <g transform="translate({down.splitter.x} {down.splitter.y})">
     <path d="M0 -24 L28 0 L0 24 L-28 0 Z" fill="var(--kraft)" stroke="var(--line)" stroke-width="5" />
     <circle r="7" fill="var(--teal)" stroke="var(--line)" stroke-width="2" />

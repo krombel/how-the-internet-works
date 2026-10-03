@@ -96,6 +96,9 @@
   const offNames = $derived(stackName((up ? ctx.link : nextLink)?.stack ?? []));
   const onNames = $derived(stackName((up ? nextLink : ctx.link)?.stack ?? []));
   const wrapColours = [OLD, NEW];
+  // a bridge passes the frame's MACs on; only a tunnel end (where the frame ends) puts its own on the next one
+  const macTag = $derived(!ctx.macs ? S('tag.noMac')
+    : ctx.frame.dst.id === ctx.to.id ? fill(S('tag.mac'), { mac: fakeMac(ctx.to.id) }) : S('tag.macPassed'));
 
   // endpoint: whose door, and the layer the contents go up to
   const flowStack = $derived(route.activity.flows.find((f) => f.id === ctx.flow)?.stack ?? []);
@@ -118,7 +121,7 @@
   const cardTitle = $derived(S(mode === 'router' ? 'signs' : mode === 'nat' ? 'notebook' : mode === 'bridge' ? 'swap' : 'door'));
   const tags = $derived<string[]>(mode === 'router' ? [S(side ? 'tag.lpm' : 'tag.default'), fill(S('tag.ttl'), { a: String(ttlUp), b: String(ttlUp - 1) })]
     : mode === 'nat' ? [S(cgnat ? 'tag.cgnat' : 'tag.nat'), S('tag.ports')]
-    : mode === 'bridge' ? [fill(S('tag.mac'), { mac: fakeMac(ctx.to.id) }), S('tag.untouched')]
+    : mode === 'bridge' ? [macTag, S('tag.untouched')]
     : [S('tag.proto'), S('tag.ttl64')]);
 </script>
 

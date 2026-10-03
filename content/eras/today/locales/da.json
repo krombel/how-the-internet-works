@@ -18,7 +18,7 @@
     "desk": {
       "describe": {
         "kid": "En bærbar på skrivebordet, med et kabel til routeren, og routeren har en glastråd til internettet.",
-        "nerd": "En bærbar på Ethernet til hjemmerouteren, med fiber (GPON) som forbindelse ud."
+        "nerd": "En bærbar på Ethernet til hjemmerouteren, med fiber (XGS-PON) som forbindelse ud."
       }
     }
   }

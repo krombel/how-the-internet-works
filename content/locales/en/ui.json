@@ -126,6 +126,8 @@
   "peek.role.nat.up.nerd": "NAT: the source is rewritten to the outside address, checksums are fixed and the mapping is kept; then it’s routed (TTL − 1).",
   "peek.role.nat.down.kid": "{hop} looks up who asked for this and changes the address back.",
   "peek.role.nat.down.nerd": "NAT reverse: the destination is rewritten back from the mapping table, checksums fixed, then routed (TTL − 1).",
+  "peek.role.passive.kid": "{hop} doesn’t open a thing: it just passes the signal on, with no power at all.",
+  "peek.role.passive.nerd": "{hop} is passive: no power and no electronics. It reads no bits; it only splits the signal and passes it on.",
   "ladder.doors.one": "{n} door leads further down",
   "ladder.doors.other": "{n} doors lead further down",
   "ladder.ways.one": "{n} way down",

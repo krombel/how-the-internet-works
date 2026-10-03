@@ -1,32 +1,40 @@
 {
   "name": {
     "kid": "Lys-kuvert",
-    "nerd": "GPON-ramme (GEM)"
+    "nerd": "XGS-PON-ramme (XGEM)"
   },
   "note": {
     "kid": "Alle på din vej deler den samme fiber, så hvert hus åbner kun kuverter med sit eget nummer.",
-    "nerd": "Nedstrøms sendes til alle ONT’er på splitteren, AES-krypteret pr. GEM-port; opstrøms bruger tidsluker."
+    "nerd": "Nedstrøms sendes til alle ONT’er på splitteren, AES-krypteret pr. XGEM-port; opstrøms bruger tidsluker."
   },
-  "line": "GPON Encapsulation Method, port-ID {port}, længde {pli}",
+  "line": "XGEM (XG-PON Encapsulation Method), port-ID {port}, længde {pli}",
   "field": {
     "pli": {
       "name": "Længde",
-      "about": "Bytes indhold i GEM-rammen."
+      "about": "Bytes indhold i XGEM-rammen: hele Ethernet-rammen indeni."
+    },
+    "keyidx": {
+      "name": "Nøgleindeks",
+      "about": "Hvilken af ONT’ens AES-nøgler der krypterede indholdet."
     },
     "port": {
       "name": {
         "kid": "Hus nr.",
-        "nerd": "GEM-port-ID"
+        "nerd": "XGEM-port-ID"
       },
       "about": "Alle på splitteren hører hver ramme på vej ned; hver ONT beholder kun sine egne port-ID’er."
     },
-    "pti": {
-      "name": "Indholdstype",
-      "about": "Brugerdata, og om det er det sidste fragment."
+    "options": {
+      "name": "Valgfrit",
+      "about": "Reservebits, ubrugte i dag."
+    },
+    "lf": {
+      "name": "Sidste fragment",
+      "about": "1, når det er det sidste (her: det eneste) stykke af Ethernet-rammen."
     },
     "hec": {
       "name": "Header error control",
-      "about": "Beskytter selve GEM-headeren."
+      "about": "Beskytter selve XGEM-headeren."
     }
   }
 }

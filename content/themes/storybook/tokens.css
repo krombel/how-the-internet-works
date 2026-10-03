@@ -67,6 +67,9 @@
   --berry-ink: #9b4469;
   --leaf-pale: #dff0c8;
   --mint: #e7f2df;
+  /* paint blends (the TLS dive's public mixes): pale, so they never look like the secret colours they hide */
+  --paint-peach: #ffc6a0;
+  --paint-lime: #d6ec8e;
   --meadow: #d7e7a3;
   --hill-far: #b9d887;
   --grass-far: #acd87e;
@@ -189,6 +192,8 @@
   --berry-ink: #eaa3c2;
   --leaf-pale: #2d4b45;
   --mint: #2a4545;
+  --paint-peach: #f6c3a6;
+  --paint-lime: #b8cf7c;
   --meadow: #34544d;
   --hill-far: #2e4e5c;
   --grass-far: #2c4f55;

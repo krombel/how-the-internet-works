@@ -45,7 +45,9 @@ describe('caption scale tag', () => {
   it('tells a stretch of several links how long it is; a single link, like the cross-connect into the exchange, has no count', () => {
     state.setLang('en'); state.setLevel('kid');
     const dive = (step: string) => caption.captionFor(home, ['internet', step], null, 'landscape');
-    expect(dive('cabinet-backhaul')).toMatchObject({ title: 'Colours sharing one thread', tag: '2 stretches · via Backhaul switch · 24 km' });
+    // the PON: from the house through the splitter to the OLT
+    expect(dive('home-cabinet')).toMatchObject({ title: 'Light shared by your street', tag: '2 stretches · via Street cabinet · 7.2 km' });
+    expect(dive('olt-bng')).toMatchObject({ tag: undefined });
     // the backbone and the undersea cable are a link each (#39)
     expect(dive('bng-core')).toMatchObject({ title: 'Light on the motorway', tag: undefined });
     expect(dive('core-border')).toMatchObject({ title: 'Light under the sea', tag: undefined });
@@ -146,5 +148,19 @@ describe('caption notes', () => {
     expect(notes(['internet', 'bng-core'])).toEqual([]);
     state.setLevel('kid');
     expect(notes(['phone-ap'])).toEqual([]);
+  });
+});
+
+describe('a layer dive\'s words (#132)', () => {
+  const body = (path: string[]) => caption.captionFor(home, path, null, 'landscape').body;
+
+  it('names who wrote the frame and the next hop a router asks for, not the client’s address', () => {
+    state.setLang('en'); state.setLevel('kid');
+    expect(body(['router~ethernet'])).toContain('“Who has ISP gateway’s address?”');
+    expect(body(['ap~ethernet'])).toContain('from Home router');
+    state.setLevel('nerd');
+    expect(body(['router~ethernet'])).toContain('next hop on the outgoing link (ISP gateway)');
+    expect(body(['ap~ethernet'])).toContain('(here Home router and your phone)');
+    state.setLevel('kid');
   });
 });

@@ -18,7 +18,7 @@
     "desk": {
       "describe": {
         "kid": "A laptop on the desk, with a cable to the router, and the router has a glass thread to the internet.",
-        "nerd": "A laptop on Ethernet to the home router, with fibre (GPON) as its uplink."
+        "nerd": "A laptop on Ethernet to the home router, with fibre (XGS-PON) as its uplink."
       }
     }
   }

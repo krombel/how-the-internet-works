@@ -93,11 +93,12 @@ export function ttlAt(r: Route, i: number, dir: Dir): number {
 }
 
 const isTunnel = (r: Route, id: string) => !!r.content.layers[id]?.tunnel;
-/** Where link frames end: at any hop that isn't a bridge, and at the ends of a tunnel (they are hosts on the network
- *  that carries the tunnel). A bridge (an access point, a switch) passes the frame's addresses on. */
+/** Where link frames end: at any hop that isn't a bridge or passive, and at the ends of a tunnel (they are hosts on the
+ *  network that carries the tunnel). A bridge (an access point, a switch) passes the frame's addresses on, and a
+ *  passive hop (a splitter) doesn't even see them. */
 function l2End(r: Route, h: number): boolean {
   const hop = r.chain[h];
-  if (hop.role !== 'bridge') return true;
+  if (hop.role !== 'bridge' && hop.role !== 'passive') return true;
   const a = r.links[h - 1]?.stack.filter((l) => isTunnel(r, l)) ?? [], b = r.links[h]?.stack.filter((l) => isTunnel(r, l)) ?? [];
   return a.join() !== b.join();
 }
@@ -114,7 +115,18 @@ function tunnelEnds(r: Route, i: number, layer: string): [Hop, Hop] {
   return [r.chain[lo], r.chain[hi + 1]];
 }
 
+/** The link frame on chain link `i` going `dir`: the hops whose MAC addresses it carries, where it was written (src)
+ *  and where it ends (dst). Bridges pass frames on, so these can lie beyond the link's own two hops. */
+export function frameEnds(r: Route, i: number, dir: Dir): { src: Hop; dst: Hop } {
+  const tx = r.chain[dir === 'up' ? i : i + 1], rx = r.chain[dir === 'up' ? i + 1 : i];
+  const back = dir === 'up' ? -1 : 1;
+  return { src: walkTo(r, tx.index, back, (h) => l2End(r, h)), dst: walkTo(r, rx.index, -back, (h) => l2End(r, h)) };
+}
+
 const pick = (v: string | { up: string; down: string }, dir: Dir) => (typeof v === 'string' ? v : v[dir]);
+/** Whether a link's frames carry MAC addresses (a layer on it has a mac.* field; a phone line's PPP has none). */
+export const carriesMac = (r: Route, l: Link) =>
+  l.stack.some((id) => r.content.layers[id]?.fields.some((f) => (['up', 'down'] as const).some((d) => pick(f.value, d).includes('{mac.'))));
 const macOf = (h: Hop): Val => ({ text: fakeMac(h.id), who: h });
 
 /** The layers on chain link `i` (outermost first), as a packet of `flow` travelling `dir` has them. */
@@ -126,13 +138,12 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
   const srv = { addr: { text: server.addr ?? '', who: server } as Val, port: flow.ports?.server };
   const [me, them] = dir === 'up' ? [client, srv] : [srv, client];
   const tx = r.chain[dir === 'up' ? i : i + 1], rx = r.chain[dir === 'up' ? i + 1 : i];
-  const back = dir === 'up' ? -1 : 1;
+  const frame = frameEnds(r, i, dir);
   const port = (p?: number): Val => ({ text: p === undefined ? '' : String(p) });
   const base: Record<string, Val> = {
     src: me.addr, dst: them.addr, sport: port(me.port), dport: port(them.port), ttl: { text: String(ttlAt(r, i, dir)) },
     'mac.tx': macOf(tx), 'mac.rx': macOf(rx), label: { text: fakeLabel(rx.id, dir) },
-    'mac.src': macOf(walkTo(r, tx.index, back, (h) => l2End(r, h))),
-    'mac.dst': macOf(walkTo(r, rx.index, -back, (h) => l2End(r, h))),
+    'mac.src': macOf(frame.src), 'mac.dst': macOf(frame.dst),
   };
 
   // inside out: lengths and checksums cover what is inside
@@ -227,11 +238,11 @@ function align(a: string[], b: string[]): { id: string; ai: number; bi: number }
 
 const usedBy = (def: WithId<LayerDef>, fid: string, role: Role) => {
   const u = def.fields.find((f) => f.id === fid)?.use;
-  return u === true || !!u?.includes(role);
+  return u === true ? role !== 'passive' : !!u?.includes(role);
 };
 
-/** Whether a hop with this role opens a layer. */
-export const opensLayer = (def: LayerDef | undefined, role: Role) => !def?.openAt || def.openAt.includes(role);
+/** Whether a hop with this role opens a layer. A passive hop opens none unless the layer names it. */
+export const opensLayer = (def: LayerDef | undefined, role: Role) => (def?.openAt ? def.openAt.includes(role) : role !== 'passive');
 
 /** The packet of `flow` going `dir`, at chain hop `h`: what arrives, what the hop uses and changes, what leaves. */
 export function hopView(r: Route, flowId: string, dir: Dir, h: number): HopView {

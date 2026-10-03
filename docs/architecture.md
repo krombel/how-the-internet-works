@@ -31,10 +31,10 @@ graph LR
 
 | Kind | Folder | Is |
 |---|---|---|
-| **Node** | `content/nodes/<id>/` | A device or place on the path (phone, router, cell tower, CDN…). `kind` is `device` or `network` (a group, like `internet`, that unfolds into its own path scene). Its default `role` (`endpoint`, `bridge`, `router`, `nat`) decides which layers it opens and what it does to addresses. Art: `art/Device.svelte`. |
+| **Node** | `content/nodes/<id>/` | A device or place on the path (phone, router, cell tower, CDN…). `kind` is `device` or `network` (a group, like `internet`, that unfolds into its own path scene). Its default `role` (`endpoint`, `bridge`, `router`, `nat`, `passive`) decides which layers it opens and what it does to addresses; a `passive` node (an optical splitter) reads nothing and has no layer dives, so the frames and their readers carry on through it. Art: `art/Device.svelte`. |
 | **Technology** | `content/technologies/<id>/` | What a link is made of (Wi‑Fi, Ethernet, GPON, 5G NR…). Its **lower layer stack**, a `look` (`radio`, `cable`, `fibre`, `trunk`: the theme draws each look), a colour, and optionally the **dive** scene that explains it. |
 | **Layer** | `content/layers/<id>/` | One envelope in a packet: HTTP, TLS, TCP, IP, Wi‑Fi, Ethernet, GPON, MPLS, VLAN, NR, GTP. Its **header schema** (`fields`: id, bits, value template, which roles use it) drives the packet model and the peek (below). `openAt` lists the roles that read it (TCP: only endpoints), `seals` makes it encrypt what's inside, and `dive` names the layer dive scene behind its magnifier. Issues #5, #8, #17. |
-| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`, the border router's `border-inside` with its route book choosing the exchange over transit, the exchange's `ixp-inside` with its shared switch and route server, the data centre's `leaf-spine` and `server-inside`), a **circuit** (`tdm-frames`: the timeslots of 1995's E1s, T1s and the PRI, sharing its slot row with `modem-call`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `http-chunk`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`, and 1995's `atm-cells`, with `ppp-hello`'s HDLC keepalives for a leased line). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared GPON thread with its splitter on the access fibre, DWDM colours on metro fibre, the exchange's short cross-connects and the data centre's CWDM links, boosters every 80 km on the backbone and repeaters on the sea floor under the `submarine` cable, both spaced from the stretch's real `km`), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
+| **Scene** | `content/scenes/<id>/` | A "look inside" dive: `Scene.svelte` plus its own art and maths. It `explains` a **link**: the physical signal (`wifi-radio`, `copper-pulses`, `fibre-light`, `nr-radio`), a **device** (`node`, issue #9): what's inside it and how it turns one medium into the next (`router-inside`, `tower-inside`, the border router's `border-inside` with its route book choosing the exchange over transit, the exchange's `ixp-inside` with its shared switch and route server, the data centre's `leaf-spine` and `server-inside`), a **circuit** (`tdm-frames`: the timeslots of 1995's E1s, T1s and the PRI, sharing its slot row with `modem-call`), or a **layer at one hop**: the envelope (`ip-post`, `tcp-pieces`, `tls-lock`, `http-chunk`, `gtp-tunnel`, and for the link layers `wifi-frame`, `sticker-doors`, `gpon-slots`, `nr-grant`, and 1995's `atm-cells`, with `ppp-hello`'s HDLC keepalives for a leased line). It gets a `subject` (below), so one scene serves several technologies (the fibre dive draws a street's shared PON thread with its splitter on the access fibre, DWDM colours on metro fibre, the exchange's short cross-connects and the data centre's CWDM links, boosters every 80 km on the backbone and repeaters on the sea floor under the `submarine` cable, both spaced from the stretch's real `km`), several layers (`sticker-doors` is Ethernet's door book, VLAN's coloured lanes and MPLS's motorway numbers), or every hop (the IP dive is a signpost at a router, a swap notebook at a NAT, carrier-grade NAT at the mobile core). |
 | **Segment** | `content/segments/<id>/` | A reusable stretch of route (`isp-to-cdn`: ISP core → border router → IXP → CDN, with transit as a dashed side branch off the border router). Hops, links, side branches, per-hop overrides and layout. A segment with `variantOf` and an `era` stands in for its base in that era (#59). |
 | **Place** | `content/places/<id>/` | A segment that starts at the reader's device and joins the shared network, plus a backdrop (`art/Backdrop.svelte`: the house, the street) and an `order` in the picker. A place with `variantOf` is another way online from the same place (`home-dsl`, `home-fttb`, `home-dialup`): the picker shows the base once with a row of `access` chips, of the era you are in. A place may have an `era`. |
 | **Era** | `content/eras/<id>/` | A time the internet at home looked different (`1995`, `2010`, `today`; issue #59): a `year`, a `name`, the `kid`/`nerd` text the time machine shows, and a `describe` of its picture (the era's start device). Every place gets the time machine: an era switch is a place switch to the family member of that era, else to the era's own trip (`eraStops`). |
@@ -58,7 +58,7 @@ Bigger ones get a plan first, in [plans/](plans/README.md).
 
 | Idea | What to add |
 |---|---|
-| Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/GPON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
+| Issue #3: xDSL, FTTB, dial-up | A **place variant** of `home` (`variantOf`) per way online, with a new **technology** and, if it deserves one, a **scene**. Done: FTTH/XGS-PON (`home`), xDSL (`home-dsl`: `vdsl` to a `dslam`, the `dsl-tones` dive with its frequency bands and distance), FTTB (`home-fttb`: a riser to the `building-switch`, then `fttb` fibre, the fibre dive's building mode), dial-up (`home-dialup`: the `laptop` calls over `dialup` through the telephone `exchange` to the ISP's modems; the `modem-call` dive plays the handshake, and the `ppp` **layer** has its `ppp-hello` dive). Cable (`docsis`) would be one more variant. |
 | Issue #59: a time machine | An **era** on each place variant; the switch picks the family member (`placeFamily`) of that era, and the route, URL and dives follow as for any place. Done: the eras 1995, 2010 and today on the home family, each with its start device (a PC, a laptop on Wi‑Fi, a phone); 2010 on the street (a phone on 3G: NodeB, RNC, a Direct Tunnel to the GGSN, the SGSN aside; `nr-radio` and `nr-grant` have a 3G mode) and at the desk (a laptop on a cable to the DSL router); the time machine's button in the top bar on every screen, its 🕰️ chip in the caption on every overview, its coach card, and its lazy panel (`ui/TimeMachine.svelte`); from a place with no way online in an era (the street and the desk in 1995), the era's own trip; 1995's internet (`isp-to-cdn-1995`, step 6): a PRI into the ISP's modem bank, 10BASE-T in its rack, a leased E1 to its upstream (DIX as the aside), CANTAT-3, an American ATM backbone and a T1, with the `tdm-frames` and `atm-cells` dives; its server room is still today's drawing, said so in its words, and 2010's internet is today's with 2010's numbers. Plan, with what comes next: [plans/59-time-machine.md](plans/59-time-machine.md). |
 | Issue #2: IoT, LoRaWAN | A **node** (`sensor`, `lora-gateway`, `network-server`), a **technology** `lorawan` (look `radio`) with a `lorawan` **layer** and a `chirp` dive **scene**, a **place** (`garden`, `field`), and an **activity** such as `send-reading` with a small upward flow. `only` keeps it to places that make sense. Plan: [plans/2-iot-lorawan.md](plans/2-iot-lorawan.md). |
 | Messaging | An activity with two place slots (`me`, `friend`) around a `messaging-server` segment, and an `e2ee` layer that the server can't open (`openAt: ['endpoint']`). |
@@ -130,12 +130,12 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
    - A path scene's children, in route order, are its expandable groups, its links that have a dive, its **device dives** (issue #9: a device on the chain whose node has a `dive`; the step is the hop id, `home/watch-video/router`), and its **layer dives**: for every hop drawn in the scene (not groups, entries or asides), every layer with a `dive` on the links arriving at it. The step is `<hop>~<layer>`.
    - A layer dive's subject is that hop's `LayerCtx`, in a canonical direction (the way the layer arrives upwards if it does, else downwards: the NAT sees the request go out, the phone the video come in), so the URL needs no direction. The scenes show the round trip anyway.
    - A child sits at `DETAIL_SCALE` inside its anchor (the node, or the link's midpoint), to any depth. A hop's layer panels form a **vertical stack** centred on the node, lower layers below, so the stack reads top to bottom (stepping between them slides in place, see *Camera*). On a device with a dive of its own, that dive sits on the device (like a group's scene) and the layer stack sits all above it, as upper floors.
-   - `layerPath(route, hop, layer)` finds the scene in which a hop is drawn, so tapping IP in the peek at the root, for a packet at the cabinet, flies to `internet/cabinet~ip`.
+   - `layerPath(route, hop, layer)` finds the scene in which a hop is drawn, so tapping IP in the peek at the root, for a packet at the OLT, flies to `internet/olt~ip`.
    - **All the way down (issue #13).** Every link has a dive (its signal) and so does every layer in its lower stack
      (its envelope); a content test checks this for every place × activity. `downFrom(route, ref)` goes from a link
-     layer's dive to its link's dive (next to it when that scene draws the link: `internet/cabinet~gpon` →
-     `internet/home-cabinet`); `upFrom(route, ref)` goes from a link dive to the dives of its link's layers (at the end
-     drawn beside it, else the one receiving them going up), and from a device dive to the dives of the layers of the links either side, at that device (the router: its Ethernet and GPON envelopes); `linkOut` is the link a caught packet's outer envelopes
+     layer's dive to its link's dive (next to it when that scene draws the link: `internet/olt~gpon` →
+     `internet/home-cabinet`, the PON's stretch through the passive splitter); `upFrom(route, ref)` goes from a link dive to the dives of its link's layers (at the end
+     drawn beside it, else the one receiving them going up), and from a device dive to the dives of the layers of the links either side, at that device (the router: its Ethernet and XGS-PON envelopes); `linkOut` is the link a caught packet's outer envelopes
      belong to. They become the caption's **How it travels** / **What it carries** chips and the peek's bottom row.
    - Each mounted scene gets one flat transform from the root, computed in JS doubles, so three levels deep (1000×) stays sharp. Only the scenes along the flight and their near children are mounted.
 5. **Camera** (`engine/camera.ts`, `engine/zoom.ts`). Fly zoom and semantic zoom (pinch or scroll into a child and it opens; out, and it closes) work on the current scene, its parent and its children, never on hard-coded ids.
@@ -222,7 +222,7 @@ hop. A layer's `fields` hold value templates with facts from the route:
 |---|---|
 | `{src}` `{dst}` `{sport}` `{dport}` | The client's address and port after every NAT passed (`natTo: 'addr:port'` on a hop), the server's from its `addr` and the flow's `ports` |
 | `{ttl}` | 64 at the sender, minus one per `router` or `nat` passed |
-| `{mac.src}` `{mac.dst}` | The nearest L2 ends: the hops either side that aren't bridges (a bridge passes the frame on) or where a tunnel starts or ends |
+| `{mac.src}` `{mac.dst}` | The nearest L2 ends: the hops either side that aren't bridges or passive (a bridge passes the frame on, a splitter just the light) or where a tunnel starts or ends |
 | `{mac.tx}` `{mac.rx}` | The link's own two ends (radio transmitter and receiver) |
 | `{tunnel.src}` `{tunnel.dst}` | The ends of the run of links carrying the `tunnel` layer |
 | `{len}` `{payload}` (`{payload+8}`) | This layer and all inside it / only what's inside, in bytes (from `bits` and `bytes`) |
@@ -240,7 +240,7 @@ layers are **kept**, **added** or **removed**, like a tunnel or a new link frame
 - **open**: everything else
 
 Each field is **used** when the hop's role is in its `use` (or `use: true`), and **changed** (with the value `before`)
-when a kept layer's value differs. So the home router shows: Ethernet off, GPON on, TTL 64 → 63, source address and
+when a kept layer's value differs. So the home router shows: a new Ethernet frame (its MACs) inside an XGS-PON frame put on, TTL 64 → 63, source address and
 port rewritten, checksums fixed; the cell tower: NR off, Ethernet and a GTP‑U tunnel on.
 
 ### The peek (`ui/PeekPanel.svelte`)
@@ -335,8 +335,9 @@ each rung tappable to go back up. The rung you're on says what lies below it, an
   address, see *Camera*), so a new kind of child (a node dive) shows up by itself.
 - **A layer dive**: the envelopes carried on **the link you're on** at that hop, top first, the one you're in lit and
   the ones this hop can't open (`opens`, `model/stack.ts`) with a lock. A hop joins two links, and each carries its own
-  envelopes: at the home router the copper carries Ethernet and the fibre GPON, so the ladder on the copper is TLS,
-  TCP, IP, Ethernet and never GPON. A link envelope stands on its own link; a layer both sides carry (IP and above)
+  envelopes: at the home router the copper carries Ethernet and the fibre an Ethernet frame inside an XGS-PON frame,
+  so the ladder on the copper is TLS, TCP, IP, Ethernet and never the PON frame, and on the fibre Ethernet sits over
+  it (a link's envelopes in the order it nests them). A link envelope stands on its own link; a layer both sides carry (IP and above)
   on the side you came from (the ladder remembers its link, `via`), else the side the packet leaves on (`linkOut`, as
   the peek's bottom row). The bottom rung is that link's **signal** (#32, what *How it travels* opens). ▲/▼ in a layer
   dive climb this ladder rather than the hop's whole stack, so ▼ from the lowest envelope steps down onto the signal
@@ -349,7 +350,7 @@ each rung tappable to go back up. The rung you're on says what lies below it, an
   back up is a rung (or *What it carries*).
 - **A device's dive (#9)**: the envelopes it handles on one of its links, over that link's signal, none lit (the device
   is not one of them): the link you came by (`via`, so stepping copper → router → IP keeps the copper's ladder), else
-  the one it sends on (`linkOut`). Its *What it carries* chips are both links' own envelopes (Ethernet and GPON at the
+  the one it sends on (`linkOut`). Its *What it carries* chips are both links' own envelopes (Ethernet and XGS-PON at the
   home router), where the stack crosses from one medium to the next.
 While folded, a pip per rung on the current rung shows where you are in the stack.
 
@@ -440,7 +441,10 @@ From `$core/api` they read `view` (time, orientation, level, mode), `strings('sc
 ```ts
 { flow, kind, dir: 'up' | 'down', link, from, to, role /* of `to`, the reader */, client, server,
   src, dst, sport, dport /* as seen on this link, after any NAT */,
-  nat: { inside, outside, insidePort, outsidePort } | null, ttl, level }
+  nat: { inside, outside, insidePort, outsidePort } | null, ttl,
+  frame: { src, dst } /* the hops whose MACs the arriving frame carries: bridges pass frames on */,
+  next /* the next hop on the way out (what a router ARPs for), null at the end */,
+  macs /* whether the links either side carry MAC addresses */, level }
 ```
 
 The stack on a link is `link.stack ?? tech.stack` (outermost first), followed by `flow.stack`. Examples:
@@ -659,7 +663,7 @@ Vitest (`npm test`) covers:
   holds only that link's envelopes (all of them), its own signal, and the same rungs from each of them (a stable climb);
   the same from a device's dive on each of its links
 - the packet model: every value on every link resolves; NAT and CGNAT rewrites, the TTL count-down, MAC continuity
-  across bridges, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
+  across bridges and passive splitters, GTP tunnel ends and TEIDs, lengths; each hop's received → used/changed → sent shape (AP, home
   router, core, tower, mobile core, both ends); catching and stepping (`hopAhead`, `stepHop`, `caughtSpot`,
   `hopScenePath`, and a tap a moment behind a moving packet, `packetNear`); catching by kind (`entryHop`): for every place, activity, path scene, orientation and direction,
   the entry hop is at the edge the packet comes in by, it glides in from outside, and stepping on passes every hop the
