@@ -663,7 +663,7 @@ async function walkJourney(style, fail) {
     const walk = async (d) => {
       const sel = `.step.${d > 0 ? 'next' : 'prev'}`, seen = [], said = [];
       while ((await p.getAttribute(sel, 'aria-disabled')) !== 'true' && seen.length < 80) {
-        const label = await p.getAttribute(sel, 'aria-label'), shown = await p.locator(`${sel} .step-to`).textContent().catch(() => null);
+        const [label, shown] = await p.$eval(sel, (b) => [b.getAttribute('aria-label'), b.querySelector('.step-to')?.textContent ?? null]);
         if (shown !== null && shown !== label) fail(where, `the button shows "${shown}" but says "${label}"`);
         said.push(label);
         await p.click(sel);
