@@ -295,7 +295,8 @@ only at the tag: see [`App.svelte`](https://github.com/tkjaer/how-the-internet-w
 Tap a packet to follow it. The hit target is at least 48 CSS px, so small fingers can do it. What happens:
 
 - **Time slows** to about a third of normal speed.
-- **The camera** zooms to about 1.8× and tracks the packet, keeping it clear of the peek panel.
+- **The camera** zooms to about 1.8× and tracks the packet, keeping it clear of the peek panel (on a phone a sheet
+  of about a third of the screen, #139).
 - **The peek panel** shows the envelopes nested inside each other: the link frame ⊃ IP ⊃ TCP ⊃ TLS ⊃ HTTP.
   - **Each hop swaps the outer envelope**: a Wi-Fi frame, then Ethernet, then a GPON frame on the fibre, then
     Ethernet/MPLS in the core.

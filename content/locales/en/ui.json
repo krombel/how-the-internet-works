@@ -105,6 +105,7 @@
   "peek.next": "One hop on",
   "peek.hop": "{n} of {of}",
   "peek.detail": "Details",
+  "peek.full": "Show the whole panel",
   "peek.off": "Taken off here",
   "peek.sealed.kid": "Locked: this box can’t read it.",
   "peek.sealed.nerd": "Encrypted: this hop can’t read it.",

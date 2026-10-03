@@ -3,7 +3,7 @@
   // packet) and the morph between places. Everything is generic over the scene tree; scenes and art only render what
   // this computes.
   import { onMount, tick, untrack } from 'svelte';
-  import { TRAVEL, areaCentre, clampCam, fit, flyInterpolator, followStep, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
+  import { TRAVEL, areaCentre, clampCam, clearOf, fit, flyInterpolator, followStep, isShort, slideCams, smoothstep, toScreen, toWorldPt, travelInterpolator, viewportFor, zoomAbout, type Cam } from './engine/camera';
   import { WORLD_SIZE, bezier, lerp, union, type Curve, type Orient, type Pt, type Rect } from './engine/geometry';
   import { attachGestures } from './engine/gestures';
   import { FADE_MS, SLIDE_MS, clockRate, easeInOutCubic, fadeOver, moveFor } from './engine/motion';
@@ -768,12 +768,10 @@
 
   // ------------------------------------------------------------------ frame loop, gestures, resize
   const orientFor = (w: number, h: number): Orient => (h > w * 1.1 ? 'portrait' : 'landscape');
-  /** Keep the caught packet in the part of the screen the peek panel doesn't cover (the wider side of it). */
+  /** Keep the caught packet in the part of the screen the peek panel doesn't cover. */
   function trackCentre() {
-    const c = areaCentre(view.vp), r = document.querySelector('.peek')?.getBoundingClientRect();
-    if (!r) return c;
-    if (view.orient === 'portrait') return { x: c.x, y: (view.vp.top + r.top) / 2 };
-    return { x: r.left > view.vp.w - r.right ? r.left / 2 : (r.right + view.vp.w) / 2, y: c.y };
+    const r = document.querySelector('.peek')?.getBoundingClientRect();
+    return r ? clearOf(view.vp, r) : areaCentre(view.vp);
   }
 
   /** The caption's fold when it was last measured for the viewport (it folds by the viewport, so a refit may refold it). */
@@ -958,7 +956,7 @@
     <SceneKeys {route} path={here.path} stop={here.stop} {cam} vertical={portrait || stepInfo.kind === 'layer'} hidden={peekOpen}
       onopen={openDoor} onhot={(id) => (chipHot = id)} onkbd={(on) => (kbd = on)} />
     {#if caught && PeekPanel}
-      <PeekPanel {route} {portrait} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
+      <PeekPanel {route} {portrait} sheet={portrait || short} flow={caught.flow} kind={caught.kind} dir={caught.dir} hop={caught.hop} onstep={stepCaught} onclose={() => release()} ondive={openLayer} ondown={(path) => { release(true); go({ path }); }} />
     {/if}
     <!-- while a packet is caught, the peek panel's header takes over from the caption and the activity's crumb -->
     <Caption text={caption} place={placeName} onplace={() => openPicker(0)} time={timeChip(route, here.path)} ontime={() => openTime()} onpretime={loadTime} explore={explore && !exploreIn} catches={catchable} oncatch={catchKind}

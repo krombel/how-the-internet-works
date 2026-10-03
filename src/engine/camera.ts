@@ -27,6 +27,14 @@ export function areaCentre(vp: Viewport): Pt {
   return { x: vp.w / 2, y: vp.top + (vp.h - vp.top - vp.bottom) / 2 };
 }
 
+/** Where to keep something a panel mustn't cover (the caught packet beside the peek, #139): the middle of the larger
+ *  free part of the view, above the panel (a phone's bottom sheet) or beside it (a side panel). `r` in CSS px. */
+export function clearOf(vp: Viewport, r: { left: number; top: number; right: number }): Pt {
+  const c = areaCentre(vp), side = Math.max(r.left, vp.w - r.right);
+  if ((r.top - vp.top) * vp.w > side * (vp.h - vp.top - vp.bottom)) return { x: c.x, y: (vp.top + r.top) / 2 };
+  return { x: r.left > vp.w - r.right ? r.left / 2 : (r.right + vp.w) / 2, y: c.y };
+}
+
 export function fit(r: Rect, vp: Viewport, pad = 0.94): Cam {
   const aw = vp.w, ah = Math.max(100, vp.h - vp.top - vp.bottom);
   const k = Math.min(aw / r.w, ah / r.h) * pad;

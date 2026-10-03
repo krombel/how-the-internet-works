@@ -155,7 +155,7 @@ self-hosted lab runners, with the lab PC's GPU). It checks each state once it st
 animation or transition is running (`document.getAnimations()`), so nothing is judged mid-fade, however slow the
 machine (#70). It checks:
 - **axe-core** (WCAG 2.0, 2.1, 2.2 A and AA, plus best practice) on the overview, inside the internet, the Wi‑Fi,
-  router and IP-layer dives, "What can I explore?" on (the overview and the Wi‑Fi dive), Danish nerd, a caught packet (and its details), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
+  router and IP-layer dives, "What can I explore?" on (the overview and the Wi‑Fi dive), Danish nerd, a caught packet (and its details; on a phone, its sheet opened all the way, #139), the picker, the time machine (from the top bar; from the street on 1995, the era's own trip at home; from its chip in Danish), the open ladder, the ⋯
   menu and About, read aloud on (the caption's "Read again", ⋯ with its toggle), the scene's keys on a stop, the list
   view and the first-run coach marks (the first card, "What can I explore?" and the time machine's, and the one card a
   returning reader gets), a nerd's extra in a dive and the list view with it, on a desktop, a portrait phone and a short landscape screen, and most of them at 200 % zoom. **Zero
@@ -213,6 +213,8 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
 - [ ] Step with ← →: each stop's title is spoken once; nothing re-reads the whole caption.
 - [ ] Catch a packet (its chip in the caption): focus moves to the peek; ◀ ▶ say "Home router, 3 of 9…"; a changed
       field says "…, was …"; Esc returns to where you were.
+- [ ] On a phone, the peek's grip says "Show the whole panel, collapsed" / "expanded"; swiping on through the sheet
+      reaches every envelope, its magnifier and "How it travels".
 - [ ] Ladder: the current rung's list opens and closes ("expanded" / "collapsed"); Esc folds it.
 - [ ] ⋯: a menu with Language (radio items), Sound and Read aloud (checkboxes) and About; Esc returns to ⋯.
 - [ ] Read aloud (with VoiceOver off): turned on it says so; each door reads the title, the description and the

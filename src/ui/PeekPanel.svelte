@@ -6,6 +6,8 @@
   // a protocol tree. A layer with a dive gets a magnifier that flies into it at this hop (issue #8), and below the
   // envelopes, the link they leave on leads down to how it carries them (issue #13).
   // Its title takes focus when it opens; each hop is announced, and read aloud when that is on (#53).
+  // On a phone it is a `sheet` (#139): about a third of the screen, at the bottom (upright) or the side (on its side),
+  // so the scene and the caught packet stay in view; under the hop's row it scrolls, and its grip opens it all the way.
   import { onMount, untrack } from 'svelte';
   import { hopStepFor, hopView, peekKeys, stepHop, type Dir, type LayerView } from '../model/packet';
   import type { Route } from '../model/resolve';
@@ -17,12 +19,12 @@
   import Envelope from './Envelope.svelte';
   import FieldTree from './FieldTree.svelte';
   import Icon from './Icon.svelte';
-  let { route, portrait, flow, kind, dir, hop, onstep, onclose, ondive, ondown }: {
-    route: Route; portrait: boolean; flow: string; kind: string; dir: Dir; hop: number;
+  let { route, portrait, sheet, flow, kind, dir, hop, onstep, onclose, ondive, ondown }: {
+    route: Route; portrait: boolean; sheet: boolean; flow: string; kind: string; dir: Dir; hop: number;
     onstep: (d: -1 | 1) => void; onclose: () => void; ondive: (path: string[], env: HTMLElement) => void;
     ondown: (path: string[]) => void;
   } = $props();
-  let detail = $state(false);
+  let detail = $state(false), full = $state(false);
   const v = $derived(hopView(route, flow, dir, hop));
   const client = $derived(route.chain[0]);
   const n = $derived(route.chain.length);
@@ -42,8 +44,10 @@
   const lname = (id: string) => trl(`layer.${id}.name`);
   const name = $derived(at === client ? yours(at) : nameOf(at));
   const count = $derived(fill(tr('peek.hop'), { n: Math.abs(hop - first) + 1, of: n }));
-  let title: HTMLHeadingElement;
+  let title: HTMLHeadingElement, scroller: HTMLDivElement;
   onMount(() => title.focus());
+  // a sheet starts each hop at its top, with what the hop does
+  $effect(() => { void hop; void dir; scroller.scrollTop = 0; });
   $effect(() => {
     const line = `${name}, ${count}. ${says}`;
     announce(line);
@@ -55,7 +59,7 @@
   });
 </script>
 
-<section class="peek card" class:wide={detail} data-ui aria-labelledby="peek-title">
+<section class="peek card" class:wide={detail} class:sheet class:full data-ui aria-labelledby="peek-title">
   <header>
     <h2 id="peek-title" tabindex="-1" bind:this={title}>{trActivity(route.activity, `peek.${kind}`)}</h2>
     <button class="btn chip" class:on={detail} aria-pressed={detail} onclick={() => (detail = !detail)}>{tr('peek.detail')}</button>
@@ -71,33 +75,38 @@
     <p><strong>{name}</strong><small>{count}</small></p>
     {@render stepper(1)}
   </div>
-  <p class="where" dir="auto">{says}</p>
-  {#if off.length || changed.length || v.layers.some((l) => l.change === 'added' && v.arrive)}
-    <ul class="chips" aria-label={tr('peek.changed')}>
-      {#each off as l}<li class="chip-off">− {lname(l.id)}</li>{/each}
-      {#each kept.filter((l) => l.change === 'added' && v.arrive) as l}<li class="chip-on">+ {lname(l.id)}</li>{/each}
-      {#each changed as c}<li class="chip-edit">✎ {c}</li>{/each}
-    </ul>
+  {#if sheet}
+    <button class="peek-grip" aria-expanded={full} aria-label={tr('peek.full')} title={tr('peek.full')} onclick={() => (full = !full)}></button>
   {/if}
-  {#if dives.size && !detail}<p class="where dive-hint">{tr('peek.dive')}</p>{/if}
-  <div class="peek-body">
-    {#if detail}
-      <FieldTree {v} {route} />
-    {:else}
-      {#key `${hop}:${dir}`}
-        {#if off.length}
-          <p class="off-label">{tr('peek.off')}</p>
-          <div class="off-row">
-            {#each off as l, i (l.id)}<Envelope layer={l} {client} depth={i} off dive={dive(l)} />{/each}
-          </div>
-        {/if}
-        {@render nest(0)}
-      {/key}
+  <div class="peek-scroll" bind:this={scroller}>
+    <p class="where" dir="auto">{says}</p>
+    {#if off.length || changed.length || v.layers.some((l) => l.change === 'added' && v.arrive)}
+      <ul class="chips" aria-label={tr('peek.changed')}>
+        {#each off as l}<li class="chip-off">− {lname(l.id)}</li>{/each}
+        {#each kept.filter((l) => l.change === 'added' && v.arrive) as l}<li class="chip-on">+ {lname(l.id)}</li>{/each}
+        {#each changed as c}<li class="chip-edit">✎ {c}</li>{/each}
+      </ul>
+    {/if}
+    {#if dives.size && !detail}<p class="where dive-hint">{tr('peek.dive')}</p>{/if}
+    <div class="peek-body">
+      {#if detail}
+        <FieldTree {v} {route} />
+      {:else}
+        {#key `${hop}:${dir}`}
+          {#if off.length}
+            <p class="off-label">{tr('peek.off')}</p>
+            <div class="off-row">
+              {#each off as l, i (l.id)}<Envelope layer={l} {client} depth={i} off dive={dive(l)} />{/each}
+            </div>
+          {/if}
+          {@render nest(0)}
+        {/key}
+      {/if}
+    </div>
+    {#if down}
+      <button class="btn chip travels door-down" onclick={() => ondown(down.path)}><Icon name="wave" /><span dir="auto">{fill(tr('peek.travels'), { name: down.name })}</span></button>
     {/if}
   </div>
-  {#if down}
-    <button class="btn chip travels door-down" onclick={() => ondown(down.path)}><Icon name="wave" /><span dir="auto">{fill(tr('peek.travels'), { name: down.name })}</span></button>
-  {/if}
 </section>
 
 {#snippet nest(i: number)}

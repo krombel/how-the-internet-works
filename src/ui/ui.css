@@ -326,9 +326,21 @@ button { cursor: pointer; }
 .peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 96px);
   display: flex; flex-direction: column; padding: 12px 14px 12px; }
 .peek.wide { width: min(560px, calc(100% - 24px)); }
-.port .peek { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); inset-inline: 10px; width: auto; max-height: 58%; }
-.port .peek .dive-hint { display: none; }
+.peek-scroll { display: contents; }
 .peek-body { overflow: auto; min-height: 0; margin-inline: -4px; padding-inline: 4px; }
+/* a phone's peek is a sheet of about a third of the screen (#139), so the scene and the caught packet stay in view
+   above it (or beside it, on its side): under the hop's row it scrolls as one, and the grip at its top edge opens it all
+   the way (`full`) */
+.peek.sheet { padding-top: 18px; }
+.peek-grip { position: absolute; top: 0; inset-inline: 0; width: 96px; height: 24px; margin-inline: auto; padding: 0; border: 0; border-radius: 99px;
+  background: none; cursor: pointer; }
+.peek-grip::before { content: ''; display: block; width: 40px; height: 5px; margin: 8px auto 0; border-radius: 99px; background: var(--muted); }
+.peek-grip[aria-expanded='true']::before { width: 28px; }
+.peek.sheet .peek-scroll { display: block; overflow: auto; min-height: 0; flex: 0 1 auto; margin-inline: -4px; padding-inline: 4px; overscroll-behavior: contain; }
+.peek.sheet .peek-body { overflow: visible; margin-inline: 0; padding-inline: 0; }
+.port .peek { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); inset-inline: 10px; width: auto; max-height: max(36%, 270px); }
+.port .peek.full { max-height: calc(100% - var(--top-h, 72px) - 10px); }
+.port .peek .dive-hint { display: none; }
 .peek header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .peek header .chip { min-height: 34px; padding: 4px 12px; font-size: 13px; }
 .peek header .chip.on { background: var(--btn-on); color: var(--btn-on-ink); }
@@ -392,11 +404,12 @@ button { cursor: pointer; }
 .tree-layer.sealed { background: var(--env-sealed); }
 .tree-layer.off { opacity: 0.75; }
 .tree-layer.added { box-shadow: 0 0 0 3px var(--env-used); }
-.tree-layer summary { cursor: pointer; font-family: var(--mono-font); font-size: 12px; font-weight: 700; padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
+.tree-layer summary { cursor: pointer; font-family: var(--mono-font); font-size: 12px; font-weight: 700; padding: 3px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
 .tree-layer summary::before { content: '▸'; color: var(--muted); }
 .tree-layer[open] summary::before { content: '▾'; }
 .tree-layer summary::-webkit-details-marker { display: none; }
-.tree-line { flex: 1; overflow-wrap: anywhere; }
+/* a layer's name keeps a word's room; in a narrow sheet (#139) the "sealed" tag goes under it rather than squeezing it */
+.tree-line { flex: 1 1 8em; overflow-wrap: anywhere; }
 .tree-note { margin: 2px 0 6px; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
 .diagram { display: grid; grid-template-columns: repeat(32, 1fr); gap: 1px; margin: 4px 1px 8px; }
 .bitbox { background: var(--card); outline: 1px solid var(--env-edge); font-size: 9.5px; font-weight: 700; line-height: 1.15; padding: 3px 2px; min-height: 22px; text-align: center;
@@ -450,13 +463,17 @@ button { cursor: pointer; }
   .ladder .rung { min-height: 32px; padding-block: 3px; }
   .controls { flex: none; flex-wrap: nowrap; width: auto; margin-inline-start: auto; justify-content: flex-start; }
   .menu, .about-box { max-height: calc(100dvh - 76px); }
-  /* the caught packet's panel in two columns, the hop on the left and its envelopes beside it, so the envelopes get
-     the height rather than a row under the hop's words (#136) */
-  .peek { top: 58px; max-height: calc(100% - 68px); width: min(540px, calc(100% - 24px)); display: grid; grid-template-columns: minmax(0, 12.5em) minmax(0, 1fr);
+  /* the caught packet's panel: a sheet down the side, about a third of the width (#139); opened all the way, two
+     columns, the hop on the left and its envelopes beside it, so the envelopes get the height rather than a row under
+     the hop's words (#136) */
+  .peek { top: 58px; max-height: calc(100% - 68px); }
+  .peek.sheet { width: clamp(300px, 40%, 360px); }
+  .peek.full { width: min(540px, calc(100% - 24px)); display: grid; grid-template-columns: minmax(0, 12.5em) minmax(0, 1fr);
     column-gap: 12px; align-content: start; }
-  .peek > header { grid-column: 1 / -1; }
-  .peek > :not(header, .peek-body) { grid-column: 1; }
-  .peek-body { grid-column: 2; grid-row: 2 / span 5; max-height: calc(100dvh - 136px); }
+  .peek.full > header { grid-column: 1 / -1; }
+  .peek.full :is(.hopnav, .peek-scroll > :not(.peek-body)) { grid-column: 1; }
+  .peek.full .peek-scroll { display: contents; }
+  .peek.full .peek-body { grid-column: 2; grid-row: 2 / span 5; max-height: calc(100dvh - 136px); overflow: auto; margin-inline: -4px; padding-inline: 4px; }
   .peek .dive-hint { display: none; }
 }
 /* forced colours (a contrast theme, issue #53): the system's colours everywhere but the scene's picture. What a colour

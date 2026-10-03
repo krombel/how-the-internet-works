@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TRAVEL, followStep, isShort, slideCams, toWorldPt, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
+import { TRAVEL, clearOf, followStep, isShort, slideCams, toWorldPt, travelInterpolator, viewportFor, type Cam, type Viewport } from './camera';
 
 const stage = (w: number, h: number) => ({ clientWidth: w, clientHeight: h }) as HTMLElement;
 
@@ -19,6 +19,27 @@ describe('viewport insets', () => {
   it('keeps the phone and desktop minimums', () => {
     expect(viewportFor(stage(390, 844))).toMatchObject({ top: 64, bottom: 136 });
     expect(viewportFor(stage(1440, 900))).toMatchObject({ top: 72, bottom: 132 });
+  });
+});
+
+describe('the caught packet clear of the peek (#139)', () => {
+  // the peek's rects as ui.css lays them out: a phone's bottom sheet (about a third), opened all the way, a short
+  // landscape side sheet, the same opened to two columns, and the desktop's side panel
+  it('keeps it above a bottom sheet, in the middle of what the sheet leaves', () => {
+    const vp = viewportFor(stage(390, 844));
+    const c = clearOf(vp, { left: 10, top: 530, right: 380 });
+    expect(c).toEqual({ x: 195, y: (vp.top + 530) / 2 });
+    expect(c.y).toBeGreaterThan(vp.top);
+    expect(c.y).toBeLessThan(530);
+  });
+
+  it('keeps it beside a side sheet, on the wider side', () => {
+    const short = viewportFor(stage(844, 390), { top: 58 });
+    expect(clearOf(short, { left: 494, top: 58, right: 832 }).x).toBe(247);
+    expect(clearOf(short, { left: 292, top: 58, right: 832 }).x).toBe(146);
+    const desk = viewportFor(stage(1440, 900));
+    expect(clearOf(desk, { left: 1008, top: 76, right: 1428 }).x).toBe(504);
+    expect(clearOf(desk, { left: 12, top: 76, right: 432 }).x).toBe(936);
   });
 });
 
