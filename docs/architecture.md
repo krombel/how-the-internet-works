@@ -692,8 +692,8 @@ times the way a reader's device would.
 keyboard journeys; it exits non-zero on any problem and writes nothing): see [accessibility](accessibility.md).
 
 `--mode=night` runs the same shots and phases at night. The results go to `app-<style>-night-*.jpg`, and the metrics
-under `<style>-night`. Night costs up to about 1.5 ms more CPU per frame at 6× (the halos in the long-haul fibre) and
-keeps the same p95. `--diff=<url>` compares every screenshot against another build instead, pixel by pixel. Use it
+under `<style>-night`. Night costs about 0.5–1 ms more CPU per frame at 6× in the flights: its glows (round the light
+pulses, the copper and 5G sparks) and the twinkling stars move every frame too. `--diff=<url>` compares every screenshot against another build instead, pixel by pixel. Use it
 to show that a change leaves the day untouched. For a diff, each side screenshots until two in a row match: under load
 the GPU now and then hands over a frame with some tiles (the dot grid, shadows, blurs) not final yet. Two runs of the
 same build then match in all shots but about one a run, where a pixel or a few on an edge differ, mostly by a level or
@@ -710,9 +710,16 @@ skips the lock (CI, where nothing else runs).
 Every phase keeps p95 ≤ 16.8 ms (one frame at 60 Hz) at 6×, and CPU per frame is at most about 12 ms (the flies into
 5G and down to copper, and opening a layer dive; it varies a few ms between runs, up to about 13 ms). On a quiet
 machine (five runs, medians) no phase is over a frame; the 33.3 ms once seen for `openLayer` came from other work on the
-machine at the same time. In the refresh after #99 (two runs on a busy machine), the day kept every phase within a
-frame; at night the fly three levels down (`flyDeep`) came in at 33.3 ms p95 at 6× in both runs, and the step on to
-the undersea cable in one. Animated scenes avoid group
+machine at the same time. The flights sit close to the frame budget at 6×, though: about one frame in twenty is long,
+and p95 is the 20th-longest frame or so, so two more long frames turn 16.8 into 33.3. At night after #99, `flyDeep`,
+the step on to the undersea cable and the fly into 5G did that on a busy machine (#101). No one change was behind it: a
+bisect from before #76 showed day and night each gaining about 0.5–1 ms per frame in small steps, night a little more
+(its glows). Every attribute written in a frame is styled, laid out and painted again, so animated art writes as few
+as it can (#101): a pulse's or spark's strokes share one `points` string and the shapes at its head move by one
+`translate`; the 5G seat grid slides by one `translate` and changes its seats only when a slot comes in; a door's badge
+is drawn at one size and scaled as a whole, so a zoom moves one transform rather than every radius, stroke and font
+size. That took a fly's writes per frame down by a sixth to three fifths (the fly into 5G from 214 to 84 at night) with
+the same pixels, and night's CPU per frame in those flights to about the day's before. Animated scenes avoid group
 `opacity` and animated `stroke-dashoffset` on long paths: both made the copper cable miss frames at 6×. Door labels are measured once per language and theme, not per zoom step
 (measuring text every frame of a flight cost more than the doors themselves). The device dives draw their text with
 `text-rendering="geometricPrecision"`: Chrome lays hinted SVG text out again whenever the camera rescales it, which
