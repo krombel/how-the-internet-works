@@ -112,22 +112,39 @@
     }
   },
   "2010": {
-    "nerd": "En cache-server i 2010 tager en 10G-forbindelse ind på sit NIC; cachesoftwaren kører direkte på hardwaren og sender varme objekter fra RAM, resten fra roterende diske og de første SSD’er. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
+    "nerd": "En CDN-cache-server i 2010: en 1U- eller 2U-kasse, hvis 1G-kobber-NIC (1000BASE-T) går til rackets access-switch, med Linux og et cacheprogram (Squid, Varnish eller CDN’ets eget) direkte på hardwaren, uden VM’er. Varme objekter ligger i RAM, resten på roterende diske; SSD’er var kun lige begyndt at dukke op. HIT serveres lokalt; MISS henter fra origin, gemmer en kopi efter cache-control og TTL og svarer derefter.",
     "describe": {
-      "kid": "Et åbent serverkabinet viser netkort, computeren, hukommelse og videohylder. En forespørgsel kommer ind som lys og når video-appen. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
-      "nerd": "Den åbne cache-server viser NIC, host-CPU med cache-appen, RAM og diskcache. Forespørgslen kommer ind på fiber og når den markerede app. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
+      "kid": "Et åbent serverkabinet viser netkort, computeren med sine hjælpere, hukommelse og hylder med diske. En forespørgsel kommer ind ad et kobberkabel og når videoprogrammet. Så sender hylden enten et filmstykke tilbage, eller også spørger den først hovedkopien langt væk.",
+      "nerd": "Den åbne cache-server viser 1000BASE-T-NIC’et, CPU’en med cacheprocesser direkte på Linux, RAM og harddisk-cachen. Forespørgslen kommer ind over kobber fra access-switchen og når den markerede proces. Ved hit sendes et videosegment fra cache; ved miss går turen til origin, en kopi gemmes, og svaret sendes tilbage."
     },
     "nic": {
       "title": {
-        "nerd": "NIC 2×10G"
+        "nerd": "NIC 2×1G"
+      },
+      "line": {
+        "kid": "Pulser → bits",
+        "nerd": "1000BASE-T → frames"
       }
     },
     "ssd": {
       "title": {
-        "nerd": "Diskcache"
+        "nerd": "Harddisk-cache",
+        "kid": "Diskhylder"
       },
       "line": {
-        "nerd": "Harddiske og tidlige SSD’er"
+        "nerd": "Objekter på harddiske",
+        "kid": "Hylder med videoer"
+      }
+    },
+    "kid": "Videoserveren er en computer, der gemmer populære videoer i et datacenter i en stor by. Din forespørgsel kommer ind ad et kobberkabel fra rackets switch og bliver til bits på netkortet. Videoprogrammet kigger i hukommelsen og på diskene; hvis stykket er der, sender det det straks tilbage. Hvis ikke, spørger det hovedkopien langt væk, gemmer en kopi og sender så din.",
+    "app": "Videoprogram",
+    "compute": {
+      "title": {
+        "nerd": "CPU · bare metal"
+      },
+      "line": {
+        "kid": "Hjælpere i arbejde",
+        "nerd": "Linux · cacheprocesser"
       }
     }
   }
