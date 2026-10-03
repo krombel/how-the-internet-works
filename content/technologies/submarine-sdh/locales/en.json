@@ -1,0 +1,8 @@
+{
+  "name": "Undersea cable",
+  "1995": {
+    "kid": "A cable on the sea floor joins Denmark to Canada, by way of the Faroe Islands and Iceland. It carries every phone call and every parcel between them, and yours rides in a small corner of it.",
+    "nerd": "CANTAT-3 (1994): about 7,100 km from Blåbjerg in Denmark to Nova Scotia, via the Faroes and Iceland. Each fibre pair carries one colour of 2.5 Gbit/s SDH (STM-16), cut into circuits; the upstream rents a couple of 2 Mbit/s ones. Today’s cables carry hundreds of Tbit/s.",
+    "tag": "CANTAT-3 · STM-16 · 2.5 Gbit/s"
+  }
+}

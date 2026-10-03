@@ -1,1 +1,12 @@
-{ "name": { "kid": "Et cloudfirma", "nerd": "Cloud-region · AS64503" } }
+{
+  "name": {
+    "kid": "Et cloudfirma",
+    "nerd": "Cloud-region · AS64503"
+  },
+  "1995": {
+    "name": {
+      "kid": "Nutidens cloud",
+      "nerd": "Cloud-region · i dag"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": {
+    "kid": "Tiny labelled pieces",
+    "nerd": "ATM cell"
+  },
+  "note": {
+    "kid": "Here the parcel is cut into tiny pieces of the same size, each with a little label. The switches only read the label, and swap it for a new one as the piece goes by.",
+    "nerd": "AAL5 cuts the packet into 48-byte payloads, each behind a 5-byte header: 53-byte cells. Switches forward on VPI/VCI and rewrite it at every hop; the far router reassembles the packet."
+  },
+  "line": "ATM, VPI/VCI: 1/{vci}",
+  "field": {
+    "vpi": {
+      "name": "VPI",
+      "about": "Virtual path: a bundle of circuits between two switches."
+    },
+    "vci": {
+      "name": {
+        "kid": "Label",
+        "nerd": "VCI"
+      },
+      "about": "Virtual channel: this circuit’s number on this stretch. Every switch swaps it for the next one."
+    },
+    "pti": {
+      "name": "Payload type",
+      "about": "Says it’s data; the last cell of a packet is marked here so the far end knows it’s whole."
+    },
+    "clp": {
+      "name": "Cell loss priority",
+      "about": "1 = drop me first when a switch is full."
+    },
+    "hec": {
+      "name": "HEC",
+      "about": "A check over the 5-byte header only, so a switch never reads a broken label."
+    }
+  }
+}

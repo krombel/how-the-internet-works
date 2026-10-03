@@ -8,6 +8,7 @@
   import { Node, Text, arrived, labelInk, legibleSize, nameOf, soundOut, strings, textBox, view, type LinkSubject } from '$core/api';
   import { toScene, trackMatrix } from '../copper-pulses/copper';
   import Card from '../copper-pulses/art/Card.svelte';
+  import Slots from '../tdm-frames/art/Slots.svelte';
   import { LINE, NUMBER, PHOTO, SLOT, STEPS, dialled, handshake, photoIn, play, ripples, seconds, stepAt, type Ripple } from './modem';
 
   let { subject }: { subject: LinkSubject } = $props();
@@ -19,8 +20,16 @@
   const compact = $derived(o === 'landscape' && view.vp.h < 470);
   const fs = (size: number) => (compact ? legible(size) : size);
 
-  // the call: every link of this technology, from the computer through the exchange to the ISP's modems
-  const call = $derived(subject.route.links.filter((l) => l.tech.id === subject.link.tech.id && !l.aside));
+  // the call: the links around this one that carry the same envelope (PPP), from the computer's phone line through the
+  // exchange's trunk to the ISP's modems
+  const call = $derived.by(() => {
+    const links = subject.route.links.filter((l) => !l.aside), proto = subject.link.stack[0];
+    const same = (i: number) => links[i]?.stack[0] === proto;
+    let a = links.findIndex((l) => l.id === subject.run[0].id), b = a;
+    while (same(a - 1)) a--;
+    while (same(b + 1)) b++;
+    return links.slice(a, b + 1);
+  });
   const ends = $derived({ from: subject.route.hops[call[0].from], to: subject.route.hops[call[call.length - 1].to] });
   const mids = $derived(call.slice(1).map((l, i) => ({ hop: subject.route.hops[l.from], x: LINE.x0 + ((LINE.x1 - LINE.x0) * (i + 1)) / call.length })));
   const midX = $derived(mids[0]?.x ?? (LINE.x0 + LINE.x1) / 2);
@@ -91,7 +100,7 @@
   <path d={`M${LINE.fromX + 100} ${LINE.nodeY} H${LINE.toX - 100}`} stroke="var(--line)" stroke-width="16" stroke-linecap="round" opacity="0.24" />
   <path d={`M${LINE.fromX + 100} ${LINE.nodeY} H${midX}`} stroke={subject.link.tech.colour} stroke-width="7" stroke-linecap="round" />
   <!-- past the exchange the call is a timeslot on a trunk: drawn doubled -->
-  <path d={`M${midX} ${LINE.nodeY - 7} H${LINE.toX - 100} M${midX} ${LINE.nodeY + 7} H${LINE.toX - 100}`} stroke={subject.link.tech.colour} stroke-width="5" stroke-linecap="round" />
+  <path d={`M${midX} ${LINE.nodeY - 7} H${LINE.toX - 100} M${midX} ${LINE.nodeY + 7} H${LINE.toX - 100}`} stroke={call[call.length - 1].tech.colour} stroke-width="5" stroke-linecap="round" />
   {#each waves as w (w.key)}
     <g opacity={w.alpha}>
       <path d={w.d} fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.28" />
@@ -171,13 +180,8 @@
   {@const cols = 8}
   {@const cell = Math.min((C.w - 80) / cols, (C.h - (compact ? 190 : 200)) / 4)}
   {@const gx = C.x + (C.w - cell * cols) / 2}
-  {@const sweep = Math.floor(t * 6) % 32}
   <text x={head(C).x} y={head(C).y} text-anchor="middle" font-size={fs(L.text.head)} font-weight="900" stroke="var(--paper)" stroke-width="6" paint-order="stroke" font-family="var(--label-font)" fill="var(--line)">{S('circuitTitle')}</text>
-  {#each Array.from({ length: 32 }, (_, i) => i) as i (i)}
-    {@const x = gx + (i % cols) * cell}
-    {@const y = C.y + 82 + Math.floor(i / cols) * cell}
-    <rect x={x + 3} y={y + 3} width={cell - 6} height={cell - 6} rx="6" fill={i === SLOT ? subject.link.tech.colour : 'var(--paper-2)'} stroke="var(--line)" stroke-width={i === sweep && !view.still ? 6 : 2} />
-  {/each}
+  <Slots x={gx} y={C.y + 82} {cell} {cols} fills={Array.from({ length: 32 }, (_, i) => (i === SLOT ? subject.link.tech.colour : 'var(--paper-2)'))} sweep={view.still ? -1 : Math.floor(t * 6) % 32} />
   <text x={C.x + C.w / 2} y={C.y + C.h - (compact ? 30 : 58)} text-anchor="middle" font-size={fs(L.text.body)} font-weight="900" font-family="var(--label-font)" fill="var(--line)">{S('circuitLine').replace('{n}', String(SLOT))}</text>
   {#if !compact}<text x={C.x + C.w / 2} y={C.y + C.h - 22} text-anchor="middle" font-size={L.text.body - 2} font-weight="800" font-family="var(--label-font)" fill="var(--line)">{S('circuitSub')}</text>{/if}
 {:else}

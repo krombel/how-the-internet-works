@@ -1,5 +1,11 @@
 {
   "name": "Backbone",
   "kid": "Super-fast connections between big network boxes.",
-  "nerd": "100–400G links between routers, often carrying MPLS."
+  "nerd": "100–400G links between routers, often carrying MPLS.",
+  "1995": {
+    "nerd": "Drawn as today (100–400G, MPLS). In 1995 backbone links were 45 Mbit/s T3s and 155 Mbit/s OC-3s, often carrying ATM."
+  },
+  "2010": {
+    "nerd": "10–40G links between routers, often carrying MPLS; the first 100G links came in 2010."
+  }
 }

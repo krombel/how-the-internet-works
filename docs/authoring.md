@@ -232,7 +232,14 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
   a cross-section of it, repeaters every 60 km, `sea.ts`). The last two draw the stretch to scale from the links'
   `km` (`subject.run`, the links of the stretch: their `km` added up, one booster per span, a running km counter,
   #42), so give each link its real-ish `km`. Each mode is its own component with portrait, landscape and
-  short-landscape layouts.
+  short-landscape layouts. 1995's technologies reuse the last two (`atm`: long haul, `submarine-sdh`: under the sea)
+  with one colour on the thread, as before DWDM (1996), and their words under their own id (`light.ts` ›
+  `oneColour`, `wordsOf`: `atm.title`, `submarine-sdh.kid`).
+- `copper-pulses` picks its line code from the link's `rate` (`copper.ts` › `codeOf`): up to 10 Mbit/s it's
+  10BASE-T's Manchester on two pairs taking turns (1995's ISP rack), above it 1000BASE-T's PAM-5 on four pairs both
+  ways; each code's words are under its name (`manchester.title`, `pam5.…`).
+- `tdm-frames` is every E1 and T1 (`pri`, `e1`, `t1`): its mode comes from the technology id (`tdm.ts` › `MODES`),
+  and it draws the same row of timeslots as `modem-call`'s card (`tdm-frames/art/Slots.svelte`, imported by both).
 - The caption adds **What it carries** chips by itself, one per layer in `subject.link.stack` that has a dive, and
   the dives of those layers get a **How it travels** chip back to this scene; the title names it there, so make it
   say what the signal is ("Electricity in copper").
@@ -406,8 +413,11 @@ place of that era, and says so.
   where only some members have an era, and on a family whose members all share one era (a time machine needs two).
   Two members of one era are fine (`home` and `home-fttb` are both `today`): the time machine goes to the place you
   are at if it's of that era, else to the first by `order`.
-- The internet inside is today's for every era for now; say so in the place's `inside.internet.nerd` where it
-  matters (the 1995 home has no CDN to reach).
+- The internet inside is an era's own where a segment variant draws it (`isp-to-cdn-1995`: a small ISP, leased lines,
+  CANTAT-3 and an American ATM backbone); where a part is still today's drawing (1995's server room, until its own
+  step), its words say so plainly ("drawn as today") rather than describe today's technology as the era's. A test
+  walks every route of the past and fails on a later technology named in its captions, names, tags and dives
+  (`era-1995.test.ts`: MPLS, DWDM, 100G, leaf–spine, a CDN…) unless the line says when it came.
 - **Words for an era** (#59): any content item's locale file may hold a block for an era of the past, with the
   same keys as the rest of the file, for what is different then (`"1995": { "name": "Web server", "kid": … }` in
   `nodes/cdn`, `"1995": { "sealed": { … } }` in a dive). On a route of that era every lookup tries the block first,

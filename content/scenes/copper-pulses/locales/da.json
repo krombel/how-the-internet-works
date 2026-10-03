@@ -44,5 +44,24 @@
   "eyeLine": "Åbent øje = rent.",
   "hundredShort": "Ca. 100 m, så bliver de for svage",
   "hundredA": "Ca. 100 m,",
-  "hundredB": "så bliver de for svage"
+  "hundredB": "så bliver de for svage",
+  "manchester": {
+    "title": "Manchester-kode",
+    "line": "Et skift midt i hver bit.",
+    "speed": "10BASE-T · 10 Mbit/s",
+    "duplex": "ét par hver vej",
+    "cat": "100 m",
+    "pairs": "To af de fire par bærer signalet",
+    "pairsShort": "To par i brug",
+    "bothWays": "Ét par hver vej, på skift"
+  },
+  "1995": {
+    "kid": "Ethernet sender små spændingsstød ned ad snoede kobberpar. I 1995 bruger det kun to af dem: ét par til at sende og ét til at lytte, på skift. Snoningerne hjælper støjen med at ophæve sig selv, og efter omkring 100 m bliver stødene for svage.",
+    "nerd": "10BASE-T (1990) bruger to par i et Cat 3-kabel: ét til at sende og ét til at modtage, som differentielle signaler med 10 Mbit/s i Manchester-kode, der skifter linjen midt i hver bit, så modtageren finder sit ur i dataene. På en hub taler kun den ene ende ad gangen (halv dupleks); de to andre par er ubrugte.",
+    "extra": "Før 10BASE-T kørte Ethernet på koaksialkabel, som alle computerne på det delte: tykt “gult kabel” (10BASE5, 1983) og siden tynd koaks (10BASE2). Snoet par og en hub i et skab gjorde det billigt og nemt at trække. Fast Ethernet (100BASE-TX, 1995) var lige på vej; gigabit over kobber kom i 1999.",
+    "describe": {
+      "kid": "To netværksbokse står i hver sin ende af et tykt kabel. Indeni er fire snoede par, men kun to lyser. En puls løber ad det ene par, så kommer en anden tilbage ad det andet: de skiftes. Kortene zoomer ind på snoningerne, pulserne og falmningen efter omkring 100 meter.",
+      "nerd": "Kabelsnittet viser fire par, hvoraf to er aktive: det ene bærer pulser frem, det andet tilbage, på skift. Kortene viser modsatte spændinger på et snoet par, et Manchester-kodet bitmønster med et skift i hver bit og et øjediagram med to niveauer."
+    }
+  }
 }

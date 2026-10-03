@@ -27,5 +27,13 @@
     "kid": "Samme vej hver gang",
     "nerd": "hash(5-tuple)",
     "mod": "mod 4 = {n}"
+  },
+  "1995": {
+    "kid": "Det her er nutidens datacenter, tegnet som det ser ud nu. I 1995 var der én webcomputer og én lille hub, så der var ingen vejkryds at vælge imellem.",
+    "nerd": "Tegnet som i dag: ECMP over en leaf–spine-fabric (Clos) blev normen i datacentre i 2010’erne. I 1995 hang webserveren på en 10 Mbit/s-hub bag stedets ene router.",
+    "describe": {
+      "kid": "Tegnet som i dag. Øverst er fire vejkryds; det tredje lyser og har et navn. Nedenunder er load balanceren, to andre racks og rack-switchen. Tynde veje forbinder hver kasse nederst med hvert vejkryds. Din større pakke bliver ved med at bruge det lysende.",
+      "nerd": "Tegnet som i dag: fire spines over fire leaves, hver leaf forbundet med hver spine. Baggrundsflows går over alle fire spines; det markerede flow hashes til spine 2 og går fra load balancer via spine til rack-switch."
+    }
   }
 }
