@@ -43,7 +43,7 @@ describe('link frames (#132)', () => {
   it('passes a frame through bridges with the MACs of the hops at either end', () => {
     expect(ids(ctx(home, 'phone-ap', 'up'))).toEqual(['phone', 'router', 'router']);
     expect(ids(ctx(home, 'border-ixp', 'up'))).toEqual(['border', 'dc-router', 'dc-router']);
-    expect(ids(ctx(home, 'cabinet-backhaul', 'up'))).toEqual(['router', 'bng', 'bng']);
+    expect(ids(ctx(home, 'cabinet-olt', 'up'))).toEqual(['router', 'bng', 'bng']);
   });
 
   it('names the next hop on the outgoing link, the way the packet goes (what a router ARPs for)', () => {
