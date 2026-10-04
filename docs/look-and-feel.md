@@ -41,7 +41,7 @@ The slimmed `prototype/` keeps only Storybook, and removes the lab and the varia
 - **Kept:** the theme plug-in structure (`themes/_base` fallbacks, discovery via `import.meta.glob`, `?style=<id>`)
   so another theme, e.g. a nerd-mode one, can drop in. The style picker hides itself while there is only one theme.
   Also kept: fly + ease, landscape and portrait layouts picked from the aspect ratio, follow + peek, learn-more
-  links, sideways stepping, sound (muted by default) and `npm run evaluate` (screenshots + frame times).
+  links, sideways stepping, sound (on by default since #189) and `npm run evaluate` (screenshots + frame times).
 
 The recommendation and notes below are the pre-decision write-up, kept as the record of the exploration. The
 screenshots show each style's original defaults (storybook with spring and lively packets), taken at the tag.
@@ -322,21 +322,29 @@ Tapping the × button, pressing Esc or tapping empty space ends the follow, and 
 > used (soft yellow, `--env-used`) and changed (struck-through old value → new, `--env-change`), kid fields only or
 > every header field for nerds, and a Details protocol tree. See [architecture](architecture.md#pause-catch-and-step-issue-17).
 
-### Sound (in the ⋯ menu, muted by default)
+### Sound (on by default, one tap to mute; issue #189)
 
 All sounds are **synthesised with the Web Audio API**, so there are no audio files and no licences to track:
 
 - a filtered-noise **whoosh** on zoom
 - a soft **swish** on a sideways step
 - a **pop** when you tap a packet
-- a **blip** when the followed packet arrives; other arrivals get a very quiet, throttled tick
+- a **blip** when the followed packet arrives, or you step a caught one; other arrivals, the ones you only watch,
+  get a quiet tick, at most one every 1.8 s and none while read aloud speaks. It is about 7 dB under the quietest
+  tap sound, the swish (K-weighted over 100 ms; it used to be level with it)
 - the **modem handshake** in the dial-up dive: touch tones, a ring, the answer tone and the training screech, about
   five seconds, once when you arrive (or turn sound on there). Muted, the speech bubble and the waves on the line
   tell the same story.
 
 Each style has a timbre: storybook a marimba-ish triangle, neon a sawtooth, sketchbook noise-heavy pencil
-scratches, papercut a paper rustle. The `AudioContext` is only created on the first unmute tap, and the sound is
-always muted again on reload.
+scratches, papercut a paper rustle.
+
+Sound is **on by default** (#189: it adds depth, and the modem is a favourite), but a browser lets no audio start
+before the reader's first tap or key, so nothing plays before it: the `AudioContext` is created (or resumed) inside
+that first gesture (`wakeOnGesture` in `engine/sound.ts`), and the tap's own pop or whoosh plays. Muting is one tap,
+the speaker button in the top bar on a desktop or tablet (in ⋯ on a phone, upright or on its side, where the bar has
+no room); it stops everything at once, the handshake too, and is remembered. `?sound=off` (or `on`) in the link wins
+for that load, for a classroom, a kiosk or an embed.
 
 ### Touch, sideways and big targets
 
@@ -539,7 +547,8 @@ Questions 1–3 are settled by the [decision](#decision-after-trying-it): storyb
    after it?
 3. **Spring or ease?** Does the spring overshoot delight or get tiring on repeated sideways steps?
 4. **Stop-motion.** In sketchbook, does "twos" read as hand-made or as laggy?
-5. **Sound.** Keep it? Which timbre? Should the followed packet's arrival blip be louder?
+5. **Sound.** Keep it? Which timbre? Should the followed packet's arrival blip be louder? (#189: kept, on by
+   default, and the arrivals you only watch quieter.)
 6. **Portrait path direction.** Is "up to the cloud" (phone at the bottom) right? Would a zig-zag or a
    left-to-right scroll read better on a phone?
 7. **Swipe to step vs swipe to pan.** A fast flick steps and a slow drag pans. Do small fingers trigger the wrong

@@ -54,7 +54,7 @@ async function page(cut, mode, hash) {
   // a reader who has had the first-run tips
   await p.addInitScript(() => localStorage.setItem('coached', '2'));
   p.on('pageerror', (e) => console.log('  pageerror', e.message));
-  await p.goto(`${BASE}?style=storybook${mode === 'night' ? '&mode=night' : ''}#/en/${hash}`);
+  await p.goto(`${BASE}?style=storybook${mode === 'night' ? '&mode=night' : ''}&sound=off#/en/${hash}`);
   await p.waitForFunction(() => window.__app && !window.__app.busy(), null, { timeout: 15000 });
   await p.evaluate(() => document.fonts.ready);
   if (cut.captions) {

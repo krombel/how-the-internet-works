@@ -118,8 +118,9 @@ const still = (p) => p.evaluate(async () => {
   }
   throw new Error('still moving after 30 s');
 });
-/** `where` is the hash after the language, e.g. 'home/watch-video/internet'. */
-const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}${q}#/${lang}/${where}`;
+/** `where` is the hash after the language, e.g. 'home/watch-video/internet'. Every page is muted (`sound=off`, #189),
+ *  so no run depends on audio. */
+const url = (style, lang, where, q = '', base = BASE) => `${base}?style=${style}${MODE === 'night' ? '&mode=night' : ''}&sound=off${q}#/${lang}/${where}`;
 /** Catch a packet of `kind` where it enters the view (`__app.catch`, #74), then step it on a hop for each hop after the
  *  first in `at`, checking each time that it waits at that hop. A catch that lands anywhere else (#40) fails the run
  *  rather than giving a different picture, or checking a different state. */

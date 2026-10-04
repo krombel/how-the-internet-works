@@ -1,13 +1,13 @@
 <script lang="ts">
   // Top bar: the depth ladder (breadcrumb, Ladder.svelte), "What can I explore?" (a toggle, #122: the doors light
   // up and the caption lists them; only where there is something to explore), the time machine (#59: on every screen, showing the era you're in), pause (all motion),
-  // kid/nerd, day/night (when the theme has a night), and ⋯: a menu (Menu.svelte, entries in `entries` below) with the
-  // language, sound, read aloud (where there is a voice for the language), the style (only when more than one theme is
-  // installed), the list view (TextMap.svelte, opened by the app) and About. The controls keep to the end of the row,
-  // so one that comes and goes doesn't move the others; on a phone they wrap under the ladder (below 400 px day/night
-  // is in ⋯ too, so "Explore" keeps its word next to the time machine's button: its icon alone, by a sun, read as the
-  // sun, #138), and on a short landscape screen it is one slim row. Toggles keep their name and say their state with
-  // aria-pressed.
+  // kid/nerd, day/night (when the theme has a night), mute (#189: one tap, on a desktop or tablet), and ⋯: a menu
+  // (Menu.svelte, entries in `entries` below) with the language, sound (on a phone, where the bar has no room for mute),
+  // read aloud (where there is a voice for the language), the style (only when more than one theme is installed), the
+  // list view (TextMap.svelte, opened by the app) and About. The controls keep to the end of the row, so one that comes
+  // and goes doesn't move the others; on a phone they wrap under the ladder (below 400 px day/night is in ⋯ too, so
+  // "Explore" keeps its word next to the time machine's button: its icon alone, by a sun, read as the sun, #138), and
+  // on a short landscape screen it is one slim row. Toggles keep their name and say their state with aria-pressed.
   import type { Below } from '../model/ladder';
   import { languages } from '../model/strings';
   import { go } from '../router';
@@ -65,8 +65,8 @@
       state: tr(view.mode === 'night' ? 'ui.on' : 'ui.off'), set: (on: boolean) => setMode(on ? 'night' : 'day') } satisfies MenuEntry] : []),
     { kind: 'choice', id: 'lang', label: tr('ui.language'), value: loc.lang, pick: (lang) => go({ lang }, true),
       options: languages.map((l) => ({ id: l.code, label: l.name, lang: l.code })) },
-    { kind: 'toggle', id: 'sound', icon: settings.sound ? 'soundOn' : 'soundOff', label: tr('ui.sound'), on: settings.sound,
-      state: tr(settings.sound ? 'ui.on' : 'ui.off'), set: setSound },
+    ...(small ? [{ kind: 'toggle' as const, id: 'sound', icon: settings.sound ? 'soundOn' : 'soundOff', label: tr('ui.sound'), on: settings.sound,
+      state: tr(settings.sound ? 'ui.on' : 'ui.off'), set: setSound } satisfies MenuEntry] : []),
     ...(canSpeak() ? [{ kind: 'toggle' as const, id: 'speech', icon: 'speak' as const, label: tr('ui.speech'), on: settings.speech,
       state: tr(settings.speech ? 'ui.on' : 'ui.off'), set: setSpeech } satisfies MenuEntry] : []),
     ...(THEME_IDS.length > 1 ? [{ kind: 'choice' as const, id: 'style', label: tr('ui.style'), value: settings.style,
@@ -106,6 +106,11 @@
     {#if hasNight() && !narrow}
       <div class="card">
         <button class="btn icon-btn" aria-pressed={view.mode === 'night'} aria-label={tr('ui.night')} title={tr('ui.night')} onclick={() => setMode(view.mode === 'night' ? 'day' : 'night')}><Icon name={view.mode} /></button>
+      </div>
+    {/if}
+    {#if !small}
+      <div class="card">
+        <button class="btn icon-btn" aria-pressed={!settings.sound} aria-label={tr('ui.mute')} title={tr('ui.mute')} onclick={() => setSound(!settings.sound)}><Icon name={settings.sound ? 'soundOn' : 'soundOff'} /></button>
       </div>
     {/if}
     <div class="card">

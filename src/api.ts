@@ -12,16 +12,15 @@ export { clientAt, fakeLabel, fakeMac, ttlAt } from './model/packet';
 export { defineTheme } from './render/art-base';
 export { labelInk } from './render/colour';
 export { legibleSize } from './render/ctx';
-export { fill, nameOf, view, yours } from './state.svelte';
+export { fill, nameOf, soundOut, view, yours } from './state.svelte';
 
 export { default as Depth } from './render/Depth.svelte';
 export { default as Node } from './render/Node.svelte';
 export { default as TagAt } from './render/TagAt.svelte';
 export { default as Text } from './render/Text.svelte';
 
-import { sfx } from './engine/sound';
 import { getScene } from './render/ctx';
-import { nav, settings, trl } from './state.svelte';
+import { nav, trl } from './state.svelte';
 import type { Level } from './define';
 /** Strings of one content item: `const L = strings('layer.ip')` then `L('from')` (level-aware, English fallback). */
 export const strings = (prefix: string) => (key: string, level?: Level) => trl(`${prefix}.${key}`, level);
@@ -32,5 +31,3 @@ export function arrived() {
   const s = getScene();
   return () => nav.loc.path.length === s.path.length && nav.loc.path.every((p, i) => p === s.path[i]);
 }
-/** Where a scene may play a short sound of its own, only while the reader has sound on (else null). Reactive. */
-export const soundOut = () => (settings.sound ? sfx.out() : null);
