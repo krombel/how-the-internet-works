@@ -3,7 +3,7 @@
   // The 1995 web server (#59): a beige tower with its side off. The request comes off the hub's cable into the network
   // card, the one web program asks the hard disk, and the page, then its picture, goes back out the same way.
   import { Node, Text, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
-  import { centre, filePath, formFor, towerAt, towerLayout, towerRooms } from './server';
+  import { centre, filePath, formFor, roomFloor, towerAt, towerLayout, towerRooms } from './server';
   import type { Pt, TowerRoom } from './types';
   import Case from './art/Case.svelte';
   import Room from './art/Room.svelte';
@@ -52,25 +52,27 @@
   {#each towerRooms as r (r)}
     {@const b = L.rooms[r]}
     {@const c = centre(b)}
-    {@const top = b.y + T.head * 1.9}
-    {@const bottom = b.y + b.h - (T.body ? T.body * 1.8 : 14)}
-    {@const mid = (top + bottom) / 2}
+    {@const { bottom, mid, h } = roomFloor(b, T.head, T.body)}
     <Room box={b} tint={tints[r]} title={S(`${r}.title`)} line={roomLine(r)} head={T.head} body={T.body}>
       {#if r === 'nic'}
         <Nic p={{ x: c.x, y: mid }} colour={inLink?.tech.colour ?? 'var(--teal)'} />
       {:else if r === 'compute'}
-        {@const chip = Math.min(84, bottom - top - 30)}
+        {@const chip = Math.min(84, h - 30)}
         <!-- the program right of the empty slot, even in a narrow room -->
         {@const px = Math.max(c.x, b.x + chip + 122)}
         <rect x={b.x + 28} y={bottom - 30} width={b.w - 56} height="22" rx="7" fill="var(--stone)" stroke="var(--line)" stroke-width="4" />
-        <rect x={b.x + 34} y={mid - chip / 2 - 8} width={chip} height={chip} rx="8" fill="var(--stone)" stroke="var(--line)" stroke-width="5" />
-        <path d={`M${b.x + 34 + chip * 0.25} ${mid - 8} H${b.x + 34 + chip * 0.75} M${b.x + 34 + chip / 2} ${mid - chip * 0.25 - 8} V${mid + chip * 0.25 - 8}`} stroke="var(--line)" stroke-width="4" opacity="0.5" />
+        <!-- the chip and the disk need a floor; one the head has grown over (legible text, issue 182) has neither -->
+        {#if chip >= 24}
+          <rect x={b.x + 34} y={mid - chip / 2 - 8} width={chip} height={chip} rx="8" fill="var(--stone)" stroke="var(--line)" stroke-width="5" />
+          <path d={`M${b.x + 34 + chip * 0.25} ${mid - 8} H${b.x + 34 + chip * 0.75} M${b.x + 34 + chip / 2} ${mid - chip * 0.25 - 8} V${mid + chip * 0.25 - 8}`} stroke="var(--line)" stroke-width="4" opacity="0.5" />
+        {/if}
         <rect x={px - 72} y={mid - 50} width="144" height="84" rx="13" fill="var(--orange-soft)" stroke="var(--line)" stroke-width="6" />
         <rect x={px - 58} y={mid - 38} width="116" height="14" rx="5" fill="var(--sun)" />
         <path d={`M${px - 54} ${mid - 6} H${px + 40} M${px - 54} ${mid + 14} H${px + 18}`} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.6" />
         {#if T.small}<text x={px} y={mid - 62} text-anchor="middle" font-family="var(--label-font)" font-size={T.small} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="5" paint-order="stroke">{S('app')}</text>{/if}
       {:else}
-        <Disk p={{ x: c.x, y: mid }} r={Math.min((bottom - top) / 2.7, b.w / 3.4)} {time} reading={state.reading} still={view.still} />
+        {@const disk = Math.min(h / 2.7, b.w / 3.4)}
+        {#if disk >= 16}<Disk p={{ x: c.x, y: mid }} r={disk} {time} reading={state.reading} still={view.still} />{/if}
       {/if}
     </Room>
   {/each}

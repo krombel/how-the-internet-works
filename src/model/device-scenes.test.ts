@@ -128,6 +128,17 @@ describe('inside the video server', () => {
     }
   });
 
+  it('gives each room a floor under its head, which a head grown taller than the room leaves 0 tall (#182)', () => {
+    const memory = server.serverLayout('landscape', true).rooms.memory;
+    const f = server.roomFloor(memory, 43, 0);
+    expect(f).toMatchObject({ top: memory.y + 43 * 1.9, bottom: memory.y + memory.h - 14 });
+    expect(f.h).toBeCloseTo(memory.h - 14 - 43 * 1.9);
+    expect(f.mid).toBeCloseTo((f.top + f.bottom) / 2);
+    expect(server.roomFloor(memory, 27, 22).bottom).toBeCloseTo(memory.y + memory.h - 22 * 1.8);
+    // zooming out of a short screen's dive, the legible head is taller than the room
+    expect(server.roomFloor(memory, 160, 0).h).toBe(0);
+  });
+
   it('routes a request from the rack switch to the app, then cache or origin back to the reader', () => {
     const L = server.serverLayout('landscape');
     expect(server.requestPath(L).at(0)).toEqual(L.inNode);

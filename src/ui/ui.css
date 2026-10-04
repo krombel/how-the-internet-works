@@ -227,7 +227,8 @@ button { cursor: pointer; }
 .caption.folded.open .cap-in { position: absolute; inset-inline: calc(-1 * var(--card-edge-w)); bottom: calc(-1 * var(--card-edge-w));
   max-height: calc(100dvh - var(--top-h, 110px) - max(10px, env(safe-area-inset-bottom))); overflow: auto; overscroll-behavior: contain;
   scrollbar-width: thin; padding: 10px 14px; }
-/* its chevron, in the top corner (#168): it folds the caption away to the pill, on any screen, until it's unfolded */
+/* its button in the top corner (#168): it folds the caption away to the pill, on any screen, until it's unfolded. Its
+   mark is a bar at the bottom, as a window is minimised: neither the title's chevron nor the step buttons' arrow (#182) */
 .caption.foldable h2 { padding-inline-end: 34px; }
 .cap-fold { position: absolute; top: 8px; inset-inline-end: 8px; min-width: 32px; min-height: 32px; padding: 4px; display: grid; place-items: center; }
 .cap-fold svg { width: 20px; height: 20px; }
@@ -310,7 +311,10 @@ button { cursor: pointer; }
 
 /* ---------------- step buttons */
 .step { position: fixed; z-index: 9; width: 58px; height: 58px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
-.step svg { width: 28px; height: 28px; }
+/* (beats the theme's small-screen `.btn svg` icon size) */
+:is(.port, .land) .step.card.btn svg { width: 28px; height: 28px; }
+/* a solid arrow (never the caption's chevron), and the one that goes on is filled, as in the peek (#182) */
+.step.next { background: var(--btn-on); color: var(--btn-on-ink); }
 /* nothing that way: a small ghost at its edge of the screen (it keeps focus, and a press still nudges it) */
 .step { transition: scale 0.25s ease, opacity 0.25s ease; }
 .step[aria-disabled='true'] { opacity: 0.35; scale: 0.6; }
@@ -332,6 +336,9 @@ button { cursor: pointer; }
 .step.prev .step-to { left: 0; }
 .step.next .step-to { right: 0; }
 .port .step-to { top: auto; bottom: calc(100% + 6px); }
+/* on a portrait screen, by the caption, ▲ says what it does in its own words ("Next stop", "Into: The internet") */
+.port .step.pill { width: auto; padding-inline: 14px 18px; border-radius: 999px; display: flex; gap: 6px; }
+.step.pill .step-to { position: static; padding: 0; border: 0; background: none; box-shadow: none; color: inherit; font-size: 14px; font-weight: 800; }
 
 /* ---------------- peek (a caught packet at one hop) */
 .peek { position: fixed; z-index: 11; inset-inline-end: 12px; top: 76px; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 96px);
@@ -459,7 +466,7 @@ button { cursor: pointer; }
   .port .step { width: 44px; height: 44px; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--cap-h, 150px) + 6px); }
   .port .step.prev { left: 10px; }
   .port .step.next { right: 10px; }
-  .port .step svg { width: 24px; height: 24px; }
+  .port .step.card.btn svg { width: 22px; height: 22px; }
 }
 /* a short landscape screen (a phone on its side, `isShort` in engine/camera.ts): one slim top row, so the scene gets
    the height; the breadcrumb keeps its last two steps (Ladder.svelte) and cuts long names short */
