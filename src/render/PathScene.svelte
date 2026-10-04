@@ -42,7 +42,7 @@
   // the era's props (root only): the devices to draw on, the traffic on the first link for the modem's lights, and the
   // time since each place appeared, for the loaders shown while its video starts
   const shown = new Map<string, number>();
-  const appeared = (place: string) => shown.get(place) ?? shown.set(place, untrack(() => view.time)).get(place)!;
+  const appeared = (place: string) => shown.get(place) ?? shown.set(place, untrack(() => scene.time)).get(place)!;
   $effect(() => {
     const ids = new Set(backdrops.map((b) => b.id));
     for (const id of shown.keys()) if (!ids.has(id)) shown.delete(id);
@@ -68,7 +68,7 @@
   };
   const doors = $derived(doorsOf(ps, root, diveRuns(route, ps.group, view.orient).byLink, view.orient, nameW));
   const doorPx = $derived(badgeSize(themeState.current.labelMinPx, world.cam.k * scene.frame.s));
-  const doorTime = $derived(view.still ? 0 : view.time);
+  const doorTime = $derived(view.still ? 0 : scene.time);
   const doorLabel = (d: Door) => tr(`door.${d.kind}`);
   const labelW = (d: Door) => per(doorLabel(d), 'label') * doorPx;
   const linkTag = (l: PathScene['links'][number]) => (nerd ? trFirst([...routeKeys(`tag.${l.id}`), `tech.${l.link.tech.id}.tag`]) : '');
@@ -97,14 +97,14 @@
     {#if Props}
       <g aria-hidden="true" opacity={b.alpha < 1 ? b.alpha : undefined} transform={b.dx ? `translate(${b.dx} 0)` : undefined}>
         <Props {layer} spots={propSpots(route.content.places[b.id], view.orient)} {devices} traffic={trafficOn(packets, ps.route[0])}
-          age={view.time - appeared(b.id)} time={view.still ? 0 : view.time} still={view.still} />
+          age={scene.time - appeared(b.id)} time={view.still ? 0 : scene.time} still={view.still} />
       </g>
     {/if}
   {/each}
 {/snippet}
 
 {#snippet packet(p: LivePacket)}
-  <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={view.time} followed={view.followId === p.id} {mark} />
+  <A.Packet kind={p.kind} dir={p.dir} pose={p.pose} colour={p.colour ?? flowColour(p.flow, p.kind)} time={scene.time} followed={view.followId === p.id} {mark} />
 {/snippet}
 
 {#snippet door(d: Door, i: number, part: 'glow' | 'badge')}
@@ -113,14 +113,14 @@
 {/snippet}
 
 <g class="scene scene-{ps.key}">
-  <A.Backdrop kind={root ? 'root' : 'group'} orient={view.orient} w={W.w} h={W.h} time={view.time} />
+  <A.Backdrop kind={root ? 'root' : 'group'} orient={view.orient} w={W.w} h={W.h} time={scene.time} />
   {#if ps.group}
-    <Arrive of={GroupBackdrop}>{#snippet children(G)}<G orient={view.orient} w={W.w} h={W.h} time={view.time} />{/snippet}</Arrive>
+    <Arrive of={GroupBackdrop}>{#snippet children(G)}<G orient={view.orient} w={W.w} h={W.h} time={scene.time} />{/snippet}</Arrive>
   {/if}
   {#if root}
     {#each backdrops as b (b.id)}
       <Arrive of={placeBackdrop(b.id)}>
-        {#snippet children(B)}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={view.time} /></g>{/snippet}
+        {#snippet children(B)}<g opacity={b.alpha} transform={b.dx ? `translate(${b.dx} 0)` : undefined}><B orient={view.orient} w={W.w} h={W.h} time={scene.time} /></g>{/snippet}
       </Arrive>
     {/each}
     {@render flavour('back')}
@@ -129,11 +129,11 @@
     <A.Region part="area" d={g.d} tone={g.tone} aside={g.aside} x={g.sign.x} y={g.sign.y} label="" size={signPx} />
   {/each}
   {#if road && roadAlpha > 0}
-    <g opacity={roadAlpha < 1 ? roadAlpha : undefined}><A.Road d={road} orient={view.orient} time={view.time} /></g>
+    <g opacity={roadAlpha < 1 ? roadAlpha : undefined}><A.Road d={road} orient={view.orient} time={scene.time} /></g>
   {/if}
   {#each ps.links as l (l.id)}
     <g opacity={l.alpha < 1 ? l.alpha : undefined}>
-      <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={view.time} focused={focus === l.id} kbd={kbd && focus === l.id} />
+      <A.Link look={l.link.tech.look} d={curvePath(l)} curve={l} colour={l.link.tech.colour} dashed={l.dashed} time={scene.time} focused={focus === l.id} kbd={kbd && focus === l.id} />
     </g>
   {/each}
   {#each doors as d, i (d.id)}{@render door(d, i, 'glow')}{/each}
@@ -142,11 +142,11 @@
     {#if n.was}
       {@const was = deviceArt(n.was.node.id)}
       <g opacity={n.was.alpha}>
-        <A.Device id={n.was.node.id} Art={was.Art} face={was.face} pending={was.pending} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={false} kbd={false} />
+        <A.Device id={n.was.node.id} Art={was.Art} face={was.face} pending={was.pending} x={n.x} y={n.y} size={n.size} time={scene.time} context="path" focused={false} kbd={false} />
       </g>
     {/if}
     <g opacity={n.alpha < 1 ? n.alpha : undefined}>
-      <A.Device id={n.node.id} Art={art.Art} face={art.face} pending={art.pending} x={n.x} y={n.y} size={n.size} time={view.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
+      <A.Device id={n.node.id} Art={art.Art} face={art.face} pending={art.pending} x={n.x} y={n.y} size={n.size} time={scene.time} context="path" focused={focus === n.id} kbd={kbd && focus === n.id} />
     </g>
   {/each}
   {#if root}{@render flavour('front')}{/if}

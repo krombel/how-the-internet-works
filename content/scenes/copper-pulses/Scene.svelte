@@ -5,7 +5,7 @@
   import Cable from './art/Cable.svelte';
   import Card from './art/Card.svelte';
 
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.copper-pulses');
   const legible = legibleSize();
   const nerd = $derived(S('mode') === 'nerd');
@@ -20,7 +20,7 @@
   const C = $derived(CODES[code]);
   const M = $derived(code === 'pam5' ? '' : `${code}.`);
   const lit = $derived(litPairs(code, nerd));
-  const sparks = $derived(copperSparks(view.time, view.still, nerd, code));
+  const sparks = $derived(copperSparks(time, view.still, nerd, code));
   const fromHop = $derived(subject.route.hops[subject.link.from]);
   const toHop = $derived(subject.route.hops[subject.link.to]);
   const fromNode = $derived(fromHop.node.id);

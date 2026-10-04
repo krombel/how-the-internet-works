@@ -9,7 +9,7 @@
   import Slots from './art/Slots.svelte';
   import { lineCode, modeOf, pulsePath, quartersOf, slotsOf, train, type Kind, type Mode } from './tdm';
 
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.tdm-frames');
   const legible = legibleSize();
   const nerd = $derived(S('mode') === 'nerd');
@@ -63,7 +63,7 @@
     const half = textBox(text, legible(L.name), 'middle', 0.6, '--label-font').w / 2 + 8, w = portrait ? 900 : 1600;
     return Math.min(Math.max(x, A.x + half), w - A.x - half);
   };
-  const t = $derived(view.still ? 1.5 : view.time);
+  const t = $derived(view.still ? 1.5 : time);
 
   // the wire: one lane each way, frames running along it
   const wire = $derived({ x0: L.line.x0 + 110, x1: L.line.x1 - 110, up: L.line.y - 22, down: L.line.y + 22, h: portrait ? 22 : 28 });

@@ -9,13 +9,13 @@
   import Pot from './art/Pot.svelte';
   import StickerBook from './art/StickerBook.svelte';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.tls-lock');
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.size);
   // nerds see TLS 1.3's order: the keys first, then the (encrypted) certificate, so the paint card comes first
   const keysFirst = $derived(subject.ctx.level === 'nerd');
-  const m = $derived(tlsMoment(view.time, keysFirst));
+  const m = $derived(tlsMoment(time, keysFirst));
   const isServer = $derived(subject.open && subject.ctx.to.node.id === subject.ctx.server.node.id);
   const endpoint = $derived(subject.open ? (isServer ? 'server' : 'client') : 'middle');
   const client = $derived(subject.ctx.client);

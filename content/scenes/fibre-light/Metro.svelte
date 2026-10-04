@@ -10,14 +10,14 @@
   import Emitter from './art/Emitter.svelte';
   import Prism from './art/Prism.svelte';
   import Pulse from './art/Pulse.svelte';
-  let { tech, one = false }: { tech: string; one?: boolean } = $props();
+  let { tech, one = false, time }: { tech: string; one?: boolean; time: number } = $props();
   const S = strings('scene.fibre-light');
   const F = FIBRE;
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const colours = ['#e85d75', '#ffcf5d', '#55bfa3', '#4aa3cf'];
   const lanes = $derived(one ? LONG_HAUL.lane : DWDM);
   const routes = $derived(lanes.map((c, i) => channelRoute(i, c)));
-  const pulses = $derived(fibrePulses(view.time, routes));
+  const pulses = $derived(fibrePulses(time, routes));
   const o = $derived(view.orient);
   // Label positions per orientation (text stays upright; the track itself turns in portrait).
   const L = $derived(o === 'portrait'
@@ -26,18 +26,18 @@
 </script>
 
 <g transform={trackMatrix(o)}>
-  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={view.time} />
+  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} {time} />
   {#each routes as r, i}<Route points={r} channel={i} colour={colours[i]} />{/each}
   {#each lanes as c, i}
-    <Emitter x={F.laserX} y={c.y} kind="laser" channel={i} colour={colours[i]} time={view.time} />
-    <Emitter x={F.detectorX} y={c.y} kind="detector" channel={i} colour={colours[i]} time={view.time} />
+    <Emitter x={F.laserX} y={c.y} kind="laser" channel={i} colour={colours[i]} {time} />
+    <Emitter x={F.detectorX} y={c.y} kind="detector" channel={i} colour={colours[i]} {time} />
   {/each}
   {#if !one}
-    <Prism x={F.muxX} y={F.y} kind="mux" time={view.time} />
-    <Prism x={F.demuxX} y={F.y} kind="demux" time={view.time} />
+    <Prism x={F.muxX} y={F.y} kind="mux" {time} />
+    <Prism x={F.demuxX} y={F.y} kind="demux" {time} />
   {/if}
   {#each pulses as p}
-    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={view.time} />
+    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} {time} />
   {/each}
 </g>
 <!-- portrait has no room for the long heading beside the thread; the caption says it instead -->

@@ -20,6 +20,9 @@ export interface SceneCtx {
   readonly frame: Frame;
   /** The camera zoom (in root units) at which this scene fills the screen. */
   readonly fitK: number;
+  /** The scene's clock: view.time while it is drawn, held while it is hidden (as its World's camera is), so a mounted
+   *  scene nobody sees doesn't redraw its art every frame (#181). */
+  readonly time: number;
 }
 /** What a link dive explains: the link it was opened from, as drawn in its parent and in the route. Scenes use it to
  *  adapt (e.g. the fibre dive shows GPON's up/down colours on the access fibre). */

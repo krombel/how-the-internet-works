@@ -7,7 +7,7 @@
   import Card from '../copper-pulses/art/Card.svelte';
   import { CELL, HEADER, PACKET, PAYLOAD, cellsFor, cellsOnLine, lineBytes, overhead } from './atm';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.atm-cells');
   const legible = legibleSize();
   const nerd = $derived(subject.ctx.level === 'nerd');
@@ -38,7 +38,7 @@
     };
   });
   const A = $derived(L.cards[0]), B = $derived(L.cards[1]);
-  const t = $derived(view.still ? 1.2 : view.time);
+  const t = $derived(view.still ? 1.2 : time);
   /** Room for a card's footer line; a short landscape screen has none, so the footers go (like the title). */
   const foot = $derived(compact ? 24 : 70);
 

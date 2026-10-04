@@ -8,14 +8,14 @@
   import House from './art/House.svelte';
   import { layoutFor, sceneState, slotX } from './gpon';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.gpon-slots');
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.size);
   const nerd = $derived(subject.ctx.level === 'nerd');
   const compact = $derived(!!L.compact);
   const portrait = $derived(view.orient === 'portrait');
-  const st = $derived(sceneState(view.still ? 3.1 : view.time));
+  const st = $derived(sceneState(view.still ? 3.1 : time));
   const activeTurns = $derived(subject.ctx.role === 'bridge');
   const c0 = $derived(L.cards[0]);
   const c1 = $derived(L.cards[1]);
@@ -141,7 +141,7 @@
   {/each}
   {#each down.houses as h, i}
     {@const p = downPoint(h, st.down)}
-    <FrameEnvelope x={p.x} y={p.y} scale={T.env * (i === 2 ? 0.72 : 0.6)} label="" kept={i === 2 && st.keep > 0.45} muted={i !== 2 && st.keep > 0.2} locked={i !== 2} checked={i === 2 && st.keep > 0.55} walking={!view.still} time={view.time + i} />
+    <FrameEnvelope x={p.x} y={p.y} scale={T.env * (i === 2 ? 0.72 : 0.6)} label="" kept={i === 2 && st.keep > 0.45} muted={i !== 2 && st.keep > 0.2} locked={i !== 2} checked={i === 2 && st.keep > 0.55} walking={!view.still} time={time + i} />
   {/each}
 </g>
 

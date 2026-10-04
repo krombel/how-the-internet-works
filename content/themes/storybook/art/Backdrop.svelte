@@ -2,7 +2,7 @@
 <script lang="ts">
   import type { BackdropProps } from '$core/api';
   import { Depth, view } from '$core/api';
-  let { kind, orient, w, h }: BackdropProps = $props();
+  let { kind, orient, w, h, time }: BackdropProps = $props();
   const portrait = $derived(orient === 'portrait');
   const night = $derived(view.mode === 'night');
   // night sky: [x, y, size] of each star, in a band above the hills (the second number is a share of the height)
@@ -14,8 +14,8 @@
     ? [[90, 250, 40], [330, 190, 34], [520, 150, 30]]
     : [[150, 175, 44], [400, 130, 36], [640, 160, 40], [1270, 170, 36], [1530, 140, 34]]);
   const stars = $derived(STARS.map(([x, y, r]) => (portrait ? [x * 0.6, y * 0.55 * h, r] : [x, y * h, r])));
-  // a few stars twinkle (still when the reader prefers less motion)
-  const twinkle = (i: number) => (view.still || i % 4 ? 1 : 0.55 + 0.45 * Math.sin(view.time * 1.7 + i * 2.1));
+  // a few stars twinkle (still when the reader prefers less motion), on the scene's clock: a hidden scene holds it
+  const twinkle = (i: number) => (view.still || i % 4 ? 1 : 0.55 + 0.45 * Math.sin(time * 1.7 + i * 2.1));
   const star = (x: number, y: number, r: number) => `M${x} ${y - r * 1.7} Q${x} ${y} ${x + r * 1.7} ${y} Q${x} ${y} ${x} ${y + r * 1.7} Q${x} ${y} ${x - r * 1.7} ${y} Q${x} ${y} ${x} ${y - r * 1.7} Z`;
   /** A crescent moon of radius r at (cx, cy), lit on the left. */
   const moon = (cx: number, cy: number, r: number) => `M${cx + r * 0.3} ${cy - r} A${r} ${r} 0 0 0 ${cx + r * 0.3} ${cy + r} A${r * 1.25} ${r * 1.25} 0 0 1 ${cx + r * 0.3} ${cy - r} Z`;

@@ -13,7 +13,7 @@
   import TunnelMouth from './art/TunnelMouth.svelte';
   import { layoutFor, sceneState } from './tunnel';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.gtp-tunnel');
   // the tunnel's two ends are its link's: the tower (5G) or the radio controller (3G), and the mobile core
   const start = $derived(subject.route.hops[subject.ctx.link.from]);
@@ -21,7 +21,7 @@
   const focus = $derived(subject.ctx.to.id === end.id ? 'end' : 'start');
   const L = $derived(layoutFor(view.orient, focus, view.vp));
   const T = $derived(L.size);
-  const st = $derived(sceneState(view.time, L));
+  const st = $derived(sceneState(time, L));
   const phoneName = $derived(nameOf(subject.ctx.client));
   const towerName = $derived(nameOf(start));
   const coreName = $derived(nameOf(end));

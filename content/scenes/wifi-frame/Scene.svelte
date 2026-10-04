@@ -5,7 +5,7 @@
   import Envelope from './art/Envelope.svelte';
   import { airPulse, bob, layoutFor, sceneState } from './frame';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
 
   const S = strings('scene.wifi-frame');
   const legible = legibleSize();
@@ -17,7 +17,7 @@
   const T = $derived(L.size);
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!!L.compact);
-  const clock = $derived(view.still ? 7.8 : view.time);
+  const clock = $derived(view.still ? 7.8 : time);
   const st = $derived(sceneState(clock, L, down));
   const phoneHop = $derived(route.hops[ctx.link.from] ?? ctx.client);
   const apHop = $derived(route.hops[ctx.link.to] ?? ctx.to);

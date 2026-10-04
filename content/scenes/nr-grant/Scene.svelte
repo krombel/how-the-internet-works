@@ -9,7 +9,7 @@
   import Piece from './art/Piece.svelte';
   import { combineAmount, layoutFor, mix, pieceOffset, sceneState, type Focus } from './grant';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.nr-grant');
   const legible = legibleSize();
   const ctx = $derived(subject.ctx);
@@ -23,8 +23,8 @@
   const T = $derived(L.size);
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!!L.compact);
-  const time = $derived(view.still ? 8.8 : view.time);
-  const st = $derived(sceneState(time));
+  const now = $derived(view.still ? 8.8 : time);
+  const st = $derived(sceneState(now));
   const c0 = $derived(L.cards[0]);
   const c1 = $derived(L.cards[1]);
   const harqY = $derived(L.harq.y);
@@ -180,7 +180,7 @@
 {#if (!compact && !portrait) || focus === 'core'}<Text x={nameX(L.core.x, coreName, focus === 'core' ? T.text : nameSize)} y={L.names} text={coreName} size={focus === 'core' ? T.text : nameSize} kind={focus === 'core' ? 'big' : 'node'} />{/if}
 
 {#if st.phase === 'send'}
-  <g transform="translate({tx(focus === 'tower' ? L.phone.x + 105 : L.tower.x - 95, focus === 'tower' ? L.tower.x - 112 : L.phone.x + 115, st.p)} {L.walk - 92 - Math.sin(time * 8) * 7}) scale({envScale})">
+  <g transform="translate({tx(focus === 'tower' ? L.phone.x + 105 : L.tower.x - 95, focus === 'tower' ? L.tower.x - 112 : L.phone.x + 115, st.p)} {L.walk - 92 - Math.sin(now * 8) * 7}) scale({envScale})">
     <rect x="-72" y="-45" width="144" height="90" rx="14" fill="var(--paper-2)" stroke="var(--line)" stroke-width="6" />
     <path d="M-66 -38 L0 2 L66 -38" fill="none" stroke="var(--line)" stroke-width="5" opacity="0.65" />
     <rect x={-envNoW / 2} y="-2" width={envNoW} height="34" rx="8" fill="var(--sun)" stroke="var(--line)" stroke-width="4" />

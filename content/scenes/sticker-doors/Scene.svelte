@@ -5,7 +5,7 @@
   import StickerParcel from './art/StickerParcel.svelte';
   import { bob, layoutFor, moment, parcelX, ramp, type LayerKind, type RoleKind } from './sticker';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.sticker-doors');
   const legible = legibleSize();
   const ctx = $derived(subject.ctx);
@@ -15,7 +15,7 @@
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.text);
   const short = (mac: string) => (L.compact ? `…${mac.slice(-8)}` : mac);
-  const m = $derived(moment(view.still ? 5.4 : view.time));
+  const m = $derived(moment(view.still ? 5.4 : time));
   const x = $derived(parcelX(L, m));
   const moving = $derived(m.phase === 'arrive' || m.phase === 'reply' || m.phase === 'straight');
   const labelled = (i: number) => !!subject.route.links[i]?.stack.includes(subject.layer);
@@ -235,7 +235,7 @@
 {/if}
 {#if !L.compact}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.title * (isPortrait ? 0.82 : 1)} kind="big" fit />{/if}
 
-<StickerParcel x={x} y={L.walk + bob(view.time, moving)} scale={T.parcel} legible={L.compact ? legible : undefined} tint={actionTint} sticker={packetSticker} moving={moving} time={view.time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
+<StickerParcel x={x} y={L.walk + bob(time, moving)} scale={T.parcel} legible={L.compact ? legible : undefined} tint={actionTint} sticker={packetSticker} moving={moving} {time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
 
 {#if layer === 'ethernet' && role !== 'bridge' && m.phase === 'lookup'}
   <g transform="translate({L.box.x + L.box.w / 2} {L.box.y - 55})">

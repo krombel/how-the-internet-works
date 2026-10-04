@@ -11,13 +11,14 @@
   import Pulse from './art/Pulse.svelte';
   import House from './art/House.svelte';
   import Splitter from './art/Splitter.svelte';
+  let { time }: { time: number } = $props();
   const S = strings('scene.fibre-light');
   const F = FIBRE, A = ACCESS;
   /** Channel 0 goes up (red), 1 comes home (blue). */
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const colours = ['#e85d75', '#4aa3cf'];
   const routes = accessRoutes(), drops = accessDrops();
-  const pulses = $derived(accessPulses(view.time, routes));
+  const pulses = $derived(accessPulses(time, routes));
   const o = $derived(view.orient);
   const compact = $derived(o === 'landscape' && view.vp.h < 470);
   const houses = $derived(A.houses.map((y, i) => ({ ...toScene({ x: A.houseX, y }, o), you: i === A.you })));
@@ -34,19 +35,19 @@
     <polyline points={pts(d)} fill="none" stroke="var(--line)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
     <polyline points={pts(d)} fill="none" stroke="var(--glass)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
   {/each}
-  <Fibre x0={A.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={view.time} />
+  <Fibre x0={A.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} {time} />
   {#each routes.up as r}<Route points={r} channel={0} colour={colours[0]} />{/each}
   {#each routes.down as r}<Route points={r} channel={1} colour={colours[1]} />{/each}
-  <Emitter x={F.detectorX} y={A.up} kind="detector" channel={0} colour={colours[0]} time={view.time} />
+  <Emitter x={F.detectorX} y={A.up} kind="detector" channel={0} colour={colours[0]} {time} />
   <!-- the light coming home starts on the right: mirror its laser -->
-  <g transform="matrix(-1 0 0 1 1600 0)"><Emitter x={F.laserX} y={A.down} kind="laser" channel={1} colour={colours[1]} time={view.time} /></g>
-  <Prism x={F.demuxX} y={F.y} kind="demux" time={view.time} />
-  <Splitter x={A.splitX} y={F.y} time={view.time} />
+  <g transform="matrix(-1 0 0 1 1600 0)"><Emitter x={F.laserX} y={A.down} kind="laser" channel={1} colour={colours[1]} {time} /></g>
+  <Prism x={F.demuxX} y={F.y} kind="demux" {time} />
+  <Splitter x={A.splitX} y={F.y} {time} />
   {#each pulses as p}
-    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={view.time} />
+    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} {time} />
   {/each}
 </g>
-{#each houses as h}<House x={h.x} y={h.y} size={120} you={h.you} time={view.time} />{/each}
+{#each houses as h}<House x={h.x} y={h.y} size={120} you={h.you} {time} />{/each}
 <Text x={L.down.x} y={L.down.y} text={S('gpon.down')} size={L.size} kind="big" colour={colours[1]} />
 <Text x={L.down.x} y={L.down.y + L.gap} text={S('gpon.everyone')} size={L.size - 4} kind="big" colour={colours[1]} />
 <Text x={L.up.x} y={L.up.y} text={S('gpon.up')} size={L.size} kind="big" colour={colours[0]} />

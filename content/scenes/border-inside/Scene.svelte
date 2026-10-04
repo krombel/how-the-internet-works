@@ -11,7 +11,7 @@
   import Sticker from './art/Sticker.svelte';
   import Note from './art/Note.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
   const S = strings('scene.border-inside');
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
@@ -31,9 +31,9 @@
   const inLink = $derived(subject.in);
   const outLink = $derived(subject.out);
   const hasMpls = $derived((inLink?.stack ?? inLink?.tech.stack ?? []).includes('mpls'));
-  const parcel = $derived(parcelAt(view.time, view.still, L));
+  const parcel = $derived(parcelAt(time, view.still, L));
   const sticker = $derived(stickerAt(parcel));
-  const notes = $derived(routeNotesAt(view.time, view.still, L, !!transitAside));
+  const notes = $derived(routeNotesAt(time, view.still, L, !!transitAside));
   const pLine = (pts: Pt[]) => `M${pts.map((p) => `${p.x} ${p.y}`).join(' L')}`;
   const wire = (a: Pt, b: Pt) => `M${a.x} ${a.y} L${b.x} ${b.y}`;
   const linkName = (id: string) => strings(`tech.${id}`)('name');
@@ -71,7 +71,7 @@
     <path d={d} stroke={transitAside.link.tech.colour} stroke-width="9" stroke-linecap="round" stroke-dasharray="18 18" opacity="0.42" />
   {/if}
 
-  <Case box={L.case} lineCard={L.lineCard} active={parcel.stage === 'pop'} {night} time={view.time} />
+  <Case box={L.case} lineCard={L.lineCard} active={parcel.stage === 'pop'} {night} {time} />
 
   <path d={pLine([...inTrack(L), ...exitTrack(L, 'exchange').slice(1, 3)])} fill="none" stroke="var(--line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.42" />
   <path d={pLine(exitTrack(L, 'exchange').slice(0, 3))} fill="none" stroke="var(--leaf-ink)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity={0.2 + parcel.chosenAlpha * 0.8} />
@@ -104,7 +104,7 @@
     <Note p={n.p} alpha={n.alpha} text={S('note.short')} colour={n.source === 'exchange' ? outLink?.tech.colour ?? 'var(--teal)' : transitAside?.link.tech.colour ?? 'var(--orange)'} {night} />
   {/each}
 
-  <Carrier p={parcel.p} alpha={parcel.alpha} stickerAlpha={hasMpls && !parcel.stickerDetached ? parcel.stickerAlpha : 0} time={view.time} {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} stickerAlpha={hasMpls && !parcel.stickerDetached ? parcel.stickerAlpha : 0} {time} {night} />
   {#if hasMpls && parcel.stickerDetached}<Sticker p={sticker.p} alpha={sticker.alpha} text={S('pop.short')} detached={sticker.detached} />{/if}
 
   {#if before}

@@ -34,6 +34,11 @@ describe('content', () => {
     expect(bad).toEqual([]);
   });
 
+  it('animates on the time it is given, not view.time, so a hidden scene holds still (#181)', () => {
+    const sources = import.meta.glob<string>('/content/**/*.svelte', { eager: true, query: '?raw', import: 'default' });
+    expect(Object.keys(sources).filter((file) => /\bview\.time\b/.test(sources[file]))).toEqual([]);
+  });
+
   it('goes all the way down: every link has a dive, and so does every envelope it carries', () => {
     const missing = new Set<string>();
     for (const activity of activityIds()) for (const place of Object.keys(content.places))

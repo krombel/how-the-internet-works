@@ -8,7 +8,7 @@
   import Card from '../copper-pulses/art/Card.svelte';
   import { LINE, MAX_KM, MAX_MBIT, bandSpans, lineTones, pitchX, speedAt, speedPath, toneBars, wirePath, type Band } from './tones';
 
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.dsl-tones');
   const legible = legibleSize();
   const nerd = $derived(S('mode') === 'nerd');
@@ -27,9 +27,9 @@
   const trackTransform = $derived(portrait ? trackMatrix(o) : `translate(0 ${trackShift})`);
   const fromPos = $derived(toScene({ x: LINE.fromX, y: LINE.nodeY + trackShift }, o));
   const toPos = $derived(toScene({ x: LINE.toX, y: LINE.nodeY + trackShift }, o));
-  const tones = $derived(lineTones(view.time, view.still));
+  const tones = $derived(lineTones(time, view.still));
   const spans = $derived(bandSpans(nerd));
-  const bars = $derived(toneBars(spans, km, view.time, view.still, nerd ? 0.016 : 0.024));
+  const bars = $derived(toneBars(spans, km, time, view.still, nerd ? 0.016 : 0.024));
   const mbit = $derived(Math.round(speedAt(km) / 5) * 5);
 
   type Box = { x: number; y: number; w: number; h: number };
