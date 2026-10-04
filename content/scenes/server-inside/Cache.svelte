@@ -10,7 +10,7 @@
   import Carrier from './art/Carrier.svelte';
   import Nic from './art/Nic.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
   const S = strings('scene.server-inside');
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
@@ -25,7 +25,7 @@
   const inLink = $derived(subject.in);
   const originAside = $derived(subject.route.asides.filter((a) => a.link.from === subject.hop.id)[0] ?? null);
   const hasOrigin = $derived(!!originAside);
-  const state = $derived(serverAt(view.time, view.still, L, hasOrigin));
+  const state = $derived(serverAt(time, view.still, L, hasOrigin));
   const reqPath = $derived(requestPath(L));
   const hitVideoPath = $derived(hitPath(L));
   const missVideoPath = $derived(missReturnPath(L));
@@ -61,7 +61,7 @@
     <path d={d} stroke={originAside.link.tech.colour} stroke-width="9" stroke-linecap="round" stroke-dasharray="18 18" opacity={state.originActive ? 0.9 : 0.45} />
   {/if}
 
-  <Case box={L.case} time={view.time} {night} />
+  <Case box={L.case} time={time} {night} />
   <path d={poly(insideLine)} fill="none" stroke="var(--line)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.38" />
   <path d={poly(activePath)} fill="none" stroke="var(--berry)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.28" stroke-dasharray={state.hit ? undefined : '16 16'} />
 
@@ -92,7 +92,7 @@
           <rect x={b.x + 34 + k * ((b.w - 88) / 4)} y={top + 22} width={(b.w - 122) / 4} height={bottom - top - 36} rx="10" fill="var(--leaf-pale)" stroke="var(--line)" stroke-width="4" />
           <circle cx={b.x + 48 + k * ((b.w - 88) / 4)} cy={mid + 18} r="5" fill="var(--teal)" />
         {/each}
-        <Carrier p={{ x: c.x, y: mid - 28 }} form="video" colour="var(--berry)" alpha={state.hit ? 0.55 : state.copyAlpha * 0.7} time={view.time} night={false} />
+        <Carrier p={{ x: c.x, y: mid - 28 }} form="video" colour="var(--berry)" alpha={state.hit ? 0.55 : state.copyAlpha * 0.7} time={time} night={false} />
       {:else}
         {#each [0, 1, 2] as k (k)}
           {@const yy = top + 28 + k * ((bottom - top - 44) / 2)}
@@ -111,8 +111,8 @@
     <text x={L.statusTag.x} y={L.statusTag.y + (compact ? 14 : 12)} text-anchor="middle" font-family={nerd ? 'var(--tag-font)' : 'var(--label-font)'} font-size={compact ? legible(30) : 25} font-weight="900" fill="var(--line)">{state.hit ? S('hit') : S('miss')}</text>
   </g>
 
-  <Carrier p={state.request.p} form={requestForm} colour={requestColour} alpha={state.request.alpha} time={view.time} {night} />
-  <Carrier p={state.video.p} form="video" colour="var(--berry)" alpha={state.video.alpha} time={view.time} {night} />
+  <Carrier p={state.request.p} form={requestForm} colour={requestColour} alpha={state.request.alpha} time={time} {night} />
+  <Carrier p={state.video.p} form="video" colour="var(--berry)" alpha={state.video.alpha} time={time} {night} />
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />

@@ -218,8 +218,10 @@ did it arrive intact?* Keep that split so the two don't become near-duplicates.
 
 `content/scenes/<id>/`:
 - `scene.ts`: `defineScene({ learnMore })`.
-- `Scene.svelte`: gets `{ subject }`: the link it explains, with `subject.link.tech`, `subject.link.stack`, and its hops via `subject.route.hops[subject.link.from]`. It draws in the scene world (landscape 1600×900, portrait 900×1600; read `view.orient`). Build it from:
-  - `view.time` and `view.level`
+- `Scene.svelte`: gets `{ subject, time }`: the link it explains, with `subject.link.tech`, `subject.link.stack`, and its hops via `subject.route.hops[subject.link.from]`. It draws in the scene world (landscape 1600×900, portrait 900×1600; read `view.orient`). Build it from:
+  - `time`, its clock (seconds), and `view.level`. Animate on `time`, not `view.time` (a content test checks): the
+    clock holds still while the scene is hidden, so a dive mounted for a flight doesn't redraw unseen (#181). Pass it
+    on to the scene's own art as a prop
   - `Node` (a device in the current theme)
   - `Text` (text that stays readable at any zoom)
   - `TagAt`
@@ -319,7 +321,7 @@ notebook at a NAT, a carrier-grade NAT at the mobile core, an envelope swap at a
   `$core/api` (`const legible = legibleSize()`, then `legible(36)` is 36 or the world size that shows as the minimum;
   inside a group scaled by `k`, use `legible(36 * k) / k`) and let its box grow with it. In short landscape 14 px is
   about 42 world units: hide detail that can't be that big (draw an envelope's rows as lines, shorten long values).
-- Loop on `view.time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
+- Loop on `time` with a pure maths file (as `ip-post/post.ts`), so screenshots at a fixed clock are stable.
 - Strings (`locales/en.json`, `da.json`), looked up most specific first for `title` and `kid`/`nerd`:
   1. `at.<node id>` (one hop, e.g. `at.mobile-core` for carrier-grade NAT)
   2. `role.<role>` (e.g. `role.nat`; a router that only switches an MPLS label tries `role.switched` first)

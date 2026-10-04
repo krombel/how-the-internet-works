@@ -9,7 +9,7 @@
   import Room from './art/Room.svelte';
   import Carrier from './art/Carrier.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
   const S = strings('scene.tower-inside');
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
@@ -24,7 +24,7 @@
   const before = $derived(subject.in ? subject.route.hops[subject.in.from] : null);
   const after = $derived(subject.out ? subject.route.hops[subject.out.to] : null);
   const path = $derived(tripPath(L));
-  const parcel = $derived(parcelAt(view.time, view.still, path));
+  const parcel = $derived(parcelAt(time, view.still, path));
   const onLink = $derived(parcel.stage === 'in' ? subject.in : parcel.stage === 'out' ? subject.out : null);
   // the tunnel runs from this tower's address to the next device's, read off the route
   const sticker = $derived(nerd
@@ -93,7 +93,7 @@
     </Room>
   {/each}
 
-  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look) : parcel.wrapped ? 'envelope' : 'parcel'} colour={onLink?.tech.colour ?? (parcel.wrapped ? 'var(--teal)' : 'var(--sun)')} alpha={parcel.alpha} time={view.time} {night} />
+  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look) : parcel.wrapped ? 'envelope' : 'parcel'} colour={onLink?.tech.colour ?? (parcel.wrapped ? 'var(--teal)' : 'var(--sun)')} alpha={parcel.alpha} time={time} {night} />
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />

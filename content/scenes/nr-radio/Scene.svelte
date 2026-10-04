@@ -8,7 +8,7 @@
   import { COLS, LAYOUT, MODES, ROWS, USERS, beamPath, columns, sectorPath } from './radio';
   import Beam from './art/Beam.svelte';
   import Seat from './art/Seat.svelte';
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.nr-radio');
   // you, and two neighbours' phones
   const COLOURS = ['var(--berry)', 'var(--teal)', 'var(--mustard)'];
@@ -17,8 +17,8 @@
   const mode = $derived(MODES[subject.link.tech.id] ?? MODES.nr);
   const L = $derived(LAYOUT[view.orient]);
   // the grid slides left every frame by one translate; its seats change only when a new slot comes in
-  const at = $derived(Math.floor(view.time / mode.slot));
-  const slide = $derived(view.time / mode.slot - at);
+  const at = $derived(Math.floor(time / mode.slot));
+  const slide = $derived(time / mode.slot - at);
   const cols = $derived(columns(at));
   const nowSlot = $derived(cols.find((c) => c.now)!.slot);
   const G = $derived(L.grid);
@@ -31,7 +31,7 @@
 </script>
 
 {#if !mode.beams}
-  <Beam d={sectorPath(L.source, L.phones)} from={L.source} to={L.phones[0]} colour="var(--leaf)" strength={0.5} time={view.time} />
+  <Beam d={sectorPath(L.source, L.phones)} from={L.source} to={L.phones[0]} colour="var(--leaf)" strength={0.5} time={time} />
 {/if}
 <!-- grid frame: frequency (or codes) up, time along -->
 <rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity="0.9" />
@@ -53,7 +53,7 @@
 </g>
 
 {#each mode.beams ? L.phones : [] as p, i}
-  <Beam d={beamPath(L.source, p, 40 + 10 * strength[i])} from={L.source} to={p} colour={COLOURS[i]} strength={strength[i]} time={view.time + i * 0.37} />
+  <Beam d={beamPath(L.source, p, 40 + 10 * strength[i])} from={L.source} to={p} colour={COLOURS[i]} strength={strength[i]} time={time + i * 0.37} />
 {/each}
 <Node id={tower} x={L.tower.x} y={L.tower.y} size={L.tower.size} />
 {#each L.phones as p, i}

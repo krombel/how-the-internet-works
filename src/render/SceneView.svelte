@@ -12,6 +12,7 @@
   import { runOf } from '../model/tree';
   import { loc, themeState, view } from '../state.svelte';
   import { getWorld, setScene, setWorld, type Mounted, type Subject } from './ctx';
+  import { held } from './held.svelte';
   import { diveView } from './lazy.svelte';
   import PathScene from './PathScene.svelte';
 
@@ -20,12 +21,17 @@
     places?: { id: string; alpha: number; dx: number }[];
   } = $props();
   const outer = getWorld();
-  // a scene sliding out of a shared panel (#62) has a camera of its own, for its text sizes too
-  const world = { get cam() { return slide?.cam ?? outer.cam; } };
+  const visible = $derived(alpha > 0.002);
+  // a scene sliding out of a shared panel (#62) has a camera of its own, for its text sizes too. A hidden scene stays
+  // mounted (a fade or a flight brings it back) but holds its camera and clock, so nothing in it changes until it shows
+  // again (#181)
+  const cam = held(() => visible, () => slide?.cam ?? outer.cam);
+  const clock = held(() => visible, () => view.time);
+  const world = { get cam() { return cam.current; } };
   setWorld(world);
   const info = $derived(sceneInfo(route, path, view.orient));
   const fitK = $derived(fit(info.fit, view.vp).k);
-  setScene({ get path() { return path; }, get frame() { return info.frame; }, get fitK() { return fitK; } });
+  setScene({ get path() { return path; }, get frame() { return info.frame; }, get fitK() { return fitK; }, get time() { return clock.current; } });
   const W = $derived(WORLD_SIZE[view.orient]);
   const A = $derived(themeState.current.art);
   const m = $derived.by(() => {
@@ -48,7 +54,6 @@
   });
   const sealed = $derived(subject?.kind === 'layer' && !subject.open);
   const clip = $derived(`clip-${path.join('-') || 'root'}`);
-  const visible = $derived(alpha > 0.002);
 </script>
 
 <g class="scene" transform={m} opacity={alpha} display={visible ? 'inline' : 'none'}>
@@ -58,11 +63,11 @@
     <clipPath id={clip}><rect width={W.w} height={W.h} rx="60" /></clipPath>
     <g clip-path="url(#{clip})">
       <g transform={slide ? `translate(0 ${slide.shift * W.h})` : undefined}>
-        <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />
+        <A.Panel part="back" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={clock.current} />
         {#if ps}<PathScene {route} {ps} {packets} {focus} {hot} {lit} {kbd} root={false} />
-        {:else if Dive && subject}<Dive {subject} />{/if}
+        {:else if Dive && subject}<Dive {subject} time={clock.current} />{/if}
       </g>
     </g>
-    {#if slide?.edge !== false}<A.Panel part="edge" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={view.time} />{/if}
+    {#if slide?.edge !== false}<A.Panel part="edge" kind={ref.kind} {sealed} w={W.w} h={W.h} orient={view.orient} time={clock.current} />{/if}
   {/if}
 </g>

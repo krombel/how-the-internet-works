@@ -11,7 +11,7 @@
   import Carrier from './art/Carrier.svelte';
   import Note from './art/Note.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
   const S = strings('scene.ixp-inside');
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
@@ -28,9 +28,9 @@
   const after = $derived(subject.out ? subject.route.hops[subject.out.to] : null);
   const inColour = $derived(subject.in?.tech.colour ?? 'var(--teal)');
   const outColour = $derived(subject.out?.tech.colour ?? inColour);
-  const parcel = $derived(parcelAt(view.time, view.still, L));
-  const notes = $derived(notesAt(view.time, view.still, L));
-  const flows = $derived(OTHER_FLOWS.map((f) => otherFlowAt(view.time, view.still, L, f)));
+  const parcel = $derived(parcelAt(time, view.still, L));
+  const notes = $derived(notesAt(time, view.still, L));
+  const flows = $derived(OTHER_FLOWS.map((f) => otherFlowAt(time, view.still, L, f)));
   const serverActive = $derived(notes.some((n) => n.alpha > 0.05));
   const others = MEMBERS.filter((m) => m !== 'before' && m !== 'after');
   const colour = (m: MemberId) => m === 'before' ? inColour : m === 'after' ? outColour : OTHER_FLOWS[others.indexOf(m)].colour;
@@ -87,12 +87,12 @@
   {/if}
 
   {#each flows as f, i (`${f.from}-${f.to}-${i}`)}
-    <Carrier p={f.p} alpha={f.alpha} time={view.time} kind="other" colour={f.colour} {night} />
+    <Carrier p={f.p} alpha={f.alpha} time={time} kind="other" colour={f.colour} {night} />
   {/each}
   {#each notes as n, i (`${n.member}-${n.direction}-${i}`)}
-    <Note p={n.p} alpha={n.alpha} time={view.time} {night} />
+    <Note p={n.p} alpha={n.alpha} time={time} {night} />
   {/each}
-  <Carrier p={parcel.p} alpha={parcel.alpha} time={view.time} kind="parcel" colour="var(--sun)" {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} time={time} kind="parcel" colour="var(--sun)" {night} />
 
   {#if T.small}
     {#if subject.in}<Text x={L.inTech.x} y={L.inTech.y} text={strings(`tech.${subject.in.tech.id}`)('name')} size={T.small} kind="link" colour={inColour} anchor={L.inTech.anchor} />{/if}

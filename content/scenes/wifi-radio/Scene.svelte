@@ -6,19 +6,19 @@
   import Wave from './art/Wave.svelte';
   import Bit from './art/Bit.svelte';
   import Rings from './art/Rings.svelte';
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.wifi-radio');
   const BIT_COLOURS = ['var(--teal)', 'var(--orange)'];
   // the device end and the radio end of the link (phone ↔ access point on the home route)
   const device = $derived(subject.route.hops[subject.link.from].node.id);
   const radio = $derived(subject.route.hops[subject.link.to].node.id);
   const o = $derived(view.orient);
-  const wave = $derived(wifiWave(view.time));
+  const wave = $derived(wifiWave(time));
   const d = $derived('M' + wave.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
   const phone = $derived(toScene({ x: WIFI.phoneX, y: WIFI.y }, o));
   const ap = $derived(toScene({ x: WIFI.apX, y: WIFI.y }, o));
   const ringC = $derived(toScene({ x: WIFI.apX - 78, y: WIFI.y - 78 }, o));
-  const bits = $derived(wifiBits(view.time).map((b) => {
+  const bits = $derived(wifiBits(time).map((b) => {
     const top = { x: b.x, y: WIFI.bitsY }, foot = { x: b.x, y: WIFI.y - (b.bit ? WIFI.ampOne : WIFI.ampZero) - 16 };
     const stemA = { x: b.x, y: WIFI.bitsY + 36 };
     return { ...b, p: toScene(top, o), stem: [toScene(stemA, o), toScene(foot, o)] as [typeof top, typeof top] };
@@ -28,14 +28,14 @@
     : { bits: { x: 815, y: 175 }, carrier: { x: 815, y: 690 } });
 </script>
 
-<Rings cx={ringC.x} cy={ringC.y} rings={wifiRings(view.time)} time={view.time} />
+<Rings cx={ringC.x} cy={ringC.y} rings={wifiRings(time)} time={time} />
 <Node id={device} x={phone.x} y={phone.y} size={330} />
 <Node id={radio} x={ap.x} y={ap.y} size={300} />
 <g transform={trackMatrix(o)}>
-  <Wave {d} points={wave} time={view.time} />
+  <Wave {d} points={wave} time={time} />
 </g>
 {#each bits as b (b.key)}
-  <Bit x={b.p.x} y={b.p.y} bit={b.bit} alpha={b.alpha} stem={b.stem} time={view.time} colour={BIT_COLOURS[b.bit]} />
+  <Bit x={b.p.x} y={b.p.y} bit={b.bit} alpha={b.alpha} stem={b.stem} time={time} colour={BIT_COLOURS[b.bit]} />
 {/each}
 <Text x={L.bits.x} y={L.bits.y} text={S('bits')} size={34} kind="big" />
 <Text x={L.carrier.x} y={L.carrier.y} text={S('carrier')} size={34} kind="big" colour={subject.link.tech.colour} />

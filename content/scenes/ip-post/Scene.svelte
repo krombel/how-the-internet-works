@@ -10,7 +10,7 @@
   import Lens from './art/Lens.svelte';
   import Parcel from './art/Parcel.svelte';
   import Sign from './art/Sign.svelte';
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.ip-post');
   const IP = strings('layer.ip');
   const LN = strings('layer');
@@ -23,7 +23,7 @@
   const mode = $derived<Mode>(ctx.switched ? 'bridge' : ctx.role);
   const L = $derived(layoutFor(view.orient, view.vp));
   const T = $derived(L.size);
-  const m = $derived(moment(view.time));
+  const m = $derived(moment(time));
   const idx = $derived(ctx.to.index);
   const atServer = $derived(ctx.to.id === ctx.server.id);
   /** The TTL arriving here and leaving, each way (it drops by more than one where a label comes off and it catches up). */
@@ -232,11 +232,11 @@
 
 {#if x !== null}
   <g transform="translate({x} {L.walk}) scale({L.parcel}) translate({-x} {-L.walk})">
-    <Parcel {x} y={L.walk + bob(view.time, walking)} colour={up ? UP : DOWN} {walking} time={view.time}
+    <Parcel {x} y={L.walk + bob(time, walking)} colour={up ? UP : DOWN} {walking} time={time}
       wrap={mode === 'bridge' ? { colour: wrapColours[m.leg], lift: ramp(act, 0.05, 0.5) } : null}
       next={mode === 'bridge' ? { colour: wrapColours[1 - m.leg], drop: ramp(act, 0.5, 0.95) } : null} />
     {#if m.phase === 'act' && mode !== 'bridge' && !(mode === 'endpoint' && m.leg === 1)}
-      <Lens x={x - 10} y={L.walk - 70} r={44} time={view.time} />
+      <Lens x={x - 10} y={L.walk - 70} r={44} time={time} />
     {/if}
   </g>
 {/if}

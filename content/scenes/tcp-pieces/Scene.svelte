@@ -8,7 +8,7 @@
   import Ticket from './art/Ticket.svelte';
   import { ackTicket, ackX, cardGap, cardLabels, dupAcks, handshakeTicket, helloSpot, layoutFor, phase, roadX, serverBox, shelfBox, shelfFilled, ticketW, travellingBox, windowStart } from './tcp';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.tcp-pieces');
   const ctx = $derived(subject.ctx);
   const L = $derived(layoutFor(view.orient, view.vp));
@@ -20,14 +20,14 @@
   const clientSpot = $derived(subject.open ? (clientFocus ? L.home[0] : L.ends[0]) : L.ends[0]);
   const serverSpot = $derived(subject.open ? (serverFocus ? L.home[1] : L.ends[1]) : L.ends[1]);
   const hopSpot = $derived(subject.open ? null : L.hop);
-  const beat = $derived(phase(view.time));
-  const moving = $derived(travellingBox(view.time));
-  const ack = $derived(ackTicket(view.time));
-  const win = $derived(windowStart(view.time));
+  const beat = $derived(phase(time));
+  const moving = $derived(travellingBox(time));
+  const ack = $derived(ackTicket(time));
+  const win = $derived(windowStart(time));
   const natSticker = $derived(ctx.nat ? `${ctx.nat.insidePort}↔${ctx.nat.outsidePort}` : '');
-  const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? fill(S('tag.dupAck'), { n: Math.max(1, dupAcks(view.time)) }) : beat === 'resend' ? S('tag.fast') : S('tag.order'));
+  const tagA = $derived(beat === 'handshake' ? S('tag.syn') : beat === 'send' ? S('tag.window') : beat === 'loss' ? fill(S('tag.dupAck'), { n: Math.max(1, dupAcks(time)) }) : beat === 'resend' ? S('tag.fast') : S('tag.order'));
   const tagB = $derived(ctx.nat ? (nerd ? S('tag.nat').replace('{nat}', natSticker) : S('label.port')) : S('tag.seal'));
-  const labels = $derived(cardLabels(view.time));
+  const labels = $derived(cardLabels(time));
   const hello = $derived(helloSpot(L, portrait, clientSpot, hopSpot ?? serverSpot));
   const gap = $derived(cardGap(L.cards[0], portrait));
 
@@ -68,8 +68,8 @@
 <g>
   {#each [1, 2, 3, 4, 5, 6, 7, 8] as n}
     {@const p = shelfBox(L.cards[1], n, portrait)}
-    <rect x={p.x - L.box / 2} y={p.y - L.box / 2} width={L.box} height={L.box} rx="12" fill="var(--paper)" stroke={n === 5 && !shelfFilled(view.time, 5) ? 'var(--berry)' : 'var(--kraft-dark)'} stroke-width={n === 5 && !shelfFilled(view.time, 5) ? 7 : 4} stroke-dasharray={n === 5 && !shelfFilled(view.time, 5) ? '10 8' : undefined} opacity="0.85" />
-    {#if shelfFilled(view.time, n)}<Box x={p.x} y={p.y} n={n} size={L.box} />{/if}
+    <rect x={p.x - L.box / 2} y={p.y - L.box / 2} width={L.box} height={L.box} rx="12" fill="var(--paper)" stroke={n === 5 && !shelfFilled(time, 5) ? 'var(--berry)' : 'var(--kraft-dark)'} stroke-width={n === 5 && !shelfFilled(time, 5) ? 7 : 4} stroke-dasharray={n === 5 && !shelfFilled(time, 5) ? '10 8' : undefined} opacity="0.85" />
+    {#if shelfFilled(time, n)}<Box x={p.x} y={p.y} n={n} size={L.box} />{/if}
   {/each}
   {#if labels.shelf}
     <Text x={L.cards[1].x + L.cards[1].w / 2} y={L.cards[1].y + L.cards[1].h - (portrait ? 52 : 36)} text={S(`label.${labels.shelf}`)} size={L.text.label} kind="big" colour={labels.shelf === 'ready' ? 'var(--leaf-ink)' : labels.shelf === 'lost' ? 'var(--berry-ink)' : 'var(--line)'} />
@@ -83,7 +83,7 @@
 <Pothole x={L.pothole.x} y={L.pothole.y} w={L.pothole.w} h={L.pothole.h} splash={moving.lost ? 1 : 0} />
 
 {#if beat === 'handshake' && !compact}
-  {#each handshakeTicket(view.time) as h}
+  {#each handshakeTicket(time) as h}
     {#if h.on}
       {@const text = S(`handshake.${h.key}`)}
       <Ticket x={ticketX(h.back ? ackX(L, h.x) : roadX(L, 1 - h.x), text)} y={ticketY} {text} size={L.text.label} />

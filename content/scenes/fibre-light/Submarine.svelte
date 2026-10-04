@@ -13,7 +13,7 @@
   import Slice from './art/Slice.svelte';
   import Shark from './art/Shark.svelte';
   import Pulse from './art/Pulse.svelte';
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.fibre-light');
   // fixed-colour: each wavelength's own colour: light, the same by day and by night
   const FOUR = ['#e85d75', '#ffcf5d', '#55bfa3', '#4aa3cf'];
@@ -27,8 +27,8 @@
   const route = $derived(cable(sea));
   const haul = $derived(seaHaul(sea, stretchKm(subject.run)));
   const repeaters = $derived(boostersOf(haul));
-  const pulses = $derived(cablePulses(view.time, route, colours.length));
-  const power = $derived(sparks(view.time, route));
+  const pulses = $derived(cablePulses(time, route, colours.length));
+  const power = $derived(sparks(time, route));
   const kid = $derived(view.level === 'kid');
   const legible = legibleSize();
   /** A long cable's boosters stand closer than their names are wide: every other name goes up a line (down on a phone,
@@ -38,7 +38,7 @@
   const nameW = $derived(S(`${words}.repeater`).length * 0.55 * legible(26) + 16);
   const crowded = $derived(gap < nameW);
   const named = $derived(2 * gap < nameW ? [Math.floor(repeaters.length / 2)] : repeaters.map((_, i) => i));
-  const fish = $derived(portrait ? shark(view.time, 240, 660, 570) : shark(view.time, 310, 600, 345));
+  const fish = $derived(portrait ? shark(time, 240, 660, 570) : shark(time, 310, 600, 345));
   /** The counter rides in the sand under the first colour's leading flash. */
   const lead = $derived(pulses[0].head.x);
   const counter = $derived({ x: Math.min(haul.b, Math.max(haul.a, lead)), km: Math.round(kmAt(haul, lead)) });
@@ -51,18 +51,18 @@
         title: 322, parts: { y: 455, copper: { x: sea.slice.x - sea.slice.r - 20, anchor: 'end' }, glass: { x: sea.slice.x + sea.slice.r + 20, anchor: 'start' } } as const, slice: sea.slice });
 </script>
 
-<Sea water={water(sea)} ground={ground(sea)} land={sea.land} shore={sea.shore} surface={sea.surface} w={sea.w} time={view.time} />
-{#if kid}<Shark x={fish.x} y={fish.y} left={fish.left} time={view.time} />{/if}
+<Sea water={water(sea)} ground={ground(sea)} land={sea.land} shore={sea.shore} surface={sea.surface} w={sea.w} time={time} />
+{#if kid}<Shark x={fish.x} y={fish.y} left={fish.left} time={time} />{/if}
 <!-- the slice is cut from the cable just below it -->
 <line x1={L.slice.x} y1={L.slice.y + L.slice.r} x2={L.slice.x} y2={sea.floor - CABLE_W} stroke="var(--line)" stroke-width="5" stroke-dasharray="4 14" stroke-linecap="round" />
 <Slice x={L.slice.x} y={L.slice.y} r={L.slice.r} {colours} />
 <Cable points={route} w={CABLE_W} />
 {#each power as p}<circle cx={p.x} cy={p.y} r="6" fill="var(--sun)" stroke="var(--face)" stroke-width="3" />{/each}
 {#each pulses as p}
-  <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={view.time} fade={fadeAt(haul, p.head.x)} size={0.55} />
+  <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={time} fade={fadeAt(haul, p.head.x)} size={0.55} />
 {/each}
-{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} w={Math.min(124, gap - 10)} time={view.time} />{/each}
-{#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} time={view.time} />{/each}
+{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} w={Math.min(124, gap - 10)} time={time} />{/each}
+{#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} time={time} />{/each}
 
 {#each L.stations as s}<Text x={s.x} y={s.y} text={S(`${words}.landing`)} size={28} kind="big" anchor={s.anchor} fit />{/each}
 {#each named as i}<Text x={repeaters[i]} y={L.repeater + (named.length > 1 ? i % 2 : 0) * L.stagger} text={S(`${words}.repeater`)} size={26} kind="big" />{/each}

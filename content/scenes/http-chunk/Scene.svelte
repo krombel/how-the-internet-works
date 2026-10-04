@@ -10,7 +10,7 @@
   import Note from './art/Note.svelte';
   import { SEEN, bulk, httpMoment, layoutFor, lerp, seenSoFar, walkerX, type Quality, type Where } from './http';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.http-chunk');
   const legible = legibleSize();
   const ctx = $derived(subject.ctx);
@@ -27,7 +27,7 @@
   const where: Where = $derived(subject.open ? (ctx.to.id === ctx.server.id ? 'server' : 'client') : 'middle');
   const clientSpot = $derived(where === 'client' ? L.home[0] : L.ends[0]);
   const serverSpot = $derived(where === 'server' ? L.home[1] : L.ends[1]);
-  const m = $derived(httpMoment(view.time));
+  const m = $derived(httpMoment(time));
   const file = $derived(m.chunk === 42 ? 'page' : 'picture');
   const [ask, answer] = $derived(L.cards);
   const titleY = (c: { y: number }) => c.y + (portrait ? 75 : L.compact ? 72 : 66);
@@ -62,7 +62,7 @@
   const shelfStatus = $derived(page ? (m.look > 0 ? S('shelf.disk') : '') : m.beat === 'hit' && m.look > 0 ? S('shelf.hit') : m.beat === 'miss' ? (m.stored ? S('shelf.kept') : m.fetch > 0 ? S('shelf.fetch') : m.look > 0 ? S('shelf.miss') : '') : '');
 
   // a sealed hop: what goes by, and how big
-  const seen = $derived(seenSoFar(view.time));
+  const seen = $derived(seenSoFar(time));
   const seenW = $derived((ask.w - 60) / SEEN.length);
   const sizeWord = (w: (typeof SEEN)[number]) => S(`size.${w.kind === 'ask' ? 'ask' : w.quality}`);
 

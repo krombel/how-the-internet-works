@@ -11,7 +11,7 @@
   import Slots from '../tdm-frames/art/Slots.svelte';
   import { LINE, NUMBER, PHOTO, SLOT, STEPS, dialled, handshake, photoIn, play, ripples, seconds, stepAt, type Ripple } from './modem';
 
-  let { subject }: { subject: LinkSubject } = $props();
+  let { subject, time }: { subject: LinkSubject; time: number } = $props();
   const S = strings('scene.modem-call');
   const legible = legibleSize();
   const nerd = $derived(S('mode') === 'nerd');
@@ -41,11 +41,11 @@
   $effect(() => {
     if (!here) return;
     const out = soundOut();
-    untrack(() => (since = view.time));
+    untrack(() => (since = time));
     if (out) return play(out, handshake());
   });
-  const s = $derived(view.still ? 4.2 : view.time - since);
-  const t = $derived(view.still ? 2.4 : view.time);
+  const s = $derived(view.still ? 4.2 : time - since);
+  const t = $derived(view.still ? 2.4 : time);
   const step = $derived(stepAt(s));
   const stepIx = $derived(STEPS.findIndex((st) => st.id === step));
   const waves = $derived(ripples(s, t, midX));

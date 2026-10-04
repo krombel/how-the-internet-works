@@ -7,7 +7,7 @@
   import Card from '../copper-pulses/art/Card.svelte';
   import { HDLC_TALKS, TALKS, momentAt } from './ppp';
 
-  let { subject }: { subject: LayerSubject } = $props();
+  let { subject, time }: { subject: LayerSubject; time: number } = $props();
   const S = strings('scene.ppp-hello');
   const legible = legibleSize();
   const portrait = $derived(view.orient === 'portrait');
@@ -48,7 +48,7 @@
     };
   });
   const A = $derived(L.cards[0]), B = $derived(L.cards[1]);
-  const t = $derived(view.still ? 6.6 : view.time);
+  const t = $derived(view.still ? 6.6 : time);
   const m = $derived(momentAt(t, talks));
 
   // the envelope, taken apart: [bytes, label key, chip colour]

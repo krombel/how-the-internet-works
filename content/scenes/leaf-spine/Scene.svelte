@@ -8,7 +8,7 @@
   import Leaf from './art/Leaf.svelte';
   import Carrier from './art/Carrier.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
   const S = strings('scene.leaf-spine');
   const portrait = $derived(view.orient === 'portrait');
   const compact = $derived(!portrait && view.vp.h < 470);
@@ -26,8 +26,8 @@
   const fabricTech = $derived(subject.in?.tech ?? subject.out?.tech);
   const fabricColour = $derived(fabricTech?.colour ?? 'var(--blue)');
   const links = $derived(fabricLinks(L));
-  const parcel = $derived(parcelAt(view.time, view.still, L));
-  const others = $derived(OTHER_FLOWS.map((f) => otherFlowAt(view.time, view.still, L, f)));
+  const parcel = $derived(parcelAt(time, view.still, L));
+  const others = $derived(OTHER_FLOWS.map((f) => otherFlowAt(time, view.still, L, f)));
   const otherColours = ['var(--teal)', 'var(--orange)', 'var(--berry)', 'var(--blue)', 'var(--leaf)', 'var(--mustard)', 'var(--teal-dark)', 'var(--orange-soft)'];
   const ends = $derived([
     subject.in && { link: subject.in, d: wire(L.inPort, L.leaves.before) },
@@ -80,9 +80,9 @@
   {/each}
 
   {#each others as f, i (`${f.from}-${f.to}-${i}`)}
-    <Carrier p={f.p} alpha={f.alpha} time={view.time} kind="other" colour={otherColours[i]} {night} />
+    <Carrier p={f.p} alpha={f.alpha} time={time} kind="other" colour={otherColours[i]} {night} />
   {/each}
-  <Carrier p={parcel.p} alpha={parcel.alpha} time={view.time} kind="yours" colour="var(--sun)" {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} time={time} kind="yours" colour="var(--sun)" {night} />
 
   {#if T.tag && fabricTech}
     <Text x={L.fabricTag.x} y={L.fabricTag.y} text={strings(`tech.${fabricTech.id}`)('name')} size={T.tag} kind="link" colour={fabricTech.colour} anchor={L.fabricTag.anchor} />

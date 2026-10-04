@@ -72,7 +72,7 @@ export function loadRouteArt(route: Route) {
   return Promise.all([...a.devices.map(devices.load), ...a.places.map(places.load), ...a.groups.map(groups.load)]).then(() => {});
 }
 
-const scenes = lazy(byFolder(import.meta.glob<{ default: Component<{ subject: Subject }> }>('/content/scenes/*/Scene.svelte')));
+const scenes = lazy(byFolder(import.meta.glob<{ default: Component<{ subject: Subject; time: number }> }>('/content/scenes/*/Scene.svelte')));
 export const loadDive = scenes.load;
 /** A dive scene's component, or null while it loads. */
 export const diveView = scenes.get;

@@ -7,11 +7,11 @@
   import Cache from './Cache.svelte';
   import Tower from './Tower.svelte';
 
-  let { subject }: { subject: NodeSubject } = $props();
+  let { subject, time }: { subject: NodeSubject; time: number } = $props();
 </script>
 
 {#if modeOf(subject.hop.node.id) === 'tower'}
-  <Tower {subject} />
+  <Tower {subject} {time} />
 {:else}
-  <Cache {subject} />
+  <Cache {subject} {time} />
 {/if}
