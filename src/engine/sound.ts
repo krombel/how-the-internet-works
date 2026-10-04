@@ -17,8 +17,9 @@ export interface Timbre {
 }
 
 const DEFAULT_TIMBRE: Timbre = { wave: 'sine', blip: 880, noise: { freq: 900, q: 0.8 }, gain: 0.5, detune: 0, decay: 0.18 };
-/** The level of everything, into the speakers. */
-const MASTER = 0.35;
+/** The level of everything, into the speakers: the loud arrival blip about −21 LUFS (K-weighted, loudest 100 ms)
+ *  and the tap sounds about −25 to −39 (#191; it was 0.35, 7 dB quieter). Nothing peaks near clipping, even all at once. */
+export const MASTER = 0.8;
 /** The level of an arrival you only watch (`blip(false)`; #189): about 7 dB under the quietest tap sound, the swish,
  *  measured as K-weighted loudness over 100 ms (it was 0.12, level with the swish). */
 const QUIET = 0.05;

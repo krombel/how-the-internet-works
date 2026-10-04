@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Sfx, soundOnLoad, wakeOnGesture, type Timbre } from './sound';
+import { MASTER, Sfx, soundOnLoad, wakeOnGesture, type Timbre } from './sound';
 
 describe('soundOnLoad', () => {
   it('is on by default', () => {
@@ -107,6 +107,17 @@ describe('Sfx', () => {
     expect(s.out()).not.toBeNull();
     s.pop();
     expect(levels(made)).toEqual([0.7]);
+  });
+
+  it('plays everything through a master loud enough to hear (#191), with room to spare before clipping', () => {
+    const { made, make } = fakeAudio();
+    const s = new Sfx(make);
+    s.setEnabled(true); s.wake();
+    const ctx = made[0] as unknown as { gains: { gain: { value: number } }[] };
+    expect(MASTER).toBe(0.8);
+    expect(ctx.gains[0].gain.value).toBe(MASTER);
+    // the loudest sound, the followed arrival's two notes, each two detuned voices in step, stays under 0.9
+    expect((0.9 + 0.7) * TIMBRE.gain * 2 * MASTER).toBeLessThan(0.9);
   });
 
   it('makes none at the gesture while muted, only when sound is turned on later', () => {

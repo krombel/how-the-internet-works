@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LINE, NUMBER, ONLINE_AT, PHOTO, SLOT, STEPS, dialled, dtmf, handshake, photoIn, ripples, seconds, stepAt } from '../../content/scenes/modem-call/modem';
+import { LEVEL, LINE, NUMBER, ONLINE_AT, PHOTO, SLOT, STEPS, dialled, dtmf, handshake, photoIn, play, ripples, seconds, stepAt } from '../../content/scenes/modem-call/modem';
 import { HDLC_TALKS, TALKS, TALK_S, loopS, momentAt } from '../../content/scenes/ppp-hello/ppp';
 import { content } from './registry';
 
@@ -35,6 +35,30 @@ describe('the dial-up call (modem-call)', () => {
     expect(Math.min(...warble)).toBeGreaterThanOrEqual(STEPS[3].at);
     expect(Math.max(...warble)).toBeLessThan(Math.min(...probe));
     expect(Math.max(...probe)).toBeLessThan(Math.min(...hiss));
+  });
+
+  it('plays the whole handshake through one bus, about 12 dB down, so it is no louder than the loud arrival blip (#191)', () => {
+    const node = () => ({ connected: [] as unknown[], connect(n: unknown) { this.connected.push(n); return n; }, disconnect() {} });
+    const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {}, cancelScheduledValues() {} });
+    const gains: { gain: { value: number }; connected: unknown[] }[] = [];
+    const ctx = {
+      currentTime: 0, sampleRate: 100,
+      createGain() { const g = { ...node(), gain: param() }; gains.push(g); return g; },
+      createOscillator: () => ({ ...node(), frequency: param(), start() {}, stop() {} }),
+      createBufferSource: () => ({ ...node(), buffer: null, start() {}, stop() {} }),
+      createBiquadFilter: () => ({ ...node(), type: '', Q: param(), frequency: param() }),
+      createBuffer: (_: number, n: number) => { const d = new Float32Array(n); return { getChannelData: () => d }; },
+    };
+    const dest = {};
+    play({ ctx: ctx as unknown as AudioContext, dest: dest as AudioNode }, handshake());
+    const [bus, ...notes] = gains;
+    expect(bus.connected).toEqual([dest]);
+    expect(bus.gain.value).toBe(LEVEL);
+    for (const g of notes) expect(g.connected).toEqual([bus]);
+    // measured K-weighted (loudest 100 ms), the touch-tone keys at 0.25 come out level with the loud blip
+    expect(LEVEL).toBe(0.25);
+    const loudest = Math.max(...handshake().map((n) => n.gain * (n.kind === 'tone' && !n.warble ? n.f.length : 1)));
+    expect(loudest * LEVEL).toBeLessThanOrEqual(0.25);
   });
 
   it('puts something on the line at every step, inside the line', () => {

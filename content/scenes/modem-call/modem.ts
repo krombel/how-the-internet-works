@@ -47,12 +47,18 @@ export function handshake(): Note[] {
   return notes;
 }
 
+/** The level of the whole handshake (issue 191): its loudest part, the touch-tone keys, comes out level with the loud
+ *  arrival blip (K-weighted, loudest 100 ms), about 12 dB down from full level, which was much louder than any other
+ *  sound. One level for all the notes keeps their balance. */
+export const LEVEL = 0.25;
+
 /** Where a scene may play: the audio context and the node to play into. */
 export interface Out { ctx: AudioContext; dest: AudioNode }
 /** Plays the notes now; returns a stop (leaving the scene cuts the sound off). */
 export function play({ ctx, dest }: Out, notes: Note[]): () => void {
   const t0 = ctx.currentTime + 0.05;
   const bus = ctx.createGain();
+  bus.gain.value = LEVEL;
   bus.connect(dest);
   let noise: AudioBuffer | null = null;
   for (const n of notes) {
