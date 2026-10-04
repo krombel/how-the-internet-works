@@ -54,6 +54,9 @@ const pkg = JSON.parse(readFileSync(`${root}package.json`, 'utf8'));
 const about = { name: 'How the Internet Works', author: pkg.author, year: 2026, license: pkg.license, source: pkg.homepage };
 
 export default defineConfig({
+  // A relative base: the same dist/ works at a site's root and under a sub-path (GitHub Pages' /<repo>/, a preview
+  // folder). Routing is in the hash, so the page itself is always index.html.
+  base: './',
   plugins: [svelte(), stringPacks(), eraBlocks()],
   define: { __ABOUT__: JSON.stringify(about) },
   resolve: {
