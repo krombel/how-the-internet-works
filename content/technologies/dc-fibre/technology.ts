@@ -11,6 +11,6 @@ export default defineTechnology({
   rate: { down: 100e9, up: 100e9 },
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Data_center', title: 'Data center', level: 'both', lang: 'en' },
-    { url: 'https://en.wikipedia.org/wiki/Terabit_Ethernet', title: '200G and 400G Ethernet', level: 'nerd', lang: 'en' },
+    { url: 'https://en.wikipedia.org/wiki/Terabit_Ethernet', title: '200G and 400G Ethernet', level: 'nerd', lang: 'en', eras: ['today'] },
   ],
 });

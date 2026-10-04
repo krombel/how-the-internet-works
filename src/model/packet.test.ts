@@ -136,6 +136,10 @@ describe('the packet on each link', () => {
     expect(val(home, 'phone-ap', 'wifi.fc', 'down')).toMatch(/^0x8842 /);
     // PPP's default 16-bit frame check: 4 hex digits; Ethernet's is 32 bits
     const dialup = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
+    // 1995's is RFC 793's: 6 reserved bits and 6 flags, no ECN's CWR and ECE yet (#180); 20 bytes all the same
+    expect([bits(dialup, 'pc-exchange', 'tcp.reserved'), bits(dialup, 'pc-exchange', 'tcp.flags')]).toEqual([6, 6]);
+    const tcpBytes = (r: Route, link: string) => onLink(r, link).find((x) => x.id === 'tcp')!.bytes;
+    expect(tcpBytes(dialup, 'pc-exchange')).toBe(tcpBytes(home, 'phone-ap'));
     expect(bits(dialup, 'pc-exchange', 'ppp.fcs')).toBe(16);
     expect(val(dialup, 'pc-exchange', 'ppp.fcs')).toMatch(/^0x[0-9a-f]{4}$/);
     expect(val(home, 'ap-router', 'ethernet.fcs')).toMatch(/^0x[0-9a-f]{8}$/);

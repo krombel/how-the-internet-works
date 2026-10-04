@@ -23,16 +23,20 @@ import { diveSubject } from './tree';
 
 /** Later than 2010: Wi‑Fi 5 and up, 4G and 5G, XGS-PON, G.fast and vectoring, 200G and up, 2.5G/5G copper and
  *  802.3bt, leaf–spine, containers and Kubernetes, NVMe, today's AS count, TLS 1.3, HTTP/2 and 3, QUIC, ECH, WPA3,
- *  VXLAN/EVPN, segment routing, DASH's MPD and the CGNAT space of 2012. */
+ *  VXLAN/EVPN, segment routing, DASH's MPD and its sum of size over time, the CGNAT space of 2012 and TCP's
+ *  10-segment start (2013, #180). */
 const LATER = new RegExp([
   /802\.11(?:ac|ax|be)|Wi.Fi [5-7]\b|\b[45]G\b|\bLTE\b|\bNR\b|\bgNB\b|\bUPF\b|XGS|G\.fast|[Vv]ector(?:ing|isering)/,
   /\b[2-8]00\s?G|400GBASE|\bFR4\b|CWDM4|802\.3b[tz]|\b(?:2\.5|5)GBASE/,
   /[Ll]eaf|\b(?:in a|i en) container|containers\b|containere|k8s|[Kk]ubernetes|Docker|NVMe|75 000|80 000/,
   /TLS 1\.3|HTTP\/[23]|QUIC|\bECH\b|WPA3|VXLAN|EVPN|SRv6|[Ss]egment [Rr]outing|\bMPD\b|100\.64\.0\.0|RFC 6598/,
+  /\bIW10\b|\b10 segment|÷/,
 ].map((r) => r.source).join('|'));
 /** New in 2010 (100G Ethernet and its 25G lanes, coherent optics): fine if it says it was new then. */
 const NEW = /\b100\s?G|100GBASE|\b25G\b|[Cc]oherent|[Kk]ohærent/;
 const SAYS_LATER = /today|i dag|nutid|later|senere|\b(?:201[1-9]|20[2-9]\d)\b|2010s|2010’erne/i;
+/** An RFC from after 2010 (RFC 6087 came out that December; #180: RFC 9293's TCP, RFC 9110's HTTP). */
+const laterRfc = (s: string) => [...s.matchAll(/\bRFC ?(\d+)/g)].some(([, n]) => Number(n) > 6087);
 const SAYS_NEW = /today|i dag|nutid|later|senere|\b20[1-9]\d\b/i;
 
 /** Walked, but never shown on a 2010 trip: the router's light box (ONT) only shows on fibre, and 2010's router
@@ -235,7 +239,7 @@ describe('the 2010 trips', () => {
   it('say nothing of a later internet, unless they say when (#135)', () => {
     const leaks = new Map<string, string>();
     for (const r of trips()) for (const [key, s] of routeWords(r)) {
-      const later = LATER.test(s) && !SAYS_LATER.test(s), early = NEW.test(s) && !SAYS_NEW.test(s);
+      const later = (LATER.test(s) || laterRfc(s)) && !SAYS_LATER.test(s), early = NEW.test(s) && !SAYS_NEW.test(s);
       if (later || early) leaks.set(key, s);
     }
     const keyOf = (k: string) => k.split(' ')[2];
@@ -244,6 +248,25 @@ describe('the 2010 trips', () => {
     expect([...leaks].filter(([k]) => !excused.has(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
     // each excuse still holds: drop an entry once it no longer leaks
     expect([...excused].filter((k) => !leaked.has(k)), 'no longer leaks: take it off UNSHOWN').toEqual([]);
+  });
+
+  it('fetch the video in plain HTTP: they name TLS only to say there was none (#180)', () => {
+    const NONE = /\b(?:no|without|ingen|uden|ikke)\b/i, bad = new Map<string, string>();
+    for (const r of trips()) for (const [key, s] of routeWords(r)) if (/\bTLS\b/.test(s) && !NONE.test(s)) bad.set(key, s);
+    expect([...bad].map(([k, s]) => `${k}: ${s}`)).toEqual([]);
+  });
+
+  it('fetch one file, the size of the video: then, skipped ahead, the rest of it from there (#180)', () => {
+    const r = trips()[0], video = r.activity.flows[0].packets[1];
+    for (const lang of Object.keys(packs)) {
+      const size = (q: string) => {
+        const [, n, unit] = firstOf(lang, withEra([`scene.http-chunk.size.${q}`], r.era), 'nerd')!.match(/^([\d.,]+) (kB|MB)$/)!;
+        return Number(n.replace(',', '.')) * (unit === 'MB' ? 1e6 : 1e3);
+      };
+      expect(size('med')).toBe(video.size);
+      expect(size('low')).toBeLessThan(size('med'));
+      expect(firstOf(lang, withEra(['scene.http-chunk.status.guess'], r.era), 'nerd')).toMatch(/\b206\b/);
+    }
   });
 
   it('show one rate, their slowest link’s: never today’s 100G of the core they share (#164)', () => {

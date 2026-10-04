@@ -121,6 +121,9 @@
           "kid": "En vej forbinder din enhed, dette gennemgangsstop og serveren. Adressekortet har lukkede øjne, og det andet kort viser den gamle og den nye kuvert. Pakken beholder adressemærket lukket, mens én kuvert løftes af og en frisk lægges på til næste strækning.",
           "nerd": "IP-headerkortet vises, men læses ikke. Link-kortet viser indgående og udgående kuverter. Tekniske mærker siger, at MAC-adresserne sendes uændret videre (et tunnelendepunkt sætter sin egen på), og at IP-headeren er urørt. Under pausen løftes den gamle kuvert af, den næste lander, og pakken fortsætter med samme IP-mærke og TTL."
         }
+      },
+      "endpoint": {
+        "nerd": "Destinationen er en lokal adresse, så IP-headeren fjernes, og indholdet sendes op til TCP (protokol 6). På udgående pakker skriver værten selv afsender, modtager og en frisk TTL (64 her, som RFC 1700 anbefaler; nogle systemer brugte 32 eller 255)."
       }
     }
   },

@@ -21,6 +21,9 @@
       "cell-tower-internet": {
         "kid": "Fra masten rejser dit opkald ad en linje til styreboksen og videre til mobilselskabets central, på en bitte plads, det deler med tre andre opkald.",
         "nerd": "Abis og Ater: E1-linjer, og dit opkald er en kvart tidsluke på 16 kbit/s af én på 64 kbit/s, stadig RLP-rammer, hele vejen til transcoderen ved MSC’en."
+      },
+      "exchange": {
+        "nerd": "Opkaldet kommer fra MSC’en ad en E1-trunk og kobles videre som en 64 kbit/s-tidsluke gennem telefonnettet til udbyderens modemer."
       }
     },
     "inside": {

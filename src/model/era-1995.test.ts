@@ -10,8 +10,9 @@ import { CODES, codeOf, copperSparks, eyePaths, litPairs, manchesterPath } from 
 import { WORLD_SIZE, bezier } from '../engine/geometry';
 import { stubBrowser } from '../test/stub-browser';
 import type * as Server from '../../content/scenes/server-inside/server';
+import { bulk } from '../../content/scenes/http-chunk/http';
 import { routeWords, scenes } from '../test/era-walk';
-import { sceneKeys } from './describe';
+import { layerKeys, sceneKeys } from './describe';
 import { pathScene, propSpots } from './layout';
 import { activityIds, content } from './registry';
 import { firstOf, loadAllPacks, packs, withEra } from './strings';
@@ -287,6 +288,48 @@ describe('the 1995 trip', () => {
     expect(scenes(gsm).filter((s) => s.dive === 'tdm-frames').map((s) => s.path.at(-1))).toEqual(expect.arrayContaining(['cell-tower-bsc', 'mobile-core-exchange', 'exchange-bng']));
   });
 
+  it('reaches the exchange from the mobile network on the go, not on a copper loop (#180)', () => {
+    const words = (place: string) => [...routeWords(resolveRoute({ activity: 'watch-video', places: [place] }))].filter(([k]) => / node\.exchange$|\.stop\.exchange$/.test(k));
+    expect(words('home-dialup').some(([, s]) => /copper loop|kobberlinje/.test(s))).toBe(true);
+    expect(words('on-the-go-1995').filter(([, s]) => /copper|kobber/.test(s))).toEqual([]);
+    expect(words('on-the-go-1995').length).toBeGreaterThan(0);
+  });
+
+  it('speaks HTTP/1.0 in the clear: it names TLS and Host only to say there were none (#180)', () => {
+    const NAMES = /\bTLS\b|\bHost\b/, NONE = /\b(?:no|without|ingen|uden|ikke)\b/i;
+    const bad = new Map<string, string>();
+    for (const r of trips()) for (const [key, s] of routeWords(r)) if (NAMES.test(s) && !NONE.test(s)) bad.set(key, s);
+    expect([...bad].map(([k, s]) => `${k}: ${s}`)).toEqual([]);
+  });
+
+  it('says a phone network’s switch carries the page’s HTTP unread, never that a router forwards it (#180)', () => {
+    let seen = 0;
+    for (const r of trips()) for (const ref of scenes(r)) {
+      if (ref.kind !== 'layer' || ref.at!.layer !== 'http' || r.hops[ref.at!.hop].role !== 'bridge') continue;
+      for (const lang of Object.keys(packs)) for (const level of ['kid', 'nerd'] as Level[]) {
+        expect(firstOf(lang, withEra(layerKeys(r, ref), r.era), level), `${lang} ${level} ${ref.path.join('/')}`).not.toMatch(/router/i);
+        seen++;
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+
+  it('sizes the page and its picture as it draws them: the page the smaller, 40 kB in all (#180)', () => {
+    const r = trips()[0], page = r.activity.flows[0].packets.find((p) => p.kind === 'page')!;
+    for (const lang of Object.keys(packs)) {
+      const size = (q: string) => {
+        const [, n, unit] = firstOf(lang, withEra([`scene.http-chunk.size.${q}`], r.era), 'nerd')!.match(/^([\d.,]+) (B|kB)$/)!;
+        return Number(n.replace(',', '.')) * (unit === 'kB' ? 1000 : 1);
+      };
+      expect(size('ask')).toBeLessThan(1000);
+      // the first answer is the page, the second its picture
+      expect(size('med')).toBeLessThan(size('low'));
+      expect(size('med') + size('low')).toBeLessThanOrEqual(page.size!);
+      expect(size('med') + size('low')).toBeGreaterThan(page.size! * 0.75);
+    }
+    expect(bulk({ kind: 'chunk', quality: 'med' }, true)).toBeLessThan(bulk({ kind: 'chunk', quality: 'low' }, true));
+  });
+
   it('runs the phone line from the PC through the modem to the socket on the wall, then out (#137)', () => {
     const r = resolveRoute({ activity: 'watch-video', places: ['home-dialup'] });
     for (const o of ['landscape', 'portrait'] as const) {
@@ -306,7 +349,10 @@ describe('the 1995 trip', () => {
 
   it('says nothing of a later internet, unless it says when (review panel F14–F16, #164, #174)', () => {
     // DiffServ's DSCP came in 1998 and ECN in 2001: 1995's IP header has a type-of-service byte (#174)
-    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit|\bDSCP\b|\bECN\b|DiffServ|ECMP/i;
+    // TCP's later 10-segment start (IW10), ECN's CWR and ECE flags, DASH's sum of size over time, CGNAT and the systems
+    // of later phones and Macs (#180); and any RFC from after 1995 (RFC 1883 came out that December)
+    const LATER = /MPLS|coherent|DWDM|leaf|CDN|[1-8]00\s?G|400GBASE|k8s|Kubernetes|75 000|80 000|NVMe|SSD|container|VLAN|802\.1Q|1000BASE|gigabit|\bDSCP\b|\bECN\b|DiffServ|ECMP|\bIW10\b|\b10 segment|\bCWR\b|\bECE\b|÷|bitrate|bithastighed|Carrier-grade|Android|\biOS\b|macOS/i;
+    const laterRfc = (s: string) => [...s.matchAll(/\bRFC ?(\d+)/g)].some(([, n]) => Number(n) > 1883);
     // and on the go (#147): GSM's circuit-switched data only, no packet radio
     const MOBILE = /\b(GPRS|EDGE|HSCSD|HSPA|SGSN|GGSN|GTP|UMTS|[345]G|LTE|NR)\b/;
     const SAYS_WHEN = /today|i dag|nutid|\b(199[6-9]|20\d\d)\b/i;
@@ -314,7 +360,7 @@ describe('the 1995 trip', () => {
     // a disk) and gigabit's PAM-5 card (1995's copper is 10BASE-T's Manchester)
     const UNSHOWN = ['scene.server-inside.ssd.title', 'scene.copper-pulses.tag.speedShort'];
     const bad = new Map<string, string>();
-    for (const r of trips()) for (const [key, s] of routeWords(r)) if ((LATER.test(s) || MOBILE.test(s)) && !SAYS_WHEN.test(s)) bad.set(key, s);
+    for (const r of trips()) for (const [key, s] of routeWords(r)) if ((LATER.test(s) || MOBILE.test(s) || laterRfc(s)) && !SAYS_WHEN.test(s)) bad.set(key, s);
     const keyOf = (k: string) => k.split(' ')[2];
     expect([...bad].filter(([k]) => !UNSHOWN.includes(keyOf(k))).map(([k, s]) => `${k}: ${s}`)).toEqual([]);
     // each excuse still holds: drop an entry once it no longer leaks

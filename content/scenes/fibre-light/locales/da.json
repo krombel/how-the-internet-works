@@ -123,7 +123,7 @@
   "submarine-sdh": {
     "title": "Én tråd under Atlanten",
     "kid": "I 1995 krydser pakkerne til Amerika havet i CANTAT-3, et kabel fra Danmark forbi Færøerne og Island til Canada, færdigt i 1994. Hver glastråd bærer én farve lys. Maskiner på havbunden fanger det svage lys og sender det klart videre, med strøm gennem kablet fra kysten.",
-    "nerd": "CANTAT-3 (1994): omkring 7.100 km fra Blåbjerg via Færøerne og Island til Nova Scotia, 3 × 2,5 Gbit/s SDH (STM-16), én bølgelængde pr. fiberpar. Repeaterne er regeneratorer (NL-16), der gør lys til bit og tilbage; optisk forstærkede kabler nåede Atlanten i 1996 (TAT-12/13). Leverandøren lejer 2 Mbit/s-kredsløb i det.",
+    "nerd": "CANTAT-3 (1994): omkring 7.100 km kabel fra Blåbjerg via Færøerne og Island til Nova Scotia (med strækningerne over land fra København til New York omkring 8.400 km), 3 × 2,5 Gbit/s SDH (STM-16), én bølgelængde pr. fiberpar. Repeaterne er regeneratorer (NL-16), der gør lys til bit og tilbage; optisk forstærkede kabler nåede Atlanten i 1996 (TAT-12/13). Leverandøren lejer 2 Mbit/s-kredsløb i det.",
     "describe": {
       "kid": "Havet set fra siden mellem to landingsstationer på kysten. Et kabel løber ned ad skrænten og hen ad havbunden med maskiner på. Én farve lys og små gule gnister af strøm bevæger sig langs kablet, et rødt tal tæller kilometerne, og en haj svømmer forbi. En cirkel viser kablet skåret op.",
       "nerd": "CANTAT-3 set fra siden mellem to landingsstationer. Kablet ligger på havbunden med regeneratorer langs det. Én bølgelængde krydser og falmer over hvert spænd; gnister viser jævnstrøm fra kysten. Et tværsnit viser fiber, kobber og stålarmering. En tæller følger lyset i km."

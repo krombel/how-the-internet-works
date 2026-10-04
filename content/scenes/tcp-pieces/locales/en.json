@@ -91,6 +91,10 @@
         "kid": "A middle stop sits on the road between {yours} and the server. The Server and Shelf cards still show boxes lining up, but the boxes on the road are sealed. This stop just carries them past. It can see box 5 fall after it and pass again when it is sent a second time.",
         "nerd": "At a non-endpoint hop, the top cards show TCP state at the endpoints. The road shows only sealed payloads. The hop forwards IP packets without reading sequence numbers or ACKs. Segment 5’s loss and fast retransmit appear as another sealed segment crossing the road."
       }
-    }
+    },
+    "nerd": "TCP is end-to-end (RFC 793, 1981): a 3-way handshake (SYN, SYN-ACK, ACK) agrees the starting sequence numbers both ways. The sender keeps a four-segment window (simplified: real windows are in bytes, and slow start (Jacobson, 1988) begins at about 1 segment and doubles it every round trip). ACK=5 names the next byte expected and slides the window to 5–8; 6, 7 and 8 each draw a duplicate ACK=5, and the third triggers fast retransmit (BSD, 1990); delivery to the app waits for in-order bytes."
+  },
+  "2010": {
+    "nerd": "TCP is end-to-end (RFC 793): a 3-way handshake (SYN, SYN-ACK, ACK) agrees the starting sequence numbers both ways. The sender keeps a four-segment window (simplified: real windows are in bytes, and slow start begins at 2 to 4 segments, RFC 3390). ACK=5 names the next byte expected and slides the window to 5–8; 6, 7 and 8 each draw a duplicate ACK=5, and the third triggers fast retransmit; delivery to the app waits for in-order bytes."
   }
 }
