@@ -31,7 +31,7 @@
 </script>
 
 {#if !mode.beams}
-  <Beam d={sectorPath(L.source, L.phones)} from={L.source} to={L.phones[0]} colour="var(--leaf)" strength={0.5} time={time} />
+  <Beam d={sectorPath(L.source, L.phones)} from={L.source} to={L.phones[0]} colour="var(--leaf)" strength={0.5} {time} />
 {/if}
 <!-- grid frame: frequency (or codes) up, time along -->
 <rect x={G.x - 8} y={G.y - 8} width={COLS * G.cw + 16} height={ROWS * G.ch + 16} rx="16" fill="var(--paper)" stroke="var(--line)" stroke-width="5" opacity="0.9" />

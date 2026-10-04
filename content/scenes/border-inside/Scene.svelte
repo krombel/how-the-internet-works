@@ -71,7 +71,7 @@
     <path d={d} stroke={transitAside.link.tech.colour} stroke-width="9" stroke-linecap="round" stroke-dasharray="18 18" opacity="0.42" />
   {/if}
 
-  <Case box={L.case} lineCard={L.lineCard} active={parcel.stage === 'pop'} {night} time={time} />
+  <Case box={L.case} lineCard={L.lineCard} active={parcel.stage === 'pop'} {night} {time} />
 
   <path d={pLine([...inTrack(L), ...exitTrack(L, 'exchange').slice(1, 3)])} fill="none" stroke="var(--line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.42" />
   <path d={pLine(exitTrack(L, 'exchange').slice(0, 3))} fill="none" stroke="var(--leaf-ink)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity={0.2 + parcel.chosenAlpha * 0.8} />
@@ -104,7 +104,7 @@
     <Note p={n.p} alpha={n.alpha} text={S('note.short')} colour={n.source === 'exchange' ? outLink?.tech.colour ?? 'var(--teal)' : transitAside?.link.tech.colour ?? 'var(--orange)'} {night} />
   {/each}
 
-  <Carrier p={parcel.p} alpha={parcel.alpha} stickerAlpha={hasMpls && !parcel.stickerDetached ? parcel.stickerAlpha : 0} time={time} {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} stickerAlpha={hasMpls && !parcel.stickerDetached ? parcel.stickerAlpha : 0} {time} {night} />
   {#if hasMpls && parcel.stickerDetached}<Sticker p={sticker.p} alpha={sticker.alpha} text={S('pop.short')} detached={sticker.detached} />{/if}
 
   {#if before}

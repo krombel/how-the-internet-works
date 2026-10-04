@@ -232,11 +232,11 @@
 
 {#if x !== null}
   <g transform="translate({x} {L.walk}) scale({L.parcel}) translate({-x} {-L.walk})">
-    <Parcel {x} y={L.walk + bob(time, walking)} colour={up ? UP : DOWN} {walking} time={time}
+    <Parcel {x} y={L.walk + bob(time, walking)} colour={up ? UP : DOWN} {walking} {time}
       wrap={mode === 'bridge' ? { colour: wrapColours[m.leg], lift: ramp(act, 0.05, 0.5) } : null}
       next={mode === 'bridge' ? { colour: wrapColours[1 - m.leg], drop: ramp(act, 0.5, 0.95) } : null} />
     {#if m.phase === 'act' && mode !== 'bridge' && !(mode === 'endpoint' && m.leg === 1)}
-      <Lens x={x - 10} y={L.walk - 70} r={44} time={time} />
+      <Lens x={x - 10} y={L.walk - 70} r={44} {time} />
     {/if}
   </g>
 {/if}

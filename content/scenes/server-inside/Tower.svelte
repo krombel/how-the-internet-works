@@ -46,7 +46,7 @@
     <path d={d} stroke={inLink.tech.colour} stroke-width="18" stroke-linecap="round" />
   {/if}
 
-  <Case box={L.case} time={time} {night} fill="var(--tan-pale)" />
+  <Case box={L.case} {time} {night} fill="var(--tan-pale)" />
   <path d={poly(insideLine)} fill="none" stroke="var(--line)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.38" />
 
   {#each towerRooms as r (r)}
@@ -70,7 +70,7 @@
         <path d={`M${px - 54} ${mid - 6} H${px + 40} M${px - 54} ${mid + 14} H${px + 18}`} stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity="0.6" />
         {#if T.small}<text x={px} y={mid - 62} text-anchor="middle" font-family="var(--label-font)" font-size={T.small} font-weight="900" fill="var(--line)" stroke="var(--paper)" stroke-width="5" paint-order="stroke">{S('app')}</text>{/if}
       {:else}
-        <Disk p={{ x: c.x, y: mid }} r={Math.min((bottom - top) / 2.7, b.w / 3.4)} time={time} reading={state.reading} still={view.still} />
+        <Disk p={{ x: c.x, y: mid }} r={Math.min((bottom - top) / 2.7, b.w / 3.4)} {time} reading={state.reading} still={view.still} />
       {/if}
     </Room>
   {/each}
@@ -80,8 +80,8 @@
     <text x={L.statusTag.x} y={L.statusTag.y + (compact ? 14 : 12)} text-anchor="middle" font-family={nerd ? 'var(--tag-font)' : 'var(--label-font)'} font-size={compact ? legible(30) : 25} font-weight="900" fill="var(--line)">{S(`ok.${state.file}`)}</text>
   </g>
 
-  <Carrier p={state.request.p} form={requestForm} colour={requestColour} alpha={state.request.alpha} time={time} {night} />
-  <Carrier p={state.reply.p} form={state.file} colour="var(--berry)" alpha={state.reply.alpha} time={time} {night} />
+  <Carrier p={state.request.p} form={requestForm} colour={requestColour} alpha={state.request.alpha} {time} {night} />
+  <Carrier p={state.reply.p} form={state.file} colour="var(--berry)" alpha={state.reply.alpha} {time} {night} />
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />

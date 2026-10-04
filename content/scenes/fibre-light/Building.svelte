@@ -26,19 +26,19 @@
 </script>
 
 <g transform={trackMatrix(o)}>
-  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={time} />
+  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} {time} />
   {#each routes as r, i}<Route points={r} channel={i} colour={colours[i]} />{/each}
-  <Emitter x={F.laserX} y={UP.y} kind="laser" channel={0} colour={colours[0]} time={time} />
-  <Emitter x={F.detectorX} y={UP.y} kind="detector" channel={0} colour={colours[0]} time={time} />
+  <Emitter x={F.laserX} y={UP.y} kind="laser" channel={0} colour={colours[0]} {time} />
+  <Emitter x={F.detectorX} y={UP.y} kind="detector" channel={0} colour={colours[0]} {time} />
   <!-- the light coming down starts on the right: mirror its laser and its detector -->
   <g transform="matrix(-1 0 0 1 1600 0)">
-    <Emitter x={F.laserX} y={DOWN.y} kind="laser" channel={1} colour={colours[1]} time={time} />
-    <Emitter x={F.detectorX} y={DOWN.y} kind="detector" channel={1} colour={colours[1]} time={time} />
+    <Emitter x={F.laserX} y={DOWN.y} kind="laser" channel={1} colour={colours[1]} {time} />
+    <Emitter x={F.detectorX} y={DOWN.y} kind="detector" channel={1} colour={colours[1]} {time} />
   </g>
-  <Prism x={F.muxX} y={F.y} kind="mux" time={time} />
-  <Prism x={F.demuxX} y={F.y} kind="demux" time={time} />
+  <Prism x={F.muxX} y={F.y} kind="mux" {time} />
+  <Prism x={F.demuxX} y={F.y} kind="demux" {time} />
   {#each pulses as p}
-    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={time} />
+    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} {time} />
   {/each}
 </g>
 <Text x={L.up.x} y={L.up.y} text={S('fttb.up')} size={L.size} kind="big" colour={colours[0]} />

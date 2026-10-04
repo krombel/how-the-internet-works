@@ -51,18 +51,18 @@
         title: 322, parts: { y: 455, copper: { x: sea.slice.x - sea.slice.r - 20, anchor: 'end' }, glass: { x: sea.slice.x + sea.slice.r + 20, anchor: 'start' } } as const, slice: sea.slice });
 </script>
 
-<Sea water={water(sea)} ground={ground(sea)} land={sea.land} shore={sea.shore} surface={sea.surface} w={sea.w} time={time} />
-{#if kid}<Shark x={fish.x} y={fish.y} left={fish.left} time={time} />{/if}
+<Sea water={water(sea)} ground={ground(sea)} land={sea.land} shore={sea.shore} surface={sea.surface} w={sea.w} {time} />
+{#if kid}<Shark x={fish.x} y={fish.y} left={fish.left} {time} />{/if}
 <!-- the slice is cut from the cable just below it -->
 <line x1={L.slice.x} y1={L.slice.y + L.slice.r} x2={L.slice.x} y2={sea.floor - CABLE_W} stroke="var(--line)" stroke-width="5" stroke-dasharray="4 14" stroke-linecap="round" />
 <Slice x={L.slice.x} y={L.slice.y} r={L.slice.r} {colours} />
 <Cable points={route} w={CABLE_W} />
 {#each power as p}<circle cx={p.x} cy={p.y} r="6" fill="var(--sun)" stroke="var(--face)" stroke-width="3" />{/each}
 {#each pulses as p}
-  <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={time} fade={fadeAt(haul, p.head.x)} size={0.55} />
+  <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} {time} fade={fadeAt(haul, p.head.x)} size={0.55} />
 {/each}
-{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} w={Math.min(124, gap - 10)} time={time} />{/each}
-{#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} time={time} />{/each}
+{#each repeaters as x}<Repeater {x} y={sea.floor - CABLE_W / 2} w={Math.min(124, gap - 10)} {time} />{/each}
+{#each sea.stations as st}<Station x={st.x} y={st.y} size={sea.stationSize} {time} />{/each}
 
 {#each L.stations as s}<Text x={s.x} y={s.y} text={S(`${words}.landing`)} size={28} kind="big" anchor={s.anchor} fit />{/each}
 {#each named as i}<Text x={repeaters[i]} y={L.repeater + (named.length > 1 ? i % 2 : 0) * L.stagger} text={S(`${words}.repeater`)} size={26} kind="big" />{/each}

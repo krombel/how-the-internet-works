@@ -38,22 +38,22 @@
 </script>
 
 <g transform={trackMatrix(o)}>
-  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} time={time} />
+  <Fibre x0={F.x0} x1={F.x1} y={F.y} coreH={F.coreH} cladH={F.cladH} {time} />
   {#each breaksOf(haul) as x}<Break {x} y={F.y} h={F.cladH} />{/each}
   {#each routes as r, i}<Route points={r} channel={i} colour={colours[i]} size={0.6} />{/each}
   {#each lanes as c, i}
-    <Emitter x={F.laserX} y={c.y} kind="laser" channel={i} colour={colours[i]} time={time} size={0.62} />
-    <Emitter x={F.detectorX} y={c.y} kind="detector" channel={i} colour={colours[i]} time={time} size={0.62} />
+    <Emitter x={F.laserX} y={c.y} kind="laser" channel={i} colour={colours[i]} {time} size={0.62} />
+    <Emitter x={F.detectorX} y={c.y} kind="detector" channel={i} colour={colours[i]} {time} size={0.62} />
   {/each}
   {#if !one}
-    <Prism x={F.muxX} y={F.y} kind="mux" time={time} />
-    <Prism x={F.demuxX} y={F.y} kind="demux" time={time} />
+    <Prism x={F.muxX} y={F.y} kind="mux" {time} />
+    <Prism x={F.demuxX} y={F.y} kind="demux" {time} />
   {/if}
   {#each pulses as p}
-    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} time={time} fade={fadeAt(haul, p.head.x)} size={0.65} />
+    <Pulse head={p.head} trail={p.trail} channel={p.channel} colour={colours[p.channel]} {time} fade={fadeAt(haul, p.head.x)} size={0.65} />
   {/each}
   <!-- over the light: it goes in faint and comes out bright -->
-  {#each amps as x}<Amplifier {x} y={F.y} time={time} />{/each}
+  {#each amps as x}<Amplifier {x} y={F.y} {time} />{/each}
 </g>
 {#each boosters as b}<Text x={b.x} y={b.y} text={S(`${words}.booster`)} size={28} kind="big" />{/each}
 {#if haul.km}<Text x={counter.x} y={counter.y} text={`${counter.km} km`} size={30} kind="big" colour={colours[0]} />{/if}

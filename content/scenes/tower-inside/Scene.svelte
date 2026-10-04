@@ -93,7 +93,7 @@
     </Room>
   {/each}
 
-  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look) : parcel.wrapped ? 'envelope' : 'parcel'} colour={onLink?.tech.colour ?? (parcel.wrapped ? 'var(--teal)' : 'var(--sun)')} alpha={parcel.alpha} time={time} {night} />
+  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look) : parcel.wrapped ? 'envelope' : 'parcel'} colour={onLink?.tech.colour ?? (parcel.wrapped ? 'var(--teal)' : 'var(--sun)')} alpha={parcel.alpha} {time} {night} />
 
   {#if before}
     <Node id={before.node.id} x={L.inNode.x} y={L.inNode.y} size={L.nodeSize} />

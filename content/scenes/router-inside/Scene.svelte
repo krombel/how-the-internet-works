@@ -75,7 +75,7 @@
     <path d={wire(a, b)} stroke={l.tech.colour} stroke-width="18" stroke-linecap="round" stroke-dasharray={l.tech.look === 'radio' ? '4 26' : undefined} />
     {#if night}<path d={wire(a, b)} stroke={l.tech.colour} stroke-width="54" stroke-linecap="round" opacity="0.18" />{/if}
   {/each}
-  <Case box={L.case} antennas={L.antennas} time={time} {night} />
+  <Case box={L.case} antennas={L.antennas} {time} {night} />
   <!-- inside: the wires between the rooms it passes through -->
   <path d={`M${path.slice(1, -1).map((p) => `${p.x} ${p.y}`).join(' L')}`} fill="none" stroke="var(--line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" />
   {#each ROOMS as r (r)}
@@ -122,7 +122,7 @@
     </Room>
   {/each}
 
-  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look as Look) : 'parcel'} colour={onLink?.tech.colour ?? ''} alpha={parcel.alpha} time={time} {night} />
+  <Carrier p={parcel.p} form={onLink ? formFor(onLink.tech.look as Look) : 'parcel'} colour={onLink?.tech.colour ?? ''} alpha={parcel.alpha} {time} {night} />
   <!-- the rooms' titles and lines over the parcel: it passes through them (issue 137, labels win) -->
   {#each ROOMS as r (r)}
     <Room part="label" box={L.rooms[r]} tint={tints[r]} title={S(`${key(r)}.title`)} line={line(r)} used={used(r)} head={T.head} body={T.body} />

@@ -28,14 +28,14 @@
     : { bits: { x: 815, y: 175 }, carrier: { x: 815, y: 690 } });
 </script>
 
-<Rings cx={ringC.x} cy={ringC.y} rings={wifiRings(time)} time={time} />
+<Rings cx={ringC.x} cy={ringC.y} rings={wifiRings(time)} {time} />
 <Node id={device} x={phone.x} y={phone.y} size={330} />
 <Node id={radio} x={ap.x} y={ap.y} size={300} />
 <g transform={trackMatrix(o)}>
-  <Wave {d} points={wave} time={time} />
+  <Wave {d} points={wave} {time} />
 </g>
 {#each bits as b (b.key)}
-  <Bit x={b.p.x} y={b.p.y} bit={b.bit} alpha={b.alpha} stem={b.stem} time={time} colour={BIT_COLOURS[b.bit]} />
+  <Bit x={b.p.x} y={b.p.y} bit={b.bit} alpha={b.alpha} stem={b.stem} {time} colour={BIT_COLOURS[b.bit]} />
 {/each}
 <Text x={L.bits.x} y={L.bits.y} text={S('bits')} size={34} kind="big" />
 <Text x={L.carrier.x} y={L.carrier.y} text={S('carrier')} size={34} kind="big" colour={subject.link.tech.colour} />

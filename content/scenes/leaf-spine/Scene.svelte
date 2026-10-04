@@ -80,9 +80,9 @@
   {/each}
 
   {#each others as f, i (`${f.from}-${f.to}-${i}`)}
-    <Carrier p={f.p} alpha={f.alpha} time={time} kind="other" colour={otherColours[i]} {night} />
+    <Carrier p={f.p} alpha={f.alpha} {time} kind="other" colour={otherColours[i]} {night} />
   {/each}
-  <Carrier p={parcel.p} alpha={parcel.alpha} time={time} kind="yours" colour="var(--sun)" {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} {time} kind="yours" colour="var(--sun)" {night} />
 
   {#if T.tag && fabricTech}
     <Text x={L.fabricTag.x} y={L.fabricTag.y} text={strings(`tech.${fabricTech.id}`)('name')} size={T.tag} kind="link" colour={fabricTech.colour} anchor={L.fabricTag.anchor} />

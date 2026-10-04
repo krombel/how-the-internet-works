@@ -235,7 +235,7 @@
 {/if}
 {#if !L.compact}<Text x={L.hop.x} y={L.names} text={nameOf(ctx.to)} size={T.title * (isPortrait ? 0.82 : 1)} kind="big" fit />{/if}
 
-<StickerParcel x={x} y={L.walk + bob(time, moving)} scale={T.parcel} legible={L.compact ? legible : undefined} tint={actionTint} sticker={packetSticker} moving={moving} time={time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
+<StickerParcel x={x} y={L.walk + bob(time, moving)} scale={T.parcel} legible={L.compact ? legible : undefined} tint={actionTint} sticker={packetSticker} moving={moving} {time} smudge={layer === 'ethernet' && role !== 'bridge' && m.phase === 'fanout'} />
 
 {#if layer === 'ethernet' && role !== 'bridge' && m.phase === 'lookup'}
   <g transform="translate({L.box.x + L.box.w / 2} {L.box.y - 55})">

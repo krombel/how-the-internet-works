@@ -87,12 +87,12 @@
   {/if}
 
   {#each flows as f, i (`${f.from}-${f.to}-${i}`)}
-    <Carrier p={f.p} alpha={f.alpha} time={time} kind="other" colour={f.colour} {night} />
+    <Carrier p={f.p} alpha={f.alpha} {time} kind="other" colour={f.colour} {night} />
   {/each}
   {#each notes as n, i (`${n.member}-${n.direction}-${i}`)}
-    <Note p={n.p} alpha={n.alpha} time={time} {night} />
+    <Note p={n.p} alpha={n.alpha} {time} {night} />
   {/each}
-  <Carrier p={parcel.p} alpha={parcel.alpha} time={time} kind="parcel" colour="var(--sun)" {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} {time} kind="parcel" colour="var(--sun)" {night} />
 
   {#if T.small}
     {#if subject.in}<Text x={L.inTech.x} y={L.inTech.y} text={strings(`tech.${subject.in.tech.id}`)('name')} size={T.small} kind="link" colour={inColour} anchor={L.inTech.anchor} />{/if}

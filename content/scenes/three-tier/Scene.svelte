@@ -109,9 +109,9 @@
   {/each}
 
   {#each others as f, i (i)}
-    <Carrier p={f.p} alpha={f.alpha} time={time} kind="other" colour={otherColours[i]} {night} />
+    <Carrier p={f.p} alpha={f.alpha} {time} kind="other" colour={otherColours[i]} {night} />
   {/each}
-  <Carrier p={parcel.p} alpha={parcel.alpha} time={time} kind="yours" colour="var(--sun)" {night} />
+  <Carrier p={parcel.p} alpha={parcel.alpha} {time} kind="yours" colour="var(--sun)" {night} />
 
   {#if T.tag && treeTech}
     <Text x={L.tag.x} y={L.tag.y} text={strings(`tech.${treeTech.id}`)('name')} size={T.tag} kind="link" colour={treeTech.colour} anchor={L.tag.anchor} />
