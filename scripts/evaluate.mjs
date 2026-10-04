@@ -9,15 +9,15 @@
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
 //                        ring; focus comes back after a door, a catch, the picker and the time machine; read aloud
 //                        and the announcer say a scene's description; the first-run coach marks, which every other
-//                        run skips); every control at least 24 px, not cut off (at 200 % zoom too: the zoom view) and
-//                        not under another; every scene's labels at 4.5:1 (3:1 when large) on their halo or what's
-//                        behind them. Prints what fails, exits 1 if anything does; writes nothing.
+//                        run skips; the ▶ walk, with nothing on the console); every control at least 24 px, not cut
+//                        off (at 200 % zoom too: the zoom view) and not under another; every scene's labels at 4.5:1
+//                        (3:1 when large) on their halo or what's behind them. Prints what fails, exits 1 if anything does; writes nothing.
 //   --only=vision        colour-vision sheets (#53): a few scenes and the chrome as seen with protanopia, deuteranopia,
 //                        tritanopia and achromatopsia, and with forced colours. Writes .tmp/vision/*.png to look at.
 //   --only=fit           every dive fits its panel (#136): each dive on every route, on a phone upright and on its
 //                        side, in both languages, by kids and nerds: no text or nerd tag past the frame drawn round its
-//                        panel, off the window or under the chrome, and no card across the frame. Prints what's cut,
-//                        exits 1 if anything is; writes nothing.
+//                        panel, off the window or under the chrome, no card across the frame, and nothing on the
+//                        console. Prints what's cut, exits 1 if anything is; writes nothing.
 //   --only=subpath       the build under a sub-path (#185): serves dist/ itself at /how-the-internet-works/ (as GitHub
 //                        Pages does; no preview server needed) and checks that everything that loads, lazily too, stays
 //                        under it, the icons and og:image. Exits 1 on any problem; writes nothing.
@@ -75,19 +75,21 @@ const metrics = { ...old };
  *  voices at all), which notes what it was asked to say in `window.__said`; `on` also turns read aloud on (#53).
  *  `coach`: a first visit, which gets the coach marks (#21), or what a returning reader has stored (`'1'`: they had
  *  them before the time machine's card, #59); every other page has had them all already, so no shot, timing or check
- *  sees them unasked. */
+ *  sees them unasked. `errors` collects the page's errors and console errors as they come (printed as well), for the
+ *  checks that fail on them: the walk and the fit sweep (#182). */
 async function open(view, url, speech = null, coach = false) {
   const v = VIEWS[view];
   const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: v.dpr, hasTouch: !!v.touch, isMobile: !!v.touch, colorScheme: MODE === 'night' ? 'dark' : 'light' });
   const p = await ctx.newPage();
   if (coach !== true) await p.addInitScript(coached, coach || undefined);
   if (speech) await p.addInitScript(fakeSpeech, speech.on);
-  p.on('pageerror', (e) => console.log('  pageerror', e.message));
-  p.on('console', (m) => m.type() === 'error' && console.log('  console', m.text()));
+  const errors = [];
+  p.on('pageerror', (e) => { errors.push(e.message); console.log('  pageerror', e.message); });
+  p.on('console', (m) => { if (m.type() === 'error') { errors.push(m.text()); console.log('  console', m.text()); } });
   await p.goto(url);
   await p.waitForFunction(() => window.__app, null, { timeout: 15000 });
   await p.evaluate(() => document.fonts.ready);
-  return { ctx, p };
+  return { ctx, p, errors };
 }
 /** Had the coach marks (all of them, '2', unless told), unless the page has stored otherwise since. */
 function coached(was = '2') { if (localStorage.getItem('coached') === null) localStorage.setItem('coached', was); }
@@ -650,11 +652,12 @@ async function speechJourney(style, fail) {
 }
 
 /** Walking the whole trip (#169): ▶ from the phone goes on into the internet and its data centre to the server, the
- *  button naming each crossing (aloud and on screen), and bumps there; ◀ walks it back exactly, to the overview. On a
- *  desktop and a portrait phone. */
+ *  button naming each crossing (aloud and on screen; on a portrait phone ▶ names every step), and bumps there; ◀ walks
+ *  it back exactly, to the overview. On a desktop, a portrait phone and a short landscape one, with no error on the
+ *  page's console all the way (#182: a scene's arithmetic drew a negative height in every frame of a flight). */
 async function walkJourney(style, fail) {
-  for (const view of ['desktop', 'phone']) {
-    const { ctx, p } = await open(view, url(style, 'en', 'home/watch-video/@phone'));
+  for (const view of ['desktop', 'phone', 'short']) {
+    const { ctx, p, errors } = await open(view, url(style, 'en', 'home/watch-video/@phone'));
     await still(p);
     const where = `journey: walk (${view})`;
     const at = () => p.evaluate(() => { const l = window.__app.loc(); return `${l.path.join('/')}@${l.stop}`; });
@@ -663,6 +666,8 @@ async function walkJourney(style, fail) {
       while ((await p.getAttribute(sel, 'aria-disabled')) !== 'true' && seen.length < 80) {
         const [label, shown] = await p.$eval(sel, (b) => [b.getAttribute('aria-label'), b.querySelector('.step-to')?.textContent ?? null]);
         if (shown !== null && shown !== label) fail(where, `the button shows "${shown}" but says "${label}"`);
+        // on a phone held upright ▶ always wears its words, so it can't be taken for the caption's marks (#182)
+        if (view === 'phone' && d > 0 && shown === null) fail(where, `▶ shows no words ("${label}")`);
         said.push(label);
         await p.click(sel);
         seen.push(await at());
@@ -684,6 +689,7 @@ async function walkJourney(style, fail) {
     await still(p);
     const bad = await p.evaluate(focusProblem);
     if (bad) fail(where, bad);
+    if (errors.length) fail(where, `${errors.length} errors on the console, the first: ${errors[0]}`);
     await ctx.close();
   }
 }
@@ -796,14 +802,14 @@ function fitEscapes() {
   return [...new Set(out)];
 }
 /** Every dive (each look once: the same dive of the same thing on another route looks the same) on a phone upright
- *  and on its side, in both languages, for kids and for nerds, checked with `fitEscapes`. Prints what's cut, exits 1
- *  if anything is; writes nothing. */
+ *  and on its side, in both languages, for kids and for nerds, checked with `fitEscapes`, and for errors on the page's
+ *  console on the way there (#182). Prints what's cut, exits 1 if anything is; writes nothing. */
 async function fitCheck(style) {
   let fails = 0, walked = 0;
   for (const view of ['phone', 'short'])
     for (const lang of ['en', 'da'])
       for (const q of ['', '&level=technical']) {
-        const { ctx, p } = await open(view, url(style, lang, 'home/watch-video', q)), looks = new Set();
+        const { ctx, p, errors } = await open(view, url(style, lang, 'home/watch-video', q)), looks = new Set();
         // the camera cuts instead of flying: the same places, sooner
         await p.emulateMedia({ reducedMotion: 'reduce' });
         for (const place of readdirSync('content/places').filter((d) => existsSync(`content/places/${d}/place.ts`))) {
@@ -815,12 +821,14 @@ async function fitCheck(style) {
             // the scene key takes the focus, and a scripted focus shows its ring, a mat over the panel's rim
             await p.evaluate(() => { document.activeElement?.blur(); window.__app.setClock(5.2, true); });
             await p.waitForTimeout(50);
-            for (const bad of await p.evaluate(fitEscapes)) { fails++; console.log(`  ✗ ${place}/${path.join('/')} ${view} ${lang}${q && ' nerd'}: ${bad}`); }
+            const bads = await p.evaluate(fitEscapes), said = errors.splice(0);
+            if (said.length) bads.unshift(`${said.length} errors on the console, the first: ${said[0]}`);
+            for (const bad of bads) { fails++; console.log(`  ✗ ${place}/${path.join('/')} ${view} ${lang}${q && ' nerd'}: ${bad}`); }
           }
         }
         await ctx.close();
       }
-  console.log(`  ${walked} dives walked, ${fails ? `${fails} things cut at a panel's edge` : 'nothing cut at a panel\'s edge'}`);
+  console.log(`  ${walked} dives walked, ${fails ? `${fails} things cut at a panel's edge or said on the console` : 'nothing cut at a panel\'s edge, nothing on the console'}`);
   if (fails) process.exitCode = 1;
 }
 

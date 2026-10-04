@@ -23,7 +23,8 @@ The work comes in four slices:
   packet go. ← → (▲ ▼ in portrait) step along, except inside an opened caption that scrolls (the arrows scroll it).
   Along the path they walk the whole trip (#169): on past the end of a group's stops, back out of it, and into the
   next group; ◀ ▶ then name where they go ("Into: The internet", "Back out: Your home"), in their accessible name
-  and in a small label beside the button that says the same. C folds the caption away and back (in the caption or
+  and in a small label beside the button that says the same. On a portrait screen ▲ always shows its name ("Next
+  stop"), in the button itself (#182), so it isn't mistaken for the caption's buttons below it. C folds the caption away and back (in the caption or
   the picture).
 - **The keyboard in the scene.** The picture is one Tab stop, after the top bar (`ui/SceneKeys.svelte`, a
   `toolbar` named "The picture"): a real button over every spot of the scene, in a layer that moves with the camera,
@@ -87,8 +88,8 @@ The work comes in four slices:
   with the button, so nothing in it is out of reach. A tap anywhere on the folded caption opens it too (#138: a parent
   reading aloud didn't find the ⌃); that is a pointer shortcut only, the title stays the way in for the keyboard and
   screen readers. It never opens by itself: open, it covers the scene, and on a first visit the coach cards.
-- **Folding the caption away** (#168), on any screen: a chevron button in its corner (`aria-expanded`, "Fold the text
-  away") folds it to the pill, its title alone, and it stays so wherever you go until it's unfolded: a tap on the
+- **Folding the caption away** (#168), on any screen: a button in its corner, marked with a bar, not a chevron
+  (#182; `aria-expanded`, "Fold the text away"), folds it to the pill, its title alone, and it stays so wherever you go until it's unfolded: a tap on the
   pill, its button (`aria-expanded="false"`, "Unfold the text") or C. C works while focus is in the caption or the
   picture (a character key, so only there: WCAG 2.1.4); the keys' hint names it. Focus that was on the button goes to
   the one that undoes it; from the picture it stays put. The scene doesn't move, and its doors still answer a tap.

@@ -3,7 +3,7 @@
   // Look inside the video cache server: light reaches the NIC, the video app in a container checks RAM and SSD, and a
   // miss asks the origin before storing a new local copy.
   import { Node, Text, legibleSize, nameOf, strings, view, type NodeSubject } from '$core/api';
-  import { appPoint, cachePoint, centre, formFor, hitPath, internalPath, missReturnPath, originPath, requestPath, roomOrder, serverAt, serverLayout } from './server';
+  import { appPoint, cachePoint, centre, formFor, hitPath, internalPath, missReturnPath, originPath, requestPath, roomFloor, roomOrder, serverAt, serverLayout } from './server';
   import type { Pt, Room as RoomId } from './types';
   import Case from './art/Case.svelte';
   import Room from './art/Room.svelte';
@@ -68,9 +68,7 @@
   {#each roomOrder as r (r)}
     {@const b = L.rooms[r]}
     {@const c = centre(b)}
-    {@const top = b.y + T.head * 1.9}
-    {@const bottom = b.y + b.h - (T.body ? T.body * 1.8 : 14)}
-    {@const mid = (top + bottom) / 2}
+    {@const { top, bottom, mid, h } = roomFloor(b, T.head, T.body)}
     <Room box={b} tint={tints[r]} title={S(`${r}.title`)} line={roomLine(r)} head={T.head} body={T.body} active={true}>
       {#if r === 'nic'}
         <Nic p={{ x: c.x, y: mid }} colour={inLink?.tech.colour ?? 'var(--teal)'} />
@@ -88,10 +86,14 @@
           {/if}
         {/each}
       {:else if r === 'memory'}
-        {#each [0, 1, 2, 3] as k (k)}
-          <rect x={b.x + 34 + k * ((b.w - 88) / 4)} y={top + 22} width={(b.w - 122) / 4} height={bottom - top - 36} rx="10" fill="var(--leaf-pale)" stroke="var(--line)" stroke-width="4" />
-          <circle cx={b.x + 48 + k * ((b.w - 88) / 4)} cy={mid + 18} r="5" fill="var(--teal)" />
-        {/each}
+        <!-- memory sticks, each with its light; a floor too low for them (the head grown legible, issue 182) has none -->
+        {@const stick = h - 36}
+        {#if stick >= 28}
+          {#each [0, 1, 2, 3] as k (k)}
+            <rect x={b.x + 34 + k * ((b.w - 88) / 4)} y={top + 22} width={(b.w - 122) / 4} height={stick} rx="10" fill="var(--leaf-pale)" stroke="var(--line)" stroke-width="4" />
+            <circle cx={b.x + 48 + k * ((b.w - 88) / 4)} cy={mid + 18} r="5" fill="var(--teal)" />
+          {/each}
+        {/if}
         <Carrier p={{ x: c.x, y: mid - 28 }} form="video" colour="var(--berry)" alpha={state.hit ? 0.55 : state.copyAlpha * 0.7} {time} night={false} />
       {:else}
         {#each [0, 1, 2] as k (k)}

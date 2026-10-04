@@ -7,6 +7,13 @@ import type { Box, FileStage, Form, Moving, Pt, RequestStage, Room, ServerLayout
 
 const box = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h });
 export const centre = (b: Box): Pt => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
+/** A room's floor, between its head (`Room`'s title band, 1.9 × its text) and its line of text (or a 14-unit margin):
+ *  where its things stand, and how tall it is. On a short landscape screen the head's text grows to stay legible
+ *  (`legibleSize`) as the camera zooms out, so it can fill the room: the floor is then 0 tall, never less (issue 182). */
+export function roomFloor(b: Box, head: number, body: number): { top: number; bottom: number; mid: number; h: number } {
+  const top = b.y + head * 1.9, bottom = b.y + b.h - (body ? body * 1.8 : 14);
+  return { top, bottom, mid: (top + bottom) / 2, h: Math.max(0, bottom - top) };
+}
 
 /** How the server is drawn, by its node: the 1995 web server is a tower with one disk; anything else is a cache. */
 export const modeOf = (node: string): 'tower' | 'cache' => (node === 'web-server' ? 'tower' : 'cache');

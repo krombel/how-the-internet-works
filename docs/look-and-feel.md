@@ -373,6 +373,15 @@ always muted again on reload.
   - The buttons point where the camera will go, so they are not mirrored in RTL.
   - A step button with nothing that way shrinks to a small ghost at its edge of the screen (it keeps focus, and a
     press still nudges it), so it doesn't cover the scene.
+  - **One verb, one mark** (issue #182). On a phone held upright the step buttons sit just above the caption, whose
+    corner has its own two buttons, and three chevrons side by side were easy to mix up. So each verb has its own
+    shape: travelling along is a **solid arrow** (the step buttons, and the peek's ◀ ▶), opening and closing the
+    caption is a **chevron** (its title's ⌃ ⌄, the only chevrons left), and folding it away is a **bar at the
+    bottom**, as a window is minimised. The way on (▶, ▲ in portrait) is the filled button (`--btn-on`), as the
+    peek's step on is; on a portrait screen it is also a pill that says where it goes ("Next stop", "Into: The
+    internet"), so a child reads it rather than guessing from a shape. Its words are its accessible name. The way
+    back stays a plain round button (its crossing in a small label above, as before), so the two don't look alike
+    either.
 - **Targets.** Badges, packets and the big round ◀ ▶ ⌃ buttons have 48 px+ hit areas (44 px for ▲ ▼ on a portrait
   phone). The chrome buttons are 31–40 px on a phone so they fit on two rows; nothing is under 24 px (WCAG 2.5.8).
   That's fine for grown-ups, but a bit small for the youngest.
@@ -402,8 +411,8 @@ always muted again on reload.
   again, or Esc, folds it, and so does going somewhere else. The scene doesn't move while it is open. The folded text
   is only cut short on screen: a screen reader reads it all, and the rest is one tap away. On a bigger screen the
   caption is never cut. The ▲ ▼ buttons sit on its top corners.
-- **Folding the caption away** (issue #168). A chevron in the caption's corner, on every screen (a phone's card has it
-  beside its ⌃), folds it to the short landscape screen's pill: the title alone, bottom centre, so the scene can be
+- **Folding the caption away** (issue #168). A round button in the caption's corner, marked with a bar at the bottom
+  (issue #182; on every screen, and a phone's card has it beside its ⌃), folds it to the short landscape screen's pill: the title alone, bottom centre, so the scene can be
   seen. It stays folded through dives, travel and the time machine until a tap on the pill or C unfolds it (in memory
   only; a phone still starts with its own fold). The scene keeps its place: it doesn't refit as the caption folds or
   unfolds. Exploring while it's folded, the pill is the row of chips.

@@ -69,7 +69,7 @@
     {#snippet stepper(s: -1 | 1)}
       {@const d = hopStepFor(dir, s)}
       <button class="btn" class:fwd={d > 0} onclick={() => onstep(d)} disabled={stepHop(route, hop, dir, d) === null}
-        aria-label={tr(d > 0 ? 'peek.next' : 'peek.prev')}><Icon name="chevron" rotate={portrait ? -90 * s : s > 0 ? 0 : 180} /></button>
+        aria-label={tr(d > 0 ? 'peek.next' : 'peek.prev')}><Icon name="arrow" solid rotate={portrait ? -90 * s : s > 0 ? 0 : 180} /></button>
     {/snippet}
     {@render stepper(-1)}
     <p><strong>{name}</strong><small>{count}</small></p>

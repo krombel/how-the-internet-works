@@ -15,9 +15,10 @@
   // - `card` (a portrait phone): the title and the text cut to two lines (exploring: the chips, its title then only
   //   for screen readers); where you are and learn-more links show once it's open. The text is all there for screen
   //   readers either way.
-  // Its own button (a chevron in its corner) or C, while focus is in it or in the picture, folds it away by hand
-  // (`tucked`, #168): the title alone in the pill, on every screen, until it is unfolded again (a tap on the pill, its
-  // chevron or C), wherever you go meanwhile. App keeps the scene where it was, so nothing in the scene moves.
+  // Its own button (in its corner, a bar at the bottom: not a chevron, which opens and closes it, nor an arrow, which
+  // steps; #182) or C, while focus is in it or in the picture, folds it away by hand (`tucked`, #168): the title alone
+  // in the pill, on every screen, until it is unfolded again (a tap on the pill, its chevron or C), wherever you go
+  // meanwhile. App keeps the scene where it was, so nothing in the scene moves.
   // Hidden (during a flight, while a packet is caught), it is inert: nothing in it can be focused or read. Its title
   // takes focus when a navigation took it away (App.svelte); open over the scene and taller than the screen, it can be
   // focused to scroll it.
@@ -59,7 +60,7 @@
     return () => ro.disconnect();
   });
   const lockH = $derived(explore && story && story.fold === shown ? story.h : 0);
-  /** The chevron in its corner: where it isn't a pill already, and not over the scene. */
+  /** The button in its corner: where it isn't a pill already, and not over the scene. */
   const foldable = $derived(!tucked && fold !== 'pill' && !open && !explore);
   function toggle() {
     if (tucked) return tuck(false);
@@ -72,7 +73,7 @@
     tucked = on;
     if (had) void tick().then(() => (on ? toggleEl : (foldEl ?? toggleEl))?.focus());
   }
-  /** C: what its chevron does (the pill a short landscape screen folds it to opens over the scene, as a tap does). */
+  /** C: what its corner button does (the pill a short landscape screen folds it to opens over the scene, as a tap does). */
   function flip() {
     if (tucked || (fold !== 'pill' && !open)) tuck(!tucked);
     else toggle();
@@ -146,7 +147,7 @@
       {/if}
       {#if foldable}
         <button class="btn cap-fold" bind:this={foldEl} aria-expanded="true" aria-label={tr('caption.fold')} title={tr('caption.fold')} aria-keyshortcuts="C"
-          onclick={() => tuck(true)}><Icon name="down" /></button>
+          onclick={() => tuck(true)}><Icon name="tuck" /></button>
       {/if}
       {#if text.tag}<div class="tag" dir="auto">{text.tag}</div>{/if}
       <p dir="auto">{text.body}</p>
