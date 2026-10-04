@@ -334,7 +334,12 @@ All sounds are **synthesised with the Web Audio API**, so there are no audio fil
   tap sound, the swish (K-weighted over 100 ms; it used to be level with it)
 - the **modem handshake** in the dial-up dive: touch tones, a ring, the answer tone and the training screech, about
   five seconds, once when you arrive (or turn sound on there). Muted, the speech bubble and the waves on the line
-  tell the same story.
+  tell the same story. It plays through one level of its own, so its loudest part, the touch tones, is level with
+  the loud blip (#191; it used to be about 13 dB louder)
+
+Levels, measured as K-weighted loudness over the loudest 100 ms (#191): the loud blip about −21 LUFS, pop −26,
+bump −27, whoosh −31 to −33, swish −39, the quiet tick −45; the handshake's touch tones −20, its other parts −24 to
+−30. Even all at once, nothing peaks above 0.6.
 
 Each style has a timbre: storybook a marimba-ish triangle, neon a sawtooth, sketchbook noise-heavy pencil
 scratches, papercut a paper rustle.
