@@ -1,76 +1,35 @@
-# how-the-internet-works
-An explorable, zoomable explanation of how the internet works — from radio waves to peering.
+# How the Internet Works
 
-## Run it
+An explorable, zoomable picture of how your video gets to you: from radio waves in your living room to the fibre under the sea.
 
-```sh
-npm install && npm run dev   # then open http://localhost:5173/
-npm run dev -- --host        # to try it on a phone on the same network
-npm test                     # content validation, routes, layer stacks, URLs (Vitest)
-npm run build                # type-check + static build into dist/
-```
+https://github.com/user-attachments/assets/8b760d17-ea45-498c-a1c6-6a8e7560795a
 
-## What's in it
+<sub>No video? [The clip as an animated image](docs/img/readme-clip.webp).</sub>
 
-You pick **where you are** (at home on Wi‑Fi or a cable, on the go on 5G) and **what you do**
-(watch a video). You then see your packets travel through the access network, the ISP, an internet exchange and on
-to a CDN server:
-- **Zoom into** the internet to unfold its hops. The home route passes the fibre cabinet, the backhaul and the BNG; the street route passes the mobile core.
-- **Look inside** the links: Wi‑Fi waves, light in a glass thread (shared by your street on the access fibre, colours sharing one thread on metro fibre, boosters every 80 km on the backbone), and 5G beams with their time × frequency seats. This goes up to three levels deep. Stepping sideways between dives zooms out, travels along the path and zooms back in.
-- **Pause and catch a packet**, then step it hop by hop: its envelopes show what each box reads, uses and changes (MAC swaps at the Wi‑Fi access point, NAT and TTL at the home router, a GTP tunnel and carrier-grade NAT on 5G), with every header field at the technical level and a protocol tree for details.
-- **Switch place**: the scene morphs and the packets re-route.
+## [▶ Try it: tkjaer.github.io/how-the-internet-works](https://tkjaer.github.io/how-the-internet-works/)
 
-It comes in two levels, Simple and Technical, in English and Danish, by day and by night. Learn-more links point onwards.
+- **Zoom in and look inside.** Unfold the internet hop by hop, and dive into a link or a box: Wi‑Fi waves, light in a glass thread, 5G beams, the router's insides.
+- **Catch a parcel** and step it along: its envelopes show what each box reads and changes on the way.
+- **Pick where you are and when.** At home on Wi‑Fi, a cable, the phone line or in a flat, or on the go on 5G; today, in 2010 or in 1995 with the time machine.
+- **Simple or Technical**, in English or Danish, by day or by night. Learn-more links point onwards.
 
-| At home | Inside the internet, at night |
-|---|---|
-| ![The overview at home: phone, Wi‑Fi access point, home router and the fibre to the internet](docs/img/app-storybook-home-desktop.jpg) | ![Inside the internet at night: the hops from the street cabinet to the video company](docs/img/app-storybook-night-internet-desktop.jpg) |
+## More
 
-The location is in the URL, e.g. `#/da/on-the-go/watch-video/internet/@mobile-core`; `?level=technical` starts at the
-technical level, and `?mode=night` at night.
-
-## How it's built
-
-An engine in `src/` and content folders in `content/`. Nodes, technologies, layers, dive scenes, segments, places,
-activities, languages, themes and learn-more links are each **added as a folder**, validated with zod:
-- [docs/architecture.md](docs/architecture.md): the model, the scene tree, and the context scenes and layers get
-- [docs/authoring.md](docs/authoring.md): how to add each kind of thing (with the laptop as a worked example)
-
-`npm run evaluate` (with `npx vite preview --host 127.0.0.1 --port 5318` running on a fresh build) regenerates the screenshots in
-`docs/img/app-*` and the frame-time metrics in [docs/app-metrics.json](docs/app-metrics.json). Runs on one machine
-take turns (a lock in the temp dir), so parallel worktrees don't skew each other's timings; set `EVALUATE_NO_LOCK=1`
-to skip it (CI). `npm run evaluate -- --only=a11y` checks accessibility ([docs/accessibility.md](docs/accessibility.md)).
-
-## Earlier rounds
-
-We built the same scene in four art styles (storybook, neon blueprint, sketchbook, paper cut-out) with a feel lab
-(portal / parallax / fly transitions, spring / ease / stop-motion, lively packets) and picked **Storybook + fly +
-ease**: [docs/look-and-feel.md](docs/look-and-feel.md). The full exploration is at git tag
-`spikes/look-and-feel-v1`.
-
-We compared four rendering stacks and chose **Svelte 5 + SVG**:
-[docs/visualisation-spikes.md](docs/visualisation-spikes.md). The discarded spikes are at git tag
-`spikes/visualisation-v1`.
-
-## Privacy
-
-No tracking, no cookies, no analytics, and no requests to other sites: fonts and assets are self-hosted. A few
-settings are remembered in your browser. The details, and what the host may log, are in [docs/privacy.md](docs/privacy.md).
+- [How it's built](docs/architecture.md): the model, the scene tree, the URL format, CI and performance
+- [Adding to it](docs/authoring.md): a node, a layer, a dive scene, an era, a place or a language, each as a folder
+- [Accessibility](docs/accessibility.md) and [privacy](docs/privacy.md) (no tracking, no cookies, nothing loaded from other sites)
+- [How the look was chosen](docs/look-and-feel.md) and [the rendering stack](docs/visualisation-spikes.md)
+- What's next: [v1.1: more eras](https://github.com/tkjaer/how-the-internet-works/milestone/2) and [later: learning features](https://github.com/tkjaer/how-the-internet-works/milestone/3)
+- [Contributing](CONTRIBUTING.md): running it locally, tests and checks; [security](SECURITY.md)
 
 ## License
 
-How the Internet Works is © 2026 Thomas Kjær Aabo and free software under the
-[GNU Affero General Public License, version 3 or later](LICENSE) (AGPL-3.0-or-later), with a few additional terms in
-[NOTICE.md](NOTICE.md).
-
+© 2026 Thomas Kjær Aabo. Free software under the [GNU AGPL, version 3 or later](LICENSE), with a few additional terms
+in [NOTICE.md](NOTICE.md). In short:
 - **You may** use it, study it, share it, change it and host it, also commercially.
-- **You must** share the source, under the same license, with everyone you give a copy to. If you change it, that
-  includes your changes, and when people use your version over a network (a website counts), you must offer them its
-  source too. And keep the author credit in its user interface, e.g. "Based on How the Internet Works by Thomas Kjær Aabo",
-  like the app's own About entry (⋯ › About).
-- **Screenshots**, screen recordings and printouts of the running app are yours to use under
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with credit to "How the Internet Works by Thomas Kjær Aabo",
-  without any AGPL obligations.
+- **You must** share the source of your version, under the same license, with everyone you give it to or who uses it
+  over a network (a website counts), and keep the author credit in its user interface, like the app's About entry.
+- **Screenshots** and recordings of the running app are yours to use under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with credit to "How the Internet Works by Thomas Kjær Aabo".
 
-The name and logo are not licensed for other uses, and dependencies keep their own licenses. Contributions are
-welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). To report a security problem, see [SECURITY.md](SECURITY.md).
+The name and logo are not licensed for other uses, and dependencies keep their own licenses.

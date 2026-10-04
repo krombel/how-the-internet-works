@@ -3,7 +3,7 @@
 // timings (idle, zoom flights, a 3-level dive, sideways travel between dives, catching and stepping a packet, the place
 // morphs (back to 1995, and to the street), opening a layer dive from the peek and stepping up the stack) at 1× and 6×
 // CPU throttle.
-// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision|fit] [--style=id]
+// Usage: npm run build && npx vite preview --host 127.0.0.1 --port 5318 &  npm run evaluate [-- baseUrl] [--only=shots|perf|a11y|vision|fit|subpath] [--style=id]
 //   [--mode=night]       night mode (issue #43): shots as app-<style>-night-*.jpg, metrics under "<style>-night"
 //   --only=a11y          accessibility (#53): axe-core (WCAG 2.2 A/AA + best practice) on the key states in every view,
 //                        and keyboard journeys (Tab never lands on the page, on something hidden or without a visible
@@ -18,18 +18,22 @@
 //                        side, in both languages, by kids and nerds: no text or nerd tag past the frame drawn round its
 //                        panel, off the window or under the chrome, no card across the frame, and nothing on the
 //                        console. Prints what's cut, exits 1 if anything is; writes nothing.
+//   --only=subpath       the build under a sub-path (#185): serves dist/ itself at /how-the-internet-works/ (as GitHub
+//                        Pages does; no preview server needed) and checks that everything that loads, lazily too, stays
+//                        under it, the icons and og:image. Exits 1 on any problem; writes nothing.
 //   [--diff=<otherUrl>]  pixel diff instead: every screenshot (lossless, the clock held still, taken until two in a row
 //                        match) from baseUrl against the same one from otherUrl (e.g. main, built and previewed on
 //                        another port). Prints the changed pixels per shot and writes .tmp/diff/<name>.png (changes in
 //                        red) for those that differ.
 // Writes docs/img/app-<style>-*.jpg and merges into docs/app-metrics.json (other styles' entries are kept).
-// Runs take turns machine-wide (a lock in the temp dir, see below); EVALUATE_NO_LOCK=1 opts out.
+// Runs take turns machine-wide (a lock in the temp dir, scripts/lock.mjs); EVALUATE_NO_LOCK=1 opts out.
 import { chromium } from 'playwright';
 import { gzipSync } from 'node:zlib';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { extname, join } from 'node:path';
+import { lock } from './lock.mjs';
 
 const args = process.argv.slice(2);
 const flag = (k) => args.find((a) => a.startsWith(`--${k}=`))?.split('=')[1];
@@ -48,32 +52,8 @@ const VIEWS = { desktop: { w: 1440, h: 900, dpr: 1 }, phone: { w: 390, h: 844, d
 const GPU_ARGS = process.platform === 'linux' ? ['--use-gl=angle', '--use-angle=gl-egl'] : ['--use-angle=metal'];
 const ARGS = process.env.SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : [...GPU_ARGS, '--enable-gpu', '--ignore-gpu-blocklist'];
 
-// One evaluate at a time on this machine (another lane's headless Chrome skews frame timings): an atomic mkdir lock in
-// the temp dir, with the holder's pid and worktree. A dead holder's lock is cleared. EVALUATE_NO_LOCK=1 skips it (CI).
-const LOCK = join(tmpdir(), 'hitw-evaluate.lock'), OWNER = join(LOCK, 'owner.json');
-const alive = (pid) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
-async function lock() {
-  let said = '';
-  for (;;) {
-    try { mkdirSync(LOCK); break; } catch (e) { if (e.code !== 'EEXIST') throw e; }
-    let who = null;
-    try { who = JSON.parse(readFileSync(OWNER, 'utf8')); } catch { /* not written yet, or gone */ }
-    // a holder that died between its mkdir and writing owner.json leaves an empty lock: clear it after a while
-    let stale = who && !alive(who.pid);
-    if (!who) try { stale = Date.now() - statSync(LOCK).mtimeMs > 30000; } catch { continue; /* released meanwhile */ }
-    if (stale) { rmSync(LOCK, { recursive: true, force: true }); continue; }
-    const line = who ? `waiting for ${who.pid} (${who.cwd})` : 'waiting for the evaluate lock';
-    if (line !== said) console.log(`  ${(said = line)}`);
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-  writeFileSync(OWNER, JSON.stringify({ pid: process.pid, cwd: process.cwd(), args, since: new Date().toISOString() }));
-  const release = () => {
-    try { if (JSON.parse(readFileSync(OWNER, 'utf8')).pid === process.pid) rmSync(LOCK, { recursive: true, force: true }); } catch { /* already gone */ }
-  };
-  process.on('exit', release);
-  for (const [sig, code] of [['SIGINT', 130], ['SIGTERM', 143]]) process.on(sig, () => process.exit(code));
-}
-if (!process.env.EVALUATE_NO_LOCK) await lock();
+// One evaluate at a time on this machine (another lane's headless Chrome skews frame timings): scripts/lock.mjs.
+await lock();
 
 mkdirSync('docs/img', { recursive: true });
 const browser = await chromium.launch({ args: ARGS });
@@ -911,6 +891,71 @@ async function vision(style) {
   }
   await sheet.close();
 }
+
+// ------------------------------------------------------------------ under a sub-path (--only=subpath)
+/** The build is relative (vite.config.ts, base './'), so the same dist/ runs at a site's root and under a sub-path,
+ *  as on GitHub Pages (#185). Serves dist/ itself at SUB on a free port, with nothing outside it, and walks what loads
+ *  later: the fonts, a dive (its chunk and the dive strings), a caught packet's peek, the time machine to 1995 (the
+ *  words of the past, the era's props), Danish (its string pack), and the icons. Every request must stay under SUB and
+ *  succeed, with no page errors; og:url and og:image must be absolute, and the image a file in dist/. */
+async function subpath() {
+  const SUB = '/how-the-internet-works/';
+  const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' };
+  const server = createServer((req, res) => {
+    const path = new URL(req.url, 'http://x').pathname;
+    const file = path.startsWith(SUB) ? join('dist', path.slice(SUB.length) || 'index.html') : null;
+    if (!file || !existsSync(file) || !statSync(file).isFile()) { res.writeHead(404).end(); return; }
+    res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' }).end(readFileSync(file));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const root = `http://127.0.0.1:${server.address().port}`, base = `${root}${SUB}`;
+  const fails = [];
+  const fail = (what) => { fails.push(what); console.log(`  ✗ ${what}`); };
+  // (not `open`: every request counts, from the page's first)
+  const ctx = await browser.newContext({ viewport: { width: VIEWS.desktop.w, height: VIEWS.desktop.h } });
+  const p = await ctx.newPage();
+  await p.addInitScript(coached);
+  p.on('request', (r) => { if (r.url().startsWith(root) && !r.url().startsWith(base)) fail(`${r.url()} is outside ${SUB}`); });
+  p.on('requestfailed', (r) => fail(`${r.url()} failed: ${r.failure()?.errorText}`));
+  p.on('response', (r) => { if (r.status() >= 400) fail(`${r.url()}: ${r.status()}`); });
+  p.on('pageerror', (e) => fail(`page error: ${e.message}`));
+  const done = async () => { await ctx.close(); server.close(); process.exitCode = fails.length ? 1 : 0; };
+  await p.goto(url(STYLES[0], 'en', 'home/watch-video', '', base));
+  try { await p.waitForFunction(() => window.__app, null, { timeout: 15000 }); await p.evaluate(() => document.fonts.ready); }
+  catch { fail('the app did not start'); return done(); }
+  const step = async (what, act, ready) => {
+    try { await act(); await p.waitForFunction(ready, null, { timeout: 15000 }); await settle(p); console.log(`  ${what}`); }
+    catch (e) { fail(`${what}: ${e.message.split('\n')[0]}`); }
+  };
+  await settle(p);
+  const fonts = await p.evaluate(() => [...document.fonts].map((f) => `${f.family} ${f.status}`));
+  if (!fonts.some((f) => f.endsWith(' loaded'))) fail(`no font loaded (${fonts.join(', ')})`);
+  for (const f of fonts.filter((f) => f.endsWith(' error'))) fail(`font ${f}`);
+  await step('a dive', () => p.evaluate(() => window.__app.go({ path: ['phone-ap'] })), () => window.__app.loc().path[0] === 'phone-ap');
+  await step('a caught packet', async () => { await p.evaluate(() => window.__app.go({ path: [] })); await settle(p); await p.evaluate(() => window.__app.catch('video')); },
+    () => !!document.querySelector('.peek'));
+  await p.evaluate(() => window.__app.release());
+  await step('the time machine to 1995', async () => {
+    await p.click('.time-btn'); await p.waitForSelector('.picker.time');
+    await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowLeft'); await p.keyboard.press('Enter');
+  }, () => window.__app.loc().places[0] !== 'home');
+  await step('Danish', () => p.evaluate(() => window.__app.go({ lang: 'da' })), () => document.documentElement.lang === 'da');
+  const head = await p.evaluate(() => ({
+    icons: [...document.querySelectorAll('link[rel~=icon], link[rel=apple-touch-icon]')].map((l) => l.href),
+    og: Object.fromEntries([...document.querySelectorAll('meta[property^="og:"]')].map((m) => [m.getAttribute('property'), m.content])),
+  }));
+  if (!head.icons.length) fail('no icons in index.html');
+  for (const href of head.icons) {
+    const r = await p.request.get(href);
+    if (!r.ok() || !/^image\//.test(r.headers()['content-type'])) fail(`icon ${href}: ${r.status()} ${r.headers()['content-type']}`);
+  }
+  const site = head.og['og:url'], image = head.og['og:image'];
+  if (!/^https:\/\/[^%]+\/$/.test(site ?? '')) fail(`og:url "${site}" is not an absolute URL to the site`);
+  else if (!image?.startsWith(site) || !existsSync(join('dist', image.slice(site.length)))) fail(`og:image "${image}" is not a file of the site`);
+  console.log(`  ${head.icons.length} icons, og:image ${image}`);
+  await done();
+}
+if (ONLY === 'subpath') { await subpath(); await browser.close(); process.exit(); }
 
 for (const style of STYLES) {
   console.log(style);

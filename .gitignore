@@ -3,3 +3,6 @@ dist/
 .DS_Store
 *.local
 .tmp/
+
+# scripts/record-clip.mjs: the clip outputs that are not committed
+out/
