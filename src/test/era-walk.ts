@@ -1,7 +1,8 @@
 // What a route of an era of the past says (#59), for the tests that keep later technology out of it
 // (era-1995.test.ts, era-2010.test.ts).
-import type { Level } from '../define';
+import type { LearnMore, Level } from '../define';
 import { sceneKeys } from '../model/describe';
+import { pickLinks } from '../model/links';
 import { peekKeys } from '../model/packet';
 import { basePlace, content } from '../model/registry';
 import { stringSources, type Route } from '../model/resolve';
@@ -87,8 +88,27 @@ function labelKeys(r: Route): string[][] {
   return [...keys].map((k) => [k]);
 }
 
+/** The learn-more lists of a route's cards, as the caption picks from them (caption.ts): each layer and dive scene's,
+ *  each stop's and link's, the overview's; and each layer's in the peek's field tree (nerd, two). */
+function cards(r: Route): { all: LearnMore[]; level?: Level; max?: number }[] {
+  const c = r.content, out: { all: LearnMore[]; level?: Level; max?: number }[] = [];
+  const links = [...r.links, ...r.asides.map((a) => a.link)];
+  for (const ref of scenes(r)) {
+    const scene = c.scenes[ref.dive!]?.learnMore ?? [];
+    if (ref.kind === 'layer') out.push({ all: [...scene, ...(c.layers[ref.at!.layer]?.learnMore ?? [])] });
+    else if (ref.kind === 'dive') out.push({ all: [...scene, ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])] });
+  }
+  for (const h of Object.values(r.hops)) out.push({ all: [...(h.node.learnMore ?? []), ...((!r.groups.includes(h) && h.owner && c.owners[h.owner]?.learnMore) || [])] });
+  for (const l of links) out.push({ all: l.tech.learnMore ?? [] });
+  out.push({ all: [...(r.activity.learnMore ?? []), ...r.slots.flatMap((s) => c.places[s.place].learnMore ?? [])] });
+  const layers = new Set([...links.flatMap((l) => l.stack), ...r.activity.flows.flatMap((f) => f.stack)]);
+  for (const id of layers) out.push({ all: c.layers[id]?.learnMore ?? [], level: 'nerd', max: 2 });
+  return out;
+}
+
 /** What a route says, as its era says it, in every language and level: `<lang> <level> <key>` → the words, by the
- *  key that says them; and `<lang> <level> {rate}` → the one link rate it shows, its slowest link's in the overview's
+ *  key that says them; `<lang> <level> {link:<url>}` → a learn-more link a card shows, by its title and URL; and
+ *  `<lang> <level> {rate}` → the one link rate it shows, its slowest link's in the overview's
  *  line on how long it takes (`howLong`). No other rate is shown, so the 100G of today's backbone, sea cable and
  *  cross-connects, on 2010's routes too, is only ever said where it is the slowest link. */
 export function routeWords(r: Route): Map<string, string> {
@@ -101,6 +121,7 @@ export function routeWords(r: Route): Map<string, string> {
       break;
     }
     if (h) out.set(`${lang} ${level} {rate}`, formatRate(h.bps, lang));
+    for (const card of cards(r)) for (const l of pickLinks(card.all, r.era, lang, card.level ?? level, card.max)) out.set(`${lang} ${level} {link:${l.url}}`, `${l.title} <${l.url}>`);
   }
   return out;
 }

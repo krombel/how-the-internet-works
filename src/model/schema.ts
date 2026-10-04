@@ -14,6 +14,8 @@ export const learnMore = z.strictObject({
   level,
   /** The language of the page it points to. */
   lang: z.string().min(2),
+  /** The eras it is for (#180: RFC 793 in 1995 and 2010, RFC 9293 today). Default: every era. */
+  eras: z.array(id).min(1).optional(),
 });
 const learnMoreList = z.array(learnMore).optional();
 
@@ -60,6 +62,8 @@ export const field = z.strictObject({
   id,
   /** Size on the wire (for the header diagram and lengths). Omit for text or variable-size fields. */
   bits: z.number().int().positive().optional(),
+  /** Its size in an era when it differed, by era (#180: RFC 793's 6 reserved bits and 6 flags in 1995). */
+  bitsIn: z.record(id, z.number().int().positive()).optional(),
   value: fieldValue,
   /** Roles that act on it when the packet reaches them (true: every hop that receives this layer). */
   use: z.union([z.literal(true), z.array(role)]).optional(),

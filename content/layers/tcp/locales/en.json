@@ -64,6 +64,12 @@
       },
       "dport": {
         "about": "Which service on the receiver: 80 = HTTP, the web."
+      },
+      "reserved": {
+        "about": "Six bits kept for later, always 0 (RFC 793). ECN took two of them for its CWR and ECE flags in 2001."
+      },
+      "flags": {
+        "about": "URG, ACK, PSH, RST, SYN, FIN, RFC 793’s six: what this segment does in the conversation."
       }
     },
     "note": {

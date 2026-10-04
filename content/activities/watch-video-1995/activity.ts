@@ -24,6 +24,6 @@ export default defineActivity({
   ],
   learnMore: [
     { url: 'https://en.wikipedia.org/wiki/Web_page', title: 'Web page', level: 'both', lang: 'en' },
-    { url: 'https://www.rfc-editor.org/rfc/rfc1945', title: 'RFC 1945: HTTP/1.0', level: 'nerd', lang: 'en' },
+    { url: 'https://www.rfc-editor.org/rfc/rfc1945', title: 'RFC 1945: HTTP/1.0 (1996)', level: 'nerd', lang: 'en' },
   ],
 });

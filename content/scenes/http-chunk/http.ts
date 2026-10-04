@@ -140,16 +140,17 @@ function walkerAt(u: number): Walker | null {
 }
 
 /** How big a parcel walks: a medium chunk is the biggest, a low one smaller, the request slip tiny. Sealed hops see
- *  only this. */
-export function bulk(w: Pick<Walker, 'kind' | 'quality'>): number {
-  return w.kind === 'ask' ? 0.55 : w.quality === 'med' ? 1.15 : 0.78;
+ *  only this. A web page (1995, `page`) is the other way round: the page (the first answer) is smaller than its
+ *  picture. */
+export function bulk(w: Pick<Walker, 'kind' | 'quality'>, page = false): number {
+  return w.kind === 'ask' ? 0.55 : (w.quality === 'med') !== page ? 1.15 : 0.78;
 }
 
 export type Where = 'client' | 'server' | 'middle';
 
 /** Where the walker is: from one end's doorstep to the other's (beside the nodes, never on them). */
-export function walkerX(w: Walker, L: Layout, where: Where): number {
-  const half = 72 * L.parcel * bulk(w) + 10;
+export function walkerX(w: Walker, L: Layout, where: Where, page = false): number {
+  const half = 72 * L.parcel * bulk(w, page) + 10;
   const c = where === 'client' ? L.home[0] : L.ends[0];
   const s = where === 'server' ? L.home[1] : L.ends[1];
   const clientDoor = c.x + c.size / 2 + half;

@@ -57,17 +57,22 @@ describe('the video chunk dive (http-chunk)', () => {
     const low = bulk({ kind: 'chunk', quality: 'low' });
     expect(ask).toBeLessThan(low);
     expect(low).toBeLessThan(med);
+    // a web page (1995): the page first, smaller than its picture after it (#180); the same two sizes
+    const page = bulk({ kind: 'chunk', quality: 'med' }, true), picture = bulk({ kind: 'chunk', quality: 'low' }, true);
+    expect(page).toBe(low);
+    expect(picture).toBe(med);
+    expect(bulk({ kind: 'ask', quality: 'med' }, true)).toBe(ask);
   });
 
-  it('keeps the walker between the two doorsteps, moving the right way, in every layout', () => {
+  it('keeps the walker between the two doorsteps, moving the right way, in every layout, video or page', () => {
     for (const L of layouts) {
-      for (const where of ['client', 'server', 'middle'] as Where[]) {
+      for (const where of ['client', 'server', 'middle'] as Where[]) for (const page of [false, true]) {
         let last = null as { kind: string; x: number } | null;
         for (const t of steps()) {
           const w = httpMoment(t).walker;
           if (!w) { last = null; continue; }
-          const x = walkerX(w, L, where);
-          const half = 72 * L.parcel * bulk(w);
+          const x = walkerX(w, L, where, page);
+          const half = 72 * L.parcel * bulk(w, page);
           const c = where === 'client' ? L.home[0] : L.ends[0];
           const s = where === 'server' ? L.home[1] : L.ends[1];
           expect(x - half).toBeGreaterThanOrEqual(c.x + c.size / 2);
