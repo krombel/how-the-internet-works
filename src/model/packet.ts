@@ -143,8 +143,10 @@ export function frameEnds(r: Route, i: number, dir: Dir): { src: Hop; dst: Hop }
 }
 
 const pick = (v: string | { up: string; down: string }, dir: Dir) => (typeof v === 'string' ? v : v[dir]);
+/** A field's size on the wire in an era, in bits. */
+const bitsIn = (f: LayerDef['fields'][number], era: string) => f.bitsIn?.[era] ?? f.bits;
 /** The size of a layer's own header (and trailer) going `dir`, in bytes. */
-const ownBytes = (def: LayerDef, dir: Dir) => Math.ceil(def.fields.reduce((s, f) => s + (f.bits ?? 0), 0) / 8) + (def.bytes?.[dir] ?? 0);
+const ownBytes = (def: LayerDef, dir: Dir, era: string) => Math.ceil(def.fields.reduce((s, f) => s + (bitsIn(f, era) ?? 0), 0) / 8) + (def.bytes?.[dir] ?? 0);
 /** Whether a link's frames carry MAC addresses (a layer on it has a mac.* field; a phone line's PPP has none). */
 export const carriesMac = (r: Route, l: Link) =>
   l.stack.some((id) => r.content.layers[id]?.fields.some((f) => (['up', 'down'] as const).some((d) => pick(f.value, d).includes('{mac.'))));
@@ -174,11 +176,11 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
   const other: Dir = dir === 'up' ? 'down' : 'up';
   for (let k = ids.length - 1; k >= 0; k--) {
     const def = defs[k], id = ids[k];
-    const own = ownBytes(def, dir);
+    const own = ownBytes(def, dir, r.era);
     const facts: Record<string, Val> = { ...base, len: { text: String(own + inner) }, payload: { text: String(inner) } };
     if (def.switched) facts.ttl = { text: String(ttlAt(r, i, dir, true)) };
     const seq = def.fields.find((f) => f.id === 'seq');
-    if (seq) facts.ack = { text: String(Number(pick(seq.value, other)) + defs.slice(k + 1).reduce((s, d) => s + ownBytes(d, other), 0)) };
+    if (seq) facts.ack = { text: String(Number(pick(seq.value, other)) + defs.slice(k + 1).reduce((s, d) => s + ownBytes(d, other, r.era), 0)) };
     if (def.tunnel) {
       const [a, b] = tunnelEnds(r, i, id), [s, d] = dir === 'up' ? [a, b] : [b, a];
       facts['tunnel.src'] = { text: s.addr ?? '', who: s };
@@ -202,7 +204,7 @@ export function packetOn(r: Route, flow: FlowDef, i: number, dir: Dir): LayerVal
       const tpl = pick(f.value, dir);
       if (!tpl) continue;
       const value = fill(tpl);
-      fields.push({ id: f.id, bits: f.bits, value, kid: f.kid === undefined ? null : f.kid === true ? value : fill(pick(f.kid, dir)) });
+      fields.push({ id: f.id, bits: bitsIn(f, r.era), value, kid: f.kid === undefined ? null : f.kid === true ? value : fill(pick(f.kid, dir)) });
     }
     // checksums last: over this layer's other fields (+ the addresses, like TCP's pseudo-header); a frame check
     // sequence over everything inside too

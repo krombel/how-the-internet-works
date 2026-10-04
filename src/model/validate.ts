@@ -53,8 +53,11 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
   const needLevelled = (file: string, key: string) => {
     if (!(key in en) && !(`${key}.kid` in en)) add(file, 'strings', `missing English string "${key}" or "${key}.kid" (in ${file.replace(/[^/]+$/, '')}locales/en.json)`);
   };
-  const learnMore = (file: string, list: { lang: string }[] | undefined) =>
-    list?.forEach((l, i) => { if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`); });
+  const learnMore = (file: string, list: { lang: string; eras?: string[] }[] | undefined) =>
+    list?.forEach((l, i) => {
+      if (!langs.includes(l.lang)) add(file, `learnMore[${i}].lang`, `"${l.lang}" is not a language.${suggest(l.lang, langs)}`);
+      l.eras?.forEach((e, j) => ref(file, `learnMore[${i}].eras[${j}]`, 'eras', e, 'an era'));
+    });
   const has = (path: string) => files.includes(path);
   /** A dive must point at a scene that explains that kind of thing. */
   const dive = (file: string, where: string, id: string | undefined, kind: 'link' | 'node' | 'layer') => {
@@ -98,6 +101,7 @@ export function validate({ content: c, packs, files, locales = {} }: ValidateInp
       if (seen.has(f.id)) add(l.file, where, `"${f.id}" is already a field of this layer`);
       seen.add(f.id);
       needLevelled(l.file, `layer.${l.id}.field.${f.id}.name`);
+      for (const e of Object.keys(f.bitsIn ?? {})) ref(l.file, `${where}.bitsIn.${e}`, 'eras', e, 'an era');
       const tpls = [f.value, typeof f.kid === 'object' || typeof f.kid === 'string' ? f.kid : ''].flatMap((v) => (typeof v === 'string' ? [v] : [v.up, v.down]));
       for (const t of tpls) {
         if (t.startsWith('@')) { needLevelled(l.file, `layer.${l.id}.value.${t.slice(1)}`); continue; }

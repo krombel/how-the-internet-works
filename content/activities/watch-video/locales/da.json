@@ -42,6 +42,11 @@
     "takes": {
       "kid": "Hele den lille video er her på omkring {time}: {faster} gange hurtigere, end du kan se den. Dagens skarpere video ville tage {now}.",
       "nerd": "{size} 360p-video ved {rate}, den langsomste forbindelses hastighed ({link}): alle {plays} på omkring {time}, {faster}× hurtigere, end den spiller. Dagens {nowSize} HD-video ville tage {now}."
+    },
+    "stop": {
+      "phone": {
+        "nerd": "Appen sender én HTTP GET efter hele videofilen, i almindelig HTTP (ingen TLS). Styresystemet lægger forespørgslen i et TCP-segment inde i en IP-pakke."
+      }
     }
   }
 }

@@ -21,6 +21,9 @@
       "cell-tower-internet": {
         "kid": "From the mast, your call travels along a line to the controller box and on to the mobile company’s switch, in a tiny slot shared with three other calls.",
         "nerd": "Abis and Ater: E1 lines, and your call is a 16 kbit/s quarter of one 64 kbit/s timeslot, still RLP frames, all the way to the transcoder at the MSC."
+      },
+      "exchange": {
+        "nerd": "The call arrives from the MSC on an E1 trunk and is switched on as a 64 kbit/s timeslot through the phone network to the ISP’s modems."
       }
     },
     "inside": {

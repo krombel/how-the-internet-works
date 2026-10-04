@@ -67,8 +67,8 @@
   const sizeWord = (w: (typeof SEEN)[number]) => S(`size.${w.kind === 'ask' ? 'ask' : w.quality}`);
 
   const walker = $derived(m.walker);
-  const wx = $derived(walker ? walkerX(walker, L, where) : 0);
-  const wk = $derived(walker ? L.parcel * bulk(walker) : 1);
+  const wx = $derived(walker ? walkerX(walker, L, where, page) : 0);
+  const wk = $derived(walker ? L.parcel * bulk(walker, page) : 1);
   const names = $derived(view.orient === 'landscape' && L.endNames);
   const tags = $derived(L.tags[where]);
   const focusedSpot = $derived(where === 'client' ? clientSpot : where === 'server' ? serverSpot : L.hop);
@@ -145,7 +145,7 @@
   <Text x={ask.x + 34} y={titleY(ask)} text={S('card.seen')} size={T.big} kind="big" anchor="start" />
   {#each SEEN as w, i}
     {@const x = ask.x + 30 + seenW * (i + 0.5)}
-    {@const k = Math.min(seenW * 0.8 / 144, 0.85) * bulk(w)}
+    {@const k = Math.min(seenW * 0.8 / 144, 0.85) * bulk(w, page)}
     {@const y = bottom(ask) - T.status * 1.4 - 48 * k}
     {#if i < seen}
       <Locked {x} {y} scale={k} {lock} />

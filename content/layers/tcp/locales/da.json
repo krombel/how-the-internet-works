@@ -64,6 +64,12 @@
       },
       "dport": {
         "about": "Hvilken tjeneste hos modtageren: 80 = HTTP, nettet."
+      },
+      "reserved": {
+        "about": "Seks bit gemt til senere, altid 0 (RFC 793). ECN tog to af dem til sine CWR- og ECE-flag i 2001."
+      },
+      "flags": {
+        "about": "URG, ACK, PSH, RST, SYN, FIN, RFC 793’s seks: hvad segmentet gør i samtalen."
       }
     },
     "note": {

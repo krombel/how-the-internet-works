@@ -4,6 +4,6 @@ export default defineNode({
   kind: 'device',
   role: 'router',
   learnMore: [
-    { url: 'https://en.wikipedia.org/wiki/Multiprotocol_Label_Switching', title: 'MPLS', level: 'nerd', lang: 'en' },
+    { url: 'https://en.wikipedia.org/wiki/Multiprotocol_Label_Switching', title: 'MPLS', level: 'nerd', lang: 'en', eras: ['2010', 'today'] },
   ],
 });

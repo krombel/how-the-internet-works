@@ -631,8 +631,9 @@ engine:
 
 ## Learn more (issue #4)
 
-Every definition may list `learnMore: [{ url, title, level: 'kid' | 'nerd' | 'both', lang }]`. The caption shows up to
-three links for the focused item:
+Every definition may list `learnMore: [{ url, title, level: 'kid' | 'nerd' | 'both', lang, eras? }]`. The caption
+shows up to three links for the focused item (`model/links.ts`), of those for the route's era (`eras`, default every
+era):
 - links for the reader's level, in the reader's language first
 - English nerd links always stay, and are marked "(en)" for a non-English reader
 - other English links appear only when there is nothing in the reader's language

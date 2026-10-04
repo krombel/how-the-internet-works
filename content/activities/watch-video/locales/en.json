@@ -42,6 +42,11 @@
     "takes": {
       "kid": "The whole small video gets here in about {time}: {faster} times faster than you can watch it. Today’s sharper video would take {now}.",
       "nerd": "{size} of 360p video at {rate}, the slowest link’s speed ({link}): all {plays} in about {time}, {faster}× faster than it plays. Today’s {nowSize} of HD video would take {now}."
+    },
+    "stop": {
+      "phone": {
+        "nerd": "The app sends one HTTP GET for the whole video file, in plain HTTP (no TLS). The OS puts the request in a TCP segment inside an IP packet."
+      }
     }
   }
 }

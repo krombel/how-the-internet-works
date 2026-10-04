@@ -195,6 +195,8 @@ A field is `{ id, bits?, value, use?, kid? }`:
 - `use`: the roles that act on it when the packet arrives (`['router', 'nat']` for TTL), or `true` for every hop that
   receives the layer. Used fields are highlighted; kids see only used, changed or new fields.
 - `kid`: show it to kids: `true` (addresses become names like "your phone") or a kid value.
+- `bitsIn`: its size in an era where it differed, by era (`{ 1995: 6 }`: RFC 793's six reserved bits and six flags,
+  before ECN took two of each). Give the era's own `about` in the layer's era block (`1995.field.<id>.about`).
 
 ```ts
 { id: 'ttl', bits: 8, value: '{ttl}', use: ['router', 'nat'], kid: true },
@@ -582,6 +584,9 @@ Add it to the `learnMore` list of the definition it explains (node, technology, 
 - in their own language first
 - English nerd links always stay (marked "(en)")
 - other English links only when there's nothing in their language
+
+A link that is true of some eras only lists them: `eras: ['today']` for RFC 9293's TCP, `eras: ['1995', '2010']` for
+RFC 793 (#180). Without `eras` it shows in every era; the era tests read every link a past trip shows.
 
 ## Checklist
 

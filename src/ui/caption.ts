@@ -8,6 +8,7 @@ import { doorsOf } from '../model/doors';
 import { describeKeys, layerKeys, sceneKeys } from '../model/describe';
 import { eraStops, eraYear } from '../model/era';
 import { carriedBy } from '../model/ladder';
+import { pickLinks } from '../model/links';
 import { pathScene, type PathScene } from '../model/layout';
 import type { Hop, Route } from '../model/resolve';
 import { formatBytes, formatDuration, formatRate, formatTimes, howLong } from '../model/speed';
@@ -140,7 +141,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       describe: describeOf(r, ref, lv),
       hint: hint('hint.layer'),
       doors: down ? [{ kind: 'down', id: down.join('/'), name: sceneTitle(r, down, o), path: down }] : [],
-      links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
+      links: learnMore(r.era, [...(c.scenes[ref.dive!]?.learnMore ?? []), ...(c.layers[ref.at!.layer]?.learnMore ?? [])]),
       notes: extraOf(layerKeys(r, ref), lv, layerVars(r, ref)),
     };
   }
@@ -152,7 +153,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       describe: describeOf(r, ref, lv),
       hint: hint('hint.zoomOut'),
       doors: carriedBy(r, ref, o).map((u) => ({ kind: 'up', id: u.path.join('/'), name: trl(`layer.${u.layer}.name`), path: u.path })),
-      links: learnMore([...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
+      links: learnMore(r.era, [...(c.scenes[ref.dive!]?.learnMore ?? []), ...((ref.link ? ref.link.link.tech : ref.node!.node).learnMore ?? [])]),
       notes: extraOf(sceneKeys(r, ref)[0], lv),
     };
   }
@@ -167,7 +168,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     describe: '',
     hint: hint(n.kind === 'group' ? 'hint.expand' : nodeDive(n) ? 'hint.dive' : 'hint.step'),
     doors,
-    links: learnMore([...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
+    links: learnMore(r.era, [...(n.node.learnMore ?? []), ...((n.kind !== 'group' && n.hop.owner && c.owners[n.hop.owner]?.learnMore) || [])]),
     notes: [],
   };
   if (l) return {
@@ -177,7 +178,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     describe: '',
     hint: hint(l.dive ? 'hint.dive' : 'hint.step'),
     doors,
-    links: learnMore(l.link.tech.learnMore ?? []),
+    links: learnMore(r.era, l.link.tech.learnMore ?? []),
     notes: [],
   };
   if (ref.group) {
@@ -191,7 +192,7 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
       // tapping a box reads it out only with read aloud on (#90)
       hint: hint(reading() && !view.keys ? 'hint.group.speech' : 'hint.group'),
       doors,
-      links: learnMore(g.node.learnMore ?? []),
+      links: learnMore(r.era, g.node.learnMore ?? []),
       notes: [],
     };
   }
@@ -203,16 +204,10 @@ export function captionFor(r: Route, path: string[], stop: string | null, o: Ori
     describe: describeOf(r, ref, lv),
     hint: hint('hint.overview'),
     doors,
-    links: learnMore([...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
+    links: learnMore(r.era, [...(r.activity.learnMore ?? []), ...places.flatMap((p) => p.learnMore ?? [])]),
     notes: takesOf(r, lv),
   };
 }
 
-/** Links for the reader's level; in their own language if there are any (English nerd links stay), else English. */
-export function learnMore(all: LearnMore[], lang = loc.lang, level = loc.level, max = 3): LearnMore[] {
-  const fit = all.filter((l) => l.level === 'both' || l.level === level);
-  const own = fit.filter((l) => l.lang === lang);
-  const en = lang === 'en' ? [] : fit.filter((l) => l.lang === 'en' && !(own.length && l.level !== 'nerd'));
-  const seen = new Set<string>();
-  return [...own, ...en].filter((l) => !seen.has(l.url) && seen.add(l.url)).slice(0, max);
-}
+/** The links a card shows in the route's era, at the reader's language and level (model/links.ts). */
+export const learnMore = (era: string, all: LearnMore[], lang = loc.lang, level = loc.level, max = 3) => pickLinks(all, era, lang, level, max);

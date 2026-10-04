@@ -121,6 +121,9 @@
           "kid": "A road links your device, this passing box and the server. The address card has sleepy eyes, and the other card shows the old and new envelopes. The parcel keeps its address label closed while one envelope lifts away and a fresh one drops on for the next stretch.",
           "nerd": "The IP header card is shown but not read. The link card shows incoming and outgoing envelopes. Technical labels say the MAC addresses are passed on unchanged (a tunnel end puts on its own), and the IP header is untouched. During the pause, the old envelope lifts off, the next one lands, and the packet continues with the same IP label and TTL."
         }
+      },
+      "endpoint": {
+        "nerd": "The destination matches a local address, so the IP header is stripped and the payload goes up to TCP (protocol 6). For outgoing packets the host writes the source, the destination and a fresh TTL (64 here, the default RFC 1700 recommends; some systems used 32 or 255)."
       }
     }
   },

@@ -10,9 +10,10 @@ export default defineLayer({
     // the server acknowledges the whole request: its seq plus the bytes it carried
     { id: 'ack', bits: 32, value: { up: '1120598433', down: '{ack}' }, use: ['endpoint'] },
     { id: 'offset', bits: 4, value: '5 (20 bytes)' },
-    // RFC 9293: 4 reserved bits and 8 control bits (the old NS bit is historic, RFC 8311)
-    { id: 'reserved', bits: 4, value: '0' },
-    { id: 'flags', bits: 8, value: { up: 'PSH, ACK', down: 'ACK' }, use: ['endpoint'] },
+    // RFC 9293: 4 reserved bits and 8 control bits (the old NS bit is historic, RFC 8311); RFC 793's were 6 and 6,
+    // until ECN took two reserved bits for CWR and ECE (RFC 3168, 2001)
+    { id: 'reserved', bits: 4, bitsIn: { 1995: 6 }, value: '0' },
+    { id: 'flags', bits: 8, bitsIn: { 1995: 6 }, value: { up: 'PSH, ACK', down: 'ACK' }, use: ['endpoint'] },
     { id: 'window', bits: 16, value: { up: '2048', down: '501' }, use: ['endpoint'] },
     // covers the addresses and ports too, so a NAT has to fix it
     { id: 'checksum', bits: 16, value: '{sum}', use: ['nat', 'endpoint'] },

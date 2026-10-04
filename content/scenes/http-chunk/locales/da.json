@@ -20,7 +20,7 @@
   "sealed": {
     "title": "{hop} ser kun ydersiden",
     "kid": "{hop} bærer sedlerne og filmkasserne, men de er låst inde i det hemmelige håndtryks kasse. Den kan ikke læse, hvilket stykke der bedes om, eller hvad svaret siger. Den kan kun se, hvilken vej hver kasse går, og hvor stor den er.",
-    "nerd": "Ved {hop} er HTTP forseglet inde i TLS: stien, Host, status og indhold er krypteret. Det, der slipper ud, er servernavnet (SNI i ClientHello, medmindre ECH bruges), adresserne, retning, timing og recordlængde: en forespørgsel på ~400 B, et svar på ~750 kB og så et på ~200 kB, hvilket antyder, at afspilleren er gået ned i bitrate.",
+    "nerd": "Ved {hop} er HTTP forseglet inde i TLS: stien, Host, status og indhold er krypteret. Det, der slipper ud, er servernavnet (SNI i ClientHello, medmindre ECH bruges), adresserne, retning, timing og hvor mange bytes der går forbi: en forespørgsel på ~400 B, et svar på ~750 kB (mange TLS-records på højst 16 kB hver) og så et på ~200 kB, hvilket antyder, at afspilleren er gået ned i bitrate.",
     "describe": {
       "kid": "{hop} står midt på vejen. Låste kasser går forbi: en lille hen mod videoserveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, kruset og med hængelås.",
       "nerd": "Et mellemled står på vejen, mens krypterede records passerer begge veje. Det venstre kort stiller det op, den kan se: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som ulæselig krypteret tekst under en hængelås."
@@ -155,15 +155,15 @@
       "title": "{hop} kunne læse det hele",
       "kid": "{hop} bærer sedlerne og svarene. I 1995 var almindelige sider ikke låst, så den kunne læse hvilken side der bedes om, og hvad der kommer tilbage. Men en router læser kun adressen på pakken og sender resten videre.",
       "describe": {
-        "kid": "{hop} står midt på vejen. Lukkede kasser med linjer af skrift går forbi: en lille hen mod serveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, i almindelig skrift og uden hængelås.",
-        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
+        "kid": "{hop} står midt på vejen. Lukkede kasser med linjer af skrift går forbi: en lille hen mod serveren, en mellemstor tilbage, endnu en lille og så en større tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, i almindelig skrift og uden hængelås.",
+        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, siden, endnu en lille forespørgsel og det større billede, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
       },
-      "nerd": "Ved {hop} er HTTP klartekst inde i TCP: forespørgselslinjen, headerne og indholdet kan alle læses på ledningen, og alle med adgang til forbindelsen kunne gemme eller ændre dem. En router sender videre efter IP-headeren og kigger ikke længere."
+      "nerd": "Ved {hop} er HTTP klartekst inde i TCP: forespørgselslinjen, headerne og indholdet kan alle læses på ledningen, og alle med adgang til forbindelsen kunne gemme eller ændre dem. Selv størrelserne står der (Content-Length): en forespørgsel på ~300 B, siden på 8 kB og så dens billede på 30 kB. En router sender videre efter IP-headeren og kigger ikke længere."
     },
     "status": {
       "locked": {
         "kid": "Alle på vejen kunne læse det",
-        "nerd": "Sti, Host, status: klartekst"
+        "nerd": "Sti, headere, status: klartekst"
       },
       "guess": {
         "kid": "Den kunne læse dem, men gør det ikke",
@@ -174,7 +174,8 @@
       "length": "Ingen TLS: alt i klartekst",
       "request": "HTTP/1.0 · ingen Host-header",
       "page": "Content-Type: text/html",
-      "picture": "Content-Type: image/gif"
+      "picture": "Content-Type: image/gif",
+      "guess": "Content-Length i klartekst"
     },
     "describe": {
       "kid": "En vej forbinder {yours} og webserveren. På det venstre kort beder en seddel om siden, og den går til serveren. Serveren finder siden på sin disk, stempler 200 OK og sender den tilbage. Så beder den næste seddel om billedet, og billedet kommer tilbage.",
@@ -188,6 +189,26 @@
       "disk": {
         "kid": "På disken!",
         "nerd": "Læst fra disk"
+      }
+    },
+    "size": {
+      "ask": {
+        "nerd": "300 B"
+      },
+      "med": {
+        "kid": "mellem",
+        "nerd": "8 kB"
+      },
+      "low": {
+        "kid": "stor",
+        "nerd": "30 kB"
+      }
+    },
+    "role": {
+      "bridge": {
+        "title": "{hop} bærer det ulæst",
+        "kid": "{hop} bærer sedlerne og svarene inde i dit telefonopkald. I 1995 var almindelige sider ikke låst, men {hop} åbner slet ikke pakken: den sender bare opkaldet videre.",
+        "nerd": "Ved {hop} rejser PPP-rammerne inde i opkaldet, så den ser aldrig IP-pakken, endsige HTTP indeni. Den HTTP er klartekst: enhver, der aflyttede linjen og afkodede opkaldet, kunne læse forespørgselslinjen, headerne og indholdet, og størrelserne med: en forespørgsel på ~300 B, siden på 8 kB og så dens billede på 30 kB."
       }
     }
   },
@@ -209,9 +230,9 @@
       "kid": "{hop} bærer sedlerne og svarene. I 2010 var videoer ikke låst, så den kunne læse, hvilken video der bedes om. Men en router læser kun adressen på pakken og sender resten videre.",
       "describe": {
         "kid": "{hop} står midt på vejen. Lukkede kasser med linjer af skrift går forbi: en lille hen mod serveren, en stor tilbage, endnu en lille og så en mindre tilbage. Det venstre kort samler dem efter størrelse. Det højre kort viser brevet indeni, i almindelig skrift og uden hængelås.",
-        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, et stort svar, en lille forespørgsel og et mindre svar, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
+        "nerd": "Et mellemled står på vejen, mens almindelig HTTP passerer begge veje. Det venstre kort stiller det op, der går forbi: en lille forespørgsel, hele videoen i et stort svar, en lille Range-forespørgsel og et mindre 206-svar med resten, med deres størrelser. Det højre kort viser HTTP-beskeden som læselige linjer uden hængelås."
       },
-      "nerd": "Ved {hop} er HTTP klartekst: video var ikke krypteret i 2010, så URL, Host og headere kunne læses på ledningen (nogle internetudbyderes cacher og filtre gjorde det). En router sender videre efter IP-headeren og kigger ikke længere."
+      "nerd": "Ved {hop} er HTTP klartekst: video var ikke krypteret i 2010, så URL, Host og headere kunne læses på ledningen (nogle internetudbyderes cacher og filtre gjorde det). Det kunne størrelserne også: ét 200 OK, hvis Content-Length er hele videoen på 17 MB, og så, efter et spring frem, en Range-forespørgsel, der får 206 Partial Content med resten. En router sender videre efter IP-headeren og kigger ikke længere."
     },
     "status": {
       "locked": {
@@ -220,12 +241,28 @@
       },
       "guess": {
         "kid": "Den kunne læse dem, men gør det ikke",
-        "nerd": "Intet at gætte: det kan læses"
+        "nerd": "Sprang frem: Range → 206"
       }
     },
     "tag": {
       "length": "Ingen TLS: alt i klartekst",
-      "mpd": "M3U8: 1080p · 720p · 360p"
+      "mpd": "M3U8: 1080p · 720p · 360p",
+      "guess": "Content-Length = hele videoen"
+    },
+    "size": {
+      "med": {
+        "nerd": "17 MB"
+      },
+      "low": {
+        "nerd": "8,5 MB"
+      }
+    },
+    "role": {
+      "bridge": {
+        "title": "{hop} bærer det ulæst",
+        "kid": "{hop} bærer sedlerne og svarene. I 2010 var videoer ikke låst, men {hop} læser ikke engang adressen på pakken: den sender den bare videre.",
+        "nerd": "Ved {hop} er HTTP klartekst: video var ikke krypteret i 2010, så URL, Host og headere kunne læses på ledningen, og størrelserne med: ét 200 OK, hvis Content-Length er hele videoen på 17 MB, og så, efter et spring frem, en Range-forespørgsel, der får 206 Partial Content med resten. {hop} selv sender rammerne videre uden at læse så meget som IP-headeren."
+      }
     }
   }
 }
