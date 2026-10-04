@@ -85,7 +85,7 @@ src/                      the engine: no content ids anywhere
                           lazy (the Svelte content loaded on demand: device art, backdrops, dives, era flavour),
                           Arrive (fades in a backdrop that lands late),
                           art-base/ (fallback art slots), theme-types (the theme contract)
-  ui/                     Chrome (explore, pause, level, day/night, ⋯), Menu (⋯: language, sound, read aloud, style,
+  ui/                     Chrome (explore, pause, level, day/night, mute, ⋯), Menu (⋯: language, sound, read aloud, style,
                           list view, About), About, Ladder (breadcrumb), Caption, PeekPanel, Envelope, FieldTree,
                           Change (a changed value), Announcer + announce (what a screen reader hears), SceneKeys (the
                           keyboard in the scene), TextMap (the list view), CoachMarks + coach, coach-marks (the
@@ -112,7 +112,7 @@ Import rules keep this honest (checked by `src/model/content.test.ts`):
 ## From URL to pixels
 
 ```
-#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=technical  ?style=<theme>  ?mode=day|night
+#/<lang>/<place>[+<place>…]/<activity>/<step>/<step>…/@<stop>     ?level=technical  ?style=<theme>  ?mode=day|night  ?sound=on|off
 #/da/on-the-go/watch-video/internet/@mobile-core
 #/en/home/watch-video/internet/home-cabinet                         (three levels: the access fibre)
 #/en/home/watch-video/router~ip                                     (a layer dive: IP at the home router)
@@ -459,7 +459,7 @@ mark (`mark`) to draw inside its own shape, so up and down still differ by shape
 Dive scenes load on demand (`render/lazy.svelte.ts`, with the eras' flavour and the device art): a scene's chunk is
 fetched when the flight towards it starts, and the peek preloads the layer dives it offers.
 
-From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, `arrived()` (true while the reader is at this scene) and `soundOut()` (the Web Audio output while sound is on, else `null`: a scene's own short sound, the dial-up handshake), and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text; a data colour is mixed into the ink with `labelInk`, and `on` names the body it is printed on) and `TagAt`.
+From `$core/api` they read `view` (time, orientation, level, mode), `strings('scene.<id>')`, `arrived()` (true while the reader is at this scene) and `soundOut()` (the Web Audio output while sound is on and the reader's first tap or key has let it start, else `null`: a scene's own short sound, the dial-up handshake), and draw with `Node` (a device in the current theme), `Text` (screen-size-aware text; a data colour is mixed into the ink with `labelInk`, and `on` names the body it is printed on) and `TagAt`.
 
 **Layer dives** get a `LayerCtx` (`model/stack.ts`, built on the packet model), per hop and direction:
 
@@ -552,8 +552,9 @@ in the scene's own folder, so a new dive needs no theme change.
   for buttons and use a darker colour for text.
 
 **The ⋯ menu and About.** The top bar keeps what you use while exploring (the ladder, Explore, pause, the level (Simple / Technical),
-☀️/🌙). Settings you set once go in the ⋯ menu (`ui/Menu.svelte`): language, sound, the style (only with more than one
-theme) and About.
+☀️/🌙, and on a desktop or tablet the speaker that mutes the sound, #189). Settings you set once go in the ⋯ menu
+(`ui/Menu.svelte`): language, sound (on a phone, upright or on its side, where the bar has no room for the speaker;
+below 400 px day/night too), the style (only with more than one theme) and About.
 - **Entries are data.** `Chrome.svelte` builds a list of `MenuEntry` (`ui/menu.ts`): a `choice` (a label and its
   options, each a `menuitemradio`, e.g. "Language: English | Dansk"), a `toggle` (a `menuitemcheckbox` that shows its
   value, "Sound: off") or an `action` (a `menuitem`, e.g. About). A new setting is one more entry.
@@ -605,11 +606,19 @@ engine:
   for one without a description at both levels in every language. Dive descriptions ride the lazy dive strings.
 - **Read aloud** (`engine/speech.ts`). A `Speaker` over the browser's `speechSynthesis`: `available(lang)` (a voice
   whose language is the page's, `voiceFor`; the list may arrive late, `voiceschanged`), `say` (cuts off what it was
-  saying; kids hear it a little slower) and `cancel`. It is a toggle in ⋯ after Sound, offered only where there's a
+  saying; kids hear it a little slower) and `cancel`. It is a toggle in ⋯ (after Sound, on a phone), offered only where there's a
   voice for the language, off by default and remembered (`settings.speech`). Turning it on says so inside the tap
   (that unlocks iOS). On arrival it reads the title, the description and the caption (`readAloud`, `spoken`); the
   peek reads each hop; the caption gets "Read again". A navigation cancels it, and the quiet packet ticks wait while
   it speaks.
+- **Sound** (`engine/sound.ts`, #189). On by default, with nothing before the first gesture: `wakeOnGesture` listens
+  (capturing) for the first `pointerdown`, `pointerup`, `touchend` or `keydown` that gives the page user activation
+  (`navigator.userActivation`; a touch's pointerdown and Esc don't) and only then does `Sfx` create, or resume, its
+  `AudioContext`, so the browser never warns and the tap's own sound plays. `settings.sound` is `?sound=on|off` for
+  that load (kept in step with the reader's choice, like `?mode=`), then the stored choice (`sound: off` once muted),
+  then on (`soundOnLoad`). Turning it off disconnects the master gain, so whatever still plays (the handshake from
+  `soundOut()` too) stops at once, and suspends the context. A stop control is always one tap away (WCAG 1.4.2): the
+  speaker in the top bar, or Sound in ⋯ on a phone. `npm run evaluate` loads every page with `?sound=off`.
 - **The focus ring** is the engine's (`:focus-visible` in `ui/ui.css`, `!important` so a theme's card outline can't
   hide it); themes can only recolour it with `--focus-ink` and `--focus-gap`, and the contrast test checks the pair.
 - **No content ids.** All of this is generic over the scene tree; the words are `ui.json` strings.

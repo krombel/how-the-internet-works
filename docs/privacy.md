@@ -12,7 +12,7 @@ sends nothing about you anywhere.
   bundled and served from the same site as the page. Nothing is fetched from a CDN, font service or other site.
 - **Where you are in the app is in the address.** The language, place, activity and scene are in the URL (e.g.
   `#/da/on-the-go/watch-video/internet`), and a few settings can be in its query (`?level=technical`, `?mode=night`,
-  `?style=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
+  `?sound=off`, `?style=…`). The part after `#` never leaves your browser. The query is sent to the web server with the
   page request, like any address.
 
 ## What it remembers in your browser
@@ -27,9 +27,10 @@ are never sent anywhere, and you can delete them by clearing the site's data in 
 | `mode` | `day` or `night` | Day or night, only when you picked the one your system doesn't prefer |
 | `paused` | `1` | The packets are paused (removed when you play them again) |
 | `speech` | `1` | Read aloud is on (removed when you turn it off) |
+| `sound` | `off` | You muted the sound (removed when you turn it back on) |
 | `coached` | `1` | The first-visit tips were shown, so they aren't shown again |
 
-Nothing else is stored: sound is always off when the page loads, and the language comes from the address.
+Nothing else is stored: the language comes from the address.
 
 ## What the browser and the host may do
 

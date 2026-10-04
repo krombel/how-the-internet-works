@@ -18,6 +18,14 @@ The work comes in four slices:
   walking envelopes), the night sky and the doors' breathing (WCAG 2.2.2). It is remembered across reloads. Catching
   a packet pauses too; letting go resumes unless ⏸ is on. `prefers-reduced-motion` still removes the flights and the
   breathing as before.
+- **Sound** (#189). On by default, but nothing plays before the first tap or key (the browser allows none), and
+  every sound is short: a pop, a whoosh, a blip, the five-second modem handshake. The control to stop it is always
+  one tap away (WCAG 1.4.2): the speaker button in the top bar on a desktop or tablet ("Mute sound", `aria-pressed`
+  while muted), or Sound (a checkbox) in ⋯ on a phone. Muting stops everything at once, the handshake too, and is
+  remembered; `?sound=off` in the link mutes it for that load. The picture never depends on it: the modem's speech
+  bubble and the waves on the line tell the handshake without sound. Read aloud and the sounds share the speakers:
+  the quiet ticks of packets you only watch wait while it speaks, and the other sounds are short and come with a
+  tap.
 - **Keyboard.** Everything in the chrome, the caption, the ladder, the peek, the ⋯ menu and the picker is a real
   button or link. Esc goes back up, closes a list, a menu or a dialog, folds an opened caption, or lets a caught
   packet go. ← → (▲ ▼ in portrait) step along, except inside an opened caption that scrolls (the arrows scroll it).
@@ -112,7 +120,7 @@ The work comes in four slices:
 - **Spoken descriptions.** Every scene has one (`describe`, kid and nerd, English and Danish): what the picture shows
   and what moves, in short sentences in the order you'd see things. A test fails if a scene a reader can reach has
   none in some language, at either level (no English fallback). How to write them: [authoring](authoring.md).
-- **Read aloud.** "Read aloud" in ⋯ (after Sound) has the browser's own voice read each scene as you arrive: its
+- **Read aloud.** "Read aloud" in ⋯ (after Sound, on a phone) has the browser's own voice read each scene as you arrive: its
   title, its description and the caption. It is offered only where the system has a voice for the page's language
   (no Danish voice, no Danish read aloud), is off by default, and is remembered. Turning it on says "Read aloud is
   on" (that tap is what lets iOS speak). While it is on, the caption has "Read again"; in the peek each hop is read.
@@ -232,7 +240,9 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
 - [ ] On a phone, the peek's grip says "Show the whole panel, collapsed" / "expanded"; swiping on through the sheet
       reaches every envelope, its magnifier and "How it travels".
 - [ ] Ladder: the current rung's list opens and closes ("expanded" / "collapsed"); Esc folds it.
-- [ ] ⋯: a menu with Language (radio items), Sound and Read aloud (checkboxes) and About; Esc returns to ⋯.
+- [ ] ⋯: a menu with Language (radio items), Read aloud (a checkbox; Sound too on a phone) and About; Esc returns to ⋯.
+- [ ] Mute sound (desktop): says "Mute sound, toggle button, not pressed"; pressed, the sound stops at once, the modem's
+      handshake too, and it is still muted after a reload.
 - [ ] Read aloud (with VoiceOver off): turned on it says so; each door reads the title, the description and the
       caption; "Read again" repeats it; a new door cuts it off. In Danish it is only offered with a Danish voice
       installed.
@@ -250,6 +260,7 @@ ladder or the peek, walk this with a real screen reader. **Not yet done for slic
       screen.
 - [ ] Double-tap a caption chip: the new scene is announced; the next swipe starts in the new caption.
 - [ ] ⏸ stops all motion, also inside a dive, and stays paused after a reload.
+- [ ] Sound plays from the first tap; Sound in ⋯ mutes it at once, and it stays muted after a reload.
 
 **TalkBack on Android** (Chrome): the same as iOS.
 

@@ -32,7 +32,7 @@ function downscale([png, w, h]) {
   const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 2, colorScheme: 'light' });
   const p = await ctx.newPage();
   await p.addInitScript(() => localStorage.setItem('coached', '2'));
-  await p.goto(`${BASE}?style=storybook#/en/home/watch-video`);
+  await p.goto(`${BASE}?style=storybook&sound=off#/en/home/watch-video`);
   await p.waitForFunction(() => window.__app && !window.__app.busy(), null, { timeout: 15000 });
   await p.addStyleTag({ content: `
     .chrome, .caption, .step, .skip { display: none !important; }

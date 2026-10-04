@@ -4,7 +4,7 @@
 import { tick } from 'svelte';
 import type { ActivityDef, Level, Mode, Orient } from './define';
 import type { Viewport } from './engine/camera';
-import { sfx } from './engine/sound';
+import { sfx, soundOnLoad, wakeOnGesture } from './engine/sound';
 import { speaker } from './engine/speech';
 import { clearMeasureCache, textBox } from './engine/svg';
 import type { Loc } from './model/location';
@@ -86,12 +86,13 @@ export const THEME_IDS = Object.keys(themeModules).map(idOf).sort((a, b) => meta
 export const themeSwatches: Record<string, string> = Object.fromEntries(THEME_IDS.map((id) => [id, metaOf(id).swatch]));
 
 /** `paused`: the reader stopped all motion (remembered, like the level: it's an access need, WCAG 2.2.2). `speech`:
- *  read aloud (#53; remembered too). */
+ *  read aloud (#53; remembered too). `sound`: on unless the reader muted it (remembered) or the link says
+ *  `?sound=off` (#189). */
 export interface Settings { style: string; sound: boolean; mode: Mode; paused: boolean; speech: boolean }
 const pick = <T extends string>(v: string | null, ok: readonly T[], d: T): T => (v && (ok as readonly string[]).includes(v) ? (v as T) : d);
 export const settings = $state<Settings>({
   style: pick(q.get('style'), THEME_IDS, pick(localStorage.getItem('style'), THEME_IDS, THEME_IDS[0])),
-  sound: false, // always muted on load
+  sound: soundOnLoad(q.get('sound'), localStorage.getItem('sound')),
   mode: 'day', // set below
   paused: localStorage.getItem('paused') === '1',
   speech: localStorage.getItem('speech') === '1',
@@ -99,12 +100,13 @@ export const settings = $state<Settings>({
 // rush hour is gone (#114): forget the choice a reader may have stored for it
 localStorage.removeItem('rush');
 
-/** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode`
- *  already in the query is kept in step with the reader's choice. */
+/** Write the style back into the query string (hash is left alone); only needed once there is a choice. A `mode` or
+ *  `sound` already in the query is kept in step with the reader's choice. */
 export function syncUrl() {
   const p = new URLSearchParams(location.search);
   if (THEME_IDS.length > 1) p.set('style', settings.style);
   if (p.has('mode')) p.set('mode', settings.mode);
+  if (p.has('sound')) p.set('sound', settings.sound ? 'on' : 'off');
   const qs = p.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`;
   if (url !== location.pathname + location.search + location.hash) history.replaceState(history.state, '', url);
@@ -115,10 +117,24 @@ export function setPaused(on: boolean) {
   if (on) localStorage.setItem('paused', '1');
   else localStorage.removeItem('paused');
 }
+
+// ------------------------------------------------------------------ sound (#189)
+// On from the first tap or key (a browser lets no audio start before one), unless the reader muted it: muting is
+// remembered, and `?sound=on|off` wins for one load.
+/** A tap or key has let audio start. */
+const audio = $state({ woken: false });
+sfx.setEnabled(settings.sound);
+wakeOnGesture(window, () => { audio.woken = true; sfx.wake(); });
 export function setSound(on: boolean) {
   settings.sound = on;
+  if (on) localStorage.removeItem('sound');
+  else localStorage.setItem('sound', 'off');
   sfx.setEnabled(on);
+  syncUrl();
 }
+/** Where a scene may play a short sound of its own: the Web Audio output while sound is on and a tap or key has let
+ *  it start, else null. Reactive. */
+export const soundOut = () => (settings.sound && audio.woken ? sfx.out() : null);
 
 /** Bumped when the system's voices change (they load after the page), so whether read aloud is offered updates. */
 const voices = $state({ n: 0 });

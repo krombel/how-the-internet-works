@@ -13,8 +13,8 @@ npm run build                # type-check + static build into dist/
 
 The engine is in `src/` and the content in `content/`: nodes, technologies, layers, dive scenes, places, eras,
 languages and themes are each added as a folder ([docs/authoring.md](docs/authoring.md)). The location is in the URL,
-e.g. `#/da/on-the-go/watch-video/internet/@mobile-core`; `?level=technical` starts at the technical level and
-`?mode=night` at night ([docs/architecture.md](docs/architecture.md#from-url-to-pixels)).
+e.g. `#/da/on-the-go/watch-video/internet/@mobile-core`; `?level=technical` starts at the technical level,
+`?mode=night` at night and `?sound=off` muted ([docs/architecture.md](docs/architecture.md#from-url-to-pixels)).
 
 ## Checks in a browser
 

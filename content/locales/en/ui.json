@@ -13,6 +13,7 @@
   "ui.language": "Language",
   "ui.level": "Detail level",
   "ui.sound": "Sound",
+  "ui.mute": "Mute sound",
   "ui.speech": "Read aloud",
   "note.extra": "Extra",
   "note.takes": "How long",
