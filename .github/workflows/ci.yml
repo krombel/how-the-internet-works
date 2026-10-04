@@ -13,14 +13,17 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Both jobs run on the self-hosted runners on the lab PC (label `lab`, two of them so day and night run side by side),
-# inside the Playwright image (the a11y jobs with the PC's GPU, /dev/dri), whose version must match package-lock's
-# `playwright` (the install step below is then a no-op; after a Playwright bump it fetches the matching browser until
-# the image tag is bumped too). Self-hosted runners cost no Actions minutes. Before the repo goes public, restrict them
-# (fork PRs must never reach them).
+# Where the jobs run follows the repo's visibility, so nothing changes by hand when it goes public:
+# - private: the self-hosted runners on the lab PC (label `lab`, two of them so day and night run side by side), the
+#   a11y jobs with the PC's GPU (/dev/dri, drawn through Mesa). Self-hosted runners cost no Actions minutes.
+# - public: GitHub's hosted runners (free for public repos), the a11y jobs on the software renderer (SWIFTSHADER,
+#   about 15–20 min a job). A public repo's PRs, from forks too, never reach the lab runners.
+# Both run inside the Playwright image, whose version must match package-lock's `playwright` (the install step below is
+# then a no-op; after a Playwright bump it fetches the matching browser until the image tag is bumped too). It brings
+# Chromium and its fonts and libraries; the app's own fonts are bundled.
 jobs:
   build:
-    runs-on: [self-hosted, lab]
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted","lab"]') || 'ubuntu-latest' }}
     container: mcr.microsoft.com/playwright:v1.63.0-noble
     timeout-minutes: 10
     steps:
@@ -34,17 +37,22 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      # the same dist/ under a sub-path, as GitHub Pages serves it (evaluate serves it itself)
+      - name: Under a sub-path
+        run: npm run evaluate -- --only=subpath
+        env:
+          SWIFTSHADER: '1'
+          EVALUATE_NO_LOCK: '1'
 
   a11y:
     name: a11y (${{ matrix.mode }})
     # on PRs (and by hand); a push to main is a PR that already passed it on the latest main
     if: github.event_name != 'push'
-    runs-on: [self-hosted, lab]
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted","lab"]') || 'ubuntu-latest' }}
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
-      # the lab PC's Intel GPU (Mesa): about 3× faster than the software renderer
-      options: --device /dev/dri
-    # day and night side by side on the two lab runners
+      # the lab PC's Intel GPU (Mesa): about 3× faster than the software renderer; hosted runners have none
+      options: ${{ github.event.repository.private && '--device /dev/dri' || '' }}
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -64,9 +72,11 @@ jobs:
       - name: Serve the build
         run: |
           npx vite preview --host 127.0.0.1 --port 5318 --strictPort &
-          for i in $(seq 30); do node -e "fetch('http://127.0.0.1:5318/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" && exit 0; sleep 1; done; exit 1
+          for _ in $(seq 30); do node -e "fetch('http://127.0.0.1:5318/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" && exit 0; sleep 1; done; exit 1
       - name: Accessibility, ${{ matrix.mode }}
         run: npm run evaluate -- --only=a11y --mode="$MODE"
         env:
           MODE: ${{ matrix.mode }}
+          # no GPU on a hosted runner: Chrome's software renderer, as evaluate's renderer line will say
+          SWIFTSHADER: ${{ !github.event.repository.private && '1' || '' }}
           EVALUATE_NO_LOCK: '1'

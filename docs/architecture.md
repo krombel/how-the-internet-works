@@ -710,13 +710,26 @@ Vitest (`npm test`) covers:
 - contrast (`model/contrast.test.ts`): the chrome's text pairs meet WCAG AA against the theme's tokens in day and
   night, with translucent cards composited over the page background
 
-CI runs `npm ci && npm test && npm run build`, and beside it the accessibility check (`npm run evaluate --
---only=a11y`, below) as two parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`), on every PR (a
-push to main runs only the build: what it merged passed on the latest main; run the workflow by hand for more). The
+CI runs `npm ci && npm test && npm run build`, then serves the build under a sub-path (`npm run evaluate --
+--only=subpath`, below), and beside it the accessibility check (`npm run evaluate -- --only=a11y`, below) as two
+parallel jobs, "a11y (day)" and "a11y (night)" (a matrix on `--mode`), on every PR (a push to main runs only the
+build: what it merged passed on the latest main; run the workflow by hand for more). While the repo is private, the
 jobs run on two self-hosted runners on a lab PC (label `lab`), inside the Playwright image, so they cost no Actions
 minutes; the a11y jobs get the PC's Intel GPU (`--device /dev/dri`, drawn through Mesa; evaluate prints the
-renderer). Perf (`--only=perf`) stays on a developer machine: the lab's old CPU and shared GPU can't measure frame
-times the way a reader's device would.
+renderer). Once it is public they run on GitHub's hosted runners (`ubuntu-latest`, picked from
+`github.event.repository.private`), so a fork's PR never reaches the lab: the same Playwright image, with no GPU, so
+the a11y jobs draw with SwiftShader (`SWIFTSHADER=1`, about 15–20 minutes a job). Perf (`--only=perf`) stays on a
+developer machine: neither the lab's old CPU and shared GPU nor a hosted runner can measure frame times the way a
+reader's device would.
+
+The site is published to GitHub Pages, at <https://tkjaer.github.io/how-the-internet-works/>, by `pages.yml` on every
+push to main (or by hand): it builds and deploys `dist/`, and does nothing while the repo is private. The build uses a
+relative base (`base: './'` in `vite.config.ts`; routing is in the hash), so the same `dist/` works at a domain's
+root, under a sub-path like Pages' or on a preview server. `--only=subpath` checks that: it serves `dist/` under
+`/how-the-internet-works/` and nothing else, walks a dive, a caught parcel, the time machine to 1995 and Danish, and
+fails on any request outside the sub-path, any failed request or page error, a missing font or icon, or a link-preview
+tag (`og:url`, `og:image`) that isn't an absolute URL to a file in the build. Those tags take the site's address from
+`VITE_SITE_URL` (`.env`; set it in the environment to build for another address).
 
 ## Performance
 
