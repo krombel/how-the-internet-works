@@ -10,7 +10,7 @@ export default defineNode({
     { url: 'https://en.wikipedia.org/wiki/Content_delivery_network', title: 'Content delivery network', level: 'both', lang: 'en' },
     { url: 'https://de.wikipedia.org/wiki/Content_Delivery_Network', title: 'Content Delivery Network', level: 'both', lang: 'de' },
     { url: 'https://en.wikipedia.org/wiki/Web_cache', title: 'Web cache', level: 'nerd', lang: 'en' },
-    { url: 'https://de.wikipedia.org/wiki/Browser-Cache', title: 'Browser-Cache', level: 'nerd', lang: 'de' },
+    { url: 'https://de.wikipedia.org/wiki/Reverse_Proxy', title: 'Reverse Proxy', level: 'nerd', lang: 'de' },
     { url: 'https://en.wikipedia.org/wiki/Cache_(computing)', title: 'Cache (computing)', level: 'both', lang: 'en' },
     { url: 'https://de.wikipedia.org/wiki/Cache', title: 'Cache', level: 'both', lang: 'de' },
     { url: 'https://en.wikipedia.org/wiki/Virtual_machine', title: 'Virtual machine', level: 'nerd', lang: 'en' },
