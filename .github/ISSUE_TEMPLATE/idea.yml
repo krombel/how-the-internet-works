@@ -1,0 +1,20 @@
+name: Idea
+description: Something to explain, a place, a technology, an era, or a feature.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should it show or explain, and who is it for (Simple, Technical, both)?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What would a reader understand afterwards that they don't today?
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources or examples

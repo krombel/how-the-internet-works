@@ -1,0 +1,31 @@
+name: Something looks broken
+description: A glitch, overlap, crash or something that doesn't work as it should.
+labels: [bug]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Where
+      description: Copy the address from your browser; it says exactly where you were (place, scene, stop, language).
+      placeholder: https://tkjaer.github.io/how-the-internet-works/#/en/at-home/watch-video/…
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you see, and what did you expect? A screenshot or a short recording helps a lot.
+    validations:
+      required: true
+  - type: dropdown
+    id: level
+    attributes:
+      label: Level
+      options: [Simple, Technical, Both]
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: iPhone 13, Safari / Windows laptop, Firefox 131
+    validations:
+      required: true
