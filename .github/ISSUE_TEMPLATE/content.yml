@@ -1,0 +1,30 @@
+name: Wrong or unclear explanation
+description: A fact that isn't right, or a text that could explain it better.
+labels: [documentation]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Where
+      description: Copy the address from your browser.
+    validations:
+      required: true
+  - type: dropdown
+    id: level
+    attributes:
+      label: Level
+      options: [Simple, Technical, Both]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong or unclear
+      description: Quote the text, and say what you'd write instead if you have an idea.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: For a factual correction, a link to a standard, RFC or other source.
