@@ -26,7 +26,7 @@
     "start": {
       "name": {
         "kid": "Der Brief sagt",
-        "nerd": "Start line"
+        "nerd": "Startzeile"
       },
       "about": "Die Anfrage (Method und Path) oder der Status der Antwort."
     },

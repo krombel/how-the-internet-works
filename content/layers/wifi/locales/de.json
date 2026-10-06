@@ -36,7 +36,7 @@
       "about": "Das ferne Ende auf der Kabelseite: der AP kopiert es in den Ethernet-Frame, den er bridged."
     },
     "seq": {
-      "name": "Sequence control",
+      "name": "Sequenzkontrolle",
       "about": "Findet Duplikate, wenn ein Frame nachgesendet wird."
     },
     "qos": {

@@ -10,7 +10,7 @@
       "nerd": "An der Bridge hat der Uplink 802.11 QoS Data Frame RA=AP, TA=STA und addr3=die Distribution-System Destination. Der AP decapsuliert ihn, prüft CCMP/FCS und sendet einen Ethernet Frame zum Router; das IP-Paket bleibt unberührt.",
       "describe": {
         "kid": "Auf der Straße stehen {yours}, der Zugangspunkt und der Router. Papierkarten zeigen Adressen und Abwechseln. Ein Funkumschlag geht von {yours} zum Zugangspunkt. Dort öffnet er sich und wird ein Kabelumschlag für den Router. Die Abwechsel-Karte zeigt hören, warten, stoßen, nochmal und „Habe es!“.",
-        "nerd": "Die Address-Karte zeigt den Uplink 802.11 Frame neben dem Ethernet Frame. Sie listet To DS, addr1 AP, addr2 STA und addr3 router, dann DA und SA auf Cable. Der Airtime-Streifen animiert AIFS, Backoff, Data, no ACK, Retry, SIFS plus ACK sowie Sequence, Retry und CCMP Labels."
+        "nerd": "Die Address-Karte zeigt den Uplink 802.11 Frame neben dem Ethernet Frame. Sie listet To DS, addr1 AP, addr2 STA und addr3 router, dann DA und SA auf dem Kabel. Der Airtime-Streifen animiert AIFS, Backoff, Daten, kein ACK, Neuversuch, SIFS plus ACK sowie Sequenz, Neuversuch und CCMP."
       }
     },
     "endpoint": {
@@ -68,9 +68,9 @@
   "tag": {
     "toDs": "To DS = 1",
     "fromDs": "From DS = 1",
-    "csma": "CSMA/CA · random backoff",
-    "encrypt": "WPA3/CCMP hides the payload",
-    "sequence": "SIFS 16 µs (5 GHz) · ACK · retry bit",
+    "csma": "CSMA/CA · zufälliger Backoff",
+    "encrypt": "WPA3/CCMP verbirgt die Nutzlast",
+    "sequence": "SIFS 16 µs (5 GHz) · ACK · Retry-Bit",
     "everyone": "alle hören ihn",
     "gotIt": "Empfänger sagt „Habe es!“",
     "noAck": "kein ACK"
@@ -79,7 +79,7 @@
     "extra": "Wi‑Fi 4 (802.11n, 2009): Frame Aggregation (A-MPDU) packt mehrere Frames in eine Übertragung mit einem Block Ack, und mit zwei oder mehr Antennen je Seite (MIMO) teilen sich mehrere Streams den Kanal, bis zu 150 Mbit/s je auf einem 40 MHz Kanal in 2.4 oder 5 GHz. Multi-Link Operation kam erst mit Wi‑Fi 7 2024.",
     "nerd": "Ein 802.11 Data Frame nennt Receiver, Transmitter und die ferne Wired-Side Address, schützt die Payload mit WPA2/CCMP und setzt auf CSMA/CA plus ACKs, Sequence Numbers und Retries auf geteilter Airtime.",
     "tag": {
-      "encrypt": "WPA2/CCMP hides the payload"
+      "encrypt": "WPA2/CCMP verbirgt die Nutzlast"
     }
   }
 }

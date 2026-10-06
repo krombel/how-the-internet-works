@@ -14,9 +14,9 @@
     "lan-wdm": "4 λ · 1295–1310 nm",
     "cwdm4": "4 λ · 1271–1331 nm",
     "fttb": "BiDi · ↑1310 ↓1490 nm · ein Strang",
-    "submarine": "EDFA / {span} km · DC from shore",
+    "submarine": "EDFA / {span} km · Gleichstrom vom Ufer",
     "atm": "SONET OC-3 · 1 λ · regenerators",
-    "submarine-sdh": "STM-16 · 1 λ per pair · regenerators"
+    "submarine-sdh": "STM-16 · 1 λ pro Paar · Regeneratoren"
   },
   "gpon": {
     "title": "Licht, das deine Straße teilt",

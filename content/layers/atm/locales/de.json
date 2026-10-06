@@ -21,11 +21,11 @@
       "about": "Virtual Channel: die Nummer dieser Leitung auf diesem Abschnitt. Jeder Switch tauscht sie gegen die nächste."
     },
     "pti": {
-      "name": "Payload type",
+      "name": "Nutzlasttyp",
       "about": "Sagt, dass es Daten sind; die letzte Cell eines Pakets wird hier markiert, damit das andere Ende weiß, dass es vollständig ist."
     },
     "clp": {
-      "name": "Cell loss priority",
+      "name": "Verlustpriorität",
       "about": "1 = zuerst verwerfen, wenn ein Switch voll ist."
     },
     "hec": {

@@ -84,7 +84,7 @@
       "about": "Version 1, GTP (nicht GTP′), ein Extension Header folgt."
     },
     "type": {
-      "name": "Message type",
+      "name": "Nachrichtentyp",
       "about": "255 = G-PDU: ein Benutzerpaket innen."
     },
     "length": {

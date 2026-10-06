@@ -96,19 +96,19 @@
   "up": "Hoch zu: {layer}",
   "write": "Das Etikett schreiben",
   "tag": {
-    "lpm": "longest match wins",
-    "default": "default route 0/0",
+    "lpm": "längster Treffer gewinnt",
+    "default": "Standardroute 0/0",
     "ttl": "TTL {a} → {b}",
-    "ttlLabel": "TTL {a} → {b}, from the label",
+    "ttlLabel": "TTL {a} → {b}, aus dem Label",
     "nat": "192.168.x.x → public",
     "cgnat": "100.64.0.0/10 → public",
-    "ports": "clash? new port",
+    "ports": "belegt? neuer Port",
     "mac": "own MAC {mac}",
-    "macPassed": "MACs passed on",
-    "noMac": "no MAC addresses here",
-    "untouched": "IP header untouched",
+    "macPassed": "MACs weitergereicht",
+    "noMac": "hier keine MAC-Adressen",
+    "untouched": "IP-Header unberührt",
     "proto": "protocol 6 → TCP",
-    "ttl64": "new packets: TTL 64"
+    "ttl64": "neue Pakete: TTL 64"
   },
   "1995": {
     "describe": {
@@ -134,7 +134,7 @@
     "at": {
       "mobile-core": {
         "kid": "Handys im Mobilnetz bekommen keine eigene Internetadresse. Das Mobil-Tor tauscht den Absender-Aufkleber vieler Handys gegen dieselbe eine Adresse und gibt jedem eine eigene Ticketnummer in seinem Notizbuch.",
-        "nerd": "Carrier-grade NAT am GGSN: Handys bekommen private Adressen, hier aus 10.0.0.0/8, und Dutzende bis Hunderte teilen eine öffentliche IPv4-Adresse, jedes mit eigenem Portblock. Ein Shared Space nur dafür, 100.64.0.0/10, kam later (RFC 6598, 2012). Das ist ein großer Grund für IPv6.",
+        "nerd": "Carrier-grade NAT am GGSN: Handys bekommen private Adressen, hier aus 10.0.0.0/8, und Dutzende bis Hunderte teilen eine öffentliche IPv4-Adresse, jedes mit eigenem Portblock. Ein Shared Space nur dafür, 100.64.0.0/10, kam später (RFC 6598, 2012). Das ist ein großer Grund für IPv6.",
         "describe": {
           "kid": "Die Straße zeigt mehrere Handys, die sich ein Mobil-Tor auf dem Weg zum Videoserver teilen. Die Adresskarte ändert From zu Mobil-Tor. Das Tausch-Notizbuch ist voller Nachbarn mit Ticketnummern. Ein Päckchen hält am Tor, bekommt den Aufkleber getauscht, dann läuft es weiter. Antworten nutzen das Notizbuch, um das richtige Handy zu finden.",
           "nerd": "Das ist die NAT-Variante für Carrier-grade NAT. Die Karte schreibt eine private Quelle von 10.0.0.0/8 auf die öffentliche Adresse des Carriers um. Die Tabelle mappt mehrere innere Adress- und Portpaare auf äußere Ports. Das Paket pausiert für den Rewrite, TTL fällt, und das Forwarding geht weiter."

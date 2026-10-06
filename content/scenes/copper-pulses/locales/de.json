@@ -20,7 +20,7 @@
   "eyeTitle": "Offenes Auge = lesbar",
   "tag": {
     "speedShort": "1000BASE-T · 1 Gbit/s",
-    "duplexShort": "full duplex",
+    "duplexShort": "Vollduplex",
     "catShort": "100 m"
   },
   "twistLine": "Rauschen hebt sich auf.",
@@ -44,7 +44,7 @@
     "title": "MLT-3-Code",
     "line": "Eine 1 macht einen Schritt; eine 0 bleibt.",
     "speed": "100BASE-TX · 100 Mbit/s",
-    "duplex": "full duplex",
+    "duplex": "Vollduplex",
     "cat": "Cat 5 · 100 m",
     "pairs": "Zwei der vier Paare tragen das Signal",
     "pairsShort": "Zwei Paare in Nutzung",

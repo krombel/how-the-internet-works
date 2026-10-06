@@ -17,11 +17,11 @@
       "about": "Vom nächsten Router für diesen Pfad gewählt: er switched anhand des Labels, ohne die IP-Adresse zu lesen."
     },
     "tc": {
-      "name": "Traffic class",
+      "name": "Verkehrsklasse",
       "about": "Priorität im Kern."
     },
     "s": {
-      "name": "Bottom of stack",
+      "name": "Stapelende",
       "about": "1 = das letzte Label; ein IP-Paket folgt."
     },
     "ttl": {

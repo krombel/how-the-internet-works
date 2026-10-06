@@ -14,7 +14,7 @@
   "line": "Transport Layer Security: Application Data, Länge {length}",
   "field": {
     "type": {
-      "name": "Content type",
+      "name": "Inhaltstyp",
       "about": "23 = verschlüsselte Application Data (der Handshake ist vorbei)."
     },
     "version": {

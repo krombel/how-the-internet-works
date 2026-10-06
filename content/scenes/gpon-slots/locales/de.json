@@ -56,6 +56,6 @@
   "tag": {
     "down": "Broadcast · AES per XGEM port",
     "up": "BWmap · Alloc-ID/T-CONT · DBA",
-    "ranging": "Ranging adds equalisation delay"
+    "ranging": "Ranging fügt Ausgleichsverzögerung hinzu"
   }
 }

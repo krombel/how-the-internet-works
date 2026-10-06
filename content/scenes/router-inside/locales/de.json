@@ -23,7 +23,7 @@
     },
     "idle": {
       "kid": "Ruht",
-      "nerd": "Idle this trip"
+      "nerd": "Hier unbenutzt"
     }
   },
   "wifi": {
@@ -37,7 +37,7 @@
     },
     "idle": {
       "kid": "Ruht",
-      "nerd": "Idle this trip"
+      "nerd": "Hier unbenutzt"
     }
   },
   "brain": {
@@ -47,7 +47,7 @@
     },
     "line": {
       "kid": "Tauscht den Absender",
-      "nerd": "Rewrites the source"
+      "nerd": "Schreibt den Absender um"
     }
   },
   "ont": {
@@ -61,7 +61,7 @@
     },
     "idle": {
       "kid": "Ruht",
-      "nerd": "Idle this trip"
+      "nerd": "Hier unbenutzt"
     }
   },
   "modem": {
@@ -75,7 +75,7 @@
     },
     "idle": {
       "kid": "Ruht",
-      "nerd": "Idle this trip"
+      "nerd": "Hier unbenutzt"
     }
   },
   "dsl-router": {

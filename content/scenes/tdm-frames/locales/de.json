@@ -53,11 +53,11 @@
   },
   "wire": {
     "kid": "Eine Reihe Boxen, 8.000 Mal in der Sekunde",
-    "nerd": "One frame every 125 µs, each way"
+    "nerd": "Ein Rahmen alle 125 µs, je Richtung"
   },
   "frameTitle": {
     "kid": "Eine Reihe Boxen",
-    "nerd": "One frame, slot by slot"
+    "nerd": "Ein Rahmen, Slot für Slot"
   },
   "legend": {
     "sync": {
@@ -66,7 +66,7 @@
     },
     "fbit": {
       "kid": "Hält den Takt",
-      "nerd": "F: framing bit"
+      "nerd": "F: Rahmenbit"
     },
     "signal": {
       "kid": "Nachrichten",
@@ -86,11 +86,11 @@
     },
     "pipe": {
       "kid": "Ein Rohr",
-      "nerd": "1–31: one channel"
+      "nerd": "1–31: ein Kanal"
     },
     "pipeT1": {
       "kid": "Ein Rohr",
-      "nerd": "1–24: one channel"
+      "nerd": "1–24: ein Kanal"
     },
     "ss7": {
       "kid": "Nachrichten",
@@ -98,11 +98,11 @@
     },
     "circuit": {
       "kid": "Dein Anruf",
-      "nerd": "Your circuit"
+      "nerd": "Deine Verbindung"
     },
     "circuits": {
       "kid": "Andere Anrufer",
-      "nerd": "Other circuits"
+      "nerd": "Andere Verbindungen"
     },
     "lapd": {
       "kid": "Mast-Nachrichten",
@@ -131,21 +131,21 @@
     "e1": {
       "title": {
         "kid": "Auf und ab auf dem Kupfer",
-        "nerd": "HDB3 line code"
+        "nerd": "HDB3-Leitungscode"
       },
       "line": {
         "kid": "Jede 1 kippt hoch oder runter; lange stille Strecken bekommen einen Fake-Blip",
-        "nerd": "AMI, but 0000 goes as 000V or B00V"
+        "nerd": "AMI, aber 0000 geht als 000V oder B00V"
       }
     },
     "t1": {
       "title": {
         "kid": "Auf und ab auf dem Kupfer",
-        "nerd": "AMI line code"
+        "nerd": "AMI-Leitungscode"
       },
       "line": {
         "kid": "Jede 1 kippt hoch oder runter, damit die Leitung im Gleichgewicht bleibt",
-        "nerd": "AMI; B8ZS replaces 8 zeros with violations"
+        "nerd": "AMI; B8ZS ersetzt 8 Nullen durch Verletzungen"
       }
     }
   }

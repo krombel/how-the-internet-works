@@ -17,7 +17,7 @@
       "about": "Der Kurzname des Masts für dieses Handy in dieser Zelle (er scrambled die Zuteilung, kein Header-Byte)."
     },
     "lcid": {
-      "name": "Logical channel",
+      "name": "Logischer Kanal",
       "about": "MAC-Subheader: welcher Kanal (hier ein Data Bearer)."
     },
     "rlcsn": {

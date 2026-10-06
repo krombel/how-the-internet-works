@@ -67,7 +67,7 @@
     "window": "win=4",
     "dupAck": "dup ACK=5 ×{n}",
     "fast": "3 dup ACKs → #5",
-    "order": "in-order bytes",
+    "order": "Bytes in Reihenfolge",
     "seal": "TCP sealed",
     "nat": "ports: {nat}"
   },

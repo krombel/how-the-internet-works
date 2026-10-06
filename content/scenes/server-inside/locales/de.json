@@ -13,15 +13,15 @@
   "app": "Video-App",
   "hit": {
     "kid": "Da ist es!",
-    "nerd": "HIT · served from cache"
+    "nerd": "HIT · aus dem Cache"
   },
   "miss": {
     "kid": "Nicht hier: die Hauptkopie fragen",
-    "nerd": "MISS · fetch origin, store copy"
+    "nerd": "MISS · vom Origin holen, Kopie speichern"
   },
   "origin": {
     "kid": "Hauptkopie, weit weg",
-    "nerd": "Origin keeps 3 copies"
+    "nerd": "Origin hält 3 Kopien"
   },
   "nic": {
     "title": {
@@ -30,7 +30,7 @@
     },
     "line": {
       "kid": "Licht → Bits",
-      "nerd": "Fibre frames → DMA"
+      "nerd": "Glasfaser-Frames → DMA"
     }
   },
   "compute": {
@@ -40,7 +40,7 @@
     },
     "line": {
       "kid": "Läuft die Video-App",
-      "nerd": "Bare-metal cache app"
+      "nerd": "Cache-App auf Bare Metal"
     }
   },
   "memory": {
@@ -50,7 +50,7 @@
     },
     "line": {
       "kid": "Schnelles Regal",
-      "nerd": "Hot objects in RAM"
+      "nerd": "Heiße Objekte im RAM"
     }
   },
   "ssd": {
@@ -60,7 +60,7 @@
     },
     "line": {
       "kid": "Regale voller Videos",
-      "nerd": "Cache objects on disk"
+      "nerd": "Cache-Objekte auf Platte"
     }
   },
   "1995": {
@@ -93,11 +93,11 @@
     "disk": {
       "title": {
         "kid": "Platte",
-        "nerd": "Hard disk"
+        "nerd": "Festplatte"
       },
       "line": {
         "kid": "Seiten und Bilder",
-        "nerd": "Files on disk"
+        "nerd": "Dateien auf der Platte"
       }
     },
     "ok": {
@@ -128,11 +128,11 @@
     },
     "ssd": {
       "title": {
-        "nerd": "Hard-disk cache",
+        "nerd": "Festplatten-Cache",
         "kid": "Platten-Regale"
       },
       "line": {
-        "nerd": "Objects on hard disks",
+        "nerd": "Objekte auf Festplatten",
         "kid": "Regale voller Videos"
       }
     },
@@ -144,7 +144,7 @@
       },
       "line": {
         "kid": "Helfer bei der Arbeit",
-        "nerd": "Linux · cache processes"
+        "nerd": "Linux · Cache-Prozesse"
       }
     }
   }

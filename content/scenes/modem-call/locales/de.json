@@ -45,11 +45,11 @@
     },
     "answer": {
       "kid": "Das Modem hebt ab",
-      "nerd": "Answer tone 2100 Hz"
+      "nerd": "Antwortton 2100 Hz"
     },
     "train": {
       "kid": "Modems geben sich die Hand",
-      "nerd": "V.8, then training"
+      "nerd": "V.8, dann Training"
     },
     "online": {
       "kid": "Online!",

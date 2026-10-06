@@ -33,7 +33,7 @@
       "about": "Das nächste Byte, das der Absender von der anderen Seite erwartet: alles davor ist angekommen."
     },
     "offset": {
-      "name": "Data offset",
+      "name": "Daten-Offset",
       "about": "Headerlänge in 32-Bit-Wörtern."
     },
     "reserved": {

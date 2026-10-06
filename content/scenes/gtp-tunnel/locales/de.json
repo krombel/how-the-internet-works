@@ -13,7 +13,7 @@
   },
   "tag": {
     "tunnel": "GTP-U TEID {teid}",
-    "anchor": "UE IP anchored at UPF/PGW"
+    "anchor": "UE-IP an UPF/PGW verankert"
   },
   "at": {
     "cell-tower": {
@@ -43,7 +43,7 @@
       "fromCore": "Zurück zum RNC"
     },
     "tag": {
-      "anchor": "Phone IP anchored at the GGSN"
+      "anchor": "Handy-IP am GGSN verankert"
     },
     "at": {
       "rnc": {

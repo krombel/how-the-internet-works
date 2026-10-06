@@ -33,11 +33,11 @@
     },
     "answer": {
       "kid": "Beim Videoserver",
-      "nerd": "Cache and status"
+      "nerd": "Cache und Status"
     },
     "seen": {
       "kid": "Alles, was es sehen kann",
-      "nerd": "Only the outside"
+      "nerd": "Nur die Außenseite"
     },
     "locked": {
       "kid": "Der Brief innen",
@@ -62,15 +62,15 @@
   "status": {
     "slower": {
       "kid": "Langsamer! Frag nach niedrig",
-      "nerd": "Throughput fell: 360p"
+      "nerd": "Durchsatz sank: 360p"
     },
     "play": {
       "kid": "Läuft weiter!",
-      "nerd": "No stall: buffer kept"
+      "nerd": "Kein Stocken: Puffer hielt"
     },
     "guess": {
       "kid": "Kleinere Boxen: niedrigere Qualität?",
-      "nerd": "Sizes hint at the bitrate"
+      "nerd": "Größen verraten die Bitrate"
     },
     "locked": {
       "kid": "Nur die zwei Enden können es lesen",
@@ -88,7 +88,7 @@
     },
     "fetch": {
       "kid": "Von der Hauptkopie",
-      "nerd": "GET from origin"
+      "nerd": "GET vom Origin"
     },
     "kept": {
       "kid": "Eine Kopie behalten!",
@@ -119,18 +119,18 @@
     "range": "Range: bytes=… → 206",
     "hit": "X-Cache: HIT · Age: 31",
     "miss": "X-Cache: MISS → origin",
-    "length": "TLS shows only name & sizes",
+    "length": "TLS: nur Name und Größen",
     "guess": "size ÷ 2 s ≈ bitrate"
   },
   "1995": {
     "title": "Eine Seite bestellen",
     "kid": "1995 schreibt {yours} einen Zettel: die Seite, bitte. Der Webserver findet sie auf seiner Disk, stempelt 200 OK und schickt sie zurück. Dann bittet ein zweiter Zettel um das Bild auf der Seite, und das Bild kommt denselben Weg zurück.",
-    "nerd": "Klares HTTP/1.0, kein TLS (SSL 2.0 kam in Netscape 1995, für Shops): GET /index.html bekommt 200 OK mit Content-Type: text/html, dann holt eine neue TCP-Verbindung GET /picture.gif (image/gif). Jeder Hop auf dem Weg konnte alles lesen. no Host-Header war noch nicht nötig, und keine gemeinsamen Caches standen standardmäßig in der Mitte; manche Unis und ISPs liefen Caching-Proxys (CERN httpd, Harvest), auf die Browser eingerichtet waren.",
+    "nerd": "Klares HTTP/1.0, kein TLS (SSL 2.0 kam in Netscape 1995, für Shops): GET /index.html bekommt 200 OK mit Content-Type: text/html, dann holt eine neue TCP-Verbindung GET /picture.gif (image/gif). Jeder Hop auf dem Weg konnte alles lesen. Ein Host-Header war noch nicht nötig, und keine gemeinsamen Caches standen standardmäßig in der Mitte; manche Unis und ISPs liefen Caching-Proxys (CERN httpd, Harvest), auf die Browser eingerichtet waren.",
     "at": {
       "web-server": {
         "title": "Der Webserver antwortet",
         "kid": "Der Webserver liest jeden Zettel und findet, was er fragt, auf der eigenen Disk: zuerst die Seite, dann ihr Bild. Jede Antwort beginnt mit einem Stempel: 200 OK heißt hier ist es.",
-        "nerd": "Der Server (NCSA HTTPd etwa) liest die Request-Line, findet /index.html unter seiner Document Root und antwortet HTTP/1.0 200 OK mit Content-Type: text/html und Content-Length, dann die Datei; dasselbe für /picture.gif (image/gif). Er schließt die Verbindung nach jeder Antwort. No cache, no CDN (Akamai began in 1998–99).",
+        "nerd": "Der Server (NCSA HTTPd etwa) liest die Request-Line, findet /index.html unter seiner Document Root und antwortet HTTP/1.0 200 OK mit Content-Type: text/html und Content-Length, dann die Datei; dasselbe für /picture.gif (image/gif). Er schließt die Verbindung nach jeder Antwort. Kein Cache, kein CDN (Akamai begann 1998–99).",
         "describe": {
           "kid": "Der Webserver ist am Ende der Straße hervorgehoben. Zettel kommen von {yours}. Auf der Server-Karte sitzen Seite und Bild auf der Disk: die Seite leuchtet, ein 200-OK-Stempel kommt runter und die Seite geht zurück. Dann leuchtet das Bild und geht denselben Weg zurück.",
           "nerd": "Der Webserver ist der fokussierte Endpunkt. Requests kommen an: auf der Disk-Karte findet GET /index.html die Seite, 200 OK, und die Seite geht zurück; dann GET /picture.gif findet das Bild, 200 OK, und es kehrt zurück. Jede Datei kommt von der eigenen Disk des Servers."
@@ -140,7 +140,7 @@
     "card": {
       "answer": {
         "kid": "Beim Server",
-        "nerd": "Disk and status"
+        "nerd": "Platte und Status"
       },
       "seen": {
         "kid": "Was vorbeigeht",
@@ -163,19 +163,19 @@
     "status": {
       "locked": {
         "kid": "Jeder auf dem Weg konnte es lesen",
-        "nerd": "Path, headers, status: plain text"
+        "nerd": "Pfad, Header, Status: Klartext"
       },
       "guess": {
         "kid": "Es könnte sie lesen, tut es aber nicht",
-        "nerd": "No need to guess: it's readable"
+        "nerd": "Nichts zu raten: lesbar"
       }
     },
     "tag": {
-      "length": "No TLS: all in the clear",
-      "request": "HTTP/1.0 · no Host header",
+      "length": "Kein TLS: alles im Klartext",
+      "request": "HTTP/1.0 · kein Host-Header",
       "page": "Content-Type: text/html",
       "picture": "Content-Type: image/gif",
-      "guess": "Content-Length in the clear"
+      "guess": "Content-Length im Klartext"
     },
     "describe": {
       "kid": "Eine Straße verbindet {yours} und den Webserver. Auf der linken Karte bittet ein Zettel um die Seite und geht zum Server. Der Server findet die Seite auf der Disk, stempelt 200 OK und schickt sie zurück. Dann bittet der nächste Zettel um das Bild, und das Bild kommt zurück.",
@@ -188,7 +188,7 @@
     "shelf": {
       "disk": {
         "kid": "Auf der Disk!",
-        "nerd": "Read from disk"
+        "nerd": "Von der Platte gelesen"
       }
     },
     "size": {
@@ -237,17 +237,17 @@
     "status": {
       "locked": {
         "kid": "Jeder auf dem Weg konnte es lesen",
-        "nerd": "Path, Host, status: plain text"
+        "nerd": "Pfad, Host, Status: Klartext"
       },
       "guess": {
         "kid": "Es könnte sie lesen, tut es aber nicht",
-        "nerd": "Skipped ahead: Range → 206"
+        "nerd": "Vorgespult: Range → 206"
       }
     },
     "tag": {
-      "length": "No TLS: all in the clear",
+      "length": "Kein TLS: alles im Klartext",
       "mpd": "M3U8: 1080p · 720p · 360p",
-      "guess": "Content-Length = whole video"
+      "guess": "Content-Length = ganzes Video"
     },
     "size": {
       "med": {

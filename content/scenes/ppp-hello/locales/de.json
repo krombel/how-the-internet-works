@@ -112,7 +112,7 @@
     },
     "helloTitle": {
       "kid": "Noch da?",
-      "nerd": "Keepalives, then data"
+      "nerd": "Keepalives, dann Daten"
     },
     "talk": {
       "keep": {
@@ -142,7 +142,7 @@
         },
         "answer": {
           "kid": "Habe es, hier kommt eins zurück",
-          "nerd": "IP packet back"
+          "nerd": "IP-Paket zurück"
         }
       }
     }

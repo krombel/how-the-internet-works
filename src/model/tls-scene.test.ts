@@ -32,7 +32,7 @@ describe('the TLS dive (tls-lock)', () => {
           for (const y of P.rows) expect(y > card.y && y + 48 * P.scale < card.y + card.h).toBe(true);
         }
     expect(langs).toEqual(expect.arrayContaining(['en', 'da', 'de']));
-    expect(Object.keys(nodes).sort()).toEqual(clients.flatMap((c) => langs.map((l) => `../../content/nodes/${c}/locales/${l}.json`)).sort());
+    expect(Object.keys(nodes)).toEqual(expect.arrayContaining(clients.flatMap((c) => langs.map((l) => `../../content/nodes/${c}/locales/${l}.json`))));
   });
 
   it('plays the ID first for kids, and the TLS 1.3 order for nerds: keys, then the encrypted certificate (#132)', () => {

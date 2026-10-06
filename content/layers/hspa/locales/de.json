@@ -17,11 +17,11 @@
       "about": "Der Kurzname der NodeB für dieses Handy auf dem gemeinsamen HSDPA-Kanal (er markiert die Plätze des Handys auf dem Control Channel)."
     },
     "queue": {
-      "name": "Priority queue",
+      "name": "Prioritätswarteschlange",
       "about": "MAC-hs-Header: aus welcher Queue des Handys in der NodeB das kam."
     },
     "tsn": {
-      "name": "Transmission sequence no.",
+      "name": "Sendefolgenummer",
       "about": "MAC-hs-Header: bringt die 2-ms-Blöcke nach HARQ-Nachsendungen wieder in Reihenfolge."
     },
     "rlcsn": {

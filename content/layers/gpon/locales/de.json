@@ -10,7 +10,7 @@
   "line": "XGEM (XG-PON Encapsulation Method), Port-ID {port}, Länge {pli}",
   "field": {
     "pli": {
-      "name": "Payload length",
+      "name": "Nutzlastlänge",
       "about": "Bytes Payload in diesem XGEM-Frame: der ganze Ethernet-Frame innen."
     },
     "keyidx": {
@@ -29,7 +29,7 @@
       "about": "Reservebits, heute ungenutzt."
     },
     "lf": {
-      "name": "Last fragment",
+      "name": "Letztes Fragment",
       "about": "1, wenn dies das letzte (hier: das einzige) Stück des Ethernet-Frames ist."
     },
     "hec": {

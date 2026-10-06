@@ -23,7 +23,7 @@
   "radio": {
     "title": {
       "kid": "Funkeinheit",
-      "nerd": "Radio unit (RU)"
+      "nerd": "Funkeinheit (RU)"
     },
     "line": {
       "kid": "Funk ↔ Bits",
@@ -39,7 +39,7 @@
   "fibre": {
     "title": {
       "kid": "Glasfaden raus",
-      "nerd": "Metro fibre"
+      "nerd": "Metro-Glasfaser"
     },
     "line": {
       "kid": "Bits → Licht",
