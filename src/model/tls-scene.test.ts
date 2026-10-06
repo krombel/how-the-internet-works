@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { layoutFor, paintRows, tlsMoment } from '../../content/scenes/tls-lock/tls';
 import en from '../../content/scenes/tls-lock/locales/en.json';
 import da from '../../content/scenes/tls-lock/locales/da.json';
+import de from '../../content/scenes/tls-lock/locales/de.json';
 
 // the client, named on the paint row (#132): any device that starts a trip
 const nodes = import.meta.glob<{ name: string }>('../../content/nodes/{phone,phone-3g,laptop,pc}/locales/*.json', { eager: true, import: 'default' });
@@ -16,7 +17,7 @@ const views = [
 describe('the TLS dive (tls-lock)', () => {
   it('lays the paint rows with three pots of one size, signs in clear gaps, inside either card (#90, #132)', () => {
     for (const [o, vp] of views)
-      for (const { label } of [en, da])
+      for (const { label } of [en, da, de])
         for (const card of layoutFor(o, vp).cards) {
           const L = layoutFor(o, vp), chars = longest(label.server), P = paintRows(L, card, o, chars);
           const sign = 0.3 * L.size.big;
@@ -28,7 +29,7 @@ describe('the TLS dive (tls-lock)', () => {
           expect(P.pots[2] + P.half).toBeLessThanOrEqual(card.x + card.w - 24);
           for (const y of P.rows) expect(y > card.y && y + 48 * P.scale < card.y + card.h).toBe(true);
         }
-    expect(Object.keys(nodes)).toHaveLength(8);
+    expect(Object.keys(nodes)).toHaveLength(12);
   });
 
   it('plays the ID first for kids, and the TLS 1.3 order for nerds: keys, then the encrypted certificate (#132)', () => {

@@ -559,7 +559,7 @@ Questions 1–3 are settled by the [decision](#decision-after-trying-it): storyb
 7. **Swipe to step vs swipe to pan.** A fast flick steps and a slow drag pans. Do small fingers trigger the wrong
    one?
 8. **Nerd mode.** Should it change the style (e.g. switch to neon) or only the labels?
-9. **Arabic.** Settled (issue #11): dropped for now. We ship only languages we can review (English and Danish);
+9. **Arabic.** Settled (issue #11): dropped for now. We ship only languages we can review (English, Danish and German);
    the engine keeps RTL support for a reviewed language later.
 10. **Deeper hops.** The sub-path hops are "recursion-ready" but don't expand yet. Which one first: BNG / ISP
     core, the IXP (peering agreements), or the video server (CDN caches)?

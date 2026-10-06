@@ -1,4 +1,4 @@
-// Right-to-left support stays in the engine, driven by a language's meta.json, though the shipped languages (en, da)
+// Right-to-left support stays in the engine, driven by a language's meta.json, though the shipped languages (en, da, de)
 // are all left-to-right. A made-up RTL language, only for this test, keeps that support from rotting.
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Pack } from './model/strings';
