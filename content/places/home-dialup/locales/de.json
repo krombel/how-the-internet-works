@@ -18,7 +18,7 @@
     },
     "bng": {
       "kid": "Hier nehmen die Modems deiner Internetfirma den Anruf an. Sie prüfen dein Passwort, geben dem Computer eine Adresse und schicken die Päckchen ins Internet weiter.",
-      "nerd": "Der Access-Server des ISP: eine Bank digitaler Modems auf ISDN-PRI-Leitungen von der Vermittlung, 30 Rufe pro Leitung. Er nimmt ab, prüft den Login (PAP oder CHAP), vergibt eine Adresse (IPCP) und routed die Pakete der PPP-Session auf das 10-Mbit/s-Ethernet des ISP."
+      "nerd": "Der Access-Server des ISP: eine Bank digitaler Modems auf ISDN-PRI-Leitungen von der Vermittlung, 30 Rufe pro Leitung. Er nimmt ab, prüft den Login (PAP oder CHAP), vergibt eine Adresse (IPCP) und routet die Pakete der PPP-Session auf das 10-Mbit/s-Ethernet des ISP."
     }
   }
 }

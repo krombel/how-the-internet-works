@@ -1,5 +1,5 @@
 {
-  "name": "Internettauschplatz",
+  "name": "Internetknoten",
   "kid": "Ein Treffpunkt, an dem ganz viele Netze Päckchen kostenlos tauschen.",
   "nerd": "Ein Internet Exchange ist eine große gemeinsame Ethernet-Fabric; Netze peeren über BGP, oft über Route Server.",
   "tag": "Peering LAN · BGP",

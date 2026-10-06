@@ -125,7 +125,7 @@
   "1995": {
     "title": "Eine Seite bestellen",
     "kid": "1995 schreibt {yours} einen Zettel: die Seite, bitte. Der Webserver findet sie auf seiner Disk, stempelt 200 OK und schickt sie zurück. Dann bittet ein zweiter Zettel um das Bild auf der Seite, und das Bild kommt denselben Weg zurück.",
-    "nerd": "Klares HTTP/1.0, no TLS (SSL 2.0 kam in Netscape 1995, für Shops): GET /index.html bekommt 200 OK mit Content-Type: text/html, dann holt eine neue TCP-Verbindung GET /picture.gif (image/gif). Jeder Hop auf dem Weg konnte alles lesen. no Host-Header war noch nicht nötig, und keine gemeinsamen Caches standen standardmäßig in der Mitte; manche Unis und ISPs liefen Caching-Proxys (CERN httpd, Harvest), auf die Browser eingerichtet waren.",
+    "nerd": "Klares HTTP/1.0, kein TLS (SSL 2.0 kam in Netscape 1995, für Shops): GET /index.html bekommt 200 OK mit Content-Type: text/html, dann holt eine neue TCP-Verbindung GET /picture.gif (image/gif). Jeder Hop auf dem Weg konnte alles lesen. no Host-Header war noch nicht nötig, und keine gemeinsamen Caches standen standardmäßig in der Mitte; manche Unis und ISPs liefen Caching-Proxys (CERN httpd, Harvest), auf die Browser eingerichtet waren.",
     "at": {
       "web-server": {
         "title": "Der Webserver antwortet",
@@ -214,7 +214,7 @@
   },
   "2010": {
     "kid": "{yours} schreibt einen Zettel: das Video, bitte. Der Videoserver findet es auf seinem Regal, stempelt 200 OK und schickt es zurück. 2010 holten die meisten Player das ganze Video als eine Datei; der Trick in der Zeichnung war neu: wird die Verbindung langsamer, bittet der nächste Zettel um niedrigere Qualität, sodass der Film weiterläuft.",
-    "nerd": "2010 ist das klares HTTP, no TLS (YouTube wechselte zu HTTPS als Default Mitte der 2010s): GET mit Host, und ein 200 OK von einem CDN-Cache, meist in einer größeren Stadt weiter weg. Das meiste Web-Video war eine Datei ganz geholt (progressive Download, mit Range: bytes=… → 206 zum Vorspulen); Adaptive Bitrate wie gezeichnet, die Qualität jedes Stücks, kam gerade (Apples HLS 2009; DASH wurde Standard 2012).",
+    "nerd": "2010 ist das klares HTTP, kein TLS (YouTube wechselte zu HTTPS als Default Mitte der 2010s): GET mit Host, und ein 200 OK von einem CDN-Cache, meist in einer größeren Stadt weiter weg. Das meiste Web-Video war eine Datei ganz geholt (progressive Download, mit Range: bytes=… → 206 zum Vorspulen); Adaptive Bitrate wie gezeichnet, die Qualität jedes Stücks, kam gerade (Apples HLS 2009; DASH wurde Standard 2012).",
     "card": {
       "seen": {
         "kid": "Was vorbeigeht",
@@ -232,7 +232,7 @@
         "kid": "{hop} steht in der Mitte der Straße. Geschlossene Boxen mit Schriftzeilen gehen vorbei: eine winzige zum Server, eine große zurück, noch eine winzige, dann eine kleinere zurück. Die linke Karte sammelt sie nach Größe. Die rechte Karte zeigt den Brief innen, in klarer Schrift ohne Schloss.",
         "nerd": "Ein mittlerer Hop sitzt auf der Straße, während klares HTTP beide Richtungen passiert. Die linke Karte reiht auf, was vorbeigeht: eine kleine Request, das ganze Video in einer großen Response, eine kleine Range-Request und eine kleinere 206-Response mit dem Rest, mit Größen. Die rechte Karte zeigt die HTTP-Nachricht als lesbare Zeilen, ohne Schloss."
       },
-      "nerd": "An {hop} ist HTTP Klartext: Video war 2010 nicht verschlüsselt, no TLS, also konnten URL, Host und Header auf der Leitung gelesen werden (manche ISP-Caches und Filter taten das). Die Größen auch: ein 200 OK, dessen Content-Length das ganze 17-MB-Video ist, dann nach einem Sprung nach vorn eine Range-Request, beantwortet mit 206 Partial Content mit dem Rest. Ein Router leitet am IP-Header weiter und schaut nicht weiter."
+      "nerd": "An {hop} ist HTTP Klartext: Video war 2010 nicht verschlüsselt, kein TLS, also konnten URL, Host und Header auf der Leitung gelesen werden (manche ISP-Caches und Filter taten das). Die Größen auch: ein 200 OK, dessen Content-Length das ganze 17-MB-Video ist, dann nach einem Sprung nach vorn eine Range-Request, beantwortet mit 206 Partial Content mit dem Rest. Ein Router leitet am IP-Header weiter und schaut nicht weiter."
     },
     "status": {
       "locked": {
@@ -261,7 +261,7 @@
       "bridge": {
         "title": "{hop} trägt es ungelesen",
         "kid": "{hop} trägt die Zettel und die Antworten. 2010 waren Videos nicht abgeschlossen, aber {hop} liest nicht einmal die Adresse auf dem Päckchen: es gibt es nur weiter.",
-        "nerd": "An {hop} ist HTTP Klartext: Video war 2010 nicht verschlüsselt, no TLS, also konnten URL, Host und Header auf der Leitung gelesen werden, und die Größen auch: ein 200 OK, dessen Content-Length das ganze 17-MB-Video ist, dann nach einem Sprung nach vorn eine Range-Request, beantwortet mit 206 Partial Content mit dem Rest. {hop} selbst gibt die Frames weiter, ohne auch nur den IP-Header zu lesen."
+        "nerd": "An {hop} ist HTTP Klartext: Video war 2010 nicht verschlüsselt, kein TLS, also konnten URL, Host und Header auf der Leitung gelesen werden, und die Größen auch: ein 200 OK, dessen Content-Length das ganze 17-MB-Video ist, dann nach einem Sprung nach vorn eine Range-Request, beantwortet mit 206 Partial Content mit dem Rest. {hop} selbst gibt die Frames weiter, ohne auch nur den IP-Header zu lesen."
       }
     }
   }

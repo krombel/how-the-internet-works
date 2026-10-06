@@ -23,7 +23,7 @@
   "1995": {
     "title": "Eine Webseite mit Bild öffnen",
     "kid": "Du öffnest eine Webseite mit einem Bild darauf.",
-    "nerd": "Der Browser holt die Seite, dann ihr Bild, jeweils mit einem HTTP/1.0 GET auf einer eigenen TCP-Verbindung: schlichtes HTTP, no TLS. SSL war gerade in Netscape da, für Shops. Video waren briefmarkengroße Clips (160 × 120, ein paar Bilder pro Sekunde), die du vor dem Schauen herunterludest.",
+    "nerd": "Der Browser holt die Seite, dann ihr Bild, jeweils mit einem HTTP/1.0 GET auf einer eigenen TCP-Verbindung: schlichtes HTTP, kein TLS. SSL war gerade in Netscape da, für Shops. Videos waren briefmarkengroße Clips (160 × 120, ein paar Bilder pro Sekunde), die du vor dem Schauen herunterludest.",
     "packet": {
       "page": "Seite"
     },
@@ -38,14 +38,14 @@
   "2010": {
     "title": "Ein kleines Video anschauen",
     "kid": "Du fragst nach einem kleinen Video.",
-    "nerd": "Der Player holt das Video als eine Datei über schlichtes HTTP (no TLS): eine kleine 360p-MP4, die schon spielt, während der Rest noch unterwegs ist (progressive download). Videosites gingen ein paar Jahre später zu HTTPS. Der Cache, aus dem es kam, lag meist in einer größeren Stadt weiter weg als heute.",
+    "nerd": "Der Player holt das Video als eine Datei über schlichtes HTTP (kein TLS): eine kleine 360p-MP4, die schon spielt, während der Rest noch unterwegs ist (progressive download). Videosites gingen ein paar Jahre später zu HTTPS. Der Cache, aus dem es kam, lag meist in einer größeren Stadt weiter weg als heute.",
     "takes": {
       "kid": "Das ganze kleine Video ist in etwa {time} da: {faster}-mal schneller, als du es anschauen kannst. Heutiges schärferes Video würde {now} brauchen.",
       "nerd": "{size} 360p-Video bei {rate}, Tempo der langsamsten Verbindung ({link}): alle {plays} in etwa {time}, {faster}× schneller, als es läuft. Heutige {nowSize} HD-Video würden {now} brauchen."
     },
     "stop": {
       "phone": {
-        "nerd": "Die App sendet ein HTTP GET für die ganze Videodatei, in schlichtem HTTP (no TLS). Das OS legt die Anfrage in ein TCP-Segment in einem IP-Paket."
+        "nerd": "Die App sendet ein HTTP GET für die ganze Videodatei, in schlichtem HTTP (kein TLS). Das OS legt die Anfrage in ein TCP-Segment in einem IP-Paket."
       }
     }
   }
