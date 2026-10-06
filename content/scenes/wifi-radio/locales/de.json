@@ -1,7 +1,7 @@
 {
   "title": "Funkwellen",
   "kid": "Der Zugangspunkt macht aus jedem Päckchen Einsen und Nullen und schickt sie durch die Luft auf einer unsichtbaren Funkwelle. Große Wellen bedeuten 1, kleine Wellen bedeuten 0!",
-  "nerd": "Bits modulieren einen 2.4/5/6 GHz Carrier. Hier als einfaches Amplitude-Shift Keying gezeigt; dieses Links Wi‑Fi 6 (802.11ax) nutzt OFDMA mit bis zu 1024-QAM: 10 Bits auf jedem von Hunderten bis Tausenden Sub-Carriers pro Symbol (Wi‑Fi 7 geht auf 4096-QAM, 12 Bits).",
+  "nerd": "Bits modulieren einen 2.4/5/6 GHz Carrier. Hier als einfaches Amplitude-Shift Keying gezeigt; Wi‑Fi 6 (802.11ax) dieser Verbindung nutzt OFDMA mit bis zu 1024-QAM: 10 Bits auf jedem von Hunderten bis Tausenden Sub-Carriers pro Symbol (Wi‑Fi 7 geht auf 4096-QAM, 12 Bits).",
   "extra": "Wi-Fi 7 (802.11be): mit Multi-Link Operation (MLO) nutzen Telefon und Access Point 2.4, 5 und 6 GHz gleichzeitig, als ein Link. Kanäle im 6 GHz Band können 320 MHz breit sein, doppelt so breit wie das breiteste von Wi-Fi 6E, und mit 4096-QAM und acht Streams macht das etwa 23 Gbit/s auf einem Kanal, theoretisch.",
   "describe": {
     "kid": "Ein Telefon und ein Wi‑Fi-Zugangspunkt stehen einander gegenüber. Eine wellige Funkwelle läuft dazwischen. Bunte 1- und 0-Bits reiten darüber, und Linien zeigen jedes Bit auf eine große oder kleine Welle. Ringe gehen von der Wi‑Fi-Box aus, während das Signal durch die Luft geht.",

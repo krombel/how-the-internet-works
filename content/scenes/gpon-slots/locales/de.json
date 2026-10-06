@@ -1,6 +1,6 @@
 {
   "title": "XGS-PON: geteilte Faser-Umschläge",
-  "kid": "Ein Glasfaden kann von vielen Wohnungen geteilt werden. Nach Hause hört jedes Haus die Umschläge, aber dein Router behält nur den mit deiner Hausnummer. Nach draußen nehmen die Wohnungen sich abwechselnd die Reihe.",
+  "kid": "Ein Glasfaden kann von vielen Wohnungen geteilt werden. Nach Hause hört jedes Haus die Umschläge, aber dein Router behält nur den mit deiner Hausnummer. Nach draußen sind die Wohnungen abwechselnd an der Reihe.",
   "nerd": "Das ist ein XGS-PON-XGEM-Frame auf einem PON: etwa 10 Gbit/s je Richtung (9,953), geteilt von den Wohnungen am Splitter. Downstream ist Broadcast mit AES pro XGEM-Port; upstream sendet jede ONT einen kurzen Burst in ihrem eigenen Slot in jedem 125-µs-Frame, wie die BWmap des OLT nach Ranging vergibt.",
   "extra": "Das ältere GPON kann diese Faser und den Splitter teilen: es nutzt andere Farben (1490 nm down, 1310 nm up, neben XGS-PONs 1577 und 1270 nm), sodass jede ONT das Licht herausfiltert, das sie nicht spricht. Es läuft 2,5 Gbit/s down und 1,25 up mit derselben Idee, aber der GEM-Header ist 5 Bytes mit 12-Bit-Port-ID, wo XGEM 8 Bytes mit 16 hat.",
   "role": {

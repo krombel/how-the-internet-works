@@ -460,7 +460,7 @@ get reordered.
 
 Every caption has a small learn-more slot, fed by per-scene data (`{ url, title, level }`). Links are filtered
 by kid/nerd level, use the reader's language when a link exists in it, and otherwise fall back to English
-(marked "(en)"). There are 1–2 real links per scene, mainly Wikipedia in English and Danish. Each style styles
+(marked "(en)"). There are 1–2 real links per scene, mainly Wikipedia in English, Danish and German. Each style styles
 the slot, but it's in the same place everywhere.
 
 ## Performance

@@ -420,8 +420,8 @@ call), so this is for a family added later.
   whose `year` is the current one). The panel lists eras by `year`.
 - Strings in `locales/<lang>.json`: `name` (the year, or "Today"), `kid`/`nerd` (what home internet was like then, as
   the panel shows it) and `describe.kid`/`describe.nerd`: what the panel's picture of that era shows, which is the
-  start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English and
-  Danish. The place picker shows the time machine's line ("In 1995 you'd have done this at home.") under a place
+  start device of that era's trip (its first hop: the PC, the laptop, the phone). Write `describe` in English, Danish
+  and German. The place picker shows the time machine's line ("In 1995 you'd have done this at home.") under a place
   with no way online in the era you are in.
   Where an era has a member of the place's family, `at.<place>`, else `at.<base place>` (`kid`, `nerd`,
   `describe.kid`/`.nerd`), takes the place of the era's own words in the panel and the arrival (2010's `at.on-the-go`:

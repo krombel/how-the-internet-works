@@ -34,7 +34,7 @@
   "1995": {
     "title": "Dein eigener Sitz, jedes Mal",
     "kid": "Der Mast sendet eine breite Welle über alle in der Nähe. Seine Zeit ist in acht Reihen geschnitten, immer wieder, und dein Anruf besitzt eine davon, immer dieselbe, bis du auflegst. Auch wenn der Laptop nichts zu senden hat, darf niemand sonst deinen Sitz nutzen.",
-    "nerd": "GSM TDMA: jeder 200-kHz-Carrier ist in Frames aus 8 Time Slots geschnitten (je 577 µs, 4,615 ms ein Frame). Ein Data-Call (TCH/F9.6) hält einen Slot jedes Frames für den ganzen Call, genutzt oder nicht: ein Kreis, wie die Telefonleitung zu Hause. Deshalb wurde pro Minute abgerechnet. GPRS (from 2000) ließ Handys Slots paketweise teilen.",
+    "nerd": "GSM TDMA: jeder 200-kHz-Carrier ist in Frames aus 8 Time Slots geschnitten (je 577 µs, 4,615 ms ein Frame). Ein Data-Call (TCH/F9.6) hält einen Slot jedes Frames für den ganzen Call, genutzt oder nicht: ein Kreis, wie die Telefonleitung zu Hause. Deshalb wurde pro Minute abgerechnet. GPRS (ab 2000) ließ Handys Slots paketweise teilen.",
     "describe": {
       "kid": "Ein hoher Metallmast sendet eine breite Welle über deinen Laptop und zwei andere Anrufer, und dein Laptop hat ein Etikett. Daneben gleitet ein Gitter winziger Sitze: Reihen aus Radio-Carriern, Spalten aus Reihen. Jede achte Reihe leuchtet derselbe Sitz für jeden Anruf.",
       "nerd": "Die BTS deckt drei Calls mit einem Sektor. Ein Carrier-×-Time-Slot-Gitter scrollt daneben: jeder Call behält einen Slot jedes 8-Slot-TDMA-Frames, auf demselben Carrier, genutzt oder nicht. Labels geben GSM 900, 200-kHz-Carrier und den 4,615-ms-Frame."
